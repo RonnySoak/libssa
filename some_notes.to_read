@@ -1,0 +1,45 @@
+Why use libtool:
+http://stackoverflow.com/questions/6696320/why-use-libtool-to-build-libraries
+
+Using autotools:
+https://developer.gnome.org/anjuta-build-tutorial/stable/create-autotools.html.en
+
+Creating Libtool Libraries with Automake:
+https://www.sourceware.org/autobook/autobook/autobook_88.html
+
+Using GNU Autotools:
+https://www.lrde.epita.fr/~adl/dl/autotools.pdf
+
+Check-Tutorial:
+http://check.sourceforge.net/doc/check_html/check_3.html#Setting-Up-the-Money-Build
+
+setting up eclipse to use check:
+add check as library to the linker options!
+
+xmalloc:
+http://stackoverflow.com/questions/7590254/what-is-the-difference-between-xmalloc-and-malloc
+
+building a static library:
+http://www.cs.dartmouth.edu/~campbell/cs50/buildlib.html
+
+code coverage with gcov:
+https://gcc.gnu.org/onlinedocs/gcc/Invoking-Gcov.html#Invoking-Gcov
+
+
+
+
+
+thesis:
+-------
+write about how to implement an API (UnitTest, header file, etc)
+
+write about the steps of optimisations
+
+compare different optimisations of this library
+compare my code to SSW on the same data
+
+compare features and show the value of the library
+
+document the library and API
+
+add example code
