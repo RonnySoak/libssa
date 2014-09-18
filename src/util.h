@@ -12,11 +12,18 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "libssa.h"
+
 // used in matrices.c
-extern char * matrixname;
-extern int symtype;
-extern long matchscore;
-extern long mismatchscore;
+#define DEFAULT_MATRIXNAME "blosum62"
+#define DEFAULT_MATCHSCORE 1
+#define DEFAULT_MISMATCHSCORE (-3)
+
+#define DEFAULT_SYMTYPE AMINOACID
+#define DEFAULT_STRAND PLUS_STRAND
+
+#define DEFAULT_QUERY_GENCODE 1
+#define DEFAULT_DB_GENCODE 1
 
 extern char map_ncbi_aa[];
 

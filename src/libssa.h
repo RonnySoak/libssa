@@ -41,13 +41,16 @@
 #define PAM70 "pam70"
 #define PAM250 "pam250"
 
-#define DEFAULT_OUT stdout;
-
 #define NUCLEOTIDE 0 // compare a nucleotide sequence against a nucleotide DB
 #define AMINOACID 1 // compare a protein sequence against a protein DB
 #define TRANS_QUERY 2 // compare the nucleotide 6-frame translation against a protein DB
 #define TRANS_DB 3 // compare a protein sequence against a nucleotide 6-frame translation DB
 #define TRANS_BOTH 4 // compare the nucleotide 6-frame translation against a nucleotide 6-frame translation DB
+
+// TODO evaluate
+#define PLUS_STRAND 1 // use only the provided nucleic strand
+#define MINUS_STRAND 2 // uses both strands, but translates only the complementary one
+#define BOTH_STRANDS 3 // uses both strands and translates both to amino acids
 
 // #############################################################################
 // Data types
@@ -180,8 +183,20 @@ void init_scoring(const int32_t p, const int32_t m);
  *  - TRANS_BOTH = 4
  *
  * Default is AMINOACID.
+ *
+ * Possible values for strands are:
+ *  - PLUS_STRAND
+ *  - MINUS_STRAND
+ *  - BOTH_STRANDS
  */
-void init_symbol_translation(int type);
+void init_symbol_translation(int type, int strands);
+
+/**
+ * TODO
+ *
+ * both one of [1-23]
+ */
+void init_genetic_codes(int query_gencode, int db_gencode);
 
 /**
  * Reads a FASTA file containing multiple sequences to compare the query
@@ -259,7 +274,7 @@ p_alignment nw_sellers_align(p_query p /* TODO ...*/);
  * ...
  * @return pointer to the alignment structure
  */
-p_alignment nw_ignore_gaps_align(p_query p /* TODO ... ignored gaps...*/ );
+p_alignment nw_ignore_gaps_align(p_query p /* TODO ... ignored gaps...*/);
 
 /**
  * Release the memory allocated by the functions sw_align, nw_align,

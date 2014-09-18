@@ -74,6 +74,7 @@ init:
 	@echo 'Copying file libsdb.a and libsdb.h'
 	cp ../libsdb/libsdb.a .
 	cp ../libsdb/src/libsdb.h src/
+	cp ../libsdb/src/sdb_datatypes.h src/
 
 libssa : $(OBJS) $(DEPS)
 	@echo 'Building target: $@'

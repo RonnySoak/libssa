@@ -14,8 +14,6 @@
 // #############################################################################
 // Configuration data
 // ##################
-#define DEFAULT_SYMTYPE 1
-
 int _verbose = VERBOSE_OFF;
 int _nr_threads; // todo get number of CPUs
 int _use_simd = SIMD_ON;
@@ -34,6 +32,12 @@ extern void score_matrix_free();
 
 // in query.c
 extern void query_init(char * queryname, long strands);
+
+extern char* gencode_names[23];
+extern int symtype;
+extern int query_gencode;
+extern int db_gencode;
+extern int query_strands;
 
 // #############################################################################
 // Data types
@@ -159,10 +163,24 @@ void free_db() {
  *
  * the symbol translation is done on the fly on both sides
  */
-void init_symbol_translation(int type) {
+void init_symbol_translation(int type, int strands) {
     symtype = type;
+    query_strands = strands;
 
-    sdb_init_symbol_translation(type);
+    sdb_init_symbol_translation(type, strands);
+}
+
+void init_genetic_codes(int q_gencode, int d_gencode) {
+    if ((q_gencode < 1) || (q_gencode > 23) || !gencode_names[q_gencode - 1]) {
+        ffatal("Illegal query genetic code specified.");
+    }
+
+    if ((d_gencode < 1) || (d_gencode > 23) || !gencode_names[d_gencode - 1]) {
+        ffatal("Illegal database genetic code specified.");
+    }
+
+    query_gencode = q_gencode;
+    db_gencode = d_gencode;
 }
 
 /**
@@ -172,7 +190,7 @@ void init_symbol_translation(int type) {
  * @return pointer to the query profile structure
  */
 p_query init_sequence_fasta(char* fasta_seq_file) {
-    query_init(fasta_seq_file, 2 /* TODO strands */     );
+    query_init(fasta_seq_file, 2 /* TODO strands */);
     // TODO read FASTA-file spec and find code in SWIPE/SWARM
     return NULL;
 }

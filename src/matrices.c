@@ -279,6 +279,7 @@ unsigned int * score_matrix_32 = NULL; // uint32_t
 long * score_matrix_63 = NULL; // int64_t
 
 extern const char * sym_ncbi_aa;
+extern char * matrixname;
 
 /**
  * Prints the currently initialised scoring matrix to the specified output file.
