@@ -48,8 +48,8 @@
 #define TRANS_BOTH 4 // compare the nucleotide 6-frame translation against a nucleotide 6-frame translation DB
 
 // TODO evaluate
-#define PLUS_STRAND 1 // use only the provided nucleic strand
-#define MINUS_STRAND 2 // uses both strands, but translates only the complementary one
+#define FORWARD_STRAND 1 // use only the provided nucleic strand
+#define COMPLEMENTARY_STRAND 2 // uses both strands, but translates only the complementary one
 #define BOTH_STRANDS 3 // uses both strands and translates both to amino acids
 
 // #############################################################################
@@ -185,8 +185,8 @@ void init_scoring(const int32_t p, const int32_t m);
  * Default is AMINOACID.
  *
  * Possible values for strands are:
- *  - PLUS_STRAND
- *  - MINUS_STRAND
+ *  - FORWARD_STRAND
+ *  - COMPLEMENTARY_STRAND
  *  - BOTH_STRANDS
  */
 void init_symbol_translation(int type, int strands);
