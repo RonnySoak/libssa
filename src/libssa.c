@@ -163,11 +163,12 @@ void free_db() {
  *
  * the symbol translation is done on the fly on both sides
  */
-void init_symbol_translation(int type, int strands) {
+void init_symbol_translation(int type, int strands, int db_gencode,
+        int q_gencode) {
     symtype = type;
     query_strands = strands;
 
-    sdb_init_symbol_translation(type, strands);
+    sdb_init_symbol_translation(type, strands, db_gencode, q_gencode);
 }
 
 void init_genetic_codes(int q_gencode, int d_gencode) {

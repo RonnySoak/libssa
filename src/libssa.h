@@ -45,7 +45,7 @@
 #define AMINOACID 1 // compare a protein sequence against a protein DB
 #define TRANS_QUERY 2 // compare the nucleotide 6-frame translation against a protein DB
 #define TRANS_DB 3 // compare a protein sequence against a nucleotide 6-frame translation DB
-#define TRANS_BOTH 4 // compare the nucleotide 6-frame translation against a nucleotide 6-frame translation DB
+#define TRANS_BOTH 4 // compare the nucleotide 6-frame translation sequence against a nucleotide 6-frame translation DB
 
 // TODO evaluate
 #define FORWARD_STRAND 1 // use only the provided nucleic strand
@@ -188,8 +188,12 @@ void init_scoring(const int32_t p, const int32_t m);
  *  - FORWARD_STRAND
  *  - COMPLEMENTARY_STRAND
  *  - BOTH_STRANDS
+ *
+ * Possible values for the genetic codes of DB and query: [1-23]
+ * TODO add list of codes
  */
-void init_symbol_translation(int type, int strands);
+void init_symbol_translation(int type, int strands, int db_gencode,
+        int q_gencode);
 
 /**
  * TODO
