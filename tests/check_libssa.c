@@ -23,6 +23,7 @@ Suite* libssa_suite(void) {
     /* Core test case */
     addSearch63TC(s);
     addQueryTC(s);
+    addMatricesTC(s);
 
     return s;
 }

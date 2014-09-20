@@ -29,7 +29,7 @@ struct _query {
   struct sequence aa[6]; /* 6 reading frames  for amino acids */
   char * description;
   long dlen;
-  char * map;
+  const char * map;
   const char * sym;
 };
 

@@ -31,6 +31,14 @@
 // - Myers & Miller (1988) CABIOS 4:11-17
 #define MAX(a,b) (a > b ? a : b)
 
+struct aligner_info {
+    char op;
+    long count;
+    char * alignment;
+    long length;
+    long size;
+};
+
 void region(char * a_seq,
         char * b_seq,
         long M,
@@ -111,6 +119,7 @@ void region(char * a_seq,
             p = 0;
         else
             p = -1;
+
         for (j = *b_end; j >= 0; j--) {
             f = MAX(f, h - q) - r;
             EE[j] = MAX(EE[j], HH[j] - q) - r;
@@ -146,14 +155,6 @@ void region(char * a_seq,
 
     *s = score;
 }
-
-struct aligner_info {
-    char op;
-    long count;
-    char * alignment;
-    long length;
-    long size;
-};
 
 void init(struct aligner_info * aip) {
     aip->op = 0;

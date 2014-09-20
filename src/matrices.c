@@ -279,12 +279,14 @@ unsigned int * score_matrix_32 = NULL; // uint32_t
 long * score_matrix_63 = NULL; // int64_t
 
 extern const char * sym_ncbi_aa;
+extern const char map_ncbi_aa[256];
 extern char * matrixname;
 
 /**
  * Prints the currently initialised scoring matrix to the specified output file.
  */
-void score_matrix_dump(char* outfile) {
+void mat_dump(char* outfile) {
+    // TODO dumps to stdout
     outf("     ");
     for (int i = 0; i < 32; i++)
         outf("%2d", i);
@@ -305,7 +307,7 @@ void score_matrix_dump(char* outfile) {
 /**
  * Allocates memory for storing the scoring matrices.
  */
-void prepare_matrices() {
+static void prepare_matrices() {
     score_matrix_7 = (char *) xmalloc(32 * 32 * sizeof(char));
     score_matrix_8 = (unsigned char *) xmalloc(32 * 32 * sizeof(char));
     score_matrix_16 = (short *) xmalloc(32 * 32 * sizeof(short));
@@ -318,7 +320,7 @@ void prepare_matrices() {
  * Copies the values read into score_matrix_63 into the other representations
  * of the scoring matrices.
  */
-void finalize_matrices() {
+static void finalize_matrices() {
     int a, b;
     long sc, lo, hi;
 
@@ -356,7 +358,7 @@ void finalize_matrices() {
 /**
  * Reads a line into score_matrix_63
  */
-void read_line(char line[LINE_MAX], int* symbols, char* map, char* order) {
+static void read_line(char line[LINE_MAX], int* symbols, char* order) {
     int a, b, i, read;
     char *p, *q;
     long sc;
@@ -379,7 +381,7 @@ void read_line(char line[LINE_MAX], int* symbols, char* map, char* order) {
 
         while ((c = *p++)) {
             if (strchr(" \t\n", c) == NULL) {
-                *q++ = map[(int) c];
+                *q++ = map_ncbi_aa[(int) c];
                 (*symbols)++;
             }
         }
@@ -388,7 +390,7 @@ void read_line(char line[LINE_MAX], int* symbols, char* map, char* order) {
     default:
         /* ordinary lines */
 
-        a = map[(int) c];
+        a = map_ncbi_aa[(int) c];
         for (i = 0; i < *symbols; i++) {
             if (sscanf(p, "%ld%n", &sc, &read) == 0) {
                 ffatal("Problem parsing score matrix file.");
@@ -397,6 +399,10 @@ void read_line(char line[LINE_MAX], int* symbols, char* map, char* order) {
             b = order[i];
 
             if ((a >= 0) && (b >= 0) && (a < 32) && (b < 32)) {
+//                printf("c: %c, idx: %d, sc: %ld\n", (char)c, ((a << 5) + b), sc);
+
+                // TODO How ddo we access the matrices? what does the index mean?
+
                 score_matrix_63[(a << 5) + b] = sc;
             }
 
@@ -409,7 +415,7 @@ void read_line(char line[LINE_MAX], int* symbols, char* map, char* order) {
 /**
  * Initialises matrices with a constant score for matches and mismatches.
  */
-void score_matrix_init_constant_scoring(const int32_t matchscore,
+void mat_init_constant_scoring(const int32_t matchscore,
         const int32_t mismatchscore) {
     prepare_matrices();
 
@@ -428,7 +434,7 @@ void score_matrix_init_constant_scoring(const int32_t matchscore,
 /**
  * Reads a scoring matrix from a file.
  */
-void score_matrix_read_file(const char * matrix) {
+void mat_init_from_file(const char * matrix) {
     prepare_matrices();
 
     // reading of the file
@@ -436,19 +442,16 @@ void score_matrix_read_file(const char * matrix) {
     char order[LINE_MAX];
 
     int symbols;
-    char* map;
 
     FILE * fp = fopen(matrixname, "r");
 
     if (!fp)
         ffatal("Cannot open score matrix file.");
 
-    map = map_ncbi_aa;
-
     symbols = 0;
 
     while (fgets(line, LINE_MAX, fp) != NULL) {
-        read_line(line, &symbols, map, order);
+        read_line(line, &symbols, order);
     }
 
     fclose(fp);
@@ -459,21 +462,18 @@ void score_matrix_read_file(const char * matrix) {
 /**
  * Reads a scoring matrix from a string.
  */
-void score_matrix_read_string(const char * matrix) {
+void mat_init_from_string(const char * matrix) {
     prepare_matrices();
 
     char line[LINE_MAX];
     char order[LINE_MAX];
 
     int symbols;
-    char * map;
 
     char * s = (char*) matrix;
 
     if (!s)
         ffatal("Cannot read score matrix string.");
-
-    map = map_ncbi_aa;
 
     symbols = 0;
 
@@ -488,7 +488,7 @@ void score_matrix_read_string(const char * matrix) {
         strncpy(line, s, linelen);
         line[linelen] = 0;
 
-        read_line(line, &symbols, map, order);
+        read_line(line, &symbols, order);
 
         if (nextline)
             s = nextline + 1;
@@ -512,25 +512,25 @@ void score_matrix_read_string(const char * matrix) {
  *  - pam70
  *  - pam250
  */
-void score_matrix_read(const char* matrixname) {
+void mat_init_buildin(const char* matrixname) {
     prepare_matrices();
 
     if (strcasecmp(matrixname, BLOSUM45) == 0)
-        score_matrix_read_string(mat_blosum45);
+        mat_init_from_string(mat_blosum45);
     else if (strcasecmp(matrixname, BLOSUM50) == 0)
-        score_matrix_read_string(mat_blosum50);
+        mat_init_from_string(mat_blosum50);
     else if (strcasecmp(matrixname, BLOSUM62) == 0)
-        score_matrix_read_string(mat_blosum62);
+        mat_init_from_string(mat_blosum62);
     else if (strcasecmp(matrixname, BLOSUM80) == 0)
-        score_matrix_read_string(mat_blosum80);
+        mat_init_from_string(mat_blosum80);
     else if (strcasecmp(matrixname, BLOSUM90) == 0)
-        score_matrix_read_string(mat_blosum90);
+        mat_init_from_string(mat_blosum90);
     else if (strcasecmp(matrixname, PAM30) == 0)
-        score_matrix_read_string(mat_pam30);
+        mat_init_from_string(mat_pam30);
     else if (strcasecmp(matrixname, PAM70) == 0)
-        score_matrix_read_string(mat_pam70);
+        mat_init_from_string(mat_pam70);
     else if (strcasecmp(matrixname, PAM250) == 0)
-        score_matrix_read_string(mat_pam250);
+        mat_init_from_string(mat_pam250);
     else
         ffatal("Unknown matrix: %s", matrixname);
 
@@ -540,7 +540,7 @@ void score_matrix_read(const char* matrixname) {
 /**
  * Releases the memory allocated for the scoring matrices.
  */
-void score_matrix_free() {
+void mat_free() {
     free(score_matrix_7);
     score_matrix_7 = NULL;
     free(score_matrix_8);

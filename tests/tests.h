@@ -14,6 +14,7 @@
 
 void addSearch63TC(Suite *s);
 void addQueryTC(Suite *s);
+void addMatricesTC(Suite *s);
 
 #endif /* CHECK_LIBORSA_H_ */
 

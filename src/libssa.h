@@ -12,6 +12,7 @@
 #include <stdint.h>
 
 #include "libssa_datatypes.h"
+#include "libsdb.h"
 
 /*
  *
@@ -40,17 +41,6 @@
 #define PAM30 "pam30"
 #define PAM70 "pam70"
 #define PAM250 "pam250"
-
-#define NUCLEOTIDE 0 // compare a nucleotide sequence against a nucleotide DB
-#define AMINOACID 1 // compare a protein sequence against a protein DB
-#define TRANS_QUERY 2 // compare the nucleotide 6-frame translation against a protein DB
-#define TRANS_DB 3 // compare a protein sequence against a nucleotide 6-frame translation DB
-#define TRANS_BOTH 4 // compare the nucleotide 6-frame translation sequence against a nucleotide 6-frame translation DB
-
-// TODO evaluate
-#define FORWARD_STRAND 1 // use only the provided nucleic strand
-#define COMPLEMENTARY_STRAND 2 // uses both strands, but translates only the complementary one
-#define BOTH_STRANDS 3 // uses both strands and translates both to amino acids
 
 // #############################################################################
 // Data types

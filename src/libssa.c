@@ -8,7 +8,6 @@
  */
 
 #include "libssa.h"
-#include "libsdb.h"
 #include "util.h"
 
 // #############################################################################
@@ -23,12 +22,12 @@ int _use_simd = SIMD_ON;
 // ##########################
 
 // in matrices.c
-extern void score_matrix_init_constant_scoring(const int32_t matchscore,
+extern void mat_init_constant_scoring(const int32_t matchscore,
         const int32_t mismatchscore);
-extern void score_matrix_read_file(const char * matrix);
-extern void score_matrix_read_string(const char * matrix);
-extern void score_matrix_read(char* matrixname);
-extern void score_matrix_free();
+extern void mat_init_from_file(const char * matrix);
+extern void mat_init_from_string(const char * matrix);
+extern void mat_init_buildin(char* matrixname);
+extern void mat_free();
 
 // in query.c
 extern void query_init(char * queryname, long strands);
@@ -84,7 +83,7 @@ void set_output_file(char* outfile) {
  *  - pam250
  */
 void init_score_matrix(char* matrix_name) {
-    score_matrix_read(matrix_name);
+    mat_init_buildin(matrix_name);
 }
 
 /**
@@ -94,7 +93,7 @@ void init_score_matrix(char* matrix_name) {
  * @param file_name  path to the file of the matrix
  */
 void init_score_matrix_file(char* file_name) {
-    score_matrix_read_file(file_name);
+    mat_init_from_file(file_name);
 }
 
 /**
@@ -104,7 +103,7 @@ void init_score_matrix_file(char* file_name) {
  * @param matrix matrix as a string
  */
 void init_score_matrix_string(char* matrix) {
-    score_matrix_read_string(matrix);
+    mat_init_from_string(matrix);
 }
 
 /**
@@ -113,7 +112,7 @@ void init_score_matrix_string(char* matrix) {
  * @see init_score_matrix
  */
 void free_matrix() {
-    score_matrix_free();
+    mat_free();
 }
 
 /**
@@ -135,7 +134,7 @@ void init_gap_penalties(const int32_t gapO, const int32_t gapE) {
  * @param  m    reward for a match
  */
 void init_scoring(const int32_t p, const int32_t m) {
-    score_matrix_init_constant_scoring(p, m);
+    mat_init_constant_scoring(p, m);
 }
 
 /**
@@ -168,7 +167,7 @@ void init_symbol_translation(int type, int strands, int db_gencode,
     symtype = type;
     query_strands = strands;
 
-    sdb_init_symbol_translation(type, strands, db_gencode, q_gencode);
+    sdb_init_symbol_handling(type, strands, db_gencode, q_gencode);
 }
 
 void init_genetic_codes(int q_gencode, int d_gencode) {

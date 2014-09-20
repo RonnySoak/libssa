@@ -10,8 +10,8 @@
 #include "../src/util.h"
 #include "../src/libssa.h"
 
-extern void score_matrix_read(char* matrixname);
-extern void score_matrix_free();
+extern void mat_init_buildin(char* matrixname);
+extern void mat_free();
 extern long * score_matrix_63;
 
 extern long fullsw(char * dseq, char * dend, char * qseq, char * qend,
@@ -21,7 +21,7 @@ extern long fullsw(char * dseq, char * dend, char * qseq, char * qend,
 START_TEST (test_search63_same_seqs)
     {
         // TODO move to init function
-        score_matrix_read(BLOSUM62);
+        mat_init_buildin(BLOSUM62);
 
         char* dseq = "ATAT";
         char* dend = &dseq[1];
@@ -39,7 +39,7 @@ START_TEST (test_search63_same_seqs)
 
         ck_assert_int_eq(score, 0);
 
-        score_matrix_free();
+        mat_free();
     }END_TEST
 
 void addSearch63TC(Suite *s) {

@@ -15,20 +15,15 @@ extern char* sdb_u_revcompl(char* seq, long len);
 extern void sdb_u_translate_sequence(char * dna, long dlen, long strand,
         long frame, char ** protp, long * plenp);
 
-extern char map_ncbi_aa[256];
-extern char map_ncbi_nt4[256];
-extern char map_ncbi_nt16[256];
+extern const char map_ncbi_aa[256];
+extern const char map_ncbi_nt16[256];
 
 extern int query_strands;
 extern int symtype;
 
 struct _query query;
 
-//                       00000000001111111111222222222233
-//                       01234567890123456789012345678901
-extern const char * sym_ncbi_nt4;
 extern const char * sym_ncbi_nt16;
-extern const char * sym_ncbi_nt16u;
 extern const char * sym_ncbi_aa;
 
 FILE * query_fp;

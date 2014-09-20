@@ -25,8 +25,6 @@
 #define DEFAULT_QUERY_GENCODE 1
 #define DEFAULT_DB_GENCODE 1
 
-extern char map_ncbi_aa[];
-
 #ifndef LINE_MAX
 #define LINE_MAX 2048
 #endif
@@ -39,9 +37,10 @@ void ffatal(const char * format, ...);
 
 /** Initialises the output stream. Default is stdout */
 void init_out(const char* filename);
+/** Closes the file pointer to the output stream, if it is not stdout */
+void close_out();
 /** Writes to the output stream */
 void outf(const char* format, ...);
 // output data
-
 
 #endif /* UTIL_H_ */

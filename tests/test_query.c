@@ -20,14 +20,11 @@ extern int symtype;
 extern int query_strands;
 
 extern struct _query query;
-extern const char * sym_ncbi_nt4;
 extern const char * sym_ncbi_nt16;
-extern const char * sym_ncbi_nt16u;
 extern const char * sym_ncbi_aa;
 
-extern char map_ncbi_nt4[256];
-extern char map_ncbi_nt16[256];
-extern char map_ncbi_aa[256];
+extern const char map_ncbi_nt16[256];
+extern const char map_ncbi_aa[256];
 
 START_TEST (test_query_read_sym0)
     {
@@ -253,8 +250,6 @@ START_TEST (test_strands_param)
     }END_TEST
 
 void addQueryTC(Suite *s) {
-    init_out(NULL);
-
     TCase *tc_core = tcase_create("query");
     tcase_add_test(tc_core, test_query_read_sym0);
     tcase_add_test(tc_core, test_query_read_sym1);
