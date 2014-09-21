@@ -30,13 +30,18 @@ extern void mat_init_buildin(char* matrixname);
 extern void mat_free();
 
 // in query.c
-extern void query_init(char * queryname, long strands);
+extern p_query query_read(char * queryname);
+extern void query_free(p_query p);
 
 extern char* gencode_names[23];
 extern int symtype;
 extern int query_gencode;
 extern int db_gencode;
 extern int query_strands;
+
+// in search_algo.c
+extern int gapO;
+extern int gapE;
 
 // #############################################################################
 // Data types
@@ -121,8 +126,9 @@ void free_matrix() {
  * @param  gapO  penalty for opening a gap
  * @param  gapE  penalty for extending a gap
  */
-void init_gap_penalties(const int32_t gapO, const int32_t gapE) {
-    // TODO
+void init_gap_penalties(const uint8_t gap_open, const uint8_t gap_extend) {
+    gapO = gap_open;
+    gapE = gap_extend;
 }
 
 /**
@@ -133,7 +139,7 @@ void init_gap_penalties(const int32_t gapO, const int32_t gapE) {
  * @param  p    penalty for a mismatch
  * @param  m    reward for a match
  */
-void init_scoring(const int32_t p, const int32_t m) {
+void init_scoring(const uint8_t p, const uint8_t m) {
     mat_init_constant_scoring(p, m);
 }
 
@@ -190,9 +196,7 @@ void init_genetic_codes(int q_gencode, int d_gencode) {
  * @return pointer to the query profile structure
  */
 p_query init_sequence_fasta(char* fasta_seq_file) {
-    query_init(fasta_seq_file, 2 /* TODO strands */);
-    // TODO read FASTA-file spec and find code in SWIPE/SWARM
-    return NULL;
+    return query_read(fasta_seq_file);
 }
 
 /**
@@ -203,8 +207,7 @@ p_query init_sequence_fasta(char* fasta_seq_file) {
  * @see init_sequence_fasta
  */
 void free_sequence(p_query p) {
-    free(p);
-    // TODO evt do more
+    query_free(p);
 }
 
 // #############################################################################

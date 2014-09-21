@@ -416,8 +416,8 @@ static void read_line(char line[LINE_MAX], int* symbols, char* order) {
 /**
  * Initialises matrices with a constant score for matches and mismatches.
  */
-void mat_init_constant_scoring(const int32_t matchscore,
-        const int32_t mismatchscore) {
+void mat_init_constant_scoring(const int8_t matchscore,
+        const int8_t mismatchscore) {
     prepare_matrices();
 
 //    // TODO or do we have this only for nucleotides?

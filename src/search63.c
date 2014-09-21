@@ -27,18 +27,18 @@
 
 #include "util.h"
 
-long fullsw(char * dseq,
-        char * dend,
-        char * qseq,
-        char * qend,
+long fullsw(const char * dseq,
+        const char * dend,
+        const char * qseq,
+        const char * qend,
         long * hearray,
-        long * score_matrix,
+        const long * score_matrix,
         uint8_t gapopenextend,
         uint8_t gapextend) {
     long h, n, e, f, s;
     long *hep;
-    char *qp, *dp;
-    long * sp;
+    const char *qp, *dp;
+    const long * sp;
 
     s = 0;
     dp = dseq;

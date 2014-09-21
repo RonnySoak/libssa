@@ -10,6 +10,8 @@
 #include "../src/util.h"
 #include "../src/libssa.h"
 
+extern void mat_init_constant_scoring(const uint8_t matchscore,
+        const uint8_t mismatchscore);
 extern void mat_init_buildin(char* matrixname);
 extern void mat_free();
 extern long * score_matrix_63;
@@ -18,33 +20,65 @@ extern long fullsw(char * dseq, char * dend, char * qseq, char * qend,
         long * hearray, long * score_matrix, uint8_t gapopenextend,
         uint8_t gapextend);
 
-START_TEST (test_search63_same_seqs)
+extern p_query query_read(char* filename);
+extern void query_free(p_query p);
+
+START_TEST (test_search63_simple)
     {
-        // TODO move to init function
-        mat_init_buildin(BLOSUM62);
+        init_symbol_translation(NUCLEOTIDE, FORWARD_STRAND, 3, 3);
+        mat_init_constant_scoring(1, -1);
 
-        char* dseq = "ATAT";
-        char* dend = &dseq[1];
-        char* qseq = "AT";
-        char* qend = &qseq[1];
-        long *hearray = calloc(sizeof(long), 2 * (qend - qseq));
-        uint8_t gapopenextend = 4;
-        uint8_t gapextend = 2;
+        p_query query = query_read("./tests/testdata/short_query.fas");
 
-        printf("value 1: %d\n", (int) score_matrix_63[1]);
+        sdb_init_fasta("./tests/testdata/short_db.fas");
+        p_sdb_sequence dseq = sdb_next_sequence(); // TODO map database sequences as well
 
-        int score = fullsw(dseq, dend, qseq, qend, hearray, score_matrix_63,
+        long *hearray = calloc(sizeof(long), 32 * query->nt[0].len);
+        uint8_t gapopenextend = 1;
+        uint8_t gapextend = 1;
+
+        int score = fullsw(dseq->seq, dseq->seq + dseq->len,
+                query->nt[0].seq, query->nt[0].seq + query->nt[0].len,
+                hearray,
+                score_matrix_63,
                 gapopenextend, gapextend);
-        printf("score: %d\n", score);
 
-        ck_assert_int_eq(score, 0);
+        ck_assert_int_eq(score, 2);
 
         mat_free();
+        query_free(query);
+    }END_TEST
+
+START_TEST (test_search63_simple_blosum62)
+    {
+        init_symbol_translation(NUCLEOTIDE, FORWARD_STRAND, 3, 3);
+        mat_init_buildin(BLOSUM62);
+
+        p_query query = query_read("./tests/testdata/short_query.fas");
+
+        sdb_init_fasta("./tests/testdata/short_db.fas");
+        p_sdb_sequence dseq = sdb_next_sequence(); // TODO map database sequences as well
+
+        long *hearray = calloc(sizeof(long), 32 * query->nt[0].len);
+        uint8_t gapopenextend = 1;
+        uint8_t gapextend = 1;
+
+        int score = fullsw(dseq->seq, dseq->seq + dseq->len,
+                query->nt[0].seq, query->nt[0].seq + query->nt[0].len,
+                hearray,
+                score_matrix_63,
+                gapopenextend, gapextend);
+
+        ck_assert_int_eq(score, 12);
+
+        mat_free();
+        query_free(query);
     }END_TEST
 
 void addSearch63TC(Suite *s) {
     TCase *tc_core = tcase_create("search63");
-    tcase_add_test(tc_core, test_search63_same_seqs);
+    tcase_add_test(tc_core, test_search63_simple);
+    tcase_add_test(tc_core, test_search63_simple_blosum62);
 
     suite_add_tcase(s, tc_core);
 }

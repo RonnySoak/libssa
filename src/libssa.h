@@ -148,7 +148,7 @@ void free_matrix();
  * @param  gapO  penalty for opening a gap
  * @param  gapE  penalty for extending a gap
  */
-void init_gap_penalties(const int32_t gapO, const int32_t gapE);
+void init_gap_penalties(const uint8_t gapO, const uint8_t gapE);
 
 /**
  * Initialises the scoring scheme if no scoring matrix is used.
@@ -158,7 +158,7 @@ void init_gap_penalties(const int32_t gapO, const int32_t gapE);
  * @param  p    penalty for a mismatch
  * @param  m    reward for a match
  */
-void init_scoring(const int32_t p, const int32_t m);
+void init_scoring(const uint8_t p, const uint8_t m);
 
 /**
  * Initialises the symbol type translation for the alignment. Depending on the
