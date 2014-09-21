@@ -17,7 +17,6 @@ extern void mat_init_from_string(const char * matrix);
 extern void mat_init_from_file(const char * matrix);
 extern void mat_init_constant_scoring(const int32_t matchscore,
         const int32_t mismatchscore);
-extern void mat_dump(char* outfile);
 
 extern char* score_matrix_7;
 extern unsigned char * score_matrix_8;
@@ -105,7 +104,7 @@ START_TEST (test_buildin)
 
 START_TEST (test_init_from_file)
     {
-// TODO
+        // TODO
     }END_TEST
 
 START_TEST (test_init_from_string)
@@ -115,7 +114,14 @@ START_TEST (test_init_from_string)
 
 START_TEST (test_init_constant_scoring)
     {
-        // TODO
+        // TODO set symtype, if we restrict it to nucleotides!
+        mat_init_constant_scoring(4, -2);
+
+        ck_assert_int_eq(4, (int)score_matrix_16[33]);
+        ck_assert_int_eq(-2, (int)score_matrix_16[34]);
+        ck_assert_int_eq(4, (int)score_matrix_16[66]);
+
+        mat_free();
     }END_TEST
 
 void addMatricesTC(Suite *s) {

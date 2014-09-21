@@ -401,8 +401,9 @@ static void read_line(char line[LINE_MAX], int* symbols, char* order) {
             if ((a >= 0) && (b >= 0) && (a < 32) && (b < 32)) {
 //                printf("c: %c, idx: %d, sc: %ld\n", (char)c, ((a << 5) + b), sc);
 
-                // TODO How ddo we access the matrices? what does the index mean?
-
+                /* a line is 32 elements wide and the first element of the first
+                 * symbol (aa or nt) starts at index 33.
+                 */
                 score_matrix_63[(a << 5) + b] = sc;
             }
 
@@ -419,8 +420,12 @@ void mat_init_constant_scoring(const int32_t matchscore,
         const int32_t mismatchscore) {
     prepare_matrices();
 
+//    // TODO or do we have this only for nucleotides?
+//
+//    // 16 symbols in the nucleotide code and 32 for amino acids
+//    int elements = (symtype == NUCLEOTIDE) ? 16 : 32;
+
     int a, b;
-// TODO check if correct!!
     for (a = 1; a < 16; a++) {
         for (b = 1; b < 16; b++) {
             score_matrix_63[(a << 5) + b] = (
