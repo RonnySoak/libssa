@@ -26,11 +26,14 @@ extern void mat_init_constant_scoring(const int32_t matchscore,
         const int32_t mismatchscore);
 extern void mat_init_from_file(const char * matrix);
 extern void mat_init_from_string(const char * matrix);
-extern void mat_init_buildin(char* matrixname);
+extern void mat_init_buildin(const char* matrixname);
 extern void mat_free();
 
+// in util_sequence.c
+extern void us_init_translation(int qtableno, int dtableno);
+
 // in query.c
-extern p_query query_read(char * queryname);
+extern p_query query_read(const char * queryname);
 extern void query_free(p_query p);
 
 extern char* gencode_names[23];
@@ -64,7 +67,7 @@ void set_use_simd(int simd) {
     _use_simd = simd;
 }
 
-void set_output_file(char* outfile) {
+void set_output_file(const char* outfile) {
     init_out(outfile);
 }
 
@@ -87,7 +90,7 @@ void set_output_file(char* outfile) {
  *  - pam70
  *  - pam250
  */
-void init_score_matrix(char* matrix_name) {
+void init_score_matrix(const char* matrix_name) {
     mat_init_buildin(matrix_name);
 }
 
@@ -97,7 +100,7 @@ void init_score_matrix(char* matrix_name) {
  *
  * @param file_name  path to the file of the matrix
  */
-void init_score_matrix_file(char* file_name) {
+void init_score_matrix_file(const char* file_name) {
     mat_init_from_file(file_name);
 }
 
@@ -107,7 +110,7 @@ void init_score_matrix_file(char* file_name) {
  *
  * @param matrix matrix as a string
  */
-void init_score_matrix_string(char* matrix) {
+void init_score_matrix_string(const char* matrix) {
     mat_init_from_string(matrix);
 }
 
@@ -150,8 +153,14 @@ void init_scoring(const uint8_t p, const uint8_t m) {
  *
  * @param fasta_db_file  path to a file in FASTA format
  */
-void init_db_fasta(char* fasta_db_file) {
+void init_db_fasta(const char* fasta_db_file) {
     sdb_init_fasta(fasta_db_file);
+}
+
+void init_db_external(p_sdb_sequence (*extern_next_sequence)()) {
+//    external_next = extern_next_sequence; TODO
+//
+//    use_internal_db = 0;
 }
 
 /**
@@ -168,25 +177,29 @@ void free_db() {
  *
  * the symbol translation is done on the fly on both sides
  */
-void init_symbol_translation(int type, int strands, int db_gencode,
+void init_symbol_translation(int type, int strands, int d_gencode,
         int q_gencode) {
-    symtype = type;
-    query_strands = strands;
-
-    sdb_init_symbol_handling(type, strands, db_gencode, q_gencode);
-}
-
-void init_genetic_codes(int q_gencode, int d_gencode) {
     if ((q_gencode < 1) || (q_gencode > 23) || !gencode_names[q_gencode - 1]) {
         ffatal("Illegal query genetic code specified.");
     }
-
     if ((d_gencode < 1) || (d_gencode > 23) || !gencode_names[d_gencode - 1]) {
         ffatal("Illegal database genetic code specified.");
     }
+    if ((symtype < 0) || (symtype > 4)) {
+        ffatal("Illegal symbol type specified.");
+    }
+    if ((symtype < 0) || (symtype > 2)) {
+        ffatal("Illegal strands specified.");
+    }
 
+    symtype = type;
+    query_strands = strands;
+
+    // TODO where do we need these?
     query_gencode = q_gencode;
     db_gencode = d_gencode;
+
+    us_init_translation(query_gencode, db_gencode);
 }
 
 /**
@@ -195,7 +208,7 @@ void init_genetic_codes(int q_gencode, int d_gencode) {
  * @param fasta_seq_file  path to a file in FASTA format
  * @return pointer to the query profile structure
  */
-p_query init_sequence_fasta(char* fasta_seq_file) {
+p_query init_sequence_fasta(const char* fasta_seq_file) {
     return query_read(fasta_seq_file);
 }
 

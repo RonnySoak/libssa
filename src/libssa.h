@@ -42,6 +42,16 @@
 #define PAM70 "pam70"
 #define PAM250 "pam250"
 
+#define NUCLEOTIDE 0 // compare a nucleotide sequence against a nucleotide DB
+#define AMINOACID 1 // compare a protein sequence against a protein DB
+#define TRANS_QUERY 2 // compare the nucleotide 6-frame translation against a protein DB
+#define TRANS_DB 3 // compare a protein sequence against a nucleotide 6-frame translation DB
+#define TRANS_BOTH 4 // compare the nucleotide 6-frame translation against a nucleotide 6-frame translation DB
+
+#define FORWARD_STRAND 1 // use only the provided nucleic strand
+#define COMPLEMENTARY_STRAND 2 // uses both strands, but translates only the complementary one
+#define BOTH_STRANDS 3 // uses both strands and translates both to amino acids
+
 // #############################################################################
 // Data types
 // ##########
@@ -96,7 +106,7 @@ void set_threads(int nr);
 
 void set_use_simd(int simd);
 
-void set_output_file(char* outfile);
+void set_output_file(const char* outfile);
 
 // #############################################################################
 // Initialisations
@@ -117,7 +127,7 @@ void set_output_file(char* outfile);
  *  - pam70
  *  - pam250
  */
-void init_score_matrix(char* matrix_name);
+void init_score_matrix(const char* matrix_name);
 
 /**
  * Initialises the used scoring matrix from a file. The data
@@ -125,7 +135,7 @@ void init_score_matrix(char* matrix_name);
  *
  * @param file_name  path to the file of the matrix
  */
-void init_score_matrix_file(char* file_name);
+void init_score_matrix_file(const char* file_name);
 
 /**
  * Initialises the used scoring matrix from a string. The data
@@ -133,7 +143,7 @@ void init_score_matrix_file(char* file_name);
  *
  * @param matrix  matrix as a string
  */
-void init_score_matrix_string(char* matrix);
+void init_score_matrix_string(const char* matrix);
 
 /**
  * Release the memory allocated by function init_score_matrix.
@@ -186,20 +196,18 @@ void init_symbol_translation(int type, int strands, int db_gencode,
         int q_gencode);
 
 /**
- * TODO
- *
- * both one of [1-23]
- */
-void init_genetic_codes(int query_gencode, int db_gencode);
-
-/**
  * Reads a FASTA file containing multiple sequences to compare the query
  * sequence against.
  * The initialised data is stored internally.
  *
  * @param fasta_db_file  path to a file in FASTA format
  */
-void init_db_fasta(char* fasta_db_file);
+void init_db_fasta(const char* fasta_db_file);
+
+/**
+ * Initialise the database lib, to use a third party implementation.
+ */
+void sdb_init_external(p_sdb_sequence (*extern_next_sequence)());
 
 /**
  * Release the memory allocated by the function init_db_fasta.
@@ -214,7 +222,7 @@ void sdb_free_db();
  * @param fasta_seq_file  path to a file in FASTA format
  * @return pointer to the query profile structure
  */
-p_query init_sequence_fasta(char* fasta_seq_file);
+p_query init_sequence_fasta(const char* fasta_seq_file);
 
 /**
  * Release the memory allocated by the function init_sequence_fasta.

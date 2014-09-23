@@ -24,6 +24,8 @@ Suite* libssa_suite(void) {
     addSearch63TC(s);
     addQueryTC(s);
     addMatricesTC(s);
+    addUtilSequenceTC(s);
+    addDBIteratorTC(s);
 
     return s;
 }

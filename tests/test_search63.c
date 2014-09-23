@@ -16,6 +16,10 @@ extern void mat_init_buildin(char* matrixname);
 extern void mat_free();
 extern long * score_matrix_63;
 
+extern void it_init();
+extern p_sdb_sequence it_next();
+extern void it_free();
+
 extern long fullsw(char * dseq, char * dend, char * qseq, char * qend,
         long * hearray, long * score_matrix, uint8_t gapopenextend,
         uint8_t gapextend);
@@ -31,7 +35,8 @@ START_TEST (test_search63_simple)
         p_query query = query_read("./tests/testdata/short_query.fas");
 
         sdb_init_fasta("./tests/testdata/short_db.fas");
-        p_sdb_sequence dseq = sdb_next_sequence();
+        it_init();
+        p_sdb_sequence dseq = it_next();
 
         long *hearray = calloc(sizeof(long), 32 * query->nt[0].len);
         uint8_t gapopenextend = 1;
@@ -45,6 +50,7 @@ START_TEST (test_search63_simple)
 
         ck_assert_int_eq(score, 2);
 
+        it_free();
         mat_free();
         query_free(query);
     }END_TEST
@@ -57,7 +63,8 @@ START_TEST (test_search63_simple_blosum62)
         p_query query = query_read("./tests/testdata/short_query.fas");
 
         sdb_init_fasta("./tests/testdata/short_db.fas");
-        p_sdb_sequence dseq = sdb_next_sequence();
+        it_init();
+        p_sdb_sequence dseq = it_next();
 
         long *hearray = calloc(sizeof(long), 32 * query->nt[0].len);
         uint8_t gapopenextend = 1;
@@ -71,6 +78,7 @@ START_TEST (test_search63_simple_blosum62)
 
         ck_assert_int_eq(score, 12);
 
+        it_free();
         mat_free();
         query_free(query);
     }END_TEST

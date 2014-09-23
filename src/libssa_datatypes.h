@@ -8,6 +8,8 @@
 #ifndef LIBSSA_DATATYPES_H_
 #define LIBSSA_DATATYPES_H_
 
+#include "libsdb.h"
+
 /** @typedef    structure of a sequence
  *
  * @field seq   the sequence
@@ -17,6 +19,21 @@ struct sequence {
   char * seq;
   long len;
 };
+
+/** @typedef    structure of a sequence
+ *
+ * @field seq   the sequence
+ * @field len   length of the sequence
+ */
+typedef struct sdb_sequence {
+    p_seqinfo info;
+    int strand;
+    int frame;
+    char* seq;
+    long len;
+} sdb_sequence;
+
+typedef struct sdb_sequence* p_sdb_sequence;
 
 /** @typedef    structure of the query profile
  *

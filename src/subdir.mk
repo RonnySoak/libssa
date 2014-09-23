@@ -5,7 +5,9 @@ OBJS += \
 ./src/search63.o \
 ./src/align.o \
 ./src/libssa.o \
-./src/search_algo.o
+./src/search_algo.o \
+./src/util_sequence.o \
+./src/db_iterator.o
 
 USER_OBJS += \
 ./src/libssa.h \

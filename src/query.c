@@ -11,9 +11,9 @@
 #include "libssa_datatypes.h"
 #include "libssa.h"
 
-extern char* sdb_u_revcompl(char* seq, long len);
-extern void sdb_u_translate_sequence(char * dna, long dlen, long strand,
-        long frame, char ** protp, long * plenp);
+extern char* us_revcompl(char* seq, long len);
+extern void us_translate_sequence(int db_sequence, char * dna, long dlen, int strand,
+        int frame, char ** protp, long * plenp);
 
 extern const char map_ncbi_aa[256];
 extern const char map_ncbi_nt16[256];
@@ -27,7 +27,7 @@ extern int symtype;
 static FILE * query_fp;
 static char query_line[LINE_MAX];
 
-static p_query init(char * queryname) {
+static p_query init(const char * queryname) {
     if (strcmp(queryname, "-") == 0)
         query_fp = stdin;
     else
@@ -95,7 +95,7 @@ void query_free(p_query query) {
     query = 0;
 }
 
-p_query query_read(char * queryname) {
+p_query query_read(const char * queryname) {
     // open the file and initialise the query
     p_query query = init(queryname);
 
@@ -156,16 +156,17 @@ p_query query_read(char * queryname) {
 
         if (query_strands & 2) {
             //      outf("Reverse complement.\n");
-            query->nt[1].seq = sdb_u_revcompl(query->nt[0].seq, query->nt[0].len);
+            query->nt[1].seq = us_revcompl(query->nt[0].seq, query->nt[0].len);
             query->nt[1].len = query->nt[0].len;
         }
 
         if ((symtype == TRANS_QUERY) || (symtype == TRANS_BOTH)) {
-            for (long s = 0; s < 2; s++) {
+            for (int s = 0; s < 2; s++) {
                 if ((s + 1) & query_strands) {
-                    for (long f = 0; f < 3; f++) {
+                    for (int f = 0; f < 3; f++) {
                         // it always takes the first sequence and reverses it, if necessary, in the translate method
-                        sdb_u_translate_sequence(query->nt[0].seq, // dna
+                        us_translate_sequence(0, // query sequence
+                                query->nt[0].seq, // dna
                                 query->nt[0].len,   // dlen
                                 s, // strand
                                 f, // frame

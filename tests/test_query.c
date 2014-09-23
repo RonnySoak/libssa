@@ -11,7 +11,8 @@
 #include "../src/libssa_datatypes.h"
 #include "../src/util.h"
 
-extern char * sdb_u_revcompl(char * seq, long len);
+extern char * us_revcompl(char * seq, long len);
+extern void us_init_translation(int qtableno, int dtableno);
 extern p_query query_read(char* filename);
 extern void query_free(p_query p);
 
@@ -30,13 +31,12 @@ START_TEST (test_query_read_sym0)
         symtype = NUCLEOTIDE;
 
         p_query query = query_read("./tests/testdata/NP_009305.1.fas");
-
         ck_assert_msg(NULL != query->nt[0].seq);
         ck_assert_msg(NULL != query->nt[1].seq);
 
         // as defined for strands == 2
         ck_assert_str_eq(query->nt[1].seq,
-                sdb_u_revcompl(query->nt[0].seq, query->nt[0].len));
+                us_revcompl(query->nt[0].seq, query->nt[0].len));
 
         ck_assert_msg(NULL == query->aa[0].seq);
         ck_assert_msg(NULL == query->aa[1].seq);
@@ -89,6 +89,8 @@ START_TEST (test_query_read_sym2)
         query_strands = COMPLEMENTARY_STRAND;
         symtype = TRANS_QUERY;
 
+        us_init_translation(3, 3);
+
         p_query query = query_read("./tests/testdata/NP_009305.1.fas");
 
         ck_assert_msg(NULL != query->nt[0].seq);
@@ -96,7 +98,7 @@ START_TEST (test_query_read_sym2)
 
         // as defined for strands == 2
         ck_assert_str_eq(query->nt[1].seq,
-                sdb_u_revcompl(query->nt[0].seq, query->nt[0].len));
+                us_revcompl(query->nt[0].seq, query->nt[0].len));
 
         ck_assert_msg(NULL == query->aa[0].seq);
         ck_assert_msg(NULL == query->aa[1].seq);
@@ -149,6 +151,8 @@ START_TEST (test_query_read_sym4)
         query_strands = COMPLEMENTARY_STRAND;
         symtype = TRANS_BOTH;
 
+        us_init_translation(3, 3);
+
         p_query query = query_read("./tests/testdata/NP_009305.1.fas");
 
         ck_assert_msg(NULL != query->nt[0].seq);
@@ -156,7 +160,7 @@ START_TEST (test_query_read_sym4)
 
         // as defined for strands == 2
         ck_assert_str_eq(query->nt[1].seq,
-                sdb_u_revcompl(query->nt[0].seq, query->nt[0].len));
+                us_revcompl(query->nt[0].seq, query->nt[0].len));
 
         ck_assert_msg(NULL == query->aa[0].seq);
         ck_assert_msg(NULL == query->aa[1].seq);
@@ -182,6 +186,8 @@ START_TEST (test_strands_param)
         symtype = TRANS_BOTH;
         query_strands = FORWARD_STRAND;
 
+        us_init_translation(3, 3);
+
         p_query query = query_read("./tests/testdata/NP_009305.1.fas");
 
         ck_assert_msg(NULL != query->nt[0].seq);
@@ -206,7 +212,7 @@ START_TEST (test_strands_param)
 
         // as defined for strands == 2
         ck_assert_str_eq(query->nt[1].seq,
-                sdb_u_revcompl(query->nt[0].seq, query->nt[0].len));
+                us_revcompl(query->nt[0].seq, query->nt[0].len));
 
         ck_assert_msg(NULL == query->aa[0].seq);
         ck_assert_msg(NULL == query->aa[1].seq);
@@ -227,7 +233,7 @@ START_TEST (test_strands_param)
 
         // as defined for strands == 3
         ck_assert_str_eq(query->nt[1].seq,
-                sdb_u_revcompl(query->nt[0].seq, query->nt[0].len));
+                us_revcompl(query->nt[0].seq, query->nt[0].len));
 
         ck_assert_msg(NULL != query->aa[0].seq);
         ck_assert_msg(NULL != query->aa[1].seq);

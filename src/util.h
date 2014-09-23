@@ -29,6 +29,11 @@
 #define LINE_MAX 2048
 #endif
 
+extern int symtype;
+extern int query_gencode;
+extern int db_gencode;
+extern int query_strands;
+
 void * xmalloc(size_t size);
 void * xrealloc(void *ptr, size_t size);
 
