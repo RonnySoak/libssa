@@ -19,7 +19,21 @@ extern long fullsw(char * dseq,
 uint8_t gapO;
 uint8_t gapE;
 
+/**
+ * Searches for a sequence in the database.
+ *
+ * TODO implement following:
+ *  - search for X sequence with highest count first
+ *  - do the alignment afterwards
+ *  - return best X sequences/alignments
+ *  - - X can be defined by the caller
+ *
+ *  - select right search tool (7, 16, 16s, 63) (based on initialisation)
+ *  - selection of DB sequences (use some masking)
+ *  -
+ */
 p_alignment search(p_query query) {
+
 //    long score = fullsw()
 
     return NULL;

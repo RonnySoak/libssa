@@ -420,14 +420,11 @@ void mat_init_constant_scoring(const int8_t matchscore,
         const int8_t mismatchscore) {
     prepare_matrices();
 
-//    // TODO or do we have this only for nucleotides?
-//
-//    // 16 symbols in the nucleotide code and 32 for amino acids
-//    int elements = (symtype == NUCLEOTIDE) ? 16 : 32;
-
+    /* We initialize the whole matrix, in case con  stant scores are used with
+     * protein sequences */
     int a, b;
-    for (a = 1; a < 16; a++) {
-        for (b = 1; b < 16; b++) {
+    for (a = 1; a < 32; a++) {
+        for (b = 1; b < 33; b++) {
             score_matrix_63[(a << 5) + b] = (
                     (a == b) ? matchscore : mismatchscore);
         }

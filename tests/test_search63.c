@@ -31,7 +31,7 @@ START_TEST (test_search63_simple)
         p_query query = query_read("./tests/testdata/short_query.fas");
 
         sdb_init_fasta("./tests/testdata/short_db.fas");
-        p_sdb_sequence dseq = sdb_next_sequence(); // TODO map database sequences as well
+        p_sdb_sequence dseq = sdb_next_sequence();
 
         long *hearray = calloc(sizeof(long), 32 * query->nt[0].len);
         uint8_t gapopenextend = 1;
@@ -57,7 +57,7 @@ START_TEST (test_search63_simple_blosum62)
         p_query query = query_read("./tests/testdata/short_query.fas");
 
         sdb_init_fasta("./tests/testdata/short_db.fas");
-        p_sdb_sequence dseq = sdb_next_sequence(); // TODO map database sequences as well
+        p_sdb_sequence dseq = sdb_next_sequence();
 
         long *hearray = calloc(sizeof(long), 32 * query->nt[0].len);
         uint8_t gapopenextend = 1;

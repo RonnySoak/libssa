@@ -114,12 +114,13 @@ START_TEST (test_init_from_string)
 
 START_TEST (test_init_constant_scoring)
     {
-        // TODO set symtype, if we restrict it to nucleotides!
         mat_init_constant_scoring(4, -2);
 
-        ck_assert_int_eq(4, (int)score_matrix_16[33]);
-        ck_assert_int_eq(-2, (int)score_matrix_16[34]);
-        ck_assert_int_eq(4, (int)score_matrix_16[66]);
+        ck_assert_int_eq(-1, (int)score_matrix_63[32]);
+        ck_assert_int_eq(4, (int)score_matrix_63[33]);
+        ck_assert_int_eq(-2, (int)score_matrix_63[34]);
+        ck_assert_int_eq(-2, (int)score_matrix_63[64]);
+        ck_assert_int_eq(4, (int)score_matrix_63[66]);
 
         mat_free();
     }END_TEST
