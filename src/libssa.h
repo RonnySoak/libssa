@@ -12,7 +12,7 @@
 #include <stdint.h>
 
 #include "libssa_datatypes.h"
-#include "libsdb.h"
+#include "libssa_extern_db.h"
 
 /*
  *

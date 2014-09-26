@@ -8,7 +8,7 @@
 #include "tests.h"
 
 #include "../src/util.h"
-#include "../src/libsdb.h"
+#include "../src/libssa_extern_db.h"
 
 extern void us_init_translation(long qtableno, long dtableno);
 extern char* us_remap_sequence(char* sequence, int len, const char* remap);
@@ -89,7 +89,7 @@ START_TEST (test_next_empty)
 START_TEST (test_next_one)
     {
         // test with only forward strand
-        sdb_init_fasta("tests/testdata/one_seq.fas");
+        ssa_db_init_fasta("tests/testdata/one_seq.fas");
 
         symtype = NUCLEOTIDE;
         query_strands = FORWARD_STRAND;
@@ -109,10 +109,10 @@ START_TEST (test_next_one)
         ck_assert_ptr_eq(NULL, it_next());
 
         it_free();
-        sdb_free_db();
+        ssa_db_free();
 
         // test both reverse complement strand creation
-        sdb_init_fasta("tests/testdata/one_seq.fas");
+        ssa_db_init_fasta("tests/testdata/one_seq.fas");
 
         symtype = NUCLEOTIDE;
         query_strands = BOTH_STRANDS;
@@ -143,10 +143,10 @@ START_TEST (test_next_one)
         ck_assert_ptr_eq(NULL, it_next());
 
         it_free();
-        sdb_free_db();
+        ssa_db_free();
 
         // test with forward strand and db translation
-        sdb_init_fasta("tests/testdata/one_seq.fas");
+        ssa_db_init_fasta("tests/testdata/one_seq.fas");
 
         symtype = TRANS_DB;
         query_strands = FORWARD_STRAND;
@@ -182,10 +182,10 @@ START_TEST (test_next_one)
         ck_assert_ptr_eq(NULL, it_next());
 
         it_free();
-        sdb_free_db();
+        ssa_db_free();
 
         // test with both strand and db translation
-        sdb_init_fasta("tests/testdata/one_seq.fas");
+        ssa_db_init_fasta("tests/testdata/one_seq.fas");
 
         symtype = TRANS_DB;
         query_strands = BOTH_STRANDS;
@@ -245,12 +245,12 @@ START_TEST (test_next_one)
         ck_assert_ptr_eq(NULL, it_next());
 
         it_free();
-        sdb_free_db();
+        ssa_db_free();
     }END_TEST
 
 START_TEST (test_next)
     {
-        sdb_init_fasta("tests/testdata/test.fas");
+        ssa_db_init_fasta("tests/testdata/test.fas");
 
         // test with only forward strand
         symtype = NUCLEOTIDE;
@@ -278,7 +278,7 @@ START_TEST (test_next)
         ck_assert_ptr_eq(NULL, it_next());
 
         it_free();
-        sdb_free_db();
+        ssa_db_free();
     }END_TEST
 
 void addDBIteratorTC(Suite *s) {

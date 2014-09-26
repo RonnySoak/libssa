@@ -154,7 +154,7 @@ void init_scoring(const uint8_t p, const uint8_t m) {
  * @param fasta_db_file  path to a file in FASTA format
  */
 void init_db_fasta(const char* fasta_db_file) {
-    sdb_init_fasta(fasta_db_file);
+    ssa_db_init_fasta(fasta_db_file);
 }
 
 void init_db_external(p_sdb_sequence (*extern_next_sequence)()) {
@@ -169,7 +169,7 @@ void init_db_external(p_sdb_sequence (*extern_next_sequence)()) {
  * @see init_db_fasta
  */
 void free_db() {
-    sdb_free_db();
+    ssa_db_free();
 }
 
 /**

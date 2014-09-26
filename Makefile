@@ -71,9 +71,8 @@ all : $(PROG)
 #	$(CXX) $(CXXFLAGS) -DMPIlibssa $(MPI_COMPILE) -c -o $@ src/libssa.cc
 
 init:
-	@echo 'Copying file libsdb.a and libsdb.h'
+	@echo 'Copying file libsdb.a'
 	cp ../libsdb/libsdb.a .
-	cp ../libsdb/src/libsdb.h src/
 
 libssa : $(OBJS) $(DEPS)
 	@echo 'Building target: $@'

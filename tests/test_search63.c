@@ -34,7 +34,7 @@ START_TEST (test_search63_simple)
 
         p_query query = query_read("./tests/testdata/short_query.fas");
 
-        sdb_init_fasta("./tests/testdata/short_db.fas");
+        ssa_db_init_fasta("./tests/testdata/short_db.fas");
         it_init();
         p_sdb_sequence dseq = it_next();
 
@@ -62,7 +62,7 @@ START_TEST (test_search63_simple_blosum62)
 
         p_query query = query_read("./tests/testdata/short_query.fas");
 
-        sdb_init_fasta("./tests/testdata/short_db.fas");
+        ssa_db_init_fasta("./tests/testdata/short_db.fas");
         it_init();
         p_sdb_sequence dseq = it_next();
 

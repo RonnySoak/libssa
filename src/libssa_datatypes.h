@@ -8,7 +8,7 @@
 #ifndef LIBSSA_DATATYPES_H_
 #define LIBSSA_DATATYPES_H_
 
-#include "libsdb.h"
+#include "libssa_extern_db.h"
 
 /** @typedef    structure of a sequence
  *

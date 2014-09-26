@@ -5,7 +5,7 @@
  *      Author: Jakob Frielingsdorf
  */
 
-#include "libsdb.h"
+#include "libssa_extern_db.h"
 #include "util.h"
 
 extern void us_translate_sequence(int db_sequence, char * dna, long dlen,
@@ -166,7 +166,7 @@ p_sdb_sequence it_next() {
     }
 
     // get sequence from DB
-    p_seqinfo seqinfo = sdb_next_sequence();
+    p_seqinfo seqinfo = ssa_db_next_sequence();
     if (!seqinfo) {
         // last sequence read
         return NULL;
