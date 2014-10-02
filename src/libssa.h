@@ -97,6 +97,13 @@ struct {
 } alignment;
 typedef struct alignment* p_alignment;
 
+
+struct alignment_list {
+    p_alignment* alignments;
+    long length;
+};
+typedef struct alignment_list * p_alignment_list;
+
 // #############################################################################
 // Technical initialisation
 // ########################

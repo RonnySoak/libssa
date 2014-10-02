@@ -11,9 +11,9 @@
 #include "libssa_datatypes.h"
 #include "libssa.h"
 
-extern char* us_revcompl(char* seq, long len);
-extern void us_translate_sequence(int db_sequence, char * dna, long dlen, int strand,
-        int frame, char ** protp, long * plenp);
+extern char* us_revcompl(char* seq, unsigned long len);
+extern void us_translate_sequence(int db_sequence, char * dna, unsigned long dlen, int strand,
+        int frame, char ** protp, unsigned long * plenp);
 
 extern const char map_ncbi_aa[256];
 extern const char map_ncbi_nt16[256];
@@ -50,11 +50,11 @@ static p_query init(const char * queryname) {
         query->sym = sym_ncbi_nt16;
     }
 
-    for (long s = 0; s < 2; s++) {
+    for (int s = 0; s < 2; s++) {
         query->nt[s].seq = 0;
         query->nt[s].len = 0;
 
-        for (long f = 0; f < 3; f++) {
+        for (int f = 0; f < 3; f++) {
             query->aa[3 * s + f].seq = 0;
             query->aa[3 * s + f].len = 0;
         }
@@ -77,13 +77,13 @@ void query_free(p_query query) {
     query->description = 0;
     query->dlen = 0;
 
-    for (long s = 0; s < 2; s++) {
+    for (int s = 0; s < 2; s++) {
         if (query->nt[s].seq)
             free(query->nt[s].seq);
         query->nt[s].seq = 0;
         query->nt[s].len = 0;
 
-        for (long f = 0; f < 3; f++) {
+        for (int f = 0; f < 3; f++) {
             if (query->aa[3 * s + f].seq)
                 free(query->aa[3 * s + f].seq);
             query->aa[3 * s + f].seq = 0;
@@ -100,7 +100,7 @@ p_query query_read(const char * queryname) {
     p_query query = init(queryname);
 
     // read description
-    int len = strlen(query_line);
+    unsigned long len = strlen(query_line);
 
     if (query_line[len - 1] == '\n') {
         query_line[len - 1] = 0;

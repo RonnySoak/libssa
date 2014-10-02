@@ -272,11 +272,11 @@ long SCORELIMIT_32;
 long SCORELIMIT_63;
 char BIAS;
 
-char* score_matrix_7 = NULL; // int8_t
-unsigned char * score_matrix_8 = NULL; // uint8_t
-short * score_matrix_16 = NULL; // int16_t
-unsigned int * score_matrix_32 = NULL; // uint32_t
-long * score_matrix_63 = NULL; // int64_t
+int8_t* score_matrix_7 = NULL; // char
+uint8_t * score_matrix_8 = NULL; // unsigned char
+int16_t * score_matrix_16 = NULL; // short
+uint32_t * score_matrix_32 = NULL; // unsigned int
+int64_t * score_matrix_63 = NULL; // long
 
 extern const char * sym_ncbi_aa;
 extern const char map_ncbi_aa[256];
@@ -308,11 +308,11 @@ void mat_dump(char* outfile) {
  * Allocates memory for storing the scoring matrices.
  */
 static void prepare_matrices() {
-    score_matrix_7 = (char *) xmalloc(32 * 32 * sizeof(char));
-    score_matrix_8 = (unsigned char *) xmalloc(32 * 32 * sizeof(char));
-    score_matrix_16 = (short *) xmalloc(32 * 32 * sizeof(short));
-    score_matrix_32 = (unsigned int *) xmalloc(32 * 32 * sizeof(unsigned int));
-    score_matrix_63 = (long *) xmalloc(32 * 32 * sizeof(long));
+    score_matrix_7 = (int8_t *) xmalloc(32 * 32 * sizeof(int8_t));
+    score_matrix_8 = (uint8_t *) xmalloc(32 * 32 * sizeof(uint8_t));
+    score_matrix_16 = (int16_t *) xmalloc(32 * 32 * sizeof(int16_t));
+    score_matrix_32 = (uint32_t *) xmalloc(32 * 32 * sizeof(uint32_t));
+    score_matrix_63 = (int64_t *) xmalloc(32 * 32 * sizeof(int64_t));
     memset(score_matrix_63, -1, 32 * 32 * 8);
 }
 
@@ -338,19 +338,19 @@ static void finalize_matrices() {
     }
 
     BIAS = -lo;
-    SCORELIMIT_7 = 128 - hi;
-    SCORELIMIT_8 = 256 - hi;
-    SCORELIMIT_16 = 65536 - hi;
-    SCORELIMIT_32 = 4294967296 - hi;
+    SCORELIMIT_7 = (2 ^ 7) - hi;
+    SCORELIMIT_8 = (2 ^ 8) - hi;
+    SCORELIMIT_16 = (2 ^ 16) - hi;
+    SCORELIMIT_32 = (2 ^ 32) - hi;
 
     for (a = 0; a < 32; a++) {
         for (b = 0; b < 32; b++) {
             sc = score_matrix_63[(a << 5) + b];
 
-            score_matrix_7[(a << 5) + b] = (char) sc;
-            score_matrix_8[(a << 5) + b] = (unsigned char) (BIAS + sc);
-            score_matrix_32[(a << 5) + b] = (unsigned int) sc;
-            score_matrix_16[(a << 5) + b] = (short) sc;
+            score_matrix_7[(a << 5) + b] = (int8_t) sc;
+            score_matrix_8[(a << 5) + b] = (uint8_t) (BIAS + sc);
+            score_matrix_16[(a << 5) + b] = (int16_t) sc;
+            score_matrix_32[(a << 5) + b] = (int32_t) sc;
         }
     }
 }

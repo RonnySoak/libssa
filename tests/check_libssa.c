@@ -21,11 +21,13 @@ Suite* libssa_suite(void) {
     Suite *s = suite_create("libssa");
 
     /* Core test case */
+    addSearcherTC(s);
     addSearch63TC(s);
     addQueryTC(s);
     addMatricesTC(s);
     addUtilSequenceTC(s);
     addDBIteratorTC(s);
+    addMinHeapTC(s);
 
     return s;
 }

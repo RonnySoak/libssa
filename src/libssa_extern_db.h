@@ -42,7 +42,7 @@ void ssa_db_init_fasta(const char* fasta_file_name);
  * Returns the next sequence available in the database.
  *
  * TODO better to copy the data to a new instance, to prevent alteration of the
- *      DB from the outside
+ *      DB from the outside, or maybe do it on the DB side ...
  */
 p_seqinfo ssa_db_next_sequence();
 

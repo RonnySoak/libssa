@@ -25,24 +25,24 @@
 
 #include <string.h>
 
-#include "util.h"
+#include "../util.h"
 
-long fullsw(const char * dseq,
-        const char * dend,
-        const char * qseq,
-        const char * qend,
-        long * hearray,
-        const long * score_matrix,
+long fullsw(int8_t * dseq,
+        int8_t * dend,
+        int8_t * qseq,
+        int8_t * qend,
+        int64_t * hearray,
+        int64_t * score_matrix,
         uint8_t gapopenextend,
         uint8_t gapextend) {
-    long h, n, e, f, s;
-    long *hep;
-    const char *qp, *dp;
-    const long * sp;
+    int64_t h, n, e, f, s;
+    int64_t *hep;
+    const int8_t *qp, *dp;
+    const int64_t * sp;
 
     s = 0;
     dp = dseq;
-    memset(hearray, 0, 2 * sizeof(long) * (qend - qseq));
+    memset(hearray, 0, 2 * sizeof(int64_t) * (qend - qseq));
 
     while (dp < dend) {
         f = 0;

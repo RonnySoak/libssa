@@ -17,7 +17,7 @@
  */
 struct sequence {
   char * seq;
-  long len;
+  unsigned long len;
 };
 
 /** @typedef    structure of a sequence
@@ -30,7 +30,7 @@ typedef struct sdb_sequence {
     int strand;
     int frame;
     char* seq;
-    long len;
+    unsigned long len;
 } sdb_sequence;
 
 typedef struct sdb_sequence* p_sdb_sequence;
@@ -45,7 +45,7 @@ struct _query {
   struct sequence nt[2]; /* 2 strands for nucleotides */
   struct sequence aa[6]; /* 6 reading frames  for amino acids */
   char * description;
-  long dlen;
+  unsigned long dlen;
   const char * map;
   const char * sym;
 };

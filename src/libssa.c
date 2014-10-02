@@ -157,12 +157,6 @@ void init_db_fasta(const char* fasta_db_file) {
     ssa_db_init_fasta(fasta_db_file);
 }
 
-void init_db_external(p_sdb_sequence (*extern_next_sequence)()) {
-//    external_next = extern_next_sequence; TODO
-//
-//    use_internal_db = 0;
-}
-
 /**
  * Release the memory allocated by the function init_db_fasta.
  *

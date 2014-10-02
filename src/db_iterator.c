@@ -7,16 +7,18 @@
 
 #include "libssa_extern_db.h"
 #include "util.h"
+#include "internal_datatypes.h"
 
-extern void us_translate_sequence(int db_sequence, char * dna, long dlen,
-        int strand, int frame, char ** protp, long * plenp);
-extern char* us_revcompl(char* seq, long len);
-extern char* us_map_sequence(char* sequence, int len, const char* map);
+extern void us_translate_sequence(int db_sequence, char * dna, unsigned long dlen,
+        int strand, int frame, char ** protp, unsigned long * plenp);
+extern char* us_revcompl(char* seq, unsigned long len);
+extern char* us_map_sequence(char* sequence, unsigned long len, const char* map);
 
 extern const char map_ncbi_nt16[256];
 extern const char map_ncbi_aa[256];
 
 static unsigned long seq_index;
+static unsigned long chunk_size;
 
 static int buffer_max = 0;
 static p_sdb_sequence* buffer;
@@ -28,10 +30,11 @@ static int buffer_p = 0;
  */
 static void fill_buffer(p_seqinfo seqinfo) {
     char* seq = seqinfo->seq;
-    long len = (long) (seqinfo->seqlen);
+    unsigned long len = seqinfo->seqlen;
 
     if (symtype == NUCLEOTIDE) {
         // first element
+        buffer[0] = (p_sdb_sequence )xmalloc(sizeof(sdb_sequence));
         buffer[0]->info = seqinfo;
         buffer[0]->len = len;
         buffer[0]->seq = us_map_sequence(seq, len, map_ncbi_nt16);
@@ -40,6 +43,7 @@ static void fill_buffer(p_seqinfo seqinfo) {
 
         if (query_strands & 2) {
             // reverse complement
+            buffer[1] = (p_sdb_sequence )xmalloc(sizeof(sdb_sequence));
             buffer[1]->info = seqinfo;
             // no need for a second mapping
             buffer[1]->seq = us_revcompl(buffer[0]->seq, len);
@@ -56,7 +60,8 @@ static void fill_buffer(p_seqinfo seqinfo) {
             // for forward or complementary strand only
             int s = query_strands - 1;
 
-            for (long f = 0; f < 3; f++) { // frames
+            for (int f = 0; f < 3; f++) { // frames
+                buffer[f] = (p_sdb_sequence )xmalloc(sizeof(sdb_sequence));
                 buffer[f]->info = seqinfo;
 
                 buffer[f]->strand = query_strands;
@@ -69,8 +74,9 @@ static void fill_buffer(p_seqinfo seqinfo) {
         }
         else {
             // for both strands translation
-            for (long s = 0; s < 2; s++) { // strands
-                for (long f = 0; f < 3; f++) { // frames
+            for (int s = 0; s < 2; s++) { // strands
+                for (int f = 0; f < 3; f++) { // frames
+                    buffer[3 * s + f] = (p_sdb_sequence )xmalloc(sizeof(sdb_sequence));
                     buffer[3 * s + f]->info = seqinfo;
 
                     buffer[3 * s + f]->strand = s;
@@ -84,6 +90,8 @@ static void fill_buffer(p_seqinfo seqinfo) {
         }
     }
     else {
+        buffer[0] = (p_sdb_sequence )xmalloc(sizeof(sdb_sequence));
+        // TODO where to free all these p_sdb_sequences ???
         buffer[0]->info = seqinfo;
         buffer[0]->seq = us_map_sequence(seq, len, map_ncbi_aa);
         buffer[0]->len = len;
@@ -97,27 +105,15 @@ void it_free() {
     buffer_p = 0;
 
     if (buffer) {
-        for (int i = 0; i < buffer_max; i++) {
-            if(buffer[i]) {
-                /* the first sequence is initialised by the database code,
-                 * so it has to be freed there */
-                if ((i > 0) && buffer[i]->seq) {
-                    free(buffer[i]->seq);
-                }
-                buffer[i]->seq = 0;
-                buffer[i]->len = 0;
-                buffer[i]->frame = 0;
-                buffer[i]->strand = 0;
-                buffer[i]->info = 0;
-
-                free(buffer[i]);
-            }
-        }
         free(buffer);
+        buffer = 0;
     }
 }
 
-void it_init() {
+void it_init(unsigned long size) {
+    // TODO call external DB to set chunk size
+    chunk_size = size;
+
     // reset the DB sequence index
     seq_index = 0;
 
@@ -144,13 +140,7 @@ void it_init() {
     buffer = xmalloc(buffer_max * sizeof(sdb_sequence));
 
     for (int i = 0; i < buffer_max; i++) {
-        buffer[i] = (p_sdb_sequence )xmalloc(sizeof(sdb_sequence));
-
-        buffer[i]->info = 0;
-        buffer[i]->len = 0;
-        buffer[i]->seq = 0;
-        buffer[i]->frame = 0;
-        buffer[i]->strand = 0;
+        buffer[i] = 0;
     }
 }
 
@@ -160,7 +150,7 @@ void it_init() {
  *
  * @return the next sequence in the DB, or NULL if none is left
  */
-p_sdb_sequence it_next() {
+p_sdb_sequence it_next_sequence() {
     if (buffer_p < buffer_max) {
         return buffer[buffer_p++];
     }
@@ -179,3 +169,45 @@ p_sdb_sequence it_next() {
     buffer_p = 0;
     return buffer[buffer_p++];
 }
+
+void it_free_chunk(p_db_chunk chunk) {
+    if (chunk) {
+        for (int i = 0; i < chunk_size; i++) {
+            if (chunk->seq[i]) {
+                chunk->seq[i] = 0;
+            }
+        }
+        if (chunk->seq) {
+            free(chunk->seq);
+            chunk->seq = 0;
+        }
+    }
+}
+
+p_db_chunk it_next_chunk() {
+    p_db_chunk chunk = (p_db_chunk) xmalloc(sizeof(struct db_chunk));
+
+    chunk->seq = (p_sdb_sequence *) xmalloc(chunk_size * sizeof(p_sdb_sequence));
+
+    for (int i = 0; i < chunk_size; i++) {
+        chunk->seq[i] = 0;
+    }
+
+    // TODO make it better and move it to the DB
+    chunk->size = 0;
+    for (int i = 0; i < chunk_size; i++) {
+        chunk->seq[chunk->size] = it_next_sequence();
+        if (!chunk->seq[chunk->size]) {
+            break;
+        }
+
+        chunk->size++;
+    }
+
+    if (!chunk->size) {
+        it_free_chunk(chunk);
+        return NULL;
+    }
+    return chunk;
+}
+

@@ -17,7 +17,7 @@ extern void mat_free();
 extern long * score_matrix_63;
 
 extern void it_init();
-extern p_sdb_sequence it_next();
+extern p_sdb_sequence it_next_sequence();
 extern void it_free();
 
 extern long fullsw(char * dseq, char * dend, char * qseq, char * qend,
@@ -36,7 +36,7 @@ START_TEST (test_search63_simple)
 
         ssa_db_init_fasta("./tests/testdata/short_db.fas");
         it_init();
-        p_sdb_sequence dseq = it_next();
+        p_sdb_sequence dseq = it_next_sequence();
 
         long *hearray = calloc(sizeof(long), 32 * query->nt[0].len);
         uint8_t gapopenextend = 1;
@@ -64,7 +64,7 @@ START_TEST (test_search63_simple_blosum62)
 
         ssa_db_init_fasta("./tests/testdata/short_db.fas");
         it_init();
-        p_sdb_sequence dseq = it_next();
+        p_sdb_sequence dseq = it_next_sequence();
 
         long *hearray = calloc(sizeof(long), 32 * query->nt[0].len);
         uint8_t gapopenextend = 1;

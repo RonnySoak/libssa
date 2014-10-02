@@ -116,17 +116,17 @@ static void init_translate_table(int tableno, char * table) {
     /* initialise translation table */
 
     // TODO understand this !!!!
-    for (long a = 0; a < 16; a++) {
-        for (long b = 0; b < 16; b++) {
-            for (long c = 0; c < 16; c++) {
+    for (int a = 0; a < 16; a++) {
+        for (int b = 0; b < 16; b++) {
+            for (int c = 0; c < 16; c++) {
                 char aa = '-';
 
-                for (long i = 0; i < 4; i++) {
-                    for (long j = 0; j < 4; j++) {
-                        for (long k = 0; k < 4; k++) {
+                for (int i = 0; i < 4; i++) {
+                    for (int j = 0; j < 4; j++) {
+                        for (int k = 0; k < 4; k++) {
                             if ((a & (1 << i)) && (b & (1 << j))
                                     && (c & (1 << k))) {
-                                long codon = remap[i] * 16 + remap[j] * 4
+                                int codon = remap[i] * 16 + remap[j] * 4
                                         + remap[k];
 
                                 char x = code[tableno - 1][codon];
@@ -181,10 +181,10 @@ static void init_translate_table(int tableno, char * table) {
     /* dump it */
 
     outf("          -ACMGRSVTWYHKDBN\n");
-    for(long x=0; x<16; x++)
-    for(long y=0; y<16; y++) {
+    for(int x=0; x<16; x++)
+    for(int y=0; y<16; y++) {
         outf("%2ld %2ld %c %c ", x, y, sym_ncbi_nt16[x], sym_ncbi_nt16[y]);
-        for(long z=0; z<16; z++) {
+        for(int z=0; z<16; z++) {
             outf("%c", sym_ncbi_aa[table[256*x+16*y+z]]);
         }
         outf("\n");
@@ -197,7 +197,7 @@ void us_init_translation(int qtableno, int dtableno) {
     init_translate_table(dtableno, d_translate);
 }
 
-char* us_map_sequence(char* sequence, int len, const char* map) {
+char* us_map_sequence(char* sequence, unsigned long len, const char* map) {
     char* mapped = xmalloc(len + 1);
 
     char m;
@@ -211,7 +211,7 @@ char* us_map_sequence(char* sequence, int len, const char* map) {
     return mapped;
 }
 
-char* us_remap_sequence(char* sequence, int len, const char* remap) {
+char* us_remap_sequence(char* sequence, unsigned long len, const char* remap) {
     char* mapped = xmalloc(len + 1);
 
     char m;
@@ -225,15 +225,15 @@ char* us_remap_sequence(char* sequence, int len, const char* remap) {
     return mapped;
 }
 
-void us_translate_sequence(int db_sequence, char * dna, long dlen,
-        int strand, int frame, char ** protp, long * plenp) {
+void us_translate_sequence(int db_sequence, char * dna, unsigned long dlen,
+        int strand, int frame, char ** protp, unsigned long * plenp) {
 //    outf|printf("dlen=%ld, strand=%d, frame=%d\n", dlen, strand, frame);
 
     char* ttable = (db_sequence) ? d_translate : q_translate;
 
     long pos, c;
     long ppos = 0;
-    long plen = (dlen - frame) / 3;
+    unsigned long plen = (dlen - frame) / 3;
     char * prot = (char*) xmalloc(1 + plen);
 
     // forward strand
@@ -274,13 +274,13 @@ void us_translate_sequence(int db_sequence, char * dna, long dlen,
  * @param len   the length of the sequence
  * @return      the reverse complement or 0 in case of an empty sequence
  */
-char* us_revcompl(char* seq, long len) {
+char* us_revcompl(char* seq, unsigned long len) {
     if (!len) {
         return 0;
     }
 
     char* rc = (char *) xmalloc(len + 1);
-    for (long i = 0; i < len; i++)
+    for (unsigned long i = 0; i < len; i++)
         rc[i] = ntcompl[(int) (seq[len - 1 - i])];
     rc[len] = 0;
     return rc;

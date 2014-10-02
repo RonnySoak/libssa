@@ -13,15 +13,15 @@ typedef struct seqinfo_s seqinfo_t;
 extern char map_ncbi_nt16[256];
 extern const char * sym_ncbi_aa;
 
-extern char* us_revcompl(char* seq, long len);
-extern void us_translate_sequence(int db_sequence, char * dna, long dlen,
-        int strand, int frame, char ** protp, long * plenp);
-extern void us_init_translation(long qtableno, long dtableno);
+extern char* us_revcompl(char* seq, unsigned long len);
+extern void us_translate_sequence(int db_sequence, char * dna, unsigned long dlen,
+        int strand, int frame, char ** protp, unsigned long * plenp);
+extern void us_init_translation(int qtableno, int dtableno);
 
 START_TEST (test_revcompl)
     {
         // test always the same
-        int len = 4;
+        unsigned long len = 4;
         char seq[] = { 1, 2, 3, 4 };
 
         char* rc1 = us_revcompl(seq, len);
@@ -53,7 +53,7 @@ START_TEST (test_revcompl)
         free(rc2);
     }END_TEST
 
-void ck_converted_prot_eq(char* ref, char* protp, int plen) {
+void ck_converted_prot_eq(char* ref, char* protp, unsigned long plen) {
     char conv_aa[plen + 1];
     for (int i = 0; i < plen; i++) {
         conv_aa[i] = sym_ncbi_aa[(int) protp[i]];
@@ -68,9 +68,9 @@ START_TEST (test_translate_query_RNA)
         us_init_translation(3, 1);
 
         char* dna = "AUGCCCAAGCUGAAUAGCGUAGAGGGGUUUUCAUCAUUUGAGGACGAUGUAUAA";
-        int dlen = strlen(dna);
+        unsigned long dlen = strlen(dna);
         char* protp;
-        long plen;
+        unsigned long plen;
 
         char conv_dna[dlen + 1];
         for (int i = 0; i < dlen; i++) {
@@ -89,9 +89,9 @@ START_TEST (test_translate_query)
         us_init_translation(3, 1);
 
         char* dna = "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA";
-        int dlen = strlen(dna);
+        unsigned long dlen = strlen(dna);
         char* protp;
-        long plen;
+        unsigned long plen;
 
         char conv_dna[dlen + 1];
         for (int i = 0; i < dlen; i++) {
@@ -148,9 +148,9 @@ START_TEST (test_translate_query_DNA)
         us_init_translation(3, 1);
 
         char* dna = "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA";
-        int dlen = strlen(dna);
+        unsigned long dlen = strlen(dna);
         char* protp;
-        long plen;
+        unsigned long plen;
 
         char conv_dna[dlen + 1];
         for (int i = 0; i < dlen; i++) {
@@ -170,9 +170,9 @@ START_TEST (test_translate_db)
         us_init_translation(1, 3);
 
         char* dna = "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA";
-        int dlen = strlen(dna);
+        unsigned long dlen = strlen(dna);
         char* protp;
-        long plen;
+        unsigned long plen;
 
         char conv_dna[dlen + 1];
         for (int i = 0; i < dlen; i++) {

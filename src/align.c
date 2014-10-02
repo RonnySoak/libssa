@@ -39,7 +39,7 @@ struct aligner_info {
     long size;
 };
 
-void region(char * a_seq,
+static void region(char * a_seq,
         char * b_seq,
         long M,
         long N,
@@ -156,7 +156,7 @@ void region(char * a_seq,
     *s = score;
 }
 
-void init(struct aligner_info * aip) {
+static void init(struct aligner_info * aip) {
     aip->op = 0;
     aip->count = 0;
     aip->size = 64;
@@ -164,7 +164,7 @@ void init(struct aligner_info * aip) {
     aip->length = 0;
 }
 
-void push(struct aligner_info * aip) {
+static void push(struct aligner_info * aip) {
     if (aip->count > 0) {
         while (1) {
             long rest = aip->size - aip->length;
@@ -184,7 +184,7 @@ void push(struct aligner_info * aip) {
     }
 }
 
-void newop(struct aligner_info * aip, char op, long len) {
+static void newop(struct aligner_info * aip, char op, long len) {
     if (aip->op == op) {
         aip->count += len;
     }
@@ -195,19 +195,19 @@ void newop(struct aligner_info * aip, char op, long len) {
     }
 }
 
-void delete_a(struct aligner_info * aip, long len) {
+static void delete_a(struct aligner_info * aip, long len) {
     newop(aip, 'D', len);
 }
 
-void insert_b(struct aligner_info * aip, long len) {
+static void insert_b(struct aligner_info * aip, long len) {
     newop(aip, 'I', len);
 }
 
-void match(struct aligner_info * aip) {
+static void match(struct aligner_info * aip) {
     newop(aip, 'M', 1);
 }
 
-void diff(struct aligner_info * aip,
+static void diff(struct aligner_info * aip,
         char * a_seq,
         char * b_seq,
         long M,
@@ -414,7 +414,7 @@ void diff(struct aligner_info * aip,
     }
 }
 
-void align(char * a_seq,
+void align_sequences(char * a_seq,
         char * b_seq,
         long M,
         long N,
