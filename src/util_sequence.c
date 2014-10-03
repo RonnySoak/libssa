@@ -197,73 +197,61 @@ void us_init_translation(int qtableno, int dtableno) {
     init_translate_table(dtableno, d_translate);
 }
 
-char* us_map_sequence(char* sequence, unsigned long len, const char* map) {
-    char* mapped = xmalloc(len + 1);
+sequence us_map_sequence(sequence seq, const char* map) {
+    sequence mapped;
+    mapped.seq = xmalloc(seq.len + 1);
+    mapped.len = seq.len;
 
     char m;
-    for (int i = 0; i < len; i++) {
-        if ((m = map[(int) sequence[i]]) >= 0) {
-            mapped[i] = m;
+    for (int i = 0; i < seq.len; i++) {
+        if ((m = map[(int) seq.seq[i]]) >= 0) {
+            mapped.seq[i] = m;
         }
     }
-    mapped[len] = 0;
+    mapped.seq[seq.len] = 0;
 
     return mapped;
 }
 
-char* us_remap_sequence(char* sequence, unsigned long len, const char* remap) {
-    char* mapped = xmalloc(len + 1);
-
-    char m;
-    for (int i = 0; i < len; i++) {
-        if ((m = remap[(int) sequence[i]]) >= 0) {
-            mapped[i] = m;
-        }
-    }
-    mapped[len] = 0;
-
-    return mapped;
-}
-
-void us_translate_sequence(int db_sequence, char * dna, unsigned long dlen,
-        int strand, int frame, char ** protp, unsigned long * plenp) {
+void us_translate_sequence(int db_sequence, sequence dna,
+        int strand, int frame, sequence * prot_seq) {
 //    outf|printf("dlen=%ld, strand=%d, frame=%d\n", dlen, strand, frame);
 
     char* ttable = (db_sequence) ? d_translate : q_translate;
 
     long pos, c;
     long ppos = 0;
-    unsigned long plen = (dlen - frame) / 3;
+    unsigned long plen = (dna.len - frame) / 3;
     char * prot = (char*) xmalloc(1 + plen);
 
     // forward strand
     if (strand == 0) {
         pos = frame;
         while (ppos < plen) {
-            c = dna[pos++];
+            c = dna.seq[pos++];
             c <<= 4;
-            c |= dna[pos++];
+            c |= dna.seq[pos++];
             c <<= 4;
-            c |= dna[pos++];
+            c |= dna.seq[pos++];
             prot[ppos++] = ttable[c];
         }
     }
     // complement strand, done in reverse complement
     else {
-        pos = dlen - 1 - frame;
+        pos = dna.len - 1 - frame;
         while (ppos < plen) {
-            c = ntcompl[(int) (dna[pos--])];
+            c = ntcompl[(int) (dna.seq[pos--])];
             c <<= 4;
-            c |= ntcompl[(int) (dna[pos--])];
+            c |= ntcompl[(int) (dna.seq[pos--])];
             c <<= 4;
-            c |= ntcompl[(int) (dna[pos--])];
+            c |= ntcompl[(int) (dna.seq[pos--])];
             prot[ppos++] = ttable[c];
         }
     }
 
     prot[ppos] = 0;
-    *protp = prot;
-    *plenp = plen;
+    prot_seq->seq = prot;
+    prot_seq->len = plen;
 }
 
 /**
@@ -274,14 +262,16 @@ void us_translate_sequence(int db_sequence, char * dna, unsigned long dlen,
  * @param len   the length of the sequence
  * @return      the reverse complement or 0 in case of an empty sequence
  */
-char* us_revcompl(char* seq, unsigned long len) {
-    if (!len) {
-        return 0;
+sequence us_revcompl(sequence seq) {
+    if (!seq.len) {
+        return seq;
     }
 
-    char* rc = (char *) xmalloc(len + 1);
-    for (unsigned long i = 0; i < len; i++)
-        rc[i] = ntcompl[(int) (seq[len - 1 - i])];
-    rc[len] = 0;
+    sequence rc;
+    rc.seq = (char *) xmalloc(seq.len + 1);
+    rc.len = seq.len;
+    for (unsigned long i = 0; i < seq.len; i++)
+        rc.seq[i] = ntcompl[(int) (seq.seq[seq.len - 1 - i])];
+    rc.seq[seq.len] = 0;
     return rc;
 }

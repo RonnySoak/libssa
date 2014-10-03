@@ -27,28 +27,29 @@
 
 #include "../util.h"
 
-long fullsw(int8_t * dseq,
-        int8_t * dend,
-        int8_t * qseq,
-        int8_t * qend,
+long fullsw(sequence * dseq,
+        sequence * qseq,
         int64_t * hearray,
         int64_t * score_matrix,
         uint8_t gapopenextend,
         uint8_t gapextend) {
     int64_t h, n, e, f, s;
     int64_t *hep;
-    const int8_t *qp, *dp;
+    const char *qp, *dp;
     const int64_t * sp;
 
+    char* qend = qseq->seq + qseq->len;
+    char* dend = dseq->seq + dseq->len;
+
     s = 0;
-    dp = dseq;
-    memset(hearray, 0, 2 * sizeof(int64_t) * (qend - qseq));
+    dp = dseq->seq;
+    memset(hearray, 0, 2 * sizeof(int64_t) * (qend - qseq->seq));
 
     while (dp < dend) {
         f = 0;
         h = 0;
         hep = hearray;
-        qp = qseq;
+        qp = qseq->seq;
         sp = score_matrix + (*dp << 5);
 
         while (qp < qend) {

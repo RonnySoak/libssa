@@ -11,9 +11,9 @@
 #include "libssa_datatypes.h"
 #include "libssa.h"
 
-extern char* us_revcompl(char* seq, unsigned long len);
-extern void us_translate_sequence(int db_sequence, char * dna, unsigned long dlen, int strand,
-        int frame, char ** protp, unsigned long * plenp);
+extern sequence us_revcompl(sequence seq);
+extern void us_translate_sequence(int db_sequence, sequence dna, int strand,
+        int frame, sequence* prot_seq);
 
 extern const char map_ncbi_aa[256];
 extern const char map_ncbi_nt16[256];
@@ -38,8 +38,8 @@ static p_query init(const char * queryname) {
 
     p_query query = (p_query)xmalloc(sizeof(struct _query));
 
-    query->description = 0;
-    query->dlen = 0;
+    query->header = 0;
+    query->headerlen = 0;
 
     if ((symtype == AMINOACID) || (symtype == TRANS_DB)) {
         query->map = map_ncbi_aa;
@@ -72,10 +72,10 @@ void query_free(p_query query) {
     if (!query)
         return;
 
-    if (query->description)
-        free(query->description);
-    query->description = 0;
-    query->dlen = 0;
+    if (query->header)
+        free(query->header);
+    query->header = 0;
+    query->headerlen = 0;
 
     for (int s = 0; s < 2; s++) {
         if (query->nt[s].seq)
@@ -108,9 +108,9 @@ p_query query_read(const char * queryname) {
     }
 
     if (query_line[0] == '>') {
-        query->description = (char*) xmalloc(len);
-        strcpy(query->description, query_line + 1);
-        query->dlen = len - 1;
+        query->header = (char*) xmalloc(len);
+        strcpy(query->header, query_line + 1);
+        query->headerlen = len - 1;
 
         query_line[0] = 0;
         if ( NULL == fgets(query_line, LINE_MAX, query_fp)) {
@@ -118,9 +118,9 @@ p_query query_read(const char * queryname) {
         }
     }
     else {
-        query->description = (char*) xmalloc(1);
-        query->description[0] = 0;
-        query->dlen = 0;
+        query->header = (char*) xmalloc(1);
+        query->header[0] = 0;
+        query->headerlen = 0;
     }
 
     int size = LINE_MAX;
@@ -156,8 +156,7 @@ p_query query_read(const char * queryname) {
 
         if (query_strands & 2) {
             //      outf("Reverse complement.\n");
-            query->nt[1].seq = us_revcompl(query->nt[0].seq, query->nt[0].len);
-            query->nt[1].len = query->nt[0].len;
+            query->nt[1] = us_revcompl(query->nt[0]);
         }
 
         if ((symtype == TRANS_QUERY) || (symtype == TRANS_BOTH)) {
@@ -166,12 +165,10 @@ p_query query_read(const char * queryname) {
                     for (int f = 0; f < 3; f++) {
                         // it always takes the first sequence and reverses it, if necessary, in the translate method
                         us_translate_sequence(0, // query sequence
-                                query->nt[0].seq, // dna
-                                query->nt[0].len,   // dlen
+                                query->nt[0], // DNA
                                 s, // strand
                                 f, // frame
-                                &query->aa[3 * s + f].seq,  // protp
-                                &query->aa[3 * s + f].len); // plenp
+                                &query->aa[3 * s + f]); // Protein
                     }
                 }
             }
@@ -192,13 +189,13 @@ p_query query_read(const char * queryname) {
 void query_show(p_query query) {
     int linewidth = 60;
 
-    if (query->description) {
-        for (unsigned i = 0; i < strlen(query->description); i += linewidth) {
+    if (query->header) {
+        for (unsigned i = 0; i < strlen(query->header); i += linewidth) {
             printf("x%i", i);
             if (i == 0)
-                outf("Query description: %-60.60s\n", query->description + i);
+                outf("Query description: %-60.60s\n", query->header + i);
             else
-                outf("                   %-60.60s\n", query->description + i);
+                outf("                   %-60.60s\n", query->header + i);
         }
     }
     else {

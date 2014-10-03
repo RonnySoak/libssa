@@ -9,25 +9,19 @@
 
 #include "../src/libssa.h"
 
-// TODO use it or delete it
-void dbg_print(int n, void* param) {
-    int i;
-    for (i = 0; i < n; i++) {
-        printf("Param %d: %p\n", i, (param + i));
-    }
-}
-
 Suite* libssa_suite(void) {
     Suite *s = suite_create("libssa");
 
     /* Core test case */
-    addSearcherTC(s);
-    addSearch63TC(s);
-    addQueryTC(s);
-    addMatricesTC(s);
-    addUtilSequenceTC(s);
-    addDBIteratorTC(s);
     addMinHeapTC(s);
+    addUtilSequenceTC(s);
+    addMatricesTC(s);
+    addQueryTC(s);
+    addDBIteratorTC(s);
+    addSearch63TC(s);
+    addSearcherTC(s);
+    addAlignerTC(s);
+    addManagerTC(s);
 
     return s;
 }

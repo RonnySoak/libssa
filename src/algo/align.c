@@ -1,29 +1,13 @@
 /*
- SWIPE
- Smith-Waterman database searches with Inter-sequence Parallel Execution
-
- Copyright (C) 2008-2013 Torbjorn Rognes, University of Oslo,
- Oslo University Hospital and Sencel Bioinformatics AS
-
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU Affero General Public License as
- published by the Free Software Foundation, either version 3 of the
- License, or (at your option) any later version.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU Affero General Public License for more details.
-
- You should have received a copy of the GNU Affero General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
- Contact: Torbjorn Rognes <torognes@ifi.uio.no>,
- Department of Informatics, University of Oslo,
- PO Box 1080 Blindern, NO-0316 Oslo, Norway
+ * aligner.c
+ *
+ *  Created on: Oct 1, 2014
+ *      Author: Jakob Frielingsdorf
  */
 
-#include "util.h"
+#include "../libssa_datatypes.h"
+
+#include "../util.h"
 #include "limits.h"
 
 // These functions are based on the following articles:
@@ -41,8 +25,8 @@ struct aligner_info {
 
 static void region(char * a_seq,
         char * b_seq,
-        long M,
-        long N,
+        unsigned long M,
+        unsigned long N,
         long * scorematrix,
         long q,
         long r,
@@ -174,7 +158,7 @@ static void push(struct aligner_info * aip) {
             if ((n < 0) || (n >= rest)) {
                 aip->size += 64;
                 aip->alignment = (char*) xrealloc(aip->alignment, aip->size);
-                //	fprintf(stderr, "Reallocating memory for alignment: %ld\n", aip->size);
+                //  fprintf(stderr, "Reallocating memory for alignment: %ld\n", aip->size);
             }
             else {
                 aip->length += n;
@@ -210,8 +194,8 @@ static void match(struct aligner_info * aip) {
 static void diff(struct aligner_info * aip,
         char * a_seq,
         char * b_seq,
-        long M,
-        long N,
+        unsigned long M,
+        unsigned long N,
         long a_pos,
         long b_pos,
         long * scorematrix,
@@ -414,10 +398,8 @@ static void diff(struct aligner_info * aip,
     }
 }
 
-void align_sequences(char * a_seq,
-        char * b_seq,
-        long M,
-        long N,
+void align_sequences(sequence * a_seq,
+        sequence * b_seq,
         long * scorematrix,
         long q,
         long r,
@@ -427,14 +409,16 @@ void align_sequences(char * a_seq,
         long * b_end,
         char ** alignment,
         long * s) {
+    unsigned long M = a_seq->len;
+    unsigned long N = b_seq->len;
+
     struct aligner_info ai;
 
     long score = *s;
 
     init(&ai);
-
-    region(a_seq,
-            b_seq,
+    region(a_seq->seq,
+            b_seq->seq,
             M,
             N,
             scorematrix,
@@ -445,10 +429,9 @@ void align_sequences(char * a_seq,
             a_end,
             b_end,
             &score);
-
     diff(&ai,
-            a_seq,
-            b_seq,
+            a_seq->seq,
+            b_seq->seq,
             *a_end - *a_begin + 1,
             *b_end - *b_begin + 1,
             *a_begin,

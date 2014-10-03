@@ -5,12 +5,11 @@
  *      Author: kaos
  */
 
-#include "tests.h"
+#include "../tests.h"
 
-#include "../src/util.h"
-#include "../src/libssa.h"
-#include "../src/internal_datatypes.h"
-#include "../src/util/minheap.h"
+#include "../../src/util.h"
+#include "../../src/libssa.h"
+#include "../../src/util/minheap.h"
 
 extern void mat_init_constant_scoring(const uint8_t matchscore,
         const uint8_t mismatchscore);
@@ -31,24 +30,13 @@ extern void it_free();
 extern void s_init(p_search_data data,
         long (* algo_p) (int8_t *, int8_t *, int8_t *, int8_t *, int64_t *, int64_t *, uint8_t, uint8_t),
         long res_count);
-extern p_result s_search();
-extern void s_free(p_result p);
+extern p_search_result s_search();
+extern void s_free(p_search_result p);
 
 extern p_query query_read(char* filename);
 extern void query_free(p_query p);
 
 extern p_search_data init_searchdata(p_query query);
-
-/**
- * A small helper, to print sequences in decimal representation.
- */
-void print_sequence(char* desc, int8_t* seq, long len) {
-    printf("seq (%s): '", desc);
-    for (int i = 0; i < len; i++) {
-        printf("%d", seq[i]);
-    }
-    printf("'\n");
-}
 
 START_TEST (test_searcher_simple)
     {
@@ -66,7 +54,7 @@ START_TEST (test_searcher_simple)
 
         it_init(1);
 
-        p_result res = s_search();
+        p_search_result res = s_search();
 
         ck_assert_int_eq(1, res->chunk_count);
         ck_assert_int_eq(1, res->seq_count);
@@ -83,7 +71,7 @@ START_TEST (test_searcher_simple)
         ck_assert_ptr_ne(NULL, dseq);
         ck_assert_ptr_ne(NULL, qseq);
 
-        ck_assert_int_eq(4, (int)dseq->len);
+        ck_assert_int_eq(4, (int)dseq->seq.len);
 
         ck_assert_int_eq(2, e.score);
 
@@ -108,7 +96,7 @@ START_TEST (test_searcher_more_sequences)
         s_init(sdp, &fullsw, res_count);
 
         it_init(3);
-        p_result res = s_search();
+        p_search_result res = s_search();
 
         ck_assert_int_eq(2, res->chunk_count);
         ck_assert_int_eq(5, res->seq_count);

@@ -228,7 +228,7 @@ void free_sequence(p_query p) {
  * ...
  * @return pointer to the alignment structure
  */
-p_alignment sw_align(p_query p /* TODO ...*/) {
+p_alignment_list sw_align(p_query p, int hitcount /* TODO ...*/) {
     return NULL; // TODO
 }
 
@@ -240,7 +240,7 @@ p_alignment sw_align(p_query p /* TODO ...*/) {
  * ...
  * @return pointer to the alignment structure
  */
-p_alignment nw_align(p_query p /* TODO ...*/) {
+p_alignment_list nw_align(p_query p, int hitcount /* TODO ...*/) {
     return NULL; // TODO
 }
 
@@ -254,7 +254,7 @@ p_alignment nw_align(p_query p /* TODO ...*/) {
  * ...
  * @return pointer to the alignment structure
  */
-p_alignment nw_sellers_align(p_query p /* TODO ...*/) {
+p_alignment_list nw_sellers_align(p_query p, int hitcount /* TODO ...*/) {
     return NULL; // TODO
 }
 
@@ -266,7 +266,7 @@ p_alignment nw_sellers_align(p_query p /* TODO ...*/) {
  * ...
  * @return pointer to the alignment structure
  */
-p_alignment nw_ignore_gaps_align(p_query p /* TODO ... ignored gaps...*/) {
+p_alignment_list nw_ignore_gaps_align(p_query p, int hitcount /* TODO ... ignored gaps...*/) {
     return NULL; // TODO
 }
 
@@ -279,6 +279,6 @@ p_alignment nw_ignore_gaps_align(p_query p /* TODO ... ignored gaps...*/) {
  * @see sw_align
  * @see nw_align
  */
-void free_alignment(p_alignment a) {
+void free_alignment(p_alignment_list alist) {
     // TODO
 }

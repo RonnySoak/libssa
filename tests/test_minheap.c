@@ -35,6 +35,7 @@ START_TEST (test_add_size_elements)
         minheap_add(m, &e4);
         elem_t e5 = new_elem(1, "db_e", "q_e");
         minheap_add(m, &e5);
+        e5 = new_elem(1, "db_e", "q_e");
 
         minheap_sort(m);
 
@@ -66,8 +67,8 @@ START_TEST (test_add_more)
         ck_assert_int_eq(5, m->alloc);
 
         ck_assert_int_eq(19, m->array[0].score);
-        ck_assert_ptr_ne(NULL, m->array[0].query);
-        ck_assert_ptr_ne(NULL, m->array[0].db_seq);
+        ck_assert_str_eq("a", m->array[0].query);
+        ck_assert_str_eq("a", m->array[0].db_seq);
 
         ck_assert_int_eq(18, m->array[1].score);
         ck_assert_int_eq(17, m->array[2].score);

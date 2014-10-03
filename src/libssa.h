@@ -12,7 +12,6 @@
 #include <stdint.h>
 
 #include "libssa_datatypes.h"
-#include "libssa_extern_db.h"
 
 /*
  *
@@ -84,23 +83,54 @@ typedef struct _query* p_query;
  @field  cigarLen    length of the cigar string; cigarLen = 0 when the best
  alignment path is not available
  */
-struct {
-    uint16_t score1;
-    uint16_t score2;
-    int32_t ref_begin1;
-    int32_t ref_end1;
-    int32_t read_begin1;
-    int32_t read_end1;
-    int32_t ref_end2;
-    uint32_t* cigar;
-    int32_t cigarLen;
-} alignment;
-typedef struct alignment* p_alignment;
+//struct {
+//    uint16_t score1;
+//    uint16_t score2;
+//    int32_t ref_begin1;   TODO
+//    int32_t ref_end1;
+//    int32_t read_begin1;
+//    int32_t read_end1;
+//    int32_t ref_end2;
+//    uint32_t* cigar;
+//    int32_t cigarLen;
+//} alignment;
+//typedef struct alignment* p_alignment;
 
+typedef struct {
+    char* seq;
+    unsigned long len;
+    char* header;
+    unsigned long headerlen;
+    unsigned long ID;
+    int strand;
+    int frame;
+} db_seq;
+
+typedef struct {
+    char* seq;
+    unsigned long len;
+    int strand;
+    int frame;
+} q_seq;
+
+struct alignment {
+    db_seq db_seq;
+    q_seq query;
+    char * alignment;
+    long score;
+    long score_align;
+//    long align_hint;  TODO what are these
+//    long bestq;
+    long align_q_start;
+    long align_q_end;
+    long align_d_start;
+    long align_d_end;
+};
+typedef struct alignment * p_alignment;
 
 struct alignment_list {
     p_alignment* alignments;
-    long length;
+    long len;
 };
 typedef struct alignment_list * p_alignment_list;
 
@@ -214,7 +244,8 @@ void init_db_fasta(const char* fasta_db_file);
 /**
  * Initialise the database lib, to use a third party implementation.
  */
-void sdb_init_external(p_sdb_sequence (*extern_next_sequence)());
+//void sdb_init_external(p_sdb_sequence (*extern_next_sequence)()); TODO make db lib configurable
+// TODO possibly best via linking or crating a dynamic lib
 
 /**
  * Release the memory allocated by the function init_db_fasta.
@@ -251,7 +282,7 @@ void free_sequence(p_query p);
  * ...
  * @return pointer to the alignment structure
  */
-p_alignment sw_align(p_query p /* TODO ...*/);
+p_alignment_list sw_align(p_query p, int hitcount /* TODO ...*/);
 
 /**
  * Aligns the query sequence against all sequences in the database using the
@@ -261,7 +292,7 @@ p_alignment sw_align(p_query p /* TODO ...*/);
  * ...
  * @return pointer to the alignment structure
  */
-p_alignment nw_align(p_query p /* TODO ...*/);
+p_alignment_list nw_align(p_query p, int hitcount /* TODO ...*/);
 
 /**
  * Aligns the query sequence against all sequences in the database using the
@@ -273,7 +304,7 @@ p_alignment nw_align(p_query p /* TODO ...*/);
  * ...
  * @return pointer to the alignment structure
  */
-p_alignment nw_sellers_align(p_query p /* TODO ...*/);
+p_alignment_list nw_sellers_align(p_query p, int hitcount /* TODO ...*/);
 
 /**
  * Aligns the query sequence against all sequences in the database using the
@@ -283,7 +314,7 @@ p_alignment nw_sellers_align(p_query p /* TODO ...*/);
  * ...
  * @return pointer to the alignment structure
  */
-p_alignment nw_ignore_gaps_align(p_query p /* TODO ... ignored gaps...*/);
+p_alignment_list nw_ignore_gaps_align(p_query p, int hitcount /* TODO ... ignored gaps...*/);
 
 /**
  * Release the memory allocated by the functions sw_align, nw_align,
@@ -294,6 +325,6 @@ p_alignment nw_ignore_gaps_align(p_query p /* TODO ... ignored gaps...*/);
  * @see sw_align
  * @see nw_align
  */
-void free_alignment(p_alignment a);
+void free_alignment(p_alignment_list alist);
 
 #endif /* LIBSSA_H_ */

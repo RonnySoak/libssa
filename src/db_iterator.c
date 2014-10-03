@@ -7,12 +7,11 @@
 
 #include "libssa_extern_db.h"
 #include "util.h"
-#include "internal_datatypes.h"
 
-extern void us_translate_sequence(int db_sequence, char * dna, unsigned long dlen,
-        int strand, int frame, char ** protp, unsigned long * plenp);
-extern char* us_revcompl(char* seq, unsigned long len);
-extern char* us_map_sequence(char* sequence, unsigned long len, const char* map);
+extern void us_translate_sequence(int db_sequence, sequence dna,
+        int strand, int frame, sequence * prot_seq);
+extern sequence us_revcompl(sequence seq);
+extern sequence us_map_sequence(sequence seq, const char* map);
 
 extern const char map_ncbi_nt16[256];
 extern const char map_ncbi_aa[256];
@@ -29,15 +28,15 @@ static int buffer_p = 0;
  * complement of the forward strand, if necessary.
  */
 static void fill_buffer(p_seqinfo seqinfo) {
-    char* seq = seqinfo->seq;
-    unsigned long len = seqinfo->seqlen;
+    sequence db_seq;
+    db_seq.seq = seqinfo->seq;
+    db_seq.len = seqinfo->seqlen;
 
     if (symtype == NUCLEOTIDE) {
         // first element
         buffer[0] = (p_sdb_sequence )xmalloc(sizeof(sdb_sequence));
         buffer[0]->info = seqinfo;
-        buffer[0]->len = len;
-        buffer[0]->seq = us_map_sequence(seq, len, map_ncbi_nt16);
+        buffer[0]->seq = us_map_sequence(db_seq, map_ncbi_nt16);
         buffer[0]->strand = 0;
         buffer[0]->frame = 0;
 
@@ -46,15 +45,14 @@ static void fill_buffer(p_seqinfo seqinfo) {
             buffer[1] = (p_sdb_sequence )xmalloc(sizeof(sdb_sequence));
             buffer[1]->info = seqinfo;
             // no need for a second mapping
-            buffer[1]->seq = us_revcompl(buffer[0]->seq, len);
-            buffer[1]->len = len;
+            buffer[1]->seq = us_revcompl(buffer[0]->seq);
             buffer[1]->strand = 1;
             buffer[1]->frame = 0;
         }
     }
     else if ((symtype == TRANS_DB) || (symtype == TRANS_BOTH)) {
         // map first and then translate the sequences
-        char* conv_seq = us_map_sequence(seq, len, map_ncbi_nt16);
+        sequence conv_seq = us_map_sequence(db_seq, map_ncbi_nt16);
 
         if (query_strands ^ BOTH_STRANDS) {
             // for forward or complementary strand only
@@ -67,9 +65,7 @@ static void fill_buffer(p_seqinfo seqinfo) {
                 buffer[f]->strand = query_strands;
                 buffer[f]->frame = f;
 
-                us_translate_sequence(1, conv_seq, len, s, f,
-                        &buffer[f]->seq,
-                        &buffer[f]->len);
+                us_translate_sequence(1, conv_seq, s, f, &buffer[f]->seq);
             }
         }
         else {
@@ -82,19 +78,15 @@ static void fill_buffer(p_seqinfo seqinfo) {
                     buffer[3 * s + f]->strand = s;
                     buffer[3 * s + f]->frame = f;
 
-                    us_translate_sequence(1, conv_seq, len, s, f,
-                            &buffer[3 * s + f]->seq,
-                            &buffer[3 * s + f]->len);
+                    us_translate_sequence(1, conv_seq, s, f, &buffer[3 * s + f]->seq);
                 }
             }
         }
     }
     else {
         buffer[0] = (p_sdb_sequence )xmalloc(sizeof(sdb_sequence));
-        // TODO where to free all these p_sdb_sequences ???
         buffer[0]->info = seqinfo;
-        buffer[0]->seq = us_map_sequence(seq, len, map_ncbi_aa);
-        buffer[0]->len = len;
+        buffer[0]->seq = us_map_sequence(db_seq, map_ncbi_aa);
         buffer[0]->strand = 0;
         buffer[0]->frame = 0;
     }
@@ -137,7 +129,7 @@ void it_init(unsigned long size) {
     // at first we start with a "full" buffer, to force a sequence loading!
     buffer_p = buffer_max;
 
-    buffer = xmalloc(buffer_max * sizeof(sdb_sequence));
+    buffer = xmalloc(buffer_max * sizeof(p_sdb_sequence));
 
     for (int i = 0; i < buffer_max; i++) {
         buffer[i] = 0;
@@ -168,6 +160,10 @@ p_sdb_sequence it_next_sequence() {
     // return current version
     buffer_p = 0;
     return buffer[buffer_p++];
+}
+
+void it_free_sequence(p_sdb_sequence seq) {
+    // TODO
 }
 
 void it_free_chunk(p_db_chunk chunk) {

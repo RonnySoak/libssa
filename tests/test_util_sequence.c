@@ -13,54 +13,64 @@ typedef struct seqinfo_s seqinfo_t;
 extern char map_ncbi_nt16[256];
 extern const char * sym_ncbi_aa;
 
-extern char* us_revcompl(char* seq, unsigned long len);
-extern void us_translate_sequence(int db_sequence, char * dna, unsigned long dlen,
-        int strand, int frame, char ** protp, unsigned long * plenp);
+extern sequence us_revcompl(sequence seq);
+extern void us_translate_sequence(int db_sequence, sequence dna,
+        int strand, int frame, sequence * prot);
 extern void us_init_translation(int qtableno, int dtableno);
 
 START_TEST (test_revcompl)
     {
         // test always the same
-        unsigned long len = 4;
-        char seq[] = { 1, 2, 3, 4 };
+        sequence seq;
+        seq.seq = xmalloc(5);
+        seq.len = 4;
+        seq.seq[0] = 1;
+        seq.seq[1] = 2;
+        seq.seq[2] = 3;
+        seq.seq[3] = 4;
+        seq.seq[4] = 0;
 
-        char* rc1 = us_revcompl(seq, len);
-        char* rc2 = us_revcompl(seq, len);
-        ck_assert_str_eq(rc1, rc2);
-        free(rc1);
-        free(rc2);
+        sequence rc1 = us_revcompl(seq);
+        sequence rc2 = us_revcompl(seq);
+        ck_assert_str_eq(rc1.seq, rc2.seq);
+        free(rc1.seq);
+        free(rc2.seq);
 
         // test rev compl calculation
         char ntcompl[16] = { 0, 8, 4, 12, 2, 10, 6, 14, 1, 9, 5, 13, 3, 11, 7,
                 15 };
 
-        char rev_seq[len];
+        char rev_seq[seq.len];
 
-        rev_seq[0] = ntcompl[(int) (seq[3])];
-        rev_seq[1] = ntcompl[(int) (seq[2])];
-        rev_seq[2] = ntcompl[(int) (seq[1])];
-        rev_seq[3] = ntcompl[(int) (seq[0])];
+        rev_seq[0] = ntcompl[(int) (seq.seq[3])];
+        rev_seq[1] = ntcompl[(int) (seq.seq[2])];
+        rev_seq[2] = ntcompl[(int) (seq.seq[1])];
+        rev_seq[3] = ntcompl[(int) (seq.seq[0])];
 
-        rc2 = us_revcompl(seq, len);
-        ck_assert_str_eq(rev_seq, rc2);
-        free(rc2);
+        rc2 = us_revcompl(seq);
+        ck_assert_str_eq(rev_seq, rc2.seq);
+        free(rc2.seq);
 
         // empty
-        char* seq2 = 0;
+        rc1.seq = 0;
+        rc1.len = 0;
 
-        rc2 = us_revcompl(seq2, 0);
-        ck_assert_ptr_eq(0, rc2);
-        free(rc2);
+        rc2 = us_revcompl(rc1);
+        ck_assert_ptr_eq(0, rc2.seq);
+        free(rc2.seq);
+        free(seq.seq);
     }END_TEST
 
-void ck_converted_prot_eq(char* ref, char* protp, unsigned long plen) {
-    char conv_aa[plen + 1];
-    for (int i = 0; i < plen; i++) {
-        conv_aa[i] = sym_ncbi_aa[(int) protp[i]];
+void ck_converted_prot_eq(char* ref, sequence seq) {
+    sequence conv_dna;
+    conv_dna.len = seq.len;
+    conv_dna.seq = xmalloc(seq.len + 1);
+    for (int i = 0; i < seq.len; i++) {
+        conv_dna.seq[i] = sym_ncbi_aa[(int) seq.seq[i]];
     }
-    conv_aa[plen] = 0;
+    conv_dna.seq[seq.len] = 0;
 
-    ck_assert_str_eq(ref, conv_aa);
+    ck_assert_str_eq(ref, conv_dna.seq);
 }
 
 START_TEST (test_translate_query_RNA)
@@ -69,19 +79,21 @@ START_TEST (test_translate_query_RNA)
 
         char* dna = "AUGCCCAAGCUGAAUAGCGUAGAGGGGUUUUCAUCAUUUGAGGACGAUGUAUAA";
         unsigned long dlen = strlen(dna);
-        char* protp;
-        unsigned long plen;
+        sequence protp;
 
-        char conv_dna[dlen + 1];
+        sequence conv_dna;
+        conv_dna.len = dlen;
+        conv_dna.seq = xmalloc(dlen + 1);
         for (int i = 0; i < dlen; i++) {
-            conv_dna[i] = map_ncbi_nt16[(int) dna[i]];
+            conv_dna.seq[i] = map_ncbi_nt16[(int) dna[i]];
         }
-        conv_dna[dlen] = 0;
-        us_translate_sequence(0, conv_dna, dlen, 0, 0, &protp, &plen);
+        conv_dna.seq[dlen] = 0;
+        us_translate_sequence(0, conv_dna, 0, 0, &protp);
 
-        ck_assert_int_eq(18, plen);
-        ck_converted_prot_eq("MPKTNSVEGFSSFEDDV*", protp, plen);
-        free(protp);
+        ck_assert_int_eq(18, protp.len);
+        ck_converted_prot_eq("MPKTNSVEGFSSFEDDV*", protp);
+        free(protp.seq);
+        free(conv_dna.seq);
     }END_TEST
 
 START_TEST (test_translate_query)
@@ -90,57 +102,59 @@ START_TEST (test_translate_query)
 
         char* dna = "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA";
         unsigned long dlen = strlen(dna);
-        char* protp;
-        unsigned long plen;
+        sequence protp;
 
-        char conv_dna[dlen + 1];
+        sequence conv_dna;
+        conv_dna.len = dlen;
+        conv_dna.seq = xmalloc(dlen + 1);
         for (int i = 0; i < dlen; i++) {
-            conv_dna[i] = map_ncbi_nt16[(int) dna[i]];
+            conv_dna.seq[i] = map_ncbi_nt16[(int) dna[i]];
         }
-        conv_dna[dlen] = 0;
+        conv_dna.seq[dlen] = 0;
 
         // forward strand
         // frame 1
-        us_translate_sequence(0, conv_dna, dlen, 0, 0, &protp, &plen);
+        us_translate_sequence(0, conv_dna, 0, 0, &protp);
 
-        ck_assert_int_eq(18, plen);
-        ck_converted_prot_eq("MPKTNSVEGFSSFEDDV*", protp, plen);
-        free(protp);
+        ck_assert_int_eq(18, protp.len);
+        ck_converted_prot_eq("MPKTNSVEGFSSFEDDV*", protp);
+        free(protp.seq);
 
         // frame 2
-        us_translate_sequence(0, conv_dna, dlen, 0, 1, &protp, &plen);
+        us_translate_sequence(0, conv_dna, 0, 1, &protp);
 
-        ck_assert_int_eq(17, plen);
-        ck_converted_prot_eq("CPSWMA*RGFHHLRTMY", protp, plen);
-        free(protp);
+        ck_assert_int_eq(17, protp.len);
+        ck_converted_prot_eq("CPSWMA*RGFHHLRTMY", protp);
+        free(protp.seq);
 
         // frame 3
-        us_translate_sequence(0, conv_dna, dlen, 0, 2, &protp, &plen);
-        ck_assert_int_eq(17, plen);
-        ck_converted_prot_eq("AQAE*RRGVFIIWGRCM", protp, plen);
-        free(protp);
+        us_translate_sequence(0, conv_dna, 0, 2, &protp);
+        ck_assert_int_eq(17, protp.len);
+        ck_converted_prot_eq("AQAE*RRGVFIIWGRCM", protp);
+        free(protp.seq);
 
         // complementary strand
         // frame 1
-        us_translate_sequence(0, conv_dna, dlen, 1, 0, &protp, &plen);
+        us_translate_sequence(0, conv_dna, 1, 0, &protp);
 
-        ck_assert_int_eq(18, plen);
-        ck_converted_prot_eq("LYIVTKWWKPTYAIQTGH", protp, plen);
-        free(protp);
+        ck_assert_int_eq(18, protp.len);
+        ck_converted_prot_eq("LYIVTKWWKPTYAIQTGH", protp);
+        free(protp.seq);
 
         // frame 2
-        us_translate_sequence(0, conv_dna, dlen, 1, 1, &protp, &plen);
+        us_translate_sequence(0, conv_dna, 1, 1, &protp);
 
-        ck_assert_int_eq(17, plen);
-        ck_converted_prot_eq("YTSSSNDENPSTTFSLG", protp, plen);
-        free(protp);
+        ck_assert_int_eq(17, protp.len);
+        ck_converted_prot_eq("YTSSSNDENPSTTFSLG", protp);
+        free(protp.seq);
 
         // frame 3
-        us_translate_sequence(0, conv_dna, dlen, 1, 2, &protp, &plen);
-        ck_assert_int_eq(17, plen);
-        ck_converted_prot_eq("MHRPQMMKTPTRYSAWA", protp, plen);
+        us_translate_sequence(0, conv_dna, 1, 2, &protp);
+        ck_assert_int_eq(17, protp.len);
+        ck_converted_prot_eq("MHRPQMMKTPTRYSAWA", protp);
 
-        free(protp);
+        free(protp.seq);
+        free(conv_dna.seq);
     }END_TEST
 
 START_TEST (test_translate_query_DNA)
@@ -149,20 +163,22 @@ START_TEST (test_translate_query_DNA)
 
         char* dna = "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA";
         unsigned long dlen = strlen(dna);
-        char* protp;
-        unsigned long plen;
+        sequence protp;
 
-        char conv_dna[dlen + 1];
+        sequence conv_dna;
+        conv_dna.len = dlen;
+        conv_dna.seq = xmalloc(dlen + 1);
         for (int i = 0; i < dlen; i++) {
-            conv_dna[i] = map_ncbi_nt16[(int) dna[i]];
+            conv_dna.seq[i] = map_ncbi_nt16[(int) dna[i]];
         }
-        conv_dna[dlen] = 0;
+        conv_dna.seq[dlen] = 0;
 
-        us_translate_sequence(0, conv_dna, dlen, 0, 0, &protp, &plen);
+        us_translate_sequence(0, conv_dna, 0, 0, &protp);
 
-        ck_assert_int_eq(18, plen);
-        ck_converted_prot_eq("MPKTNSVEGFSSFEDDV*", protp, plen);
-        free(protp);
+        ck_assert_int_eq(18, protp.len);
+        ck_converted_prot_eq("MPKTNSVEGFSSFEDDV*", protp);
+        free(protp.seq);
+        free(conv_dna.seq);
     }END_TEST
 
 START_TEST (test_translate_db)
@@ -171,21 +187,23 @@ START_TEST (test_translate_db)
 
         char* dna = "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA";
         unsigned long dlen = strlen(dna);
-        char* protp;
-        unsigned long plen;
+        sequence protp;
 
-        char conv_dna[dlen + 1];
+        sequence conv_dna;
+        conv_dna.len = dlen;
+        conv_dna.seq = xmalloc(dlen + 1);
         for (int i = 0; i < dlen; i++) {
-            conv_dna[i] = map_ncbi_nt16[(int) dna[i]];
+            conv_dna.seq[i] = map_ncbi_nt16[(int) dna[i]];
         }
-        conv_dna[dlen] = 0;
+        conv_dna.seq[dlen] = 0;
 
         // translate it as a db sequence, using the db translation table
-        us_translate_sequence(1, conv_dna, dlen, 0, 0, &protp, &plen);
+        us_translate_sequence(1, conv_dna, 0, 0, &protp);
 
-        ck_assert_int_eq(18, plen);
-        ck_converted_prot_eq("MPKTNSVEGFSSFEDDV*", protp, plen);
-        free(protp);
+        ck_assert_int_eq(18, protp.len);
+        ck_converted_prot_eq("MPKTNSVEGFSSFEDDV*", protp);
+        free(protp.seq);
+        free(conv_dna.seq);
     }END_TEST
 
 void addUtilSequenceTC(Suite *s) {

@@ -2,7 +2,6 @@ OBJS += \
 ./src/util.o \
 ./src/matrices.o \
 ./src/query.o \
-./src/align.o \
 ./src/libssa.o \
 ./src/util_sequence.o \
 ./src/db_iterator.o

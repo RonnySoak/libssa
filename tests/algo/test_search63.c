@@ -5,10 +5,10 @@
  *      Author: kaos
  */
 
-#include "tests.h"
+#include "../tests.h"
 
-#include "../src/util.h"
-#include "../src/libssa.h"
+#include "../../src/util.h"
+#include "../../src/libssa.h"
 
 extern void mat_init_constant_scoring(const uint8_t matchscore,
         const uint8_t mismatchscore);
@@ -20,8 +20,8 @@ extern void it_init();
 extern p_sdb_sequence it_next_sequence();
 extern void it_free();
 
-extern long fullsw(char * dseq, char * dend, char * qseq, char * qend,
-        long * hearray, long * score_matrix, uint8_t gapopenextend,
+extern long fullsw(sequence * dseq, sequence * qseq,
+        int64_t * hearray, int64_t * score_matrix, uint8_t gapopenextend,
         uint8_t gapextend);
 
 extern p_query query_read(char* filename);
@@ -42,8 +42,8 @@ START_TEST (test_search63_simple)
         uint8_t gapopenextend = 1;
         uint8_t gapextend = 1;
 
-        int score = fullsw(dseq->seq, dseq->seq + dseq->len,
-                query->nt[0].seq, query->nt[0].seq + query->nt[0].len,
+        int score = fullsw(&dseq->seq,
+                &query->nt[0],
                 hearray,
                 score_matrix_63,
                 gapopenextend, gapextend);
@@ -70,8 +70,8 @@ START_TEST (test_search63_simple_blosum62)
         uint8_t gapopenextend = 1;
         uint8_t gapextend = 1;
 
-        int score = fullsw(dseq->seq, dseq->seq + dseq->len,
-                query->nt[0].seq, query->nt[0].seq + query->nt[0].len,
+        int score = fullsw(&dseq->seq,
+                &query->nt[0],
                 hearray,
                 score_matrix_63,
                 gapopenextend, gapextend);

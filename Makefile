@@ -35,6 +35,7 @@ TO_CLEAN := libssa.a
 
 # All of the sources participating in the build are defined here
 -include tests/subdir.mk
+-include tests/algo/subdir.mk
 -include src/subdir.mk
 -include src/algo/subdir.mk
 -include src/util/subdir.mk

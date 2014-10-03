@@ -9,12 +9,11 @@
 
 #include "../src/util.h"
 #include "../src/libssa_extern_db.h"
-#include "../src/internal_datatypes.h"
 
 extern void us_init_translation(int qtableno, int dtableno);
-extern char* us_remap_sequence(char* sequence, unsigned long len, const char* remap);
+extern sequence us_map_sequence(sequence seq, const char* remap);
 
-extern void ck_converted_prot_eq(char* ref, char* protp, unsigned long plen);
+extern void ck_converted_prot_eq(char* ref, sequence seq);
 
 extern void it_init(unsigned long size);
 extern void it_free();
@@ -101,10 +100,10 @@ START_TEST (test_next_one)
 
         p_sdb_sequence seq = it_next_sequence();
         ck_assert_int_eq(0, seq->info->ID);
-        ck_assert_int_eq(54, seq->len);
+        ck_assert_int_eq(54, seq->seq.len);
         ck_assert_str_eq(
                 "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA",
-                us_remap_sequence(seq->seq, seq->len, sym_ncbi_nt16u));
+                us_map_sequence(seq->seq, sym_ncbi_nt16u).seq);
         ck_assert_int_eq(0, seq->strand);
         ck_assert_int_eq(0, seq->frame);
 
@@ -123,22 +122,22 @@ START_TEST (test_next_one)
 
         seq = it_next_sequence();
         ck_assert_ptr_eq(0, seq->info->ID);
-        ck_assert_int_eq(54, seq->len);
+        ck_assert_int_eq(54, seq->seq.len);
         ck_assert_str_eq(
                 "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA",
-                us_remap_sequence(seq->seq, seq->len, sym_ncbi_nt16u));
+                us_map_sequence(seq->seq, sym_ncbi_nt16u).seq);
         ck_assert_int_eq(0, seq->strand);
         ck_assert_int_eq(0, seq->frame);
 
         // get reverse complement strand
         seq = it_next_sequence();
         ck_assert_ptr_eq(0, seq->info->ID);
-        ck_assert_int_eq(54, seq->len);
+        ck_assert_int_eq(54, seq->seq.len);
         ck_assert_str_eq(
                 revcompl(
                         "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA",
-                        seq->len),
-                us_remap_sequence(seq->seq, seq->len, sym_ncbi_nt16u));
+                        seq->seq.len),
+                us_map_sequence(seq->seq, sym_ncbi_nt16u).seq);
         ck_assert_int_eq(1, seq->strand);
         ck_assert_int_eq(0, seq->frame);
 
@@ -160,24 +159,24 @@ START_TEST (test_next_one)
 
         seq = it_next_sequence();
         ck_assert_ptr_eq(0, seq->info->ID);
-        ck_assert_int_eq(18, seq->len);
-        ck_converted_prot_eq("MPKTNSVEGFSSFEDDV*", seq->seq, seq->len);
+        ck_assert_int_eq(18, seq->seq.len);
+        ck_converted_prot_eq("MPKTNSVEGFSSFEDDV*", seq->seq);
         ck_assert_int_eq(1, seq->strand);
         ck_assert_int_eq(0, seq->frame);
 
         // 2.
         seq = it_next_sequence();
         ck_assert_ptr_eq(0, seq->info->ID);
-        ck_assert_int_eq(17, seq->len);
-        ck_converted_prot_eq("CPSWMA*RGFHHLRTMY", seq->seq, seq->len);
+        ck_assert_int_eq(17, seq->seq.len);
+        ck_converted_prot_eq("CPSWMA*RGFHHLRTMY", seq->seq);
         ck_assert_int_eq(1, seq->strand);
         ck_assert_int_eq(1, seq->frame);
 
         // 3.
         seq = it_next_sequence();
         ck_assert_ptr_eq(0, seq->info->ID);
-        ck_assert_int_eq(17, seq->len);
-        ck_converted_prot_eq("AQAE*RRGVFIIWGRCM", seq->seq, seq->len);
+        ck_assert_int_eq(17, seq->seq.len);
+        ck_converted_prot_eq("AQAE*RRGVFIIWGRCM", seq->seq);
         ck_assert_int_eq(1, seq->strand);
         ck_assert_int_eq(2, seq->frame);
 
@@ -199,48 +198,48 @@ START_TEST (test_next_one)
 
         seq = it_next_sequence();
         ck_assert_ptr_eq(0, seq->info->ID);
-        ck_assert_int_eq(18, seq->len);
-        ck_converted_prot_eq("MPKTNSVEGFSSFEDDV*", seq->seq, seq->len);
+        ck_assert_int_eq(18, seq->seq.len);
+        ck_converted_prot_eq("MPKTNSVEGFSSFEDDV*", seq->seq);
         ck_assert_int_eq(0, seq->strand);
         ck_assert_int_eq(0, seq->frame);
 
         // 2.
         seq = it_next_sequence();
         ck_assert_ptr_eq(0, seq->info->ID);
-        ck_assert_int_eq(17, seq->len);
-        ck_converted_prot_eq("CPSWMA*RGFHHLRTMY", seq->seq, seq->len);
+        ck_assert_int_eq(17, seq->seq.len);
+        ck_converted_prot_eq("CPSWMA*RGFHHLRTMY", seq->seq);
         ck_assert_int_eq(0, seq->strand);
         ck_assert_int_eq(1, seq->frame);
 
         // 3.
         seq = it_next_sequence();
         ck_assert_ptr_eq(0, seq->info->ID);
-        ck_assert_int_eq(17, seq->len);
-        ck_converted_prot_eq("AQAE*RRGVFIIWGRCM", seq->seq, seq->len);
+        ck_assert_int_eq(17, seq->seq.len);
+        ck_converted_prot_eq("AQAE*RRGVFIIWGRCM", seq->seq);
         ck_assert_int_eq(0, seq->strand);
         ck_assert_int_eq(2, seq->frame);
 
         // 4.
         seq = it_next_sequence();
         ck_assert_ptr_eq(0, seq->info->ID);
-        ck_assert_int_eq(18, seq->len);
-        ck_converted_prot_eq("LYIVTKWWKPTYAIQTGH", seq->seq, seq->len);
+        ck_assert_int_eq(18, seq->seq.len);
+        ck_converted_prot_eq("LYIVTKWWKPTYAIQTGH", seq->seq);
         ck_assert_int_eq(1, seq->strand);
         ck_assert_int_eq(0, seq->frame);
 
         // 5.
         seq = it_next_sequence();
         ck_assert_ptr_eq(0, seq->info->ID);
-        ck_assert_int_eq(17, seq->len);
-        ck_converted_prot_eq("YTSSSNDENPSTTFSLG", seq->seq, seq->len);
+        ck_assert_int_eq(17, seq->seq.len);
+        ck_converted_prot_eq("YTSSSNDENPSTTFSLG", seq->seq);
         ck_assert_int_eq(1, seq->strand);
         ck_assert_int_eq(1, seq->frame);
 
         // 6.
         seq = it_next_sequence();
         ck_assert_ptr_eq(0, seq->info->ID);
-        ck_assert_int_eq(17, seq->len);
-        ck_converted_prot_eq("MHRPQMMKTPTRYSAWA", seq->seq, seq->len);
+        ck_assert_int_eq(17, seq->seq.len);
+        ck_converted_prot_eq("MHRPQMMKTPTRYSAWA", seq->seq);
         ck_assert_int_eq(1, seq->strand);
         ck_assert_int_eq(2, seq->frame);
 

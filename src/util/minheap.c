@@ -120,6 +120,23 @@ static int minheap_compare(const void * a, const void * b) {
     elem_t * x = (elem_t*) a;
     elem_t * y = (elem_t*) b;
 
+//
+//    seq_buffer qx = *(seq_buffer*)x->query;
+//
+//    printf("in search\n");
+//    printf("M: %ld\n", qx.seq.len);
+//    printf("Mp: %p\n", &qx.seq.len);
+//    printf("ap: %p\n", qx.seq.seq);
+//    printf("a: %d%d%d\n", qx.seq.seq[0], qx.seq.seq[1], qx.seq.seq[2]);
+//
+//    seq_buffer qy = *(seq_buffer*)y->query;
+//
+//    printf("in search\n");
+//    printf("M: %ld\n", qy.seq.len);
+//    printf("Mp: %p\n", &qy.seq.len);
+//    printf("ap: %p\n", qy.seq.seq);
+//    printf("a: %d%d%d\n", qy.seq.seq[0], qy.seq.seq[1], qy.seq.seq[2]);
+
     if (x->score < y->score)
         return +1;
     else if (x->score > y->score)

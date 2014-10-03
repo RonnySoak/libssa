@@ -11,7 +11,7 @@
 #include "../src/libssa_datatypes.h"
 #include "../src/util.h"
 
-extern char * us_revcompl(char * seq, long len);
+extern sequence us_revcompl(sequence seq);
 extern void us_init_translation(int qtableno, int dtableno);
 extern p_query query_read(char* filename);
 extern void query_free(p_query p);
@@ -35,8 +35,7 @@ START_TEST (test_query_read_sym0)
         ck_assert_msg(NULL != query->nt[1].seq);
 
         // as defined for strands == 2
-        ck_assert_str_eq(query->nt[1].seq,
-                us_revcompl(query->nt[0].seq, query->nt[0].len));
+        ck_assert_str_eq(query->nt[1].seq, us_revcompl(query->nt[0]).seq);
 
         ck_assert_msg(NULL == query->aa[0].seq);
         ck_assert_msg(NULL == query->aa[1].seq);
@@ -45,10 +44,10 @@ START_TEST (test_query_read_sym0)
         ck_assert_msg(NULL == query->aa[4].seq);
         ck_assert_msg(NULL == query->aa[5].seq);
 
-        ck_assert_int_eq(65, (int )query->dlen);
+        ck_assert_int_eq(65, (int )query->headerlen);
         ck_assert_str_eq(
                 "gi|6226519|ref|NP_009305.1| cytochrome-c oxidase subunit I; Cox1p",
-                query->description);
+                query->header);
 
         ck_assert_str_eq(sym_ncbi_nt16, query->sym);
         ck_assert_str_eq(map_ncbi_nt16, query->map);
@@ -73,10 +72,10 @@ START_TEST (test_query_read_sym1)
         ck_assert_msg(NULL == query->aa[4].seq);
         ck_assert_msg(NULL == query->aa[5].seq);
 
-        ck_assert_int_eq(65, (int )query->dlen);
+        ck_assert_int_eq(65, (int )query->headerlen);
         ck_assert_str_eq(
                 "gi|6226519|ref|NP_009305.1| cytochrome-c oxidase subunit I; Cox1p",
-                query->description);
+                query->header);
 
         ck_assert_str_eq(sym_ncbi_aa, query->sym);
         ck_assert_str_eq(map_ncbi_aa, query->map);
@@ -97,8 +96,7 @@ START_TEST (test_query_read_sym2)
         ck_assert_msg(NULL != query->nt[1].seq);
 
         // as defined for strands == 2
-        ck_assert_str_eq(query->nt[1].seq,
-                us_revcompl(query->nt[0].seq, query->nt[0].len));
+        ck_assert_str_eq(query->nt[1].seq, us_revcompl(query->nt[0]).seq);
 
         ck_assert_msg(NULL == query->aa[0].seq);
         ck_assert_msg(NULL == query->aa[1].seq);
@@ -107,10 +105,10 @@ START_TEST (test_query_read_sym2)
         ck_assert_msg(NULL != query->aa[4].seq);
         ck_assert_msg(NULL != query->aa[5].seq);
 
-        ck_assert_int_eq(65, (int )query->dlen);
+        ck_assert_int_eq(65, (int )query->headerlen);
         ck_assert_str_eq(
                 "gi|6226519|ref|NP_009305.1| cytochrome-c oxidase subunit I; Cox1p",
-                query->description);
+                query->header);
 
         ck_assert_str_eq(sym_ncbi_nt16, query->sym);
         ck_assert_str_eq(map_ncbi_nt16, query->map);
@@ -135,10 +133,10 @@ START_TEST (test_query_read_sym3)
         ck_assert_msg(NULL == query->aa[4].seq);
         ck_assert_msg(NULL == query->aa[5].seq);
 
-        ck_assert_int_eq(65, (int )query->dlen);
+        ck_assert_int_eq(65, (int )query->headerlen);
         ck_assert_str_eq(
                 "gi|6226519|ref|NP_009305.1| cytochrome-c oxidase subunit I; Cox1p",
-                query->description);
+                query->header);
 
         ck_assert_str_eq(sym_ncbi_aa, query->sym);
         ck_assert_str_eq(map_ncbi_aa, query->map);
@@ -159,8 +157,7 @@ START_TEST (test_query_read_sym4)
         ck_assert_msg(NULL != query->nt[1].seq);
 
         // as defined for strands == 2
-        ck_assert_str_eq(query->nt[1].seq,
-                us_revcompl(query->nt[0].seq, query->nt[0].len));
+        ck_assert_str_eq(query->nt[1].seq, us_revcompl(query->nt[0]).seq);
 
         ck_assert_msg(NULL == query->aa[0].seq);
         ck_assert_msg(NULL == query->aa[1].seq);
@@ -169,10 +166,10 @@ START_TEST (test_query_read_sym4)
         ck_assert_msg(NULL != query->aa[4].seq);
         ck_assert_msg(NULL != query->aa[5].seq);
 
-        ck_assert_int_eq(65, (int )query->dlen);
+        ck_assert_int_eq(65, (int )query->headerlen);
         ck_assert_str_eq(
                 "gi|6226519|ref|NP_009305.1| cytochrome-c oxidase subunit I; Cox1p",
-                query->description);
+                query->header);
 
         ck_assert_str_eq(sym_ncbi_nt16, query->sym);
         ck_assert_str_eq(map_ncbi_nt16, query->map);
@@ -211,8 +208,7 @@ START_TEST (test_strands_param)
         ck_assert_msg(NULL != query->nt[1].seq);
 
         // as defined for strands == 2
-        ck_assert_str_eq(query->nt[1].seq,
-                us_revcompl(query->nt[0].seq, query->nt[0].len));
+        ck_assert_str_eq(query->nt[1].seq, us_revcompl(query->nt[0]).seq);
 
         ck_assert_msg(NULL == query->aa[0].seq);
         ck_assert_msg(NULL == query->aa[1].seq);
@@ -233,7 +229,7 @@ START_TEST (test_strands_param)
 
         // as defined for strands == 3
         ck_assert_str_eq(query->nt[1].seq,
-                us_revcompl(query->nt[0].seq, query->nt[0].len));
+                us_revcompl(query->nt[0]).seq);
 
         ck_assert_msg(NULL != query->aa[0].seq);
         ck_assert_msg(NULL != query->aa[1].seq);
