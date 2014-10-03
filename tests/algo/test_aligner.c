@@ -23,6 +23,7 @@ extern p_sdb_sequence it_next_sequence();
 extern void it_free();
 
 extern p_alignment_list a_align(p_minheap heap);
+extern void a_free(p_alignment_list alist);
 
 START_TEST (test_aligner_simple)
     {
@@ -44,11 +45,11 @@ START_TEST (test_aligner_simple)
         e.score = 2;
         minheap_add(heap, &e);
 
-        p_alignment_list alignment_list = a_align(heap);
+        p_alignment_list alist = a_align(heap);
 
-        ck_assert_int_eq(1, alignment_list->len);
+        ck_assert_int_eq(1, alist->len);
 
-        p_alignment al = alignment_list->alignments[0];
+        p_alignment al = alist->alignments[0];
 
         ck_assert_str_eq(sdb->seq.seq, al->db_seq.seq);
         ck_assert_int_eq(sdb->seq.len, al->db_seq.len);
@@ -71,6 +72,9 @@ START_TEST (test_aligner_simple)
         ck_assert_int_eq(1, al->align_q_end);
 
         ck_assert_str_eq("M2", al->alignment); // TODO check this
+
+        a_free(alist);
+        minheap_exit(heap);
 
         mat_free();
         query_free(query);
@@ -122,11 +126,11 @@ START_TEST (test_aligner_more_sequences)
         e5.score = 2;
         minheap_add(heap, &e5);
 
-        p_alignment_list alignment_list = a_align(heap);
+        p_alignment_list alist = a_align(heap);
 
-        ck_assert_int_eq(5, alignment_list->len);
+        ck_assert_int_eq(5, alist->len);
 
-        p_alignment al = alignment_list->alignments[0];
+        p_alignment al = alist->alignments[0];
 
         ck_assert_str_eq(sdb->seq.seq, al->db_seq.seq);
         ck_assert_int_eq(sdb->seq.len, al->db_seq.len);
@@ -153,9 +157,12 @@ START_TEST (test_aligner_more_sequences)
                 "M2I2M1I4M1I1M3I5M3I5M1I1M1I2M1D1I1M4I1M5D1I1M1I1M1I4M1I1M3D1M1I1M1",
                 al->alignment); // TODO check this
 
+        a_free(alist);
+        minheap_exit(heap);
+
+        it_free();
         mat_free();
         query_free(query);
-        it_free();
         ssa_db_free();
     }END_TEST
 

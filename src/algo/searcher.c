@@ -65,6 +65,9 @@ void s_free() {
     }
     minheap_exit(res->heap);
     free(res);
+    res = 0;
+
+    algo = 0;
 }
 
 p_search_result s_search() {

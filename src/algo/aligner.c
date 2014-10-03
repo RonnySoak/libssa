@@ -47,6 +47,50 @@ static void init_alignment(p_alignment a, p_sdb_sequence dseq, seq_buffer* qseq)
     a->score_align = 0;
 }
 
+void a_free(p_alignment_list alist) {
+    if (!alist) {
+        return;
+    }
+
+    if (alist->alignments) {
+        for (int i = 0; i < alist->len; i++) {
+            if (alist->alignments[i]) {
+                p_alignment a = alist->alignments[i];
+
+                a->db_seq.seq = 0;
+                a->db_seq.len = 0;
+                a->db_seq.strand = 0;
+                a->db_seq.frame = 0;
+                a->db_seq.header = 0;
+                a->db_seq.headerlen = 0;
+                a->db_seq.ID = 0;
+
+                a->query.seq = 0;
+                a->query.len = 0;
+                a->query.strand = 0;
+                a->query.frame = 0;
+
+                a->align_q_start = 0;
+                a->align_d_start = 0;
+                a->align_q_end = 0;
+                a->align_d_end = 0;
+                if (a->alignment) {
+                    free(a->alignment);
+                    a->alignment = 0;
+                }
+                a->score = 0;
+                a->score_align = 0;
+
+                free(a);
+            }
+            alist->alignments[i] = 0;
+        }
+        free(alist->alignments);
+    }
+    alist->alignments = 0;
+    free(alist);
+}
+
 p_alignment_list a_align(p_minheap heap) {
     p_alignment_list alignment_list =
             (p_alignment_list) xmalloc(sizeof(struct alignment_list));

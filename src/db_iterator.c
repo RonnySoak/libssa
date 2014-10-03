@@ -163,7 +163,19 @@ p_sdb_sequence it_next_sequence() {
 }
 
 void it_free_sequence(p_sdb_sequence seq) {
-    // TODO
+    if (!seq) {
+        return;
+    }
+
+    if (seq->seq.seq) {
+        free(seq->seq.seq);
+        seq->seq.seq = 0;
+        seq->seq.len = 0;
+    }
+
+    seq->frame = 0;
+    seq->strand = 0;
+    seq->info = 0; // TODO maybe free at this point in the DB as well
 }
 
 void it_free_chunk(p_db_chunk chunk) {
@@ -177,6 +189,8 @@ void it_free_chunk(p_db_chunk chunk) {
             free(chunk->seq);
             chunk->seq = 0;
         }
+        free(chunk);
+        chunk = 0;
     }
 }
 
@@ -184,13 +198,13 @@ p_db_chunk it_next_chunk() {
     p_db_chunk chunk = (p_db_chunk) xmalloc(sizeof(struct db_chunk));
 
     chunk->seq = (p_sdb_sequence *) xmalloc(chunk_size * sizeof(p_sdb_sequence));
+    chunk->size = 0;
 
     for (int i = 0; i < chunk_size; i++) {
         chunk->seq[i] = 0;
     }
 
     // TODO make it better and move it to the DB
-    chunk->size = 0;
     for (int i = 0; i < chunk_size; i++) {
         chunk->seq[chunk->size] = it_next_sequence();
         if (!chunk->seq[chunk->size]) {

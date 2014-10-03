@@ -24,18 +24,12 @@ extern const char * sym_ncbi_aa;
 extern int query_strands;
 extern int symtype;
 
-static FILE * query_fp;
-static char query_line[LINE_MAX];
-
-static p_query init(const char * queryname) {
-    if (strcmp(queryname, "-") == 0)
-        query_fp = stdin;
-    else
-        query_fp = fopen(queryname, "r");
-
-    if (!query_fp)
-        ffatal("Cannot open query file.");
-
+/**
+ * Initialises the query struct.
+ *
+ * @return  a pointer to the newly created query struct
+ */
+static p_query init() {
     p_query query = (p_query)xmalloc(sizeof(struct _query));
 
     query->header = 0;
@@ -60,14 +54,14 @@ static p_query init(const char * queryname) {
         }
     }
 
-    query_line[0] = 0;
-    if ( NULL == fgets(query_line, LINE_MAX, query_fp)) {
-        ffatal("Could not initialise from query sequence");
-    }
-
     return query;
 }
 
+/**
+ * Releases the memory used by the query.
+ *
+ * @param query     pointer to the query memory
+ */
 void query_free(p_query query) {
     if (!query)
         return;
@@ -95,9 +89,33 @@ void query_free(p_query query) {
     query = 0;
 }
 
+/**
+ * Reads in a query from a file and returns a pointer to a struct holding the
+ * query data.
+ *
+ * @param queryname     name of the file containing the query
+ * @return              a pointer to the read query
+ */
 p_query query_read(const char * queryname) {
+    FILE * query_fp;
+
+    if (strcmp(queryname, "-") == 0)
+        query_fp = stdin;
+    else
+        query_fp = fopen(queryname, "r");
+
+    if (!query_fp)
+        ffatal("Cannot open query file.");
+
     // open the file and initialise the query
     p_query query = init(queryname);
+
+    char query_line[LINE_MAX];
+
+    query_line[0] = 0;
+    if ( NULL == fgets(query_line, LINE_MAX, query_fp)) {
+        ffatal("Could not initialise from query sequence");
+    }
 
     // read description
     unsigned long len = strlen(query_line);
@@ -151,8 +169,7 @@ p_query query_read(const char * queryname) {
 
     if ((symtype == NUCLEOTIDE) || (symtype == TRANS_QUERY)
             || (symtype == TRANS_BOTH)) {
-        query->nt[0].seq = query_sequence;
-        query->nt[0].len = query_length;
+        query->nt[0] = (sequence){ query_sequence, query_length };
 
         if (query_strands & 2) {
             //      outf("Reverse complement.\n");
@@ -175,8 +192,7 @@ p_query query_read(const char * queryname) {
         }
     }
     else {
-        query->aa[0].seq = query_sequence;
-        query->aa[0].len = query_length;
+        query->aa[0] = (sequence){ query_sequence, query_length };
     }
 
     // close the file pointer
@@ -186,6 +202,13 @@ p_query query_read(const char * queryname) {
     return query;
 }
 
+/**
+ * Prints the query to the configured output file.
+ *
+ * @param query     the query data to print
+ *
+ * TODO not tested
+ */
 void query_show(p_query query) {
     int linewidth = 60;
 

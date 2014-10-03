@@ -22,7 +22,7 @@ void print_sequence(char* desc, int8_t* seq, long len) {
 }
 
 void print_sequence2(char* desc, sequence seq) {
-    print_sequence(desc, seq.seq, seq.len);
+    print_sequence(desc, (int8_t *)seq.seq, seq.len);
 }
 
 /**

@@ -20,7 +20,8 @@ extern void query_free(p_query p);
 
 extern p_search_data init_searchdata(p_query query);
 extern p_alignment_list m_run(p_query query, int res_count);
-extern void m_exit();
+
+extern void a_free(p_alignment_list alist);
 
 START_TEST (test_manager_simple)
     {
@@ -46,7 +47,9 @@ START_TEST (test_manager_simple)
         p_alignment_list alist = m_run(query, 3);
         // TODO test alist
 
-        m_exit();
+        ck_assert_int_eq(3, alist->len);
+
+        a_free(alist);
 
         mat_free();
         query_free(query);
@@ -81,7 +84,6 @@ START_TEST (test_init_search_data)
 
         // TODO test profile and thread data
 
-        m_exit();
         query_free(query);
     }END_TEST
 
@@ -108,7 +110,6 @@ START_TEST (test_init_search_data2)
         ck_assert_int_eq(0, sdp->queries[4].seq.len);
         ck_assert_int_eq(0, sdp->queries[5].seq.len);
 
-        m_exit();
         query_free(query);
     }END_TEST
 
@@ -148,7 +149,6 @@ START_TEST (test_init_search_data3)
         // other data
         ck_assert_ptr_ne(NULL, sdp->hearray);
 
-        m_exit();
         query_free(query);
     }END_TEST
 
@@ -202,7 +202,6 @@ START_TEST (test_init_search_data4)
         // other data
         ck_assert_ptr_ne(NULL, sdp->hearray);
 
-        m_exit();
         query_free(query);
     }END_TEST
 
@@ -232,18 +231,17 @@ START_TEST (test_init_search_data5)
         // other data
         ck_assert_ptr_ne(NULL, sdp->hearray);
 
-        m_exit();
         query_free(query);
     }END_TEST
 
 void addManagerTC(Suite *s) {
     TCase *tc_core = tcase_create("manager");
     tcase_add_test(tc_core, test_manager_simple);
-//    tcase_add_test(tc_core, test_init_search_data);
-//    tcase_add_test(tc_core, test_init_search_data2);
-//    tcase_add_test(tc_core, test_init_search_data3);
-//    tcase_add_test(tc_core, test_init_search_data4);
-//    tcase_add_test(tc_core, test_init_search_data5);
+    tcase_add_test(tc_core, test_init_search_data);
+    tcase_add_test(tc_core, test_init_search_data2);
+    tcase_add_test(tc_core, test_init_search_data3);
+    tcase_add_test(tc_core, test_init_search_data4);
+    tcase_add_test(tc_core, test_init_search_data5);
 
     suite_add_tcase(s, tc_core);
 }

@@ -1,6 +1,8 @@
 /*
  * util_sequence.c
  *
+ * Provides utility functions for DB and query sequences.
+ *
  *  Created on: Sep 18, 2014
  *      Author: Jakob Frielingsdorf
  */
@@ -46,6 +48,7 @@ const char map_ncbi_nt16[256] =
                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
         };
 
+// TODO provide to the user of the lib
 const char * gencode_names[23] =
         {
                 "Standard Code",
@@ -73,7 +76,7 @@ const char * gencode_names[23] =
                 "Thraustochytrium Mitochondrial Code"
         };
 
-const char * code[23] =
+static const char * code[23] =
         {
                 "FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
                 "FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNKKSS**VVVVAAAADDEEGGGG",
@@ -112,9 +115,16 @@ static char d_translate[16 * 16 * 16];
 
 static const char remap[] = { 2, 1, 3, 0 };
 
+/**
+ * Initialises a translation table for a genetic code.
+ *
+ * @see us_init_translation()
+ * @see us_translate_sequence()
+ *
+ * @param tableno   the genetic code
+ * @param table     the table, to initialise
+ */
 static void init_translate_table(int tableno, char * table) {
-    /* initialise translation table */
-
     // TODO understand this !!!!
     for (int a = 0; a < 16; a++) {
         for (int b = 0; b < 16; b++) {
@@ -192,15 +202,30 @@ static void init_translate_table(int tableno, char * table) {
 #endif
 }
 
+/**
+ * Initialises the translation tables for query and DB sequences, using the
+ * provided genetic codes.
+ *
+ * @see us_translate_sequence()
+ *
+ * @param qtableno  the genetic code of the query sequences
+ * @param dtableno  the genetic code of the DB sequences
+ */
 void us_init_translation(int qtableno, int dtableno) {
     init_translate_table(qtableno, q_translate);
     init_translate_table(dtableno, d_translate);
 }
 
+/**
+ * Returns a newly created sequence, with the mapped values of the input
+ * sequence.
+ *
+ * @param seq   the sequence, to be mapped
+ * @param map   the mapping to use
+ * @return      the new mapped sequence
+ */
 sequence us_map_sequence(sequence seq, const char* map) {
-    sequence mapped;
-    mapped.seq = xmalloc(seq.len + 1);
-    mapped.len = seq.len;
+    sequence mapped = { xmalloc(seq.len + 1), seq.len };
 
     char m;
     for (int i = 0; i < seq.len; i++) {
@@ -213,6 +238,18 @@ sequence us_map_sequence(sequence seq, const char* map) {
     return mapped;
 }
 
+/**
+ * Translates a DNA sequence into a protein sequence, according the strand and
+ * frame information. If db_sequence is set, the translation table, initialized
+ * with the genetic code, of the DB is used. Otherwise the translation table,
+ * initialized with the genetic code, of the query sequence is used.
+ *
+ * @param db_sequence   1 for translating a DB sequence 0 otherwise
+ * @param dna       the DNA sequence to translate
+ * @param strand    the strand, that is translated
+ * @param frame     the frame, that is read for translation
+ * @param prot_seq  the resulting protein sequence
+ */
 void us_translate_sequence(int db_sequence, sequence dna,
         int strand, int frame, sequence * prot_seq) {
 //    outf|printf("dlen=%ld, strand=%d, frame=%d\n", dlen, strand, frame);
@@ -267,9 +304,7 @@ sequence us_revcompl(sequence seq) {
         return seq;
     }
 
-    sequence rc;
-    rc.seq = (char *) xmalloc(seq.len + 1);
-    rc.len = seq.len;
+    sequence rc = { (char *) xmalloc(seq.len + 1), seq.len };
     for (unsigned long i = 0; i < seq.len; i++)
         rc.seq[i] = ntcompl[(int) (seq.seq[seq.len - 1 - i])];
     rc.seq[seq.len] = 0;

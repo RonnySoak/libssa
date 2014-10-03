@@ -43,7 +43,7 @@ void add_to_buffer(seq_buffer* buf, sequence seq, int strand,
 p_search_data init_searchdata(p_query query) {
     p_search_data sdp = (p_search_data) xmalloc(sizeof(struct search_data));
 
-    //    sdp->dbt = db_thread_create();
+    // TODO   sdp->dbt = db_thread_create();
     sdp->dprofile = (uint8_t*) xmalloc(4 * 16 * 32);
     unsigned long qlen = 0;
     unsigned long hearraylen = 0;
@@ -89,37 +89,16 @@ p_search_data init_searchdata(p_query query) {
     }
 
     sdp->hearray = (uint8_t*) xmalloc(hearraylen * 32);
-//
-//    // add information about number of strands and frames to search
-//    sdp->qstrand1 = 0;
-//    sdp->qframe1 = 0;
-//    sdp->qstrand2 = 0;
-//    sdp->qframe2 = 0;
-//
-//    if (symtype == NUCLEOTIDE) {
-//        sdp->qstrand1 = (query_strands == COMPLEMENTARY_STRAND) ? 1 : 0;
-//        sdp->qstrand2 = (query_strands == FORWARD_STRAND) ? 0 : 1;
-//        // no translation, so no frames to search in
-//    }
-//    else if (symtype == TRANS_QUERY) {
-//        sdp->qstrand1 = (query_strands == COMPLEMENTARY_STRAND) ? 1 : 0;
-//        sdp->qstrand2 = (query_strands == FORWARD_STRAND) ? 0 : 1;
-//        sdp->qframe2 = 2;   // we search all three frames
-//    }
-//    else if (symtype == TRANS_BOTH) {
-//        sdp->qstrand1 = (query_strands == COMPLEMENTARY_STRAND) ? 1 : 0;
-//        sdp->qstrand2 = (query_strands == FORWARD_STRAND) ? 0 : 1;
-//        sdp->qframe2 = 2;   // we search all three frames
-//    }
+
     return sdp;
 }
 
-static void free_search_data() {
+void free_search_data() {
     if (!sdp) {
         return;
     }
 
-    //    sdp->dbt = db_thread_create();
+    //  TODO  sdp->dbt = db_thread_create();
     if (sdp->dprofile) {
         free(sdp->dprofile);
         sdp->dprofile = 0;
@@ -132,11 +111,6 @@ static void free_search_data() {
         free(sdp->hearray);
         sdp->hearray = 0;
     }
-//
-//    sdp->qstrand1 = 0;
-//    sdp->qframe1 = 0;
-//    sdp->qstrand2 = 0;
-//    sdp->qframe2 = 0;
 
     free(sdp);
 }
@@ -154,6 +128,9 @@ p_alignment_list m_run(p_query query, int res_count) {
     init(query, res_count);
 
     p_search_result res = s_search();
+
+    free_search_data();
+    it_free();
 
 //    seq_buffer qa = *(seq_buffer*)res->heap->array[0].query;
 //
@@ -194,10 +171,4 @@ p_alignment_list m_run(p_query query, int res_count) {
     s_free(res);
 
     return alist;
-}
-
-void m_exit() {
-    free_search_data();
-
-    it_free();
 }

@@ -284,6 +284,8 @@ extern char * matrixname;
 
 /**
  * Prints the currently initialised scoring matrix to the specified output file.
+ *
+ * @param outfile   the file, where to print the matrix
  */
 void mat_dump(char* outfile) {
     // TODO dumps to stdout
@@ -306,6 +308,8 @@ void mat_dump(char* outfile) {
 
 /**
  * Allocates memory for storing the scoring matrices.
+ *
+ * score_matrix_63 is initialised with -1.
  */
 static void prepare_matrices() {
     score_matrix_7 = (int8_t *) xmalloc(32 * 32 * sizeof(int8_t));
@@ -357,6 +361,10 @@ static void finalize_matrices() {
 
 /**
  * Reads a line into score_matrix_63
+ *
+ * @param line      the line to read in
+ * @param symbols   nr of read symbols
+ * @param order     TODO ???
  */
 static void read_line(char line[LINE_MAX], int* symbols, char* order) {
     int a, b, i, read;
@@ -415,13 +423,16 @@ static void read_line(char line[LINE_MAX], int* symbols, char* order) {
 
 /**
  * Initialises matrices with a constant score for matches and mismatches.
+ *
+ * Constant scores can be used with DNA and protein sequences.
+ *
+ * @param matchscore        score for matching symbols
+ * @param mismatchscore     score for mismatching symbols
  */
 void mat_init_constant_scoring(const int8_t matchscore,
         const int8_t mismatchscore) {
     prepare_matrices();
 
-    /* We initialize the whole matrix, in case con  stant scores are used with
-     * protein sequences */
     int a, b;
     for (a = 1; a < 32; a++) {
         for (b = 1; b < 33; b++) {
@@ -435,6 +446,8 @@ void mat_init_constant_scoring(const int8_t matchscore,
 
 /**
  * Reads a scoring matrix from a file.
+ *
+ * @param matrix    name of the file containing the scoring matrix
  */
 void mat_init_from_file(const char * matrix) {
     prepare_matrices();
@@ -463,6 +476,8 @@ void mat_init_from_file(const char * matrix) {
 
 /**
  * Reads a scoring matrix from a string.
+ *
+ * @param matrix    scoring matrix as a string
  */
 void mat_init_from_string(const char * matrix) {
     prepare_matrices();
@@ -502,7 +517,7 @@ void mat_init_from_string(const char * matrix) {
 }
 
 /**
- * Prepares on of the build-in scoring matrixes.
+ * Prepares one of the build-in scoring matrixes.
  *
  * List of available matrices:
  *  - blosum45
@@ -513,6 +528,8 @@ void mat_init_from_string(const char * matrix) {
  *  - pam30
  *  - pam70
  *  - pam250
+ *
+ * @param matrixname    one of the available matrices
  */
 void mat_init_buildin(const char* matrixname) {
     prepare_matrices();
