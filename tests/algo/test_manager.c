@@ -31,19 +31,6 @@ START_TEST (test_manager_simple)
         p_query query = query_read("./tests/testdata/one_seq.fas");
         ssa_db_init_fasta("./tests/testdata/test.fas");
 
-//        print_sequence2("nt 1", query->nt[0]);
-//        print_sequence2("nt 2", query->nt[1]);
-//        print_sequence2("aa 1", query->aa[0]);
-//        print_sequence2("aa 2", query->aa[1]);
-//        print_sequence2("aa 3", query->aa[2]);
-//        print_sequence2("aa 4", query->aa[3]);
-//        print_sequence2("aa 4", query->aa[4]);
-//        print_sequence2("aa 5", query->aa[5]);
-
-//        printf("2\n");
-//        printf("M: %ld\n", query->nt[0].len);
-//        printf("a: %d%d%d\n", query->nt[0].seq[0], query->nt[0].seq[1], query->nt[0].seq[2]);
-
         p_alignment_list alist = m_run(query, 3);
         // TODO test alist
 

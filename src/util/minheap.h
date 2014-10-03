@@ -10,7 +10,7 @@
 
 typedef struct topscore {
     void* db_seq;
-    void* query;
+    int query_id; // id of the compared query in seq_buffer of search_data
     long score;
 } elem_t;
 
@@ -24,7 +24,7 @@ typedef struct minheap_s * p_minheap;
 
 p_minheap minheap_init(int size);
 
-void minheap_add(p_minheap m, elem_t * n);
+elem_t* minheap_add(p_minheap m, elem_t * n);
 
 void minheap_sort(p_minheap m);
 

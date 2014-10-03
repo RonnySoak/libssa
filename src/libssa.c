@@ -29,6 +29,12 @@ extern void mat_init_from_string(const char * matrix);
 extern void mat_init_buildin(const char* matrixname);
 extern void mat_free();
 
+// in manager.c
+extern p_alignment_list m_run(p_query query, int res_count);
+
+// in aligner.c
+extern void a_free(p_alignment_list alist);
+
 // in util_sequence.c
 extern void us_init_translation(int qtableno, int dtableno);
 
@@ -229,7 +235,7 @@ void free_sequence(p_query p) {
  * @return pointer to the alignment structure
  */
 p_alignment_list sw_align(p_query p, int hitcount /* TODO ...*/) {
-    return NULL; // TODO
+    return m_run(p, hitcount); // TODO make alignment algo configurable in manager.c
 }
 
 /**
@@ -280,5 +286,11 @@ p_alignment_list nw_ignore_gaps_align(p_query p, int hitcount /* TODO ... ignore
  * @see nw_align
  */
 void free_alignment(p_alignment_list alist) {
-    // TODO
+    a_free(alist);
+}
+
+void ssa_exit() {
+    mat_free();
+
+    close_out();
 }

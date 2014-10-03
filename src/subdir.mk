@@ -11,6 +11,7 @@ USER_OBJS += \
 ./src/libsdb.h \
 ./src/libssa_datatypes.h \
 ./src/internal_datatypes.h \
-./src/util.h
+./src/util.h \
+./src/libssa_examples.c
 
 TO_CLEAN +=

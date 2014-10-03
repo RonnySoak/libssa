@@ -11,6 +11,7 @@
 
 extern p_db_chunk it_next_chunk();
 extern void it_free_chunk(p_db_chunk chunk);
+extern void it_free_sequence(p_sdb_sequence seq);
 
 extern long * score_matrix_63;
 
@@ -42,8 +43,8 @@ static void search_chunk(p_minheap heap, p_db_chunk chunk) {
         for (int x = 0; x < sdp->q_count; x++) {
             seq_buffer query = sdp->queries[x];
 
-            elem_t* e = (elem_t*)xmalloc(sizeof(elem_t));
-            e->query = &query;
+            elem_t * e = (elem_t *) xmalloc(sizeof(elem_t));
+            e->query_id = x;
             e->db_seq = dseq;
 
             // TODO add other algorithms (7, 8, 16 bit)
@@ -54,7 +55,17 @@ static void search_chunk(p_minheap heap, p_db_chunk chunk) {
                         gapO, gapE);
 
             // TODO get old element/sequence as return value and free it!!
-            minheap_add(heap, e);
+            elem_t* prev = minheap_add(heap, e);
+            if (prev) {
+                // TODO test this !!!!!!!!!!111!!11111!!!!
+                it_free_sequence((p_sdb_sequence) prev->db_seq);
+
+                prev->db_seq = 0;
+                prev->query_id = 0;
+                prev->score = 0;
+                free(prev);
+                prev = 0;
+            }
         }
     }
 }

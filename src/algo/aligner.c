@@ -24,7 +24,7 @@ extern long * score_matrix_63;
 extern uint8_t gapO;
 extern uint8_t gapE;
 
-static void init_alignment(p_alignment a, p_sdb_sequence dseq, seq_buffer* qseq) {
+static void init_alignment(p_alignment a, p_sdb_sequence dseq, seq_buffer qseq) {
     a->db_seq.seq = dseq->seq.seq;
     a->db_seq.len = dseq->seq.len;
     a->db_seq.strand = dseq->strand;
@@ -33,10 +33,10 @@ static void init_alignment(p_alignment a, p_sdb_sequence dseq, seq_buffer* qseq)
     a->db_seq.headerlen = dseq->info->headerlen;
     a->db_seq.ID = dseq->info->ID;
 
-    a->query.seq = qseq->seq.seq;
-    a->query.len = qseq->seq.len;
-    a->query.strand = qseq->strand;
-    a->query.frame = qseq->frame;
+    a->query.seq = qseq.seq.seq;
+    a->query.len = qseq.seq.len;
+    a->query.strand = qseq.strand;
+    a->query.frame = qseq.frame;
 
     a->align_q_start = 0;
     a->align_d_start = 0;
@@ -91,7 +91,7 @@ void a_free(p_alignment_list alist) {
     free(alist);
 }
 
-p_alignment_list a_align(p_minheap heap) {
+p_alignment_list a_align(p_minheap heap, seq_buffer* queries, int q_count) {
     p_alignment_list alignment_list =
             (p_alignment_list) xmalloc(sizeof(struct alignment_list));
     alignment_list->alignments = (p_alignment*) xmalloc(heap->count * sizeof(struct alignment));
@@ -100,13 +100,13 @@ p_alignment_list a_align(p_minheap heap) {
     for (int i = 0; i < heap->count; i++) {
         // do alignment for each pair
         p_sdb_sequence db_seq = (p_sdb_sequence)heap->array[i].db_seq;
-        seq_buffer * qseq = (seq_buffer*)heap->array[i].query;
+        seq_buffer qseq = queries[heap->array[i].query_id];
 
         p_alignment a = (p_alignment) xmalloc(sizeof(struct alignment));
 
         init_alignment(a, db_seq, qseq);
 
-        align_sequences(&qseq->seq,
+        align_sequences(&qseq.seq,
                 &db_seq->seq,
                 score_matrix_63,
                 gapO,

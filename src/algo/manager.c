@@ -24,7 +24,7 @@ extern void s_init(p_search_data data,
 extern p_search_result s_search();
 extern void s_free(p_search_result p);
 
-extern p_alignment_list a_align(p_minheap heap);
+extern p_alignment_list a_align(p_minheap heap, seq_buffer* queries, int q_count);
 
 static p_search_data sdp;
 unsigned long max_chunk_size = 3; // TODO change and/or make it configurable
@@ -129,44 +129,13 @@ p_alignment_list m_run(p_query query, int res_count) {
 
     p_search_result res = s_search();
 
-    free_search_data();
     it_free();
 
-//    seq_buffer qa = *(seq_buffer*)res->heap->array[0].query;
-//
-//    printf("after search\n");
-//    printf("M: %ld\n", qa.seq.len);
-//    printf("Mp: %p\n", &qa.seq.len);
-//    printf("ap: %p\n", qa.seq.seq);
-//    printf("a: %d%d%d\n", qa.seq.seq[0], qa.seq.seq[1], qa.seq.seq[2]);
-
     minheap_sort(res->heap);
-//
-//    seq_buffer qs = *(seq_buffer*)res->heap->array[0].query;
-//
-//    printf("after sort1\n");
-//    printf("M: %ld\n", qs.seq.len);
-//    printf("Mp: %p\n", &qs.seq.len);
-//    printf("ap: %p\n", qs.seq.seq);
-//    printf("a: %c%c%c\n", qs.seq.seq[0], qs.seq.seq[1], qs.seq.seq[2]);
-//
-//    qs = *(seq_buffer*) res->heap->array[1].query;
-//
-//    printf("after sort2\n");
-//    printf("M: %ld\n", qs.seq.len);
-//    printf("Mp: %p\n", &qs.seq.len);
-//    printf("ap: %p\n", qs.seq.seq);
-//    printf("a: %c%c%c\n", qs.seq.seq[0], qs.seq.seq[1], qs.seq.seq[2]);
-//
-//    qs = *(seq_buffer*) res->heap->array[2].query;
-//
-//    printf("after sort3\n");
-//    printf("M: %ld\n", qs.seq.len);
-//    printf("Mp: %p\n", &qs.seq.len);
-//    printf("ap: %p\n", qs.seq.seq);
-//    printf("a: %c%c%c\n", qs.seq.seq[0], qs.seq.seq[1], qs.seq.seq[2]);
 
-    p_alignment_list alist = a_align(res->heap);
+    p_alignment_list alist = a_align(res->heap, sdp->queries, sdp->q_count);
+
+    free_search_data();
 
     s_free(res);
 

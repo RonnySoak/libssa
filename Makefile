@@ -59,9 +59,9 @@ LINKFLAGS := $(COMMON)
 CXX := gcc
 # -Wno-write-strings removes the `deprecated conversion from\
  string constant to char*` warnings
-CXXFLAGS := -Wall -O3 -std=c99 -march=native $(COMMON)
+CXXFLAGS := -Wall -O0 -std=c99 -march=native $(COMMON)
 
-PROG := init libssa libssa_check
+PROG := init libssa libssa_check libssa_example
 
 .SUFFIXES := .o .c
 
@@ -92,6 +92,11 @@ libssa_check : $(TESTS) $(OBJS) $(DEPS)
 	@echo 'Building target: $@'
 	$(CXX) $(LINKFLAGS) -o $@ $(OBJS) $(TESTS) $(TEST_LIBS) $(LIBS) -L. -lsdb
 	@echo 'Finished building target: $@'
+	
+libssa_example : $(OBJS) $(DEPS)
+	@echo 'Building target: $@'
+	$(CXX) $(CXXFLAGS) $(LINKFLAGS) -o $@ ./src/libssa_example.c $(LIBS) -L. -lssa -lsdb
+	@echo 'Finished building target: $@'
 
 # clean created files
 clean:
@@ -100,3 +105,7 @@ clean:
 # run tests
 check:
 	./libssa_check
+
+# run example
+example:
+	./libssa_example

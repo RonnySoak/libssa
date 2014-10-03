@@ -252,7 +252,7 @@ void init_db_fasta(const char* fasta_db_file);
  *
  * @see init_db_fasta
  */
-void sdb_free_db();
+void free_db();
 
 /**
  * Reads a FASTA file containing the query sequence.
@@ -326,5 +326,7 @@ p_alignment_list nw_ignore_gaps_align(p_query p, int hitcount /* TODO ... ignore
  * @see nw_align
  */
 void free_alignment(p_alignment_list alist);
+
+void ssa_exit();
 
 #endif /* LIBSSA_H_ */

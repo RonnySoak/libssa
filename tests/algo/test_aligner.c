@@ -22,7 +22,7 @@ extern void it_init(long chunk_count);
 extern p_sdb_sequence it_next_sequence();
 extern void it_free();
 
-extern p_alignment_list a_align(p_minheap heap);
+extern p_alignment_list a_align(p_minheap heap, seq_buffer* queries, int q_count);
 extern void a_free(p_alignment_list alist);
 
 START_TEST (test_aligner_simple)
@@ -41,11 +41,16 @@ START_TEST (test_aligner_simple)
 
         elem_t e;
         e.db_seq = sdb;
-        e.query = query;
+        e.query_id = 0;
         e.score = 2;
         minheap_add(heap, &e);
 
-        p_alignment_list alist = a_align(heap);
+        seq_buffer queries[1];
+        queries[0].seq = query->nt[0];
+        queries[0].strand = 0;
+        queries[0].frame = 0;
+
+        p_alignment_list alist = a_align(heap, queries, 0);
 
         ck_assert_int_eq(1, alist->len);
 
@@ -98,35 +103,40 @@ START_TEST (test_aligner_more_sequences)
 
         elem_t e;
         e.db_seq = sdb;
-        e.query = query;
+        e.query_id = 0;
         e.score = 2;
         minheap_add(heap, &e);
         p_sdb_sequence sdb2 = it_next_sequence();
         elem_t e2;
         e2.db_seq = sdb2;
-        e2.query = query;
+        e2.query_id = 0;
         e2.score = 2;
         minheap_add(heap, &e2);
         p_sdb_sequence sdb3 = it_next_sequence();
         elem_t e3;
         e3.db_seq = sdb3;
-        e3.query = query;
+        e3.query_id = 0;
         e3.score = 2;
         minheap_add(heap, &e3);
         p_sdb_sequence sdb4 = it_next_sequence();
         elem_t e4;
         e4.db_seq = sdb4;
-        e4.query = query;
+        e4.query_id = 0;
         e4.score = 2;
         minheap_add(heap, &e4);
         p_sdb_sequence sdb5 = it_next_sequence();
         elem_t e5;
         e5.db_seq = sdb5;
-        e5.query = query;
+        e5.query_id = 0;
         e5.score = 2;
         minheap_add(heap, &e5);
 
-        p_alignment_list alist = a_align(heap);
+        seq_buffer queries[1];
+        queries[0].seq = query->nt[0];
+        queries[0].strand = 0;
+        queries[0].frame = 0;
+
+        p_alignment_list alist = a_align(heap, queries, 0);
 
         ck_assert_int_eq(5, alist->len);
 

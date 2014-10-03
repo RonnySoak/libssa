@@ -43,9 +43,11 @@ void minheap_exit(p_minheap m) {
     free(m);
 }
 
-static void minheap_replaceroot(p_minheap m, elem_t tmp) {
+static elem_t* minheap_replaceroot(p_minheap m, elem_t tmp) {
     /* remove the element at the root, then swap children up
      to the root and insert tmp at suitable place */
+
+    elem_t* res = &m->array[0];
 
     /* start with root */
     int p = 0;
@@ -67,9 +69,11 @@ static void minheap_replaceroot(p_minheap m, elem_t tmp) {
         c = 2 * p + 1;
     }
     m->array[p] = tmp;
+
+    return res;
 }
 
-void minheap_add(p_minheap m, elem_t * n) {
+elem_t* minheap_add(p_minheap m, elem_t * n) {
     if (m->count < m->alloc) {
         /* space for another item at end; swap upwards */
         int i = m->count++;
@@ -83,8 +87,9 @@ void minheap_add(p_minheap m, elem_t * n) {
     }
     else if (elem_smaller(m->array, n)) {
         /* replace the root if new element is larger than root */
-        minheap_replaceroot(m, *n);
+        return minheap_replaceroot(m, *n);
     }
+    return 0;
 }
 
 #if 0

@@ -66,10 +66,10 @@ START_TEST (test_searcher_simple)
 
         elem_t e = res->heap->array[0];
         p_sdb_sequence dseq = (p_sdb_sequence)e.db_seq;
-        seq_buffer * qseq = (seq_buffer*)e.query;
+        int qseq_id = e.query_id;
 
         ck_assert_ptr_ne(NULL, dseq);
-        ck_assert_ptr_ne(NULL, qseq);
+        ck_assert_int_eq(0, qseq_id);
 
         ck_assert_int_eq(4, (int)dseq->seq.len);
 
@@ -109,7 +109,7 @@ START_TEST (test_searcher_more_sequences)
         elem_t e = res->heap->array[0];
 
         ck_assert_ptr_ne(NULL, e.db_seq);
-        ck_assert_ptr_ne(NULL, e.query);
+        ck_assert_int_eq(0, e.query_id); // TODO find out
         ck_assert_int_eq(53, e.score);
 
         s_free(res);
