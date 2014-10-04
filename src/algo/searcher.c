@@ -26,12 +26,12 @@ uint8_t gapE;
 
 void s_init(p_search_data data,
         long (* algo_p) (sequence *, sequence *, int64_t *, int64_t *, uint8_t, uint8_t),
-        long res_count) {
+        long hit_count) {
     sdp = data;
     algo = algo_p;
 
     res = (p_search_result)xmalloc(sizeof(struct search_result));
-    res->heap = minheap_init(res_count);
+    res->heap = minheap_init(hit_count);
     res->chunk_count = 0;
     res->seq_count = 0;
 }
@@ -54,10 +54,13 @@ static void search_chunk(p_minheap heap, p_db_chunk chunk) {
                         score_matrix_63,
                         gapO, gapE);
 
-            // TODO get old element/sequence as return value and free it!!
+            /*
+             * Alignments, with a score equal to the current lowest score in the
+             * heap are ignored!
+             */
             elem_t* prev = minheap_add(heap, e);
+
             if (prev) {
-                // TODO test this !!!!!!!!!!111!!11111!!!!
                 it_free_sequence((p_sdb_sequence) prev->db_seq);
 
                 prev->db_seq = 0;
@@ -74,7 +77,21 @@ void s_free() {
     if (!res) {
         return;
     }
+
+    for (int i = 0; i < res->heap->count; i++) {
+        elem_t e = res->heap->array[i];
+
+        it_free_sequence((p_sdb_sequence) e.db_seq);
+
+        e.db_seq = 0;
+        e.query_id = 0;
+        e.score = 0;
+    }
+
     minheap_exit(res->heap);
+
+    res->chunk_count = 0;
+    res->seq_count = 0;
     free(res);
     res = 0;
 

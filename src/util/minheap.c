@@ -84,12 +84,17 @@ elem_t* minheap_add(p_minheap m, elem_t * n) {
             p = (i - 1) / 2;
         }
         m->array[i] = *n;
+
+        // we added the element
+        return 0;
     }
     else if (elem_smaller(m->array, n)) {
         /* replace the root if new element is larger than root */
+        // and return the old one
         return minheap_replaceroot(m, *n);
     }
-    return 0;
+    // if we do not add it, we return it, to be freed
+    return n;
 }
 
 #if 0
@@ -153,11 +158,11 @@ void minheap_sort(p_minheap m) {
     qsort(m->array, m->count, sizeof(elem_t), minheap_compare);
 }
 
-//void minheap_dump(p_minheap m) {
-//    for (int i = 0; i < m->count; i++)
-//        printf("%s%d", i > 0 ? " " : "", m->array[i].count);
-//    printf("\n");
-//}
+void minheap_dump(p_minheap m) {
+    for (int i = 0; i < m->count; i++)
+        printf("%s%ld", i > 0 ? " " : "", m->array[i].score);
+    printf("\n");
+}
 //
 //elem_t minheap_poplast(p_minheap m) {
 //    /* return top element and restore order */

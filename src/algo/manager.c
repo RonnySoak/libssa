@@ -20,7 +20,7 @@ extern void it_free();
 
 extern void s_init(p_search_data data,
         long (* algo_p) (sequence *, sequence *, int64_t *, int64_t *, uint8_t, uint8_t),
-        long res_count);
+        long hit_count);
 extern p_search_result s_search();
 extern void s_free(p_search_result p);
 
@@ -115,17 +115,17 @@ void free_search_data() {
     free(sdp);
 }
 
-static void init(p_query query, int res_count) {
+static void init(p_query query, int hit_count) {
     sdp = init_searchdata(query);
 
-    s_init(sdp, &fullsw, res_count);
+    s_init(sdp, &fullsw, hit_count);
 
     it_init(max_chunk_size);
 }
 
-p_alignment_list m_run(p_query query, int res_count) {
+p_alignment_list m_run(p_query query, int hit_count) {
     // TODO add threads
-    init(query, res_count);
+    init(query, hit_count);
 
     p_search_result res = s_search();
 
@@ -136,7 +136,6 @@ p_alignment_list m_run(p_query query, int res_count) {
     p_alignment_list alist = a_align(res->heap, sdp->queries, sdp->q_count);
 
     free_search_data();
-
     s_free(res);
 
     return alist;

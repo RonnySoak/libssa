@@ -532,8 +532,6 @@ void mat_init_from_string(const char * matrix) {
  * @param matrixname    one of the available matrices
  */
 void mat_init_buildin(const char* matrixname) {
-    prepare_matrices();
-
     if (strcasecmp(matrixname, BLOSUM45) == 0)
         mat_init_from_string(mat_blosum45);
     else if (strcasecmp(matrixname, BLOSUM50) == 0)
@@ -552,8 +550,6 @@ void mat_init_buildin(const char* matrixname) {
         mat_init_from_string(mat_pam250);
     else
         ffatal("Unknown matrix: %s", matrixname);
-
-    finalize_matrices();
 }
 
 /**
@@ -561,13 +557,13 @@ void mat_init_buildin(const char* matrixname) {
  */
 void mat_free() {
     free(score_matrix_7);
-    score_matrix_7 = NULL;
+    score_matrix_7 = 0;
     free(score_matrix_8);
-    score_matrix_8 = NULL;
+    score_matrix_8 = 0;
     free(score_matrix_16);
-    score_matrix_16 = NULL;
+    score_matrix_16 = 0;
     free(score_matrix_32);
-    score_matrix_32 = NULL;
+    score_matrix_32 = 0;
     free(score_matrix_63);
-    score_matrix_63 = NULL;
+    score_matrix_63 = 0;
 }

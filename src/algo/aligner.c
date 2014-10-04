@@ -88,6 +88,8 @@ void a_free(p_alignment_list alist) {
         free(alist->alignments);
     }
     alist->alignments = 0;
+    alist->len = 0;
+
     free(alist);
 }
 

@@ -10,7 +10,7 @@
 int main(int argc, char**argv) {
     init_score_matrix(BLOSUM62);
     init_gap_penalties(4, 2);
-    init_symbol_translation(NUCLEOTIDE, COMPLEMENTARY_STRAND, 3, 3);
+    init_symbol_translation(NUCLEOTIDE, FORWARD_STRAND, 3, 3);
 
     init_db_fasta("tests/testdata/test.fas");
 

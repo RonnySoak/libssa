@@ -34,6 +34,7 @@ static void fill_buffer(p_seqinfo seqinfo) {
 
     if (symtype == NUCLEOTIDE) {
         // first element
+
         buffer[0] = (p_sdb_sequence )xmalloc(sizeof(sdb_sequence));
         buffer[0]->info = seqinfo;
         buffer[0]->seq = us_map_sequence(db_seq, map_ncbi_nt16);
