@@ -65,13 +65,8 @@ START_TEST (test_searcher_simple)
         minheap_sort(res->heap);
 
         elem_t e = res->heap->array[0];
-        p_sdb_sequence dseq = (p_sdb_sequence)e.db_seq;
-        int qseq_id = e.query_id;
-
-        ck_assert_ptr_ne(NULL, dseq);
-        ck_assert_int_eq(0, qseq_id);
-
-        ck_assert_int_eq(4, (int)dseq->seq.len);
+        ck_assert_int_eq(0, e.db_id);
+        ck_assert_int_eq(0, e.query_id);
 
         ck_assert_int_eq(2, e.score);
 
@@ -108,7 +103,7 @@ START_TEST (test_searcher_more_sequences)
 
         elem_t e = res->heap->array[0];
 
-        ck_assert_ptr_ne(NULL, e.db_seq);
+        ck_assert_int_eq(1, e.db_id);
         ck_assert_int_eq(0, e.query_id); // TODO find out
         ck_assert_int_eq(53, e.score);
 

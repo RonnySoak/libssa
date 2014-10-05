@@ -19,6 +19,9 @@ extern void align_sequences(sequence * a_seq,
         char ** alignment,
         long * s);
 
+extern p_sdb_sequence it_get_sequence(unsigned long id, int f, int s);
+extern void it_free_sequence(p_sdb_sequence seq);
+
 extern long * score_matrix_63;
 
 extern uint8_t gapO;
@@ -101,11 +104,11 @@ p_alignment_list a_align(p_minheap heap, seq_buffer* queries, int q_count) {
 
     for (int i = 0; i < heap->count; i++) {
         // do alignment for each pair
-        p_sdb_sequence db_seq = (p_sdb_sequence)heap->array[i].db_seq;
+        p_sdb_sequence db_seq = it_get_sequence(heap->array[i].db_id,
+                heap->array[i].dframe, heap->array[i].dstrand);
         seq_buffer qseq = queries[heap->array[i].query_id];
 
         p_alignment a = (p_alignment) xmalloc(sizeof(struct alignment));
-
         init_alignment(a, db_seq, qseq);
 
         align_sequences(&qseq.seq,
@@ -119,6 +122,8 @@ p_alignment_list a_align(p_minheap heap, seq_buffer* queries, int q_count) {
                 & a->align_d_end,
                 & a->alignment,
                 & a->score_align);
+
+        it_free_sequence(db_seq);
 
         alignment_list->alignments[i] = a;
     }

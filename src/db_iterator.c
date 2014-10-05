@@ -137,6 +137,43 @@ void it_init(unsigned long size) {
     }
 }
 
+p_sdb_sequence it_get_sequence(unsigned long id, int f, int s) {
+    p_seqinfo info = ssa_db_get_sequence(id);
+
+    if (!info) {
+        // TODO raise error, as this should not be possible
+        ffatal("Could not get sequence from DB: %ld", id);
+    }
+
+    p_sdb_sequence result = (p_sdb_sequence )xmalloc(sizeof(sdb_sequence));
+    result->info = info;
+    result->strand = s;
+    result->frame = f;
+
+    sequence db_seq;
+    db_seq.seq = info->seq;
+    db_seq.len = info->seqlen;
+
+    sequence conv_seq = us_map_sequence(db_seq, map_ncbi_nt16);
+
+    if (symtype == NUCLEOTIDE) {
+        if (s == 2) {
+            result->seq = us_revcompl(conv_seq);
+        }
+        else {
+            result->seq = conv_seq;
+        }
+    }
+    else if ((symtype == TRANS_DB) || (symtype == TRANS_BOTH)) {
+        us_translate_sequence(1, conv_seq, s, f, &result->seq);
+    }
+    else {
+        result->seq = conv_seq;
+    }
+
+    return result;
+}
+
 /**
  * Returns the next sequence from the database. Translates the DB sequences, if
  * necessary, and returns the translated sequences one by one.
@@ -177,6 +214,9 @@ void it_free_sequence(p_sdb_sequence seq) {
     seq->frame = 0;
     seq->strand = 0;
     seq->info = 0; // TODO maybe free at this point in the DB as well
+
+    free(seq);
+    seq = 0;
 }
 
 void it_free_chunk(p_db_chunk chunk) {

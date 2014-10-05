@@ -43,9 +43,8 @@ TO_CLEAN := libssa.a
 MPI_COMPILE := `mpicxx --showme:compile`
 MPI_LINK := `mpicxx --showme:link`
 
-COMMON := -g
+COMMON := -g -pg
 # add "-fprofile-arcs -ftest-coverage" to COMMON for code coverage
-#COMMON := -pg -g
 
 LIBS := -lpthread
 TEST_LIBS := -lcheck -lm -lrt
@@ -59,7 +58,7 @@ LINKFLAGS := $(COMMON)
 CXX := gcc
 # -Wno-write-strings removes the `deprecated conversion from\
  string constant to char*` warnings
-CXXFLAGS := -Wall -O0 -std=c99 -march=native $(COMMON)
+CXXFLAGS := -Wall -O3 -std=c99 -march=native $(COMMON)
 
 PROG := init libssa libssa_check libssa_example
 

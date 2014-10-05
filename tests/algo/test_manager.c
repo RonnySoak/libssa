@@ -42,6 +42,24 @@ START_TEST (test_manager_simple)
         query_free(query);
     }END_TEST
 
+START_TEST (test_manager_simple2)
+    {
+        init_symbol_translation(NUCLEOTIDE, FORWARD_STRAND, 3, 3);
+        mat_init_constant_scoring(1, -1);
+
+        p_query query = query_read("./tests/testdata/one_seq.fas");
+        ssa_db_init_fasta("./tests/testdata/test2.fas");
+
+        p_alignment_list alist = m_run(query, 1);
+
+        ck_assert_int_eq(1, alist->len);
+
+        a_free(alist);
+
+        mat_free();
+        query_free(query);
+    }END_TEST
+
 START_TEST (test_init_search_data)
     {
         init_symbol_translation(NUCLEOTIDE, FORWARD_STRAND, 3, 3);
@@ -224,6 +242,7 @@ START_TEST (test_init_search_data5)
 void addManagerTC(Suite *s) {
     TCase *tc_core = tcase_create("manager");
     tcase_add_test(tc_core, test_manager_simple);
+    tcase_add_test(tc_core, test_manager_simple2);
     tcase_add_test(tc_core, test_init_search_data);
     tcase_add_test(tc_core, test_init_search_data2);
     tcase_add_test(tc_core, test_init_search_data3);

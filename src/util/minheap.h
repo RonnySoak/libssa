@@ -9,8 +9,10 @@
 #define MINHEAP_H_
 
 typedef struct topscore {
-    void* db_seq;
-    int query_id; // id of the compared query in seq_buffer of search_data
+    unsigned long db_id; // id of the DB sequence
+    int dframe;          // strand of the DB sequence
+    int dstrand;         // frame the DB sequence
+    int query_id;        // id of the compared query in seq_buffer of search_data
     long score;
 } elem_t;
 
@@ -24,7 +26,7 @@ typedef struct minheap_s * p_minheap;
 
 p_minheap minheap_init(int size);
 
-elem_t* minheap_add(p_minheap m, elem_t * n);
+void minheap_add(p_minheap m, elem_t * n);
 
 void minheap_sort(p_minheap m);
 

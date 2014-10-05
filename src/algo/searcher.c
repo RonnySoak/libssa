@@ -37,7 +37,7 @@ void s_init(p_search_data data,
 }
 
 static void search_chunk(p_minheap heap, p_db_chunk chunk) {
-    for (int i = 0; i < chunk->size; i++) {
+    for (unsigned long i = 0; i < chunk->size; i++) {
         p_sdb_sequence dseq = chunk->seq[i];
 
         for (int x = 0; x < sdp->q_count; x++) {
@@ -45,7 +45,13 @@ static void search_chunk(p_minheap heap, p_db_chunk chunk) {
 
             elem_t * e = (elem_t *) xmalloc(sizeof(elem_t));
             e->query_id = x;
-            e->db_seq = dseq;
+            e->db_id = dseq->info->ID;
+            e->dframe = dseq->frame;
+            e->dstrand = dseq->strand;
+
+//            printf("search - i: %ld, DB ID: %ld\n", i, dseq->info->ID);
+//
+//            minheap_dump(heap);
 
             // TODO add other algorithms (7, 8, 16 bit)
             e->score = algo(&dseq->seq,
@@ -53,22 +59,28 @@ static void search_chunk(p_minheap heap, p_db_chunk chunk) {
                         sdp->hearray, // TODO how to cope with different parameters in different implementation?
                         score_matrix_63,
                         gapO, gapE);
-
+//            printf("e.score: %ld\n", e->score);
             /*
              * Alignments, with a score equal to the current lowest score in the
              * heap are ignored!
              */
-            elem_t* prev = minheap_add(heap, e);
+            minheap_add(heap, e);
 
-            if (prev) {
-                it_free_sequence((p_sdb_sequence) prev->db_seq);
+            /*
+             * minheap_add dereferences e and stores a copy of e, if its score
+             * is higher than the lowest score in the heap.
+             *
+             * This means, we can and should free e here!
+             */
+            it_free_sequence((p_sdb_sequence) dseq);
 
-                prev->db_seq = 0;
-                prev->query_id = 0;
-                prev->score = 0;
-                free(prev);
-                prev = 0;
-            }
+            e->db_id = 0;
+            e->dframe = 0;
+            e->dstrand = 0;
+            e->query_id = 0;
+            e->score = 0;
+            free(e);
+            e = 0;
         }
     }
 }
@@ -81,9 +93,9 @@ void s_free() {
     for (int i = 0; i < res->heap->count; i++) {
         elem_t e = res->heap->array[i];
 
-        it_free_sequence((p_sdb_sequence) e.db_seq);
-
-        e.db_seq = 0;
+        e.db_id = 0;
+        e.dframe = 0;
+        e.dstrand = 0;
         e.query_id = 0;
         e.score = 0;
     }

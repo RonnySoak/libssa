@@ -13,10 +13,12 @@ int main(int argc, char**argv) {
     init_symbol_translation(NUCLEOTIDE, FORWARD_STRAND, 3, 3);
 
     init_db_fasta("tests/testdata/test.fas");
+//    init_db_fasta("tests/testdata/AF091148.fas");
+//    init_db_fasta("tests/testdata/Rfam_11_0.fasta");
 
     p_query query = init_sequence_fasta("tests/testdata/one_seq.fas");
 
-    p_alignment_list alist = sw_align(query, 3);
+    p_alignment_list alist = sw_align(query, 5);
 
     printf("Nr of alignments: %ld\n", alist->len);
 

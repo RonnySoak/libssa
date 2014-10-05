@@ -10,9 +10,9 @@
 #include "../src/util.h"
 #include "../src/util/minheap.h"
 
-elem_t new_elem(long value, void* db_obj, int query_id) {
+elem_t new_elem(long value, unsigned long db_id, int query_id) {
     elem_t e;
-    e.db_seq = db_obj;
+    e.db_id = db_id;
     e.query_id = query_id;
     e.score = value;
     return e;
@@ -25,15 +25,15 @@ START_TEST (test_add_size_elements)
         ck_assert_int_eq(0, m->count);
         ck_assert_int_eq(5, m->alloc);
 
-        elem_t e1 = new_elem(3, "db_a", 1);
+        elem_t e1 = new_elem(3, 11, 1);
         minheap_add(m, &e1);
-        elem_t e2 = new_elem(4, "db_b", 2);
+        elem_t e2 = new_elem(4, 22, 2);
         minheap_add(m, &e2);
-        elem_t e3 = new_elem(2, "db_c", 3);
+        elem_t e3 = new_elem(2, 33, 3);
         minheap_add(m, &e3);
-        elem_t e4 = new_elem(5, "db_d", 4);
+        elem_t e4 = new_elem(5, 44, 4);
         minheap_add(m, &e4);
-        elem_t e5 = new_elem(1, "db_e", 5);
+        elem_t e5 = new_elem(1, 55, 5);
         minheap_add(m, &e5);
 
         minheap_sort(m);
@@ -43,7 +43,7 @@ START_TEST (test_add_size_elements)
 
         ck_assert_int_eq(5, m->array[0].score);
         ck_assert_int_eq(4, m->array[0].query_id);
-        ck_assert_str_eq("db_d", (char*)m->array[0].db_seq);
+        ck_assert_int_eq(44, m->array[0].db_id);
 
         minheap_exit(m);
     }END_TEST
@@ -56,7 +56,7 @@ START_TEST (test_add_more)
         ck_assert_int_eq(5, m->alloc);
 
         for (int i = 0; i < 20; i++ ) {
-            elem_t e = new_elem(i, "a", i);
+            elem_t e = new_elem(i, i, i);
             minheap_add(m, &e);
         }
 
@@ -67,7 +67,7 @@ START_TEST (test_add_more)
 
         ck_assert_int_eq(19, m->array[0].score);
         ck_assert_int_eq(19, m->array[0].query_id);
-        ck_assert_str_eq("a", m->array[0].db_seq);
+        ck_assert_int_eq(19, m->array[0].db_id);
 
         ck_assert_int_eq(18, m->array[1].score);
         ck_assert_int_eq(17, m->array[2].score);

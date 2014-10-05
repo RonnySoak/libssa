@@ -39,6 +39,11 @@ void ssa_db_init_fasta(const char* fasta_file_name);
 // Accessors
 // #########
 /**
+ * Returns the DB sequence of the specified ID.
+ */
+p_seqinfo ssa_db_get_sequence(unsigned long id);
+
+/**
  * Returns the next sequence available in the database.
  *
  * TODO better to copy the data to a new instance, to prevent alteration of the
