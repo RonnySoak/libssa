@@ -7,8 +7,10 @@
 
 #include "../libssa_datatypes.h"
 
-extern void align_sequences(sequence * a_seq,
-        sequence * b_seq,
+extern void align_sequences(char * a_seq,
+        char * b_seq,
+        unsigned long M,
+        unsigned long N,
         long * scorematrix,
         long q,
         long r,
@@ -19,22 +21,36 @@ extern void align_sequences(sequence * a_seq,
         char ** alignment,
         long * s);
 
-extern p_sdb_sequence it_get_sequence(unsigned long id, int f, int s);
-extern void it_free_sequence(p_sdb_sequence seq);
+extern p_seqinfo it_get_sequence(unsigned long id);
+extern sequence it_translate_sequence(p_seqinfo info, int f, int s);
 
 extern long * score_matrix_63;
 
 extern uint8_t gapO;
 extern uint8_t gapE;
 
-static void init_alignment(p_alignment a, p_sdb_sequence dseq, seq_buffer qseq) {
-    a->db_seq.seq = dseq->seq.seq;
-    a->db_seq.len = dseq->seq.len;
-    a->db_seq.strand = dseq->strand;
-    a->db_seq.frame = dseq->frame;
-    a->db_seq.header = dseq->info->header;
-    a->db_seq.headerlen = dseq->info->headerlen;
-    a->db_seq.ID = dseq->info->ID;
+static void init_alignment(p_alignment a, elem_t e, seq_buffer* queries) {
+    p_seqinfo info = it_get_sequence(e.db_id);
+    if (!info) {
+        // TODO raise error, as this should not be possible
+        ffatal("Could not get sequence from DB: %ld", e.db_id);
+    }
+
+    /*
+     * TODO find a better way, maybe move code for translating based on symtype,
+     * etc to util_sequence.c
+     */
+    sequence dseq = it_translate_sequence(info, e.dframe, e.dstrand);
+
+    seq_buffer qseq = queries[e.query_id];
+
+    a->db_seq.seq = dseq.seq;
+    a->db_seq.len = dseq.len;
+    a->db_seq.strand = e.dframe;
+    a->db_seq.frame = e.dstrand;
+    a->db_seq.header = info->header;
+    a->db_seq.headerlen = info->headerlen;
+    a->db_seq.ID = info->ID;
 
     a->query.seq = qseq.seq.seq;
     a->query.len = qseq.seq.len;
@@ -104,15 +120,13 @@ p_alignment_list a_align(p_minheap heap, seq_buffer* queries, int q_count) {
 
     for (int i = 0; i < heap->count; i++) {
         // do alignment for each pair
-        p_sdb_sequence db_seq = it_get_sequence(heap->array[i].db_id,
-                heap->array[i].dframe, heap->array[i].dstrand);
-        seq_buffer qseq = queries[heap->array[i].query_id];
-
         p_alignment a = (p_alignment) xmalloc(sizeof(struct alignment));
-        init_alignment(a, db_seq, qseq);
+        init_alignment(a, heap->array[i], queries);
 
-        align_sequences(&qseq.seq,
-                &db_seq->seq,
+        align_sequences(a->query.seq,
+                a->db_seq.seq,
+                a->query.len,
+                a->db_seq.len,
                 score_matrix_63,
                 gapO,
                 gapE,
@@ -122,8 +136,6 @@ p_alignment_list a_align(p_minheap heap, seq_buffer* queries, int q_count) {
                 & a->align_d_end,
                 & a->alignment,
                 & a->score_align);
-
-        it_free_sequence(db_seq);
 
         alignment_list->alignments[i] = a;
     }

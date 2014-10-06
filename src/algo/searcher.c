@@ -45,13 +45,9 @@ static void search_chunk(p_minheap heap, p_db_chunk chunk) {
 
             elem_t * e = (elem_t *) xmalloc(sizeof(elem_t));
             e->query_id = x;
-            e->db_id = dseq->info->ID;
+            e->db_id = dseq->ID;
             e->dframe = dseq->frame;
             e->dstrand = dseq->strand;
-
-//            printf("search - i: %ld, DB ID: %ld\n", i, dseq->info->ID);
-//
-//            minheap_dump(heap);
 
             // TODO add other algorithms (7, 8, 16 bit)
             e->score = algo(&dseq->seq,
@@ -59,7 +55,6 @@ static void search_chunk(p_minheap heap, p_db_chunk chunk) {
                         sdp->hearray, // TODO how to cope with different parameters in different implementation?
                         score_matrix_63,
                         gapO, gapE);
-//            printf("e.score: %ld\n", e->score);
             /*
              * Alignments, with a score equal to the current lowest score in the
              * heap are ignored!

@@ -10,6 +10,16 @@
 #include "../util.h"
 #include "limits.h"
 
+/*
+ * TODO switch to SWARM/vsearch implementation of this
+ *
+ * Have a look at cigar string and use that
+ *
+ * Compare with the cigar of SSW
+ *
+ * TODO reduce number of malloc calls to speed it up
+ */
+
 // These functions are based on the following articles:
 // - Huang, Hardison & Miller (1990) CABIOS 6:373-381
 // - Myers & Miller (1988) CABIOS 4:11-17
@@ -398,8 +408,10 @@ static void diff(struct aligner_info * aip,
     }
 }
 
-void align_sequences(sequence * a_seq,
-        sequence * b_seq,
+void align_sequences(char * a_seq,
+        char * b_seq,
+        unsigned long M,
+        unsigned long N,
         long * scorematrix,
         long q,
         long r,
@@ -409,16 +421,13 @@ void align_sequences(sequence * a_seq,
         long * b_end,
         char ** alignment,
         long * s) {
-    unsigned long M = a_seq->len;
-    unsigned long N = b_seq->len;
-
     struct aligner_info ai;
 
     long score = *s;
 
     init(&ai);
-    region(a_seq->seq,
-            b_seq->seq,
+    region(a_seq,
+            b_seq,
             M,
             N,
             scorematrix,
@@ -430,8 +439,8 @@ void align_sequences(sequence * a_seq,
             b_end,
             &score);
     diff(&ai,
-            a_seq->seq,
-            b_seq->seq,
+            a_seq,
+            b_seq,
             *a_end - *a_begin + 1,
             *b_end - *b_begin + 1,
             *a_begin,

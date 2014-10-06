@@ -21,9 +21,21 @@ extern void query_free(p_query p);
 extern void it_init(long chunk_count);
 extern p_sdb_sequence it_next_sequence();
 extern void it_free();
+extern void it_free_sequence(p_sdb_sequence seq);
 
 extern p_alignment_list a_align(p_minheap heap, seq_buffer* queries, int q_count);
 extern void a_free(p_alignment_list alist);
+
+elem_t new_elem0(p_sdb_sequence sdb, int qid, long score) {
+    elem_t e;
+    e.db_id = sdb->ID;
+    e.dframe = sdb->frame;
+    e.dstrand = sdb->strand;
+    e.query_id = qid;
+    e.score = score;
+
+    return e;
+}
 
 START_TEST (test_aligner_simple)
     {
@@ -39,12 +51,7 @@ START_TEST (test_aligner_simple)
 
         p_sdb_sequence sdb = it_next_sequence();
 
-        elem_t e;
-        e.db_id = sdb->info->ID;
-        e.dframe = sdb->frame;
-        e.dstrand = sdb->strand;
-        e.query_id = 0;
-        e.score = 2;
+        elem_t e = new_elem0(sdb, 0, 2);
         minheap_add(heap, &e);
 
         seq_buffer queries[1];
@@ -62,9 +69,7 @@ START_TEST (test_aligner_simple)
         ck_assert_int_eq(sdb->seq.len, al->db_seq.len);
         ck_assert_int_eq(sdb->frame, al->db_seq.frame);
         ck_assert_int_eq(sdb->strand, al->db_seq.strand);
-        ck_assert_str_eq(sdb->info->header, al->db_seq.header);
-        ck_assert_int_eq(sdb->info->headerlen, al->db_seq.headerlen);
-        ck_assert_int_eq(sdb->info->ID, al->db_seq.ID);
+        ck_assert_int_eq(sdb->ID, al->db_seq.ID);
 
         ck_assert_str_eq(query->nt[0].seq, al->query.seq);
         ck_assert_int_eq(query->nt[0].len, al->query.len);
@@ -79,6 +84,8 @@ START_TEST (test_aligner_simple)
         ck_assert_int_eq(1, al->align_q_end);
 
         ck_assert_str_eq("M2", al->alignment); // TODO check this
+
+        it_free_sequence(sdb);
 
         a_free(alist);
         minheap_exit(heap);
@@ -101,47 +108,30 @@ START_TEST (test_aligner_more_sequences)
 
         p_minheap heap = minheap_init(5);
 
-        p_sdb_sequence sdb = it_next_sequence();
+        p_sdb_sequence sdb0 = it_next_sequence();
 
-        elem_t e;
-        e.db_id = sdb->info->ID;
-        e.dframe = sdb->frame;
-        e.dstrand = sdb->strand;
-        e.query_id = 0;
-        e.score = 2;
+        elem_t e = new_elem0(sdb0, 0, 2);
         minheap_add(heap, &e);
-        p_sdb_sequence sdb2 = it_next_sequence();
-        elem_t e2;
-        e2.db_id = sdb2->info->ID;
-        e2.dframe = sdb2->frame;
-        e2.dstrand = sdb2->strand;
-        e2.query_id = 0;
-        e2.score = 2;
-        minheap_add(heap, &e2);
-        p_sdb_sequence sdb3 = it_next_sequence();
-        elem_t e3;
-        e3.db_id = sdb3->info->ID;
-        e3.dframe = sdb3->frame;
-        e3.dstrand = sdb3->strand;
-        e3.query_id = 0;
-        e3.score = 2;
-        minheap_add(heap, &e3);
-        p_sdb_sequence sdb4 = it_next_sequence();
-        elem_t e4;
-        e4.db_id = sdb4->info->ID;
-        e4.dframe = sdb4->frame;
-        e4.dstrand = sdb4->strand;
-        e4.query_id = 0;
-        e4.score = 2;
-        minheap_add(heap, &e4);
-        p_sdb_sequence sdb5 = it_next_sequence();
-        elem_t e5;
-        e5.db_id = sdb5->info->ID;
-        e5.dframe = sdb5->frame;
-        e5.dstrand = sdb5->strand;
-        e5.query_id = 0;
-        e5.score = 2;
-        minheap_add(heap, &e5);
+
+        p_sdb_sequence sdb = it_next_sequence();
+        e = new_elem0(sdb0, 0, 2);
+        minheap_add(heap, &e);
+        it_free_sequence(sdb);
+
+        sdb = it_next_sequence();
+        e = new_elem0(sdb0, 0, 2);
+        minheap_add(heap, &e);
+        it_free_sequence(sdb);
+
+        sdb = it_next_sequence();
+        e = new_elem0(sdb0, 0, 2);
+        minheap_add(heap, &e);
+        it_free_sequence(sdb);
+
+        sdb = it_next_sequence();
+        e = new_elem0(sdb0, 0, 2);
+        minheap_add(heap, &e);
+        it_free_sequence(sdb);
 
         seq_buffer queries[1];
         queries[0].seq = query->nt[0];
@@ -154,13 +144,11 @@ START_TEST (test_aligner_more_sequences)
 
         p_alignment al = alist->alignments[0];
 
-        ck_assert_str_eq(sdb->seq.seq, al->db_seq.seq);
-        ck_assert_int_eq(sdb->seq.len, al->db_seq.len);
-        ck_assert_int_eq(sdb->frame, al->db_seq.frame);
-        ck_assert_int_eq(sdb->strand, al->db_seq.strand);
-        ck_assert_str_eq(sdb->info->header, al->db_seq.header);
-        ck_assert_int_eq(sdb->info->headerlen, al->db_seq.headerlen);
-        ck_assert_int_eq(sdb->info->ID, al->db_seq.ID);
+        ck_assert_str_eq(sdb0->seq.seq, al->db_seq.seq);
+        ck_assert_int_eq(sdb0->seq.len, al->db_seq.len);
+        ck_assert_int_eq(sdb0->frame, al->db_seq.frame);
+        ck_assert_int_eq(sdb0->strand, al->db_seq.strand);
+        ck_assert_int_eq(sdb0->ID, al->db_seq.ID);
 
         ck_assert_str_eq(query->nt[0].seq, al->query.seq);
         ck_assert_int_eq(query->nt[0].len, al->query.len);
@@ -178,6 +166,8 @@ START_TEST (test_aligner_more_sequences)
                 "M1I1M2I1M2I1M1I3M1I2M1I4M1I1M1I1M1I3M1I3M1I1M1I3M1I4M1D1I1M1I1M2I11"\
                 "M2I2M1I4M1I1M3I5M3I5M1I1M1I2M1D1I1M4I1M5D1I1M1I1M1I4M1I1M3D1M1I1M1",
                 al->alignment); // TODO check this
+
+        it_free_sequence(sdb0);
 
         a_free(alist);
         minheap_exit(heap);

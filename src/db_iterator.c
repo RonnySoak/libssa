@@ -36,7 +36,7 @@ static void fill_buffer(p_seqinfo seqinfo) {
         // first element
 
         buffer[0] = (p_sdb_sequence )xmalloc(sizeof(sdb_sequence));
-        buffer[0]->info = seqinfo;
+        buffer[0]->ID = seqinfo->ID;
         buffer[0]->seq = us_map_sequence(db_seq, map_ncbi_nt16);
         buffer[0]->strand = 0;
         buffer[0]->frame = 0;
@@ -44,7 +44,7 @@ static void fill_buffer(p_seqinfo seqinfo) {
         if (query_strands & 2) {
             // reverse complement
             buffer[1] = (p_sdb_sequence )xmalloc(sizeof(sdb_sequence));
-            buffer[1]->info = seqinfo;
+            buffer[1]->ID = seqinfo->ID;
             // no need for a second mapping
             buffer[1]->seq = us_revcompl(buffer[0]->seq);
             buffer[1]->strand = 1;
@@ -61,7 +61,7 @@ static void fill_buffer(p_seqinfo seqinfo) {
 
             for (int f = 0; f < 3; f++) { // frames
                 buffer[f] = (p_sdb_sequence )xmalloc(sizeof(sdb_sequence));
-                buffer[f]->info = seqinfo;
+                buffer[f]->ID = seqinfo->ID;
 
                 buffer[f]->strand = query_strands;
                 buffer[f]->frame = f;
@@ -74,7 +74,7 @@ static void fill_buffer(p_seqinfo seqinfo) {
             for (int s = 0; s < 2; s++) { // strands
                 for (int f = 0; f < 3; f++) { // frames
                     buffer[3 * s + f] = (p_sdb_sequence )xmalloc(sizeof(sdb_sequence));
-                    buffer[3 * s + f]->info = seqinfo;
+                    buffer[3 * s + f]->ID = seqinfo->ID;
 
                     buffer[3 * s + f]->strand = s;
                     buffer[3 * s + f]->frame = f;
@@ -86,7 +86,7 @@ static void fill_buffer(p_seqinfo seqinfo) {
     }
     else {
         buffer[0] = (p_sdb_sequence )xmalloc(sizeof(sdb_sequence));
-        buffer[0]->info = seqinfo;
+        buffer[0]->ID = seqinfo->ID;
         buffer[0]->seq = us_map_sequence(db_seq, map_ncbi_aa);
         buffer[0]->strand = 0;
         buffer[0]->frame = 0;
@@ -137,18 +137,12 @@ void it_init(unsigned long size) {
     }
 }
 
-p_sdb_sequence it_get_sequence(unsigned long id, int f, int s) {
-    p_seqinfo info = ssa_db_get_sequence(id);
+p_seqinfo it_get_sequence(unsigned long id) {
+    return ssa_db_get_sequence(id);
+}
 
-    if (!info) {
-        // TODO raise error, as this should not be possible
-        ffatal("Could not get sequence from DB: %ld", id);
-    }
-
-    p_sdb_sequence result = (p_sdb_sequence )xmalloc(sizeof(sdb_sequence));
-    result->info = info;
-    result->strand = s;
-    result->frame = f;
+sequence it_translate_sequence(p_seqinfo info, int f, int s) {
+    sequence result;
 
     sequence db_seq;
     db_seq.seq = info->seq;
@@ -158,17 +152,17 @@ p_sdb_sequence it_get_sequence(unsigned long id, int f, int s) {
 
     if (symtype == NUCLEOTIDE) {
         if (s == 2) {
-            result->seq = us_revcompl(conv_seq);
+            result = us_revcompl(conv_seq);
         }
         else {
-            result->seq = conv_seq;
+            result = conv_seq;
         }
     }
     else if ((symtype == TRANS_DB) || (symtype == TRANS_BOTH)) {
-        us_translate_sequence(1, conv_seq, s, f, &result->seq);
+        us_translate_sequence(1, conv_seq, s, f, &result);
     }
     else {
-        result->seq = conv_seq;
+        result = conv_seq;
     }
 
     return result;
@@ -213,7 +207,7 @@ void it_free_sequence(p_sdb_sequence seq) {
 
     seq->frame = 0;
     seq->strand = 0;
-    seq->info = 0; // TODO maybe free at this point in the DB as well
+    seq->ID = 0;
 
     free(seq);
     seq = 0;

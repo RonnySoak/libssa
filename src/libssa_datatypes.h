@@ -55,7 +55,7 @@ typedef struct search_data * p_search_data;
  * @field len   length of the sequence
  */
 typedef struct {
-    p_seqinfo info;
+    unsigned long ID;
     sequence seq;
     int strand;
     int frame;

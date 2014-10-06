@@ -27,7 +27,7 @@ extern void s_free(p_search_result p);
 extern p_alignment_list a_align(p_minheap heap, seq_buffer* queries, int q_count);
 
 static p_search_data sdp;
-unsigned long max_chunk_size = 3; // TODO change and/or make it configurable
+unsigned long max_chunk_size = 100; // TODO change and/or make it configurable
 
 void add_to_buffer(seq_buffer* buf, sequence seq, int strand,
         int frame) {
