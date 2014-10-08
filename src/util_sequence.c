@@ -8,6 +8,14 @@
  */
 #include "util.h"
 
+/*
+ * Maps amino acids to their numerical representation. Maps upper case and lower
+ * case letters.
+ *
+ * The supported symbols are:
+ * 0                          27
+ * -ABCDEFGHIKLMNPQRSTVWXYZU*OJ
+ */
 const char map_ncbi_aa[256] =
         {
                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
@@ -28,6 +36,14 @@ const char map_ncbi_aa[256] =
                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
         };
 
+/*
+ * Maps nucleotides to their numerical representation. Maps upper case and lower
+ * case letters.
+ *
+ * The supported symbols are:
+ * 0              16
+ * -ACMGRSVTWYHKDBN
+ */
 const char map_ncbi_nt16[256] =
         {
                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
@@ -49,6 +65,10 @@ const char map_ncbi_nt16[256] =
         };
 
 // TODO provide to the user of the lib
+/*
+ * Descriptions of the genetic codes, available for translating genetic sequences
+ * to protein sequences.
+ */
 const char * gencode_names[23] =
         {
                 "Standard Code",
@@ -76,6 +96,9 @@ const char * gencode_names[23] =
                 "Thraustochytrium Mitochondrial Code"
         };
 
+/*
+ * List of genetic codes, for translating genetic sequences to protein sequences.
+ */
 static const char * code[23] =
         {
                 "FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
@@ -103,17 +126,43 @@ static const char * code[23] =
                 "FF*LSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG"
         };
 
+/*
+ * Maps the numerical representation of nucleotides back to symbols in lower case.
+ * Maps 16 codes for nucleotides:
+ *
+ * -acmgrsvtwyhkdbn
+ */
 const char * sym_ncbi_nt16 = "-acmgrsvtwyhkdbn################";
+/*
+ * Maps the numerical representation of nucleotides back to symbols in upper case.
+ * Maps 16 codes for nucleotides:
+ *
+ * -ACMGRSVTWYHKDBN
+ */
 const char * sym_ncbi_nt16u = "-ACMGRSVTWYHKDBN################";
+/*
+ * Maps the numerical representation of amino acids back to symbols in upper case.
+ * Maps 28 codes for amino acids:
+ *
+ * -ABCDEFGHIKLMNPQRSTVWXYZU*OJ
+ */
 const char * sym_ncbi_aa = "-ABCDEFGHIKLMNPQRSTVWXYZU*OJ####";
-
+/*
+ * Contains the numerical representation of the complementary nucleotide symbol.
+ */
 static const char ntcompl[16] =
         { 0, 8, 4, 12, 2, 10, 6, 14, 1, 9, 5, 13, 3, 11, 7, 15 };
 
+/*
+ * Table for translating a nucleic query sequence into a protein sequence.
+ * Initialized with the genetic code of the query sequence.
+ */
 static char q_translate[16 * 16 * 16];
+/*
+ * Table for translating a nucleic DB sequence into a protein sequence.
+ * Initialized with the genetic code of the DB sequences.
+ */
 static char d_translate[16 * 16 * 16];
-
-static const char remap[] = { 2, 1, 3, 0 };
 
 /**
  * Initialises a translation table for a genetic code.
@@ -125,6 +174,8 @@ static const char remap[] = { 2, 1, 3, 0 };
  * @param table     the table, to initialise
  */
 static void init_translate_table(int tableno, char * table) {
+    char remap[] = { 2, 1, 3, 0 };
+
     // TODO understand this !!!!
     for (int a = 0; a < 16; a++) {
         for (int b = 0; b < 16; b++) {
