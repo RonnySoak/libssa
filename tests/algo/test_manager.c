@@ -7,21 +7,16 @@
 
 #include "../tests.h"
 
+#include "../../src/algo/manager.h"
+#include "../../src/algo/aligner.h"
+
 #include "../../src/util.h"
 #include "../../src/libssa.h"
 #include "../../src/util/minheap.h"
-
-extern void mat_init_constant_scoring(const uint8_t matchscore,
-        const uint8_t mismatchscore);
-extern void mat_free();
-
-extern p_query query_read(char* filename);
-extern void query_free(p_query p);
+#include "../../src/matrices.h"
+#include "../../src/query.h"
 
 extern p_search_data init_searchdata(p_query query);
-extern p_alignment_list m_run(p_query query, int res_count);
-
-extern void a_free(p_alignment_list alist);
 
 START_TEST (test_manager_simple)
     {
@@ -31,7 +26,7 @@ START_TEST (test_manager_simple)
         p_query query = query_read("./tests/testdata/one_seq.fas");
         ssa_db_init_fasta("./tests/testdata/test.fas");
 
-        p_alignment_list alist = m_run(query, 3);
+        p_alignment_list alist = m_run(query, 3, 0); // TODO flags
         // TODO test alist
 
         ck_assert_int_eq(3, alist->len);
@@ -50,7 +45,7 @@ START_TEST (test_manager_simple2)
         p_query query = query_read("./tests/testdata/one_seq.fas");
         ssa_db_init_fasta("./tests/testdata/test2.fas");
 
-        p_alignment_list alist = m_run(query, 1);
+        p_alignment_list alist = m_run(query, 1, 0); // TODO flags
 
         ck_assert_int_eq(1, alist->len);
 

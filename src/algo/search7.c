@@ -27,14 +27,13 @@
 #include <immintrin.h>
 
 #include "util.h"
+#include "../util_sequence.h"
 
 // #define DEBUG
 
 #define CHANNELS 16
 #define CDEPTH 4
 #define MATRIXWIDTH 32
-
-extern const char * sym_ncbi_aa;
 
 #ifdef SWIPE_SSSE3
 

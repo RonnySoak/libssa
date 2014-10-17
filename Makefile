@@ -28,6 +28,8 @@
 DEPS := Makefile
 # objects to compile
 OBJS := 
+# files some targets depend on, like header files
+USR_OBJS :=
 # tests
 TESTS := 
 # files to clean, that are not in OBJS or TESTS 
@@ -58,16 +60,16 @@ LINKFLAGS := $(COMMON)
 CXX := gcc
 # -Wno-write-strings removes the `deprecated conversion from\
  string constant to char*` warnings
-CXXFLAGS := -Wall -O3 -std=c99 -march=native $(COMMON)
+CXXFLAGS := -Wall -O0 -std=c99 -march=native $(COMMON)
 
-PROG := init libssa libssa_check libssa_example
+PROG := libssa libssa_check libssa_example
 
 .SUFFIXES := .o .c
 
 %.o : %.c $(DEPS)
 	$(CXX) $(CXXFLAGS) -c -o $@ $< -L. -lsdb 
 
-all : $(PROG)
+all : init $(PROG)
 
 #mpilibssa.o : src/libssa.cc $(OBJS) $(DEPS)
 #	$(CXX) $(CXXFLAGS) -DMPIlibssa $(MPI_COMPILE) -c -o $@ src/libssa.cc
@@ -76,7 +78,7 @@ init:
 	@echo 'Copying file libsdb.a'
 	cp ../libsdb/libsdb.a .
 
-libssa : $(OBJS) $(DEPS)
+libssa : $(OBJS) $(USR_OBJS) $(DEPS)
 	@echo 'Building target: $@'
 #	$(CXX) $(LINKFLAGS) -o $@ $(OBJS) $(LIBS)
 	ar -cvq libssa.a $(DEPS) $(OBJS)
@@ -87,19 +89,22 @@ libssa : $(OBJS) $(DEPS)
 #	$(CXX) $(LINKFLAGS) -o $@ mpilibssa.o $(OBJS) $(LIBS) $(MPI_LINK)
 #	@echo 'Finished building target: $@'
 
-libssa_check : $(TESTS) $(OBJS) $(DEPS)
+libssa_check : $(TESTS) $(OBJS) $(USR_OBJS) $(DEPS)
 	@echo 'Building target: $@'
 	$(CXX) $(LINKFLAGS) -o $@ $(OBJS) $(TESTS) $(TEST_LIBS) $(LIBS) -L. -lsdb
 	@echo 'Finished building target: $@'
 	
-libssa_example : $(OBJS) $(DEPS)
+libssa_example : $(OBJS) $(USR_OBJS) $(DEPS)
 	@echo 'Building target: $@'
 	$(CXX) $(CXXFLAGS) $(LINKFLAGS) -o $@ ./src/libssa_example.c $(LIBS) -L. -lssa -lsdb
 	@echo 'Finished building target: $@'
 
 # clean created files
 clean:
-	-rm -f $(OBJS) $(TESTS) $(TO_CLEAN) $(PROG) *.gcov tests/*.gcda tests/*.gcno src/*.gcda src/*.gcno
+	-rm -f $(OBJS) $(TESTS) $(TO_CLEAN) $(PROG) libsdb.a gmon.out
+	
+	
+# to clean later *.gcov tests/*.gcda tests/*.gcno src/*.gcda src/*.gcno
 
 # run tests
 check:

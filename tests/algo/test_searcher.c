@@ -10,31 +10,12 @@
 #include "../../src/util.h"
 #include "../../src/libssa.h"
 #include "../../src/util/minheap.h"
+#include "../../src/matrices.h"
+#include "../../src/db_iterator.h"
+#include "../../src/query.h"
+#include "../../src/algo/searcher.h"
 
-extern void mat_init_constant_scoring(const uint8_t matchscore,
-        const uint8_t mismatchscore);
-extern void mat_free();
-
-extern long fullsw(int8_t * dseq,
-        int8_t * dend,
-        int8_t * qseq,
-        int8_t * qend,
-        int64_t * hearray,
-        int64_t * score_matrix,
-        uint8_t gapopenextend,
-        uint8_t gapextend);
-
-extern void it_init(long chunk_count);
-extern void it_free();
-
-extern void s_init(p_search_data data,
-        long (* algo_p) (int8_t *, int8_t *, int8_t *, int8_t *, int64_t *, int64_t *, uint8_t, uint8_t),
-        long res_count);
-extern p_search_result s_search();
-extern void s_free(p_search_result p);
-
-extern p_query query_read(char* filename);
-extern void query_free(p_query p);
+extern long fullsw(sequence *, sequence *, int64_t *, int64_t *, uint8_t, uint8_t);
 
 extern p_search_data init_searchdata(p_query query);
 

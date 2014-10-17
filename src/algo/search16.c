@@ -26,13 +26,12 @@
 #include <immintrin.h>
 
 #include "util.h"
+#include "../util_sequence.h"
 
 //#define DEBUG
 
 #define CHANNELS 8
 #define CDEPTH 4
-
-extern const char * sym_ncbi_aa;
 
 void dprofile_dump16(uint16_t * dprofile)
 {

@@ -9,23 +9,13 @@
 
 #include "../../src/util.h"
 #include "../../src/libssa.h"
-
-extern void mat_init_constant_scoring(const uint8_t matchscore,
-        const uint8_t mismatchscore);
-extern void mat_init_buildin(char* matrixname);
-extern void mat_free();
-extern long * score_matrix_63;
-
-extern void it_init();
-extern p_sdb_sequence it_next_sequence();
-extern void it_free();
+#include "../../src/matrices.h"
+#include "../../src/db_iterator.h"
+#include "../../src/query.h"
 
 extern long fullsw(sequence * dseq, sequence * qseq,
         int64_t * hearray, int64_t * score_matrix, uint8_t gapopenextend,
         uint8_t gapextend);
-
-extern p_query query_read(char* filename);
-extern void query_free(p_query p);
 
 START_TEST (test_search63_simple)
     {
@@ -35,7 +25,7 @@ START_TEST (test_search63_simple)
         p_query query = query_read("./tests/testdata/short_query.fas");
 
         ssa_db_init_fasta("./tests/testdata/short_db.fas");
-        it_init();
+        it_init(1);
         p_sdb_sequence dseq = it_next_sequence();
 
         long *hearray = calloc(sizeof(long), 32 * query->nt[0].len);
@@ -63,7 +53,7 @@ START_TEST (test_search63_simple_blosum62)
         p_query query = query_read("./tests/testdata/short_query.fas");
 
         ssa_db_init_fasta("./tests/testdata/short_db.fas");
-        it_init();
+        it_init(1);
         p_sdb_sequence dseq = it_next_sequence();
 
         long *hearray = calloc(sizeof(long), 32 * query->nt[0].len);

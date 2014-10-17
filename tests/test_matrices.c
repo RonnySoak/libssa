@@ -10,19 +10,7 @@
 #include "../src/libssa.h"
 #include "../src/libssa_datatypes.h"
 #include "../src/util.h"
-
-extern void mat_init_buildin(const char* matrixname);
-extern void mat_free();
-extern void mat_init_from_string(const char * matrix);
-extern void mat_init_from_file(const char * matrix);
-extern void mat_init_constant_scoring(const int32_t matchscore,
-        const int32_t mismatchscore);
-
-extern char* score_matrix_7;
-extern unsigned char * score_matrix_8;
-extern short * score_matrix_16;
-extern unsigned int * score_matrix_32;
-extern long * score_matrix_63;
+#include "../src/matrices.h"
 
 START_TEST (test_free)
     {

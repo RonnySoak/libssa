@@ -7,16 +7,7 @@
 
 #include "tests.h"
 #include "../src/util.h"
-
-typedef struct seqinfo_s seqinfo_t;
-
-extern char map_ncbi_nt16[256];
-extern const char * sym_ncbi_aa;
-
-extern sequence us_revcompl(sequence seq);
-extern void us_translate_sequence(int db_sequence, sequence dna,
-        int strand, int frame, sequence * prot);
-extern void us_init_translation(int qtableno, int dtableno);
+#include "../src/util_sequence.h"
 
 START_TEST (test_revcompl)
     {

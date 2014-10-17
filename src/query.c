@@ -5,24 +5,17 @@
  *      Author: Jakob Frielingsdorf
  */
 
+#include "query.h"
+
 #include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-#include "util.h"
-#include "libssa_datatypes.h"
 #include "libssa.h"
+#include "util_sequence.h"
 
-extern sequence us_revcompl(sequence seq);
-extern void us_translate_sequence(int db_sequence, sequence dna, int strand,
-        int frame, sequence* prot_seq);
-
-extern const char map_ncbi_aa[256];
-extern const char map_ncbi_nt16[256];
-
-extern const char * sym_ncbi_nt16;
-extern const char * sym_ncbi_aa;
-
-extern int query_strands;
-extern int symtype;
+int symtype = DEFAULT_SYMTYPE;
+int query_strands = DEFAULT_STRAND;
 
 /**
  * Initialises the query struct.
@@ -30,7 +23,7 @@ extern int symtype;
  * @return  a pointer to the newly created query struct
  */
 static p_query init() {
-    p_query query = (p_query)xmalloc(sizeof(struct _query));
+    p_query query = xmalloc(sizeof(struct _query));
 
     query->header = 0;
     query->headerlen = 0;
@@ -126,7 +119,7 @@ p_query query_read(const char * queryname) {
     }
 
     if (query_line[0] == '>') {
-        query->header = (char*) xmalloc(len);
+        query->header = xmalloc(len);
         strcpy(query->header, query_line + 1);
         query->headerlen = len - 1;
 
@@ -136,13 +129,13 @@ p_query query_read(const char * queryname) {
         }
     }
     else {
-        query->header = (char*) xmalloc(1);
+        query->header = xmalloc(1);
         query->header[0] = 0;
         query->headerlen = 0;
     }
 
     int size = LINE_MAX;
-    char * query_sequence = (char *) xmalloc(size);
+    char * query_sequence = xmalloc(size);
     query_sequence[0] = 0;
     long query_length = 0;
 
@@ -154,7 +147,7 @@ p_query query_read(const char * queryname) {
             if ((m = query->map[c]) >= 0) {
                 if (query_length + 1 >= size) {
                     size += LINE_MAX;
-                    query_sequence = (char*) xrealloc(query_sequence, size);
+                    query_sequence = xrealloc(query_sequence, size);
                 }
                 query_sequence[query_length++] = m;
             }

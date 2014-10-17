@@ -10,20 +10,8 @@
 #include "../src/libssa.h"
 #include "../src/libssa_datatypes.h"
 #include "../src/util.h"
-
-extern sequence us_revcompl(sequence seq);
-extern void us_init_translation(int qtableno, int dtableno);
-extern p_query query_read(char* filename);
-extern void query_free(p_query p);
-
-extern int symtype;
-extern int query_strands;
-
-extern const char * sym_ncbi_nt16;
-extern const char * sym_ncbi_aa;
-
-extern const char map_ncbi_nt16[256];
-extern const char map_ncbi_aa[256];
+#include "../src/query.h"
+#include "../src/util_sequence.h"
 
 START_TEST (test_query_read_sym0)
     {

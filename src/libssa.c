@@ -8,7 +8,14 @@
  */
 
 #include "libssa.h"
+
 #include "util.h"
+#include "util_sequence.h"
+#include "matrices.h"
+#include "algo/manager.h"
+#include "algo/aligner.h"
+#include "algo/searcher.h"
+#include "query.h"
 
 // #############################################################################
 // Configuration data
@@ -16,41 +23,6 @@
 int _verbose = VERBOSE_OFF;
 int _nr_threads; // todo get number of CPUs
 int _use_simd = SIMD_ON;
-
-// #############################################################################
-// External defined functions
-// ##########################
-
-// in matrices.c
-extern void mat_init_constant_scoring(const int32_t matchscore,
-        const int32_t mismatchscore);
-extern void mat_init_from_file(const char * matrix);
-extern void mat_init_from_string(const char * matrix);
-extern void mat_init_buildin(const char* matrixname);
-extern void mat_free();
-
-// in manager.c
-extern p_alignment_list m_run(p_query query, int res_count);
-
-// in aligner.c
-extern void a_free(p_alignment_list alist);
-
-// in util_sequence.c
-extern void us_init_translation(int qtableno, int dtableno);
-
-// in query.c
-extern p_query query_read(const char * queryname);
-extern void query_free(p_query p);
-
-extern char* gencode_names[23];
-extern int symtype;
-extern int query_gencode;
-extern int db_gencode;
-extern int query_strands;
-
-// in search_algo.c
-extern int gapO;
-extern int gapE;
 
 // #############################################################################
 // Data types
@@ -195,11 +167,7 @@ void init_symbol_translation(int type, int strands, int d_gencode,
     symtype = type;
     query_strands = strands;
 
-    // TODO where do we need these?
-    query_gencode = q_gencode;
-    db_gencode = d_gencode;
-
-    us_init_translation(query_gencode, db_gencode);
+    us_init_translation(q_gencode, d_gencode);
 }
 
 /**
@@ -235,7 +203,8 @@ void free_sequence(p_query p) {
  * @return pointer to the alignment structure
  */
 p_alignment_list sw_align(p_query p, int hitcount /* TODO ...*/) {
-    return m_run(p, hitcount); // TODO make alignment algo configurable in manager.c
+    // switch 0 with the right flags
+    return m_run(p, hitcount, 0); // TODO make alignment algo configurable in manager.c
 }
 
 /**

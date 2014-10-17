@@ -9,7 +9,7 @@
 #define LIBSSA_DATATYPES_H_
 
 #include "libssa_extern_db.h"
-#include "libssa_datatypes.h"
+#include "libssa.h"
 
 #include "util.h"
 #include "util/minheap.h"

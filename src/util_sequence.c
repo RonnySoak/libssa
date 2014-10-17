@@ -6,10 +6,12 @@
  *  Created on: Sep 18, 2014
  *      Author: Jakob Frielingsdorf
  */
+
+#include "util_sequence.h"
+
 #include "util.h"
 
-const char map_ncbi_aa[256] =
-        {
+const char map_ncbi_aa[256] = {
                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 25, -1, -1, 0, -1, -1,
@@ -28,8 +30,7 @@ const char map_ncbi_aa[256] =
                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
         };
 
-const char map_ncbi_nt16[256] =
-        {
+const char map_ncbi_nt16[256] = {
                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
@@ -49,8 +50,7 @@ const char map_ncbi_nt16[256] =
         };
 
 // TODO provide to the user of the lib
-const char * gencode_names[23] =
-        {
+const char * gencode_names[23] = {
                 "Standard Code",
                 "Vertebrate Mitochondrial Code",
                 "Yeast Mitochondrial Code",
@@ -76,8 +76,7 @@ const char * gencode_names[23] =
                 "Thraustochytrium Mitochondrial Code"
         };
 
-static const char * code[23] =
-        {
+static const char * code[23] = {
                 "FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
                 "FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNKKSS**VVVVAAAADDEEGGGG",
                 "FFLLSSSSYY**CCWWTTTTPPPPHHQQRRRRIIMMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
@@ -259,7 +258,7 @@ void us_translate_sequence(int db_sequence, sequence dna,
     long pos, c;
     long ppos = 0;
     unsigned long plen = (dna.len - frame) / 3;
-    char * prot = (char*) xmalloc(1 + plen);
+    char * prot = xmalloc(1 + plen);
 
     // forward strand
     if (strand == 0) {
@@ -304,7 +303,7 @@ sequence us_revcompl(sequence seq) {
         return seq;
     }
 
-    sequence rc = { (char *) xmalloc(seq.len + 1), seq.len };
+    sequence rc = { xmalloc(seq.len + 1), seq.len };
     for (unsigned long i = 0; i < seq.len; i++)
         rc.seq[i] = ntcompl[(int) (seq.seq[seq.len - 1 - i])];
     rc.seq[seq.len] = 0;

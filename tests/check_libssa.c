@@ -18,6 +18,8 @@ Suite* libssa_suite(void) {
     addMatricesTC(s);
     addQueryTC(s);
     addDBIteratorTC(s);
+    addCigarTC(s);
+    addAlignTC(s);
     addSearch63TC(s);
     addSearcherTC(s);
     addAlignerTC(s);

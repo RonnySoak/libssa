@@ -8,9 +8,7 @@
 #ifndef UTIL_H_
 #define UTIL_H_
 
-#include <stdint.h>
-#include <stdlib.h>
-#include <stdio.h>
+#include <stddef.h>
 
 #include "libssa.h"
 
@@ -28,11 +26,6 @@
 #ifndef LINE_MAX
 #define LINE_MAX 2048
 #endif
-
-extern int symtype;
-extern int query_gencode;
-extern int db_gencode;
-extern int query_strands;
 
 void * xmalloc(size_t size);
 void * xrealloc(void *ptr, size_t size);

@@ -12,6 +12,10 @@ USER_OBJS += \
 ./src/libssa_datatypes.h \
 ./src/internal_datatypes.h \
 ./src/util.h \
+./src/matrices.h \
+./src/query.h \
+./src/util_sequence.h \
+./src/db_iterator.h \
 ./src/libssa_examples.c
 
 TO_CLEAN +=

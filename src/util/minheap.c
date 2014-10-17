@@ -18,6 +18,10 @@
  */
 
 #include "minheap.h"
+
+#include <stdlib.h>
+#include <stdio.h>
+
 #include "../util.h"
 
 /* implement a priority queue with a min heap binary array structure */
@@ -31,9 +35,9 @@ static inline int elem_smaller(elem_t * a, elem_t * b) {
 }
 
 p_minheap minheap_init(int size) {
-    p_minheap m = (p_minheap) xmalloc(sizeof(struct minheap_s));
+    p_minheap m = xmalloc(sizeof(struct minheap_s));
     m->alloc = size;
-    m->array = (elem_t *) xmalloc(size * sizeof(elem_t));
+    m->array = xmalloc(size * sizeof(elem_t));
     m->count = 0;
     return m;
 }

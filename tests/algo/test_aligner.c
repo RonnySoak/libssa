@@ -7,24 +7,15 @@
 
 #include "../tests.h"
 
+#include "../../src/algo/aligner.h"
+#include "../../src/algo/align.h"
+
 #include "../../src/util.h"
 #include "../../src/libssa.h"
 #include "../../src/util/minheap.h"
-
-extern void mat_init_constant_scoring(const uint8_t matchscore,
-        const uint8_t mismatchscore);
-extern void mat_free();
-
-extern p_query query_read(char* filename);
-extern void query_free(p_query p);
-
-extern void it_init(long chunk_count);
-extern p_sdb_sequence it_next_sequence();
-extern void it_free();
-extern void it_free_sequence(p_sdb_sequence seq);
-
-extern p_alignment_list a_align(p_minheap heap, seq_buffer* queries, int q_count);
-extern void a_free(p_alignment_list alist);
+#include "../../src/matrices.h"
+#include "../../src/db_iterator.h"
+#include "../../src/query.h"
 
 elem_t new_elem0(p_sdb_sequence sdb, int qid, long score) {
     elem_t e;
@@ -37,7 +28,7 @@ elem_t new_elem0(p_sdb_sequence sdb, int qid, long score) {
     return e;
 }
 
-START_TEST (test_aligner_simple)
+START_TEST (test_aligner_simple_sw)
     {
         mat_init_constant_scoring(1, -1);
         init_symbol_translation(NUCLEOTIDE, FORWARD_STRAND, 3, 3);
@@ -59,11 +50,13 @@ START_TEST (test_aligner_simple)
         queries[0].strand = 0;
         queries[0].frame = 0;
 
+        init_align_function(&align_sw);
+
         p_alignment_list alist = a_align(heap, queries, 0);
 
         ck_assert_int_eq(1, alist->len);
 
-        p_alignment al = alist->alignments[0];
+        alignment_p al = alist->alignments[0];
 
         ck_assert_str_eq(sdb->seq.seq, al->db_seq.seq);
         ck_assert_int_eq(sdb->seq.len, al->db_seq.len);
@@ -76,14 +69,13 @@ START_TEST (test_aligner_simple)
         ck_assert_int_eq(0, al->query.frame);
         ck_assert_int_eq(0, al->query.strand);
 
-        ck_assert_int_eq(0, al->score); // TODO check this
-        ck_assert_int_eq(2, al->score_align);
+        ck_assert_int_eq(2, al->score); // TODO check this
         ck_assert_int_eq(1, al->align_d_start);
         ck_assert_int_eq(2, al->align_d_end);
         ck_assert_int_eq(0, al->align_q_start);
         ck_assert_int_eq(1, al->align_q_end);
 
-        ck_assert_str_eq("M2", al->alignment); // TODO check this
+        ck_assert_str_eq("2M", al->alignment); // TODO check this
 
         it_free_sequence(sdb);
 
@@ -96,7 +88,7 @@ START_TEST (test_aligner_simple)
         ssa_db_free();
     }END_TEST
 
-START_TEST (test_aligner_more_sequences)
+START_TEST (test_aligner_more_sequences_sw)
     {
         mat_init_constant_scoring(1, -1);
         init_symbol_translation(NUCLEOTIDE, FORWARD_STRAND, 3, 3);
@@ -138,11 +130,14 @@ START_TEST (test_aligner_more_sequences)
         queries[0].strand = 0;
         queries[0].frame = 0;
 
+        init_align_function(&align_sw);
+printf("1\n");
         p_alignment_list alist = a_align(heap, queries, 0);
+printf("2\n");
 
         ck_assert_int_eq(5, alist->len);
 
-        p_alignment al = alist->alignments[0];
+        alignment_p al = alist->alignments[0];
 
         ck_assert_str_eq(sdb0->seq.seq, al->db_seq.seq);
         ck_assert_int_eq(sdb0->seq.len, al->db_seq.len);
@@ -156,12 +151,10 @@ START_TEST (test_aligner_more_sequences)
         ck_assert_int_eq(0, al->query.strand);
 
         ck_assert_int_eq(0, al->score); // TODO check this
-        ck_assert_int_eq(49, al->score_align);
         ck_assert_int_eq(1, al->align_d_start);
         ck_assert_int_eq(120, al->align_d_end);
         ck_assert_int_eq(1, al->align_q_start);
         ck_assert_int_eq(53, al->align_q_end);
-
         ck_assert_str_eq(
                 "M1I1M2I1M2I1M1I3M1I2M1I4M1I1M1I1M1I3M1I3M1I1M1I3M1I4M1D1I1M1I1M2I11"\
                 "M2I2M1I4M1I1M3I5M3I5M1I1M1I2M1D1I1M4I1M5D1I1M1I1M1I4M1I1M3D1M1I1M1",
@@ -180,8 +173,8 @@ START_TEST (test_aligner_more_sequences)
 
 void addAlignerTC(Suite *s) {
     TCase *tc_core = tcase_create("aligner");
-    tcase_add_test(tc_core, test_aligner_simple);
-    tcase_add_test(tc_core, test_aligner_more_sequences);
+    tcase_add_test(tc_core, test_aligner_simple_sw);
+    tcase_add_test(tc_core, test_aligner_more_sequences_sw);
 
     suite_add_tcase(s, tc_core);
 }

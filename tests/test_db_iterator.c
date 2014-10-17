@@ -9,26 +9,17 @@
 
 #include "../src/util.h"
 #include "../src/libssa_extern_db.h"
-
-extern void us_init_translation(int qtableno, int dtableno);
-extern sequence us_map_sequence(sequence seq, const char* remap);
+#include "../src/query.h"
+#include "../src/db_iterator.h"
+#include "../src/util_sequence.h"
 
 extern void ck_converted_prot_eq(char* ref, sequence seq);
-
-extern void it_init(unsigned long size);
-extern void it_free();
-extern void it_free_chunk(p_db_chunk chunk);
-extern p_sdb_sequence it_next_sequence();
-extern p_db_chunk it_next_chunk();
-extern void it_free_sequence(p_sdb_sequence seq);
-
-extern const char * sym_ncbi_nt16u;
 
 /**
  * Simple reverse complement implementation for upper case nucleotide sequences.
  */
 char* revcompl(char* seq, unsigned long len) {
-    char* rc = (char *) xmalloc(len + 1);
+    char* rc = xmalloc(len + 1);
 
     for (long i = 0; i < len; i++) {
         switch ((int) seq[len - 1 - i]) {

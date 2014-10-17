@@ -5,8 +5,16 @@
  *      Author: Jakob Frielingsdorf
  */
 
+#include "manager.h"
+
+#include <stdlib.h>
+
 #include "../util/minheap.h"
 #include "../libssa_datatypes.h"
+#include "../db_iterator.h"
+#include "../query.h"
+#include "aligner.h"
+#include "searcher.h"
 
 extern long fullsw(sequence * dseq,
         sequence * qseq,
@@ -15,36 +23,25 @@ extern long fullsw(sequence * dseq,
         uint8_t gapopenextend,
         uint8_t gapextend);
 
-extern void it_init(long chunk_count);
-extern void it_free();
-
-extern void s_init(p_search_data data,
-        long (* algo_p) (sequence *, sequence *, int64_t *, int64_t *, uint8_t, uint8_t),
-        long hit_count);
-extern p_search_result s_search();
-extern void s_free(p_search_result p);
-
-extern p_alignment_list a_align(p_minheap heap, seq_buffer* queries, int q_count);
-
 static p_search_data sdp;
-unsigned long max_chunk_size = 100; // TODO change and/or make it configurable
+static unsigned long max_chunk_size = 100; // TODO change and/or make it configurable
 
-void add_to_buffer(seq_buffer* buf, sequence seq, int strand,
+static void add_to_buffer(seq_buffer* buf, sequence seq, int strand,
         int frame) {
     buf->seq = seq;
     buf->frame = frame;
     buf->strand = strand;
-//                q.qtable = (uint8_t**) xmalloc(qlen * sizeof(uint8_t*));
+//                q.qtable = xmalloc(qlen * sizeof(uint8_t*));
 //                for (int i = 0; i < qlen; i++) { TODO
 //                    q.qtable[i] = sdp->dprofile + 64 * query->nt[s].seq[i];
 //                }
 }
 
 p_search_data init_searchdata(p_query query) {
-    p_search_data sdp = (p_search_data) xmalloc(sizeof(struct search_data));
+    p_search_data sdp = xmalloc(sizeof(struct search_data));
 
     // TODO   sdp->dbt = db_thread_create();
-    sdp->dprofile = (uint8_t*) xmalloc(4 * 16 * 32);
+    sdp->dprofile = xmalloc(4 * 16 * 32);
     unsigned long qlen = 0;
     unsigned long hearraylen = 0;
 
@@ -88,7 +85,7 @@ p_search_data init_searchdata(p_query query) {
                 }
     }
 
-    sdp->hearray = (uint8_t*) xmalloc(hearraylen * 32);
+    sdp->hearray = xmalloc(hearraylen * 32);
 
     return sdp;
 }
@@ -123,7 +120,17 @@ static void init(p_query query, int hit_count) {
     it_init(max_chunk_size);
 }
 
-p_alignment_list m_run(p_query query, int hit_count) {
+/**
+ * Run a search for query in the database. Aligns the query sequence against
+ * each sequence in the DB and returns 'hit_count' alignments. The search is
+ * configured through set bits in 'flags'.
+ *
+ * Flags:
+ * Bit 1 set: do Smith-Waterman, otherwise do Needleman-Wunsch
+ * Bit 2 set: use SIMD, if possible, otherwise use the naive implementation
+ * Bit 3 set: run in multiple threads (configured through the API)
+ */
+p_alignment_list m_run(p_query query, int hit_count, int flags) {
     // TODO add threads
     init(query, hit_count);
 

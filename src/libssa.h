@@ -94,7 +94,7 @@ typedef struct _query* p_query;
 //    uint32_t* cigar;
 //    int32_t cigarLen;
 //} alignment;
-//typedef struct alignment* p_alignment;
+//typedef alignment_t* p_alignment;
 
 typedef struct {
     char* seq;
@@ -113,23 +113,24 @@ typedef struct {
     int frame;
 } q_seq;
 
-struct alignment {
+typedef struct {
     db_seq db_seq;
     q_seq query;
     char * alignment;
+    long alignment_len;
     long score;
-    long score_align;
+//    long score_align;
 //    long align_hint;  TODO what are these
 //    long bestq;
     long align_q_start;
     long align_q_end;
     long align_d_start;
     long align_d_end;
-};
-typedef struct alignment * p_alignment;
+} alignment_t;
+typedef alignment_t * alignment_p;
 
 struct alignment_list {
-    p_alignment* alignments;
+    alignment_p* alignments;
     long len;
 };
 typedef struct alignment_list * p_alignment_list;

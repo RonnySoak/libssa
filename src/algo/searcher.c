@@ -5,19 +5,17 @@
  *      Author: Jakob Frielingsdorf
  */
 
+#include "search.h"
+
+#include <stdlib.h>
+
 #include "../util.h"
 #include "../util/minheap.h"
-#include "../libssa_datatypes.h"
-
-extern p_db_chunk it_next_chunk();
-extern void it_free_chunk(p_db_chunk chunk);
-extern void it_free_sequence(p_sdb_sequence seq);
-
-extern long * score_matrix_63;
+#include "../db_iterator.h"
+#include "../matrices.h"
 
 static p_search_data sdp;
 static long (* algo) (sequence *, sequence *, int64_t *, int64_t *, uint8_t, uint8_t);
-        // TODO make pointer from sequences!!!
 static p_search_result res = 0;
 
 // both are filled from libssa.c
@@ -30,7 +28,7 @@ void s_init(p_search_data data,
     sdp = data;
     algo = algo_p;
 
-    res = (p_search_result)xmalloc(sizeof(struct search_result));
+    res = xmalloc(sizeof(struct search_result));
     res->heap = minheap_init(hit_count);
     res->chunk_count = 0;
     res->seq_count = 0;
@@ -43,7 +41,7 @@ static void search_chunk(p_minheap heap, p_db_chunk chunk) {
         for (int x = 0; x < sdp->q_count; x++) {
             seq_buffer query = sdp->queries[x];
 
-            elem_t * e = (elem_t *) xmalloc(sizeof(elem_t));
+            elem_t * e = xmalloc(sizeof(elem_t));
             e->query_id = x;
             e->db_id = dseq->ID;
             e->dframe = dseq->frame;

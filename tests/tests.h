@@ -14,11 +14,13 @@
 
 #include "../src/libssa_datatypes.h"
 
+void addMinHeapTC(Suite *s);
 void addQueryTC(Suite *s);
 void addMatricesTC(Suite *s);
 void addUtilSequenceTC(Suite *s);
 void addDBIteratorTC(Suite *s);
-void addMinHeapTC(Suite *s);
+void addCigarTC(Suite *s);
+void addAlignTC(Suite *s);
 void addSearch63TC(Suite *s);
 void addSearcherTC(Suite *s);
 void addManagerTC(Suite *s);

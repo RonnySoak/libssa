@@ -7,9 +7,14 @@
  *      Author: Jakob Frielingsdorf
  */
 
+#include "matrices.h"
+
 #include <string.h>
 #include <strings.h>
+#include <stdio.h>
+#include <stdlib.h>
 
+#include "util_sequence.h"
 #include "util.h"
 #include "libssa.h"
 
@@ -278,10 +283,6 @@ int16_t * score_matrix_16 = NULL; // short
 uint32_t * score_matrix_32 = NULL; // unsigned int
 int64_t * score_matrix_63 = NULL; // long
 
-extern const char * sym_ncbi_aa;
-extern const char map_ncbi_aa[256];
-extern char * matrixname;
-
 /**
  * Prints the currently initialised scoring matrix to the specified output file.
  *
@@ -300,7 +301,7 @@ void mat_dump(char* outfile) {
     for (int i = 0; i < 32; i++) {
         outf("%2d %c ", i, sym_ncbi_aa[i]);
         for (int j = 0; j < 32; j++) {
-            outf("%2ld", score_matrix_63[(i << 5) + j]);
+            outf("%2ld", SCORE_MATRIX_63(i, j));
         }
         outf("\n");
     }
@@ -312,11 +313,16 @@ void mat_dump(char* outfile) {
  * score_matrix_63 is initialised with -1.
  */
 static void prepare_matrices() {
-    score_matrix_7 = (int8_t *) xmalloc(32 * 32 * sizeof(int8_t));
-    score_matrix_8 = (uint8_t *) xmalloc(32 * 32 * sizeof(uint8_t));
-    score_matrix_16 = (int16_t *) xmalloc(32 * 32 * sizeof(int16_t));
-    score_matrix_32 = (uint32_t *) xmalloc(32 * 32 * sizeof(uint32_t));
-    score_matrix_63 = (int64_t *) xmalloc(32 * 32 * sizeof(int64_t));
+    if (score_matrix_63) {
+        // free first, before we allocate new memory
+        mat_free();
+    }
+
+    score_matrix_7 = xmalloc(32 * 32 * sizeof(int8_t));
+    score_matrix_8 = xmalloc(32 * 32 * sizeof(uint8_t));
+    score_matrix_16 = xmalloc(32 * 32 * sizeof(int16_t));
+    score_matrix_32 = xmalloc(32 * 32 * sizeof(uint32_t));
+    score_matrix_63 = xmalloc(32 * 32 * sizeof(int64_t));
     memset(score_matrix_63, -1, 32 * 32 * 8);
 }
 
@@ -333,7 +339,7 @@ static void finalize_matrices() {
 
     for (a = 0; a < 32; a++) {
         for (b = 0; b < 32; b++) {
-            sc = score_matrix_63[(a << 5) + b];
+            sc = SCORE_MATRIX_63(a, b);
             if (sc < lo)
                 lo = sc;
             if (sc > hi)
@@ -349,12 +355,12 @@ static void finalize_matrices() {
 
     for (a = 0; a < 32; a++) {
         for (b = 0; b < 32; b++) {
-            sc = score_matrix_63[(a << 5) + b];
+            sc = SCORE_MATRIX_63(a, b);
 
-            score_matrix_7[(a << 5) + b] = (int8_t) sc;
-            score_matrix_8[(a << 5) + b] = (uint8_t) (BIAS + sc);
-            score_matrix_16[(a << 5) + b] = (int16_t) sc;
-            score_matrix_32[(a << 5) + b] = (int32_t) sc;
+            SCORE_MATRIX_7(a, b) = (int8_t) sc;
+            SCORE_MATRIX_8(a, b) = (uint8_t) (BIAS + sc);
+            SCORE_MATRIX_16(a, b) = (int16_t) sc;
+            SCORE_MATRIX_32(a, b) = (int32_t) sc;
         }
     }
 }
@@ -412,7 +418,7 @@ static void read_line(char line[LINE_MAX], int* symbols, char* order) {
                 /* a line is 32 elements wide and the first element of the first
                  * symbol (aa or nt) starts at index 33.
                  */
-                score_matrix_63[(a << 5) + b] = sc;
+                SCORE_MATRIX_63(a, b) = sc;
             }
 
             p += read;
@@ -436,8 +442,7 @@ void mat_init_constant_scoring(const int8_t matchscore,
     int a, b;
     for (a = 1; a < 32; a++) {
         for (b = 1; b < 33; b++) {
-            score_matrix_63[(a << 5) + b] = (
-                    (a == b) ? matchscore : mismatchscore);
+            SCORE_MATRIX_63(a, b) = ((a == b) ? matchscore : mismatchscore);
         }
     }
 
@@ -458,7 +463,7 @@ void mat_init_from_file(const char * matrix) {
 
     int symbols;
 
-    FILE * fp = fopen(matrixname, "r");
+    FILE * fp = fopen(matrix, "r");
 
     if (!fp)
         ffatal("Cannot open score matrix file.");

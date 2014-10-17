@@ -5,16 +5,14 @@
  *      Author: Jakob Frielingsdorf
  */
 
+#include "db_iterator.h"
+
+#include <stdlib.h>
+
+#include "util_sequence.h"
 #include "libssa_extern_db.h"
 #include "util.h"
-
-extern void us_translate_sequence(int db_sequence, sequence dna,
-        int strand, int frame, sequence * prot_seq);
-extern sequence us_revcompl(sequence seq);
-extern sequence us_map_sequence(sequence seq, const char* map);
-
-extern const char map_ncbi_nt16[256];
-extern const char map_ncbi_aa[256];
+#include "query.h"
 
 static unsigned long seq_index;
 static unsigned long chunk_size;
@@ -35,7 +33,7 @@ static void fill_buffer(p_seqinfo seqinfo) {
     if (symtype == NUCLEOTIDE) {
         // first element
 
-        buffer[0] = (p_sdb_sequence )xmalloc(sizeof(sdb_sequence));
+        buffer[0] = xmalloc(sizeof(sdb_sequence));
         buffer[0]->ID = seqinfo->ID;
         buffer[0]->seq = us_map_sequence(db_seq, map_ncbi_nt16);
         buffer[0]->strand = 0;
@@ -43,7 +41,7 @@ static void fill_buffer(p_seqinfo seqinfo) {
 
         if (query_strands & 2) {
             // reverse complement
-            buffer[1] = (p_sdb_sequence )xmalloc(sizeof(sdb_sequence));
+            buffer[1] = xmalloc(sizeof(sdb_sequence));
             buffer[1]->ID = seqinfo->ID;
             // no need for a second mapping
             buffer[1]->seq = us_revcompl(buffer[0]->seq);
@@ -60,7 +58,7 @@ static void fill_buffer(p_seqinfo seqinfo) {
             int s = query_strands - 1;
 
             for (int f = 0; f < 3; f++) { // frames
-                buffer[f] = (p_sdb_sequence )xmalloc(sizeof(sdb_sequence));
+                buffer[f] = xmalloc(sizeof(sdb_sequence));
                 buffer[f]->ID = seqinfo->ID;
 
                 buffer[f]->strand = query_strands;
@@ -73,7 +71,7 @@ static void fill_buffer(p_seqinfo seqinfo) {
             // for both strands translation
             for (int s = 0; s < 2; s++) { // strands
                 for (int f = 0; f < 3; f++) { // frames
-                    buffer[3 * s + f] = (p_sdb_sequence )xmalloc(sizeof(sdb_sequence));
+                    buffer[3 * s + f] = xmalloc(sizeof(sdb_sequence));
                     buffer[3 * s + f]->ID = seqinfo->ID;
 
                     buffer[3 * s + f]->strand = s;
@@ -85,7 +83,7 @@ static void fill_buffer(p_seqinfo seqinfo) {
         }
     }
     else {
-        buffer[0] = (p_sdb_sequence )xmalloc(sizeof(sdb_sequence));
+        buffer[0] = xmalloc(sizeof(sdb_sequence));
         buffer[0]->ID = seqinfo->ID;
         buffer[0]->seq = us_map_sequence(db_seq, map_ncbi_aa);
         buffer[0]->strand = 0;
@@ -230,9 +228,9 @@ void it_free_chunk(p_db_chunk chunk) {
 }
 
 p_db_chunk it_next_chunk() {
-    p_db_chunk chunk = (p_db_chunk) xmalloc(sizeof(struct db_chunk));
+    p_db_chunk chunk = xmalloc(sizeof(struct db_chunk));
 
-    chunk->seq = (p_sdb_sequence *) xmalloc(chunk_size * sizeof(p_sdb_sequence));
+    chunk->seq = xmalloc(chunk_size * sizeof(p_sdb_sequence));
     chunk->size = 0;
 
     for (int i = 0; i < chunk_size; i++) {
