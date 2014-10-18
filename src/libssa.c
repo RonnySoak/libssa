@@ -203,8 +203,11 @@ void free_sequence(p_query p) {
  * @return pointer to the alignment structure
  */
 p_alignment_list sw_align(p_query p, int hitcount /* TODO ...*/) {
-    // switch 0 with the right flags
-    return m_run(p, hitcount, 0); // TODO make alignment algo configurable in manager.c
+    ssa_db_reset_sequence_counter();
+
+    init_for_sw();
+
+    return m_run(p, hitcount);
 }
 
 /**
@@ -216,7 +219,11 @@ p_alignment_list sw_align(p_query p, int hitcount /* TODO ...*/) {
  * @return pointer to the alignment structure
  */
 p_alignment_list nw_align(p_query p, int hitcount /* TODO ...*/) {
-    return NULL; // TODO
+    ssa_db_reset_sequence_counter();
+
+    init_for_nw();
+
+    return m_run(p, hitcount);
 }
 
 /**
@@ -230,7 +237,11 @@ p_alignment_list nw_align(p_query p, int hitcount /* TODO ...*/) {
  * @return pointer to the alignment structure
  */
 p_alignment_list nw_sellers_align(p_query p, int hitcount /* TODO ...*/) {
-    return NULL; // TODO
+    ssa_db_reset_sequence_counter();
+
+    init_for_nw_sellers();
+
+    return m_run(p, hitcount);
 }
 
 /**
@@ -242,6 +253,8 @@ p_alignment_list nw_sellers_align(p_query p, int hitcount /* TODO ...*/) {
  * @return pointer to the alignment structure
  */
 p_alignment_list nw_ignore_gaps_align(p_query p, int hitcount /* TODO ... ignored gaps...*/) {
+    ssa_db_reset_sequence_counter();
+
     return NULL; // TODO
 }
 

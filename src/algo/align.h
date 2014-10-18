@@ -30,7 +30,7 @@ typedef struct {
 
 typedef cigar_t * cigar_p;
 
-void init_align_function(void (* align_function) (alignment_p));
+void a_init_align_function(void (* align_function) (alignment_p));
 
 region_t init_region_for_global(sequence a_seq, sequence b_seq);
 

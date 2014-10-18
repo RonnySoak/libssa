@@ -14,12 +14,11 @@
 #include "../../src/db_iterator.h"
 #include "../../src/query.h"
 #include "../../src/algo/searcher.h"
-
-extern long fullsw(sequence *, sequence *, int64_t *, int64_t *, uint8_t, uint8_t);
+#include "../../src/algo/search.h"
 
 extern p_search_data init_searchdata(p_query query);
 
-START_TEST (test_searcher_simple)
+START_TEST (test_searcher_simple_sw)
     {
         init_symbol_translation(NUCLEOTIDE, FORWARD_STRAND, 3, 3);
         mat_init_constant_scoring(1, -1);
@@ -31,7 +30,8 @@ START_TEST (test_searcher_simple)
         p_search_data sdp = init_searchdata(query);
 
         int res_count = 1;
-        s_init(sdp, &fullsw, res_count);
+        s_init_search_algo(&full_sw);
+        s_init(sdp, res_count);
 
         it_init(1);
 
@@ -57,7 +57,7 @@ START_TEST (test_searcher_simple)
         query_free(query);
     }END_TEST
 
-START_TEST (test_searcher_more_sequences)
+START_TEST (test_searcher_more_sequences_sw)
     {
         init_symbol_translation(NUCLEOTIDE, FORWARD_STRAND, 3, 3);
         mat_init_constant_scoring(1, -1);
@@ -69,7 +69,8 @@ START_TEST (test_searcher_more_sequences)
         p_search_data sdp = init_searchdata(query);
 
         int res_count = 3;
-        s_init(sdp, &fullsw, res_count);
+        s_init_search_algo(&full_sw);
+        s_init(sdp, res_count);
 
         it_init(3);
         p_search_result res = s_search();
@@ -96,8 +97,8 @@ START_TEST (test_searcher_more_sequences)
 
 void addSearcherTC(Suite *s) {
     TCase *tc_core = tcase_create("searcher");
-    tcase_add_test(tc_core, test_searcher_simple);
-    tcase_add_test(tc_core, test_searcher_more_sequences);
+    tcase_add_test(tc_core, test_searcher_simple_sw);
+    tcase_add_test(tc_core, test_searcher_more_sequences_sw);
 
     suite_add_tcase(s, tc_core);
 }

@@ -50,7 +50,7 @@ START_TEST (test_aligner_simple_sw)
         queries[0].strand = 0;
         queries[0].frame = 0;
 
-        init_align_function(&align_sw);
+        a_init_align_function(&align_sw);
 
         p_alignment_list alist = a_align(heap, queries, 0);
 
@@ -130,7 +130,7 @@ START_TEST (test_aligner_more_sequences_sw)
         queries[0].strand = 0;
         queries[0].frame = 0;
 
-        init_align_function(&align_sw);
+        a_init_align_function(&align_sw);
 
         p_alignment_list alist = a_align(heap, queries, 0);
 

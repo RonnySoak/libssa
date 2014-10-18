@@ -23,16 +23,16 @@
  PO Box 1080 Blindern, NO-0316 Oslo, Norway
  */
 
+#include "search.h"
+
 #include <string.h>
 
 #include "../util.h"
+#include "../matrices.h"
 
-long fullsw(sequence * dseq,
-        sequence * qseq,
-        int64_t * hearray,
-        int64_t * score_matrix,
-        uint8_t gapopenextend,
-        uint8_t gapextend) {
+int64_t full_sw(sequence * dseq, sequence * qseq, int64_t * hearray,
+        int64_t * score_matrix) {
+
     int64_t h, n, e, f, s;
     int64_t *hep;
     const char *qp, *dp;
@@ -67,9 +67,9 @@ long fullsw(sequence * dseq,
                 s = h;
 
             *hep = h;
-            e -= gapextend;
-            f -= gapextend;
-            h -= gapopenextend;
+            e -= gapE;
+            f -= gapE;
+            h -= gapO - gapE;
 
             if (h > e)
                 e = h;

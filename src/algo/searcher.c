@@ -15,18 +15,16 @@
 #include "../matrices.h"
 
 static p_search_data sdp;
-static long (* algo) (sequence *, sequence *, int64_t *, int64_t *, uint8_t, uint8_t);
+static long (* algo) (sequence *, sequence *, int64_t *, int64_t *);
 static p_search_result res = 0;
 
-// both are filled from libssa.c
-uint8_t gapO;
-uint8_t gapE;
-
-void s_init(p_search_data data,
-        long (* algo_p) (sequence *, sequence *, int64_t *, int64_t *, uint8_t, uint8_t),
-        long hit_count) {
-    sdp = data;
+void s_init_search_algo(
+        long (*algo_p)(sequence *, sequence *, int64_t *, int64_t *)) {
     algo = algo_p;
+}
+
+void s_init(p_search_data data, long hit_count) {
+    sdp = data;
 
     res = xmalloc(sizeof(struct search_result));
     res->heap = minheap_init(hit_count);
@@ -51,8 +49,7 @@ static void search_chunk(p_minheap heap, p_db_chunk chunk) {
             e->score = algo(&dseq->seq,
                         &query.seq,
                         sdp->hearray, // TODO how to cope with different parameters in different implementation?
-                        score_matrix_63,
-                        gapO, gapE);
+                        score_matrix_63);
             /*
              * Alignments, with a score equal to the current lowest score in the
              * heap are ignored!
@@ -104,6 +101,10 @@ void s_free() {
 }
 
 p_search_result s_search() {
+    if (!algo) {
+        ffatal("Search algorithm not initialized");
+    }
+
     p_db_chunk chunk;
     while((chunk = it_next_chunk())) {
         search_chunk(res->heap, chunk);

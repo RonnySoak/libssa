@@ -16,7 +16,7 @@
 
 static void (* compute_alignment) (alignment_p);
 
-void init_align_function(void (* align_function) (alignment_p)) {
+void a_init_align_function(void (* align_function) (alignment_p)) {
     compute_alignment = align_function;
 }
 
@@ -66,6 +66,7 @@ void a_free(p_alignment_list alist) {
             if (alist->alignments[i]) {
                 alignment_p a = alist->alignments[i];
 
+                free(a->db_seq.seq);
                 a->db_seq.seq = 0;
                 a->db_seq.len = 0;
                 a->db_seq.strand = 0;
@@ -102,6 +103,10 @@ void a_free(p_alignment_list alist) {
 }
 
 p_alignment_list a_align(p_minheap heap, seq_buffer* queries, int q_count) {
+    if (!compute_alignment) {
+        ffatal("Alignment algorithm not initialized");
+    }
+
     p_alignment_list alignment_list = xmalloc(sizeof(struct alignment_list));
     alignment_list->alignments = xmalloc(heap->count * sizeof(alignment_t));
     alignment_list->len = heap->count;

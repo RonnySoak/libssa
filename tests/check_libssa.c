@@ -20,7 +20,7 @@ Suite* libssa_suite(void) {
     addDBIteratorTC(s);
     addCigarTC(s);
     addAlignTC(s);
-    addSearch63TC(s);
+    addSmithWaterman63TC(s);
     addSearcherTC(s);
     addAlignerTC(s);
     addManagerTC(s);

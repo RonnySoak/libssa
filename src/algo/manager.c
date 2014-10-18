@@ -16,13 +16,7 @@
 #include "align.h"
 #include "aligner.h"
 #include "searcher.h"
-
-extern long fullsw(sequence * dseq,
-        sequence * qseq,
-        int64_t * hearray,
-        int64_t * score_matrix,
-        uint8_t gapopenextend,
-        uint8_t gapextend);
+#include "search.h"
 
 static p_search_data sdp;
 static unsigned long max_chunk_size = 100; // TODO change and/or make it configurable
@@ -116,9 +110,30 @@ void free_search_data() {
 static void init(p_query query, int hit_count) {
     sdp = init_searchdata(query);
 
-    s_init(sdp, &fullsw, hit_count);
+    s_init(sdp, hit_count);
 
     it_init(max_chunk_size);
+}
+
+void init_for_sw() {
+    s_init_search_algo(&full_sw);
+
+    a_init_align_function(&align_sw);
+}
+
+void init_for_nw() {
+    s_init_search_algo(&full_nw);
+
+    a_init_align_function(&align_nw);
+}
+
+void init_for_nw_sellers() {
+    // TODO not all implemented yet
+    ffatal("init_for_nw_sellers: TODO: not all implemented yet");
+
+    s_init_search_algo(&full_nw_sellers);
+
+    a_init_align_function(&align_nw_sellers);
 }
 
 /**
@@ -131,7 +146,7 @@ static void init(p_query query, int hit_count) {
  * Bit 2 set: use SIMD, if possible, otherwise use the naive implementation
  * Bit 3 set: run in multiple threads (configured through the API)
  */
-p_alignment_list m_run(p_query query, int hit_count, int flags) {
+p_alignment_list m_run(p_query query, int hit_count) {
     // TODO add threads
     init(query, hit_count);
 
@@ -140,8 +155,6 @@ p_alignment_list m_run(p_query query, int hit_count, int flags) {
     it_free();
 
     minheap_sort(res->heap);
-
-    init_align_function(&align_sw);
 
     p_alignment_list alist = a_align(res->heap, sdp->queries, sdp->q_count);
 

@@ -21,7 +21,7 @@ void addUtilSequenceTC(Suite *s);
 void addDBIteratorTC(Suite *s);
 void addCigarTC(Suite *s);
 void addAlignTC(Suite *s);
-void addSearch63TC(Suite *s);
+void addSmithWaterman63TC(Suite *s);
 void addSearcherTC(Suite *s);
 void addManagerTC(Suite *s);
 void addAlignerTC(Suite *s);

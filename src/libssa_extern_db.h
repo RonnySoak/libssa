@@ -38,6 +38,8 @@ void ssa_db_init_fasta(const char* fasta_file_name);
 // #############################################################################
 // Accessors
 // #########
+void ssa_db_reset_sequence_counter();
+
 /**
  * Returns the DB sequence of the specified ID.
  */

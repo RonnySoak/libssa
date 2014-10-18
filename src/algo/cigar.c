@@ -99,6 +99,8 @@ static uint8_t * compute_directions_for_nw(sequence a_seq, sequence b_seq) {
         }
     }
 
+    free(hearray);
+
     return directions;
 }
 
@@ -172,6 +174,8 @@ static uint8_t * compute_directions_for_sw(sequence a_seq, sequence b_seq) {
             hep += 2;
         }
     }
+
+    free(hearray);
 
     return directions;
 }
@@ -302,6 +306,7 @@ cigar_p compute_cigar_for_nw(sequence a_seq, sequence b_seq) {
 
     free(rev_cigar->cigar);
     free(rev_cigar);
+    free(directions);
 
     return result;
 }
@@ -369,6 +374,7 @@ cigar_p compute_cigar_for_sw(sequence a_seq, sequence b_seq, region_t region) {
 
     free(rev_cigar->cigar);
     free(rev_cigar);
+    free(directions);
 
     return result;
 }
