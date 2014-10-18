@@ -19,8 +19,10 @@
 region_t find_region_and_score_for_local(sequence a_seq, sequence b_seq) {
     region_t region;
 
-    long * HH = xmalloc(a_seq.len * sizeof(long));
-    long * EE = xmalloc(a_seq.len * sizeof(long));
+    unsigned long size = MAX(a_seq.len, b_seq.len);
+
+    long * HH = xmalloc(size * sizeof(long));
+    long * EE = xmalloc(size * sizeof(long));
 
     long score = 0;
 
@@ -34,6 +36,7 @@ region_t find_region_and_score_for_local(sequence a_seq, sequence b_seq) {
         long h = 0;
         long p = 0;
         long f = -gapO;
+
         for (long j = 0; j < a_seq.len; j++) {
             f = MAX(f, h - gapO) - gapE;
             EE[j] = MAX(EE[j], HH[j] - gapO) - gapE;
@@ -67,20 +70,20 @@ region_t find_region_and_score_for_local(sequence a_seq, sequence b_seq) {
 
     long cost = 0;
 
-    for (long i = region.a_end; i >= 0; i--) {
+    for (long i = region.b_end; i >= 0; i--) {
         long h = -1;
         long f = -1;
         long p;
-        if (i == region.a_end)
+        if (i == region.b_end)
             p = 0;
         else
             p = -1;
 
-        for (long j = region.b_end; j >= 0; j--) {
+        for (long j = region.a_end; j >= 0; j--) {
             f = MAX(f, h - gapO) - gapE;
             EE[j] = MAX(EE[j], HH[j] - gapO) - gapE;
 
-            h = p + SCORE_MATRIX_63(a_seq.seq[i], b_seq.seq[j]);
+            h = p + SCORE_MATRIX_63(a_seq.seq[j], b_seq.seq[i]);
 
             if (f > h)
                 h = f;
@@ -93,21 +96,22 @@ region_t find_region_and_score_for_local(sequence a_seq, sequence b_seq) {
 
             if (h > cost) {
                 cost = h;
-                region.a_begin = i;
-                region.b_begin = j;
+                region.a_begin = j;
+                region.b_begin = i;
                 if (cost >= score) {
-                    i = 0; // kind of a break here
-                    j = 0;
-//                    goto Found; TODO think about what to use here
+//                    i = -1; // kind of a break here
+//                    j = -1;
+                    goto Found; //TODO think about what to use here
                 }
             }
         }
     }
-//    ffatal("Internal error in align function.");
-//    Found:
+
+    ffatal("Internal error in align function.");
+
+    Found:
 
     free(EE);
-    printf("3, a_seq.len: %ld\n", a_seq.len);
     free(HH);
 
     return region;

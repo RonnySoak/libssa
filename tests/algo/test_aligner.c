@@ -131,9 +131,8 @@ START_TEST (test_aligner_more_sequences_sw)
         queries[0].frame = 0;
 
         init_align_function(&align_sw);
-printf("1\n");
+
         p_alignment_list alist = a_align(heap, queries, 0);
-printf("2\n");
 
         ck_assert_int_eq(5, alist->len);
 
@@ -150,14 +149,14 @@ printf("2\n");
         ck_assert_int_eq(0, al->query.frame);
         ck_assert_int_eq(0, al->query.strand);
 
-        ck_assert_int_eq(0, al->score); // TODO check this
+        ck_assert_int_eq(2, al->score); // score 2, since we set it to 2
         ck_assert_int_eq(1, al->align_d_start);
         ck_assert_int_eq(120, al->align_d_end);
         ck_assert_int_eq(1, al->align_q_start);
         ck_assert_int_eq(53, al->align_q_end);
         ck_assert_str_eq(
-                "M1I1M2I1M2I1M1I3M1I2M1I4M1I1M1I1M1I3M1I3M1I1M1I3M1I4M1D1I1M1I1M2I11"\
-                "M2I2M1I4M1I1M3I5M3I5M1I1M1I2M1D1I1M4I1M5D1I1M1I1M1I4M1I1M3D1M1I1M1",
+                "DMI2MI2MIM3IM2IM4IM9I2MIM4I2M4I2M7IM6IMI3M" \
+                "3I2MI2M6ID3MIM3IM3IMIMD4M4IMI4MDMIMIMI3MDMI",
                 al->alignment); // TODO check this
 
         it_free_sequence(sdb0);

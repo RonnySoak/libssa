@@ -41,7 +41,7 @@ void us_init_translation(int qtableno, int dtableno);
  * @param map   the mapping to use
  * @return      the new mapped sequence
  */
-sequence us_map_sequence(sequence seq, const char* map);
+sequence us_map_sequence(sequence seq, const char * map);
 
 /**
  * Translates a DNA sequence into a protein sequence, according the strand and

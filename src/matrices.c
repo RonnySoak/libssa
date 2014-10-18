@@ -373,9 +373,7 @@ static void finalize_matrices() {
  * @param order     TODO ???
  */
 static void read_line(char line[LINE_MAX], int* symbols, char* order) {
-    int a, b, i, read;
     char *p, *q;
-    long sc;
 
     p = line;
     char c = *p++;
@@ -383,12 +381,12 @@ static void read_line(char line[LINE_MAX], int* symbols, char* order) {
     switch (c) {
 
     case '\n':
-        case '#':
+    case '#':
         /* ignore blank lines and comments starting with # */
 
         break;
     case '\t':
-        case ' ':
+    case ' ':
         /* read order of symbols, copy non-whitespace chars */
 
         q = order;
@@ -401,16 +399,19 @@ static void read_line(char line[LINE_MAX], int* symbols, char* order) {
         }
 
         break;
-    default:
+    default: {
         /* ordinary lines */
+        int read;
 
-        a = map_ncbi_aa[(int) c];
-        for (i = 0; i < *symbols; i++) {
+        int8_t a = map_ncbi_aa[(int) c];
+        for (int i = 0; i < *symbols; i++) {
+            long sc;
+
             if (sscanf(p, "%ld%n", &sc, &read) == 0) {
                 ffatal("Problem parsing score matrix file.");
             }
 
-            b = order[i];
+            char b = order[i];
 
             if ((a >= 0) && (b >= 0) && (a < 32) && (b < 32)) {
 //                printf("c: %c, idx: %d, sc: %ld\n", (char)c, ((a << 5) + b), sc);
@@ -424,7 +425,7 @@ static void read_line(char line[LINE_MAX], int* symbols, char* order) {
             p += read;
         }
         break;
-    }
+    }}
 }
 
 /**

@@ -206,8 +206,8 @@ void query_show(p_query query) {
     int linewidth = 60;
 
     if (query->header) {
-        for (unsigned i = 0; i < strlen(query->header); i += linewidth) {
-            printf("x%i", i);
+        for (unsigned int i = 0; i < strlen(query->header); i += linewidth) {
+            printf("x%ud", i);
             if (i == 0)
                 outf("Query description: %-60.60s\n", query->header + i);
             else

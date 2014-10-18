@@ -46,19 +46,31 @@ START_TEST (test_generate_cigar_simple_nw)
 
         cigar_p cigar = compute_cigar_for_nw(a_seq, b_seq);
 
-        ck_assert_int_eq(8, cigar->len);
-        ck_assert_int_eq(9, cigar->allocated_size);
-        ck_assert_str_eq("1M1D1M1D", cigar->cigar);
+        ck_assert_int_eq(4, cigar->len);
+        ck_assert_int_eq(5, cigar->allocated_size);
+        ck_assert_str_eq("MDMD", cigar->cigar);
 
         teardown_cigar(cigar);
-        // ---
+
+        // test size of sequences switched
+        setup_cigar("AT", "AATG", 2, 4);
+
+        cigar = compute_cigar_for_nw(a_seq, b_seq);
+
+        ck_assert_int_eq(4, cigar->len);
+        ck_assert_int_eq(5, cigar->allocated_size);
+        ck_assert_str_eq("MIMI", cigar->cigar);
+
+        teardown_cigar(cigar);
+
+        // test longer sequences
         setup_cigar("TACGGGTAT", "GGACGTACG", 9, 9);
 
         cigar = compute_cigar_for_nw(a_seq, b_seq);
 
-        ck_assert_int_eq(12, cigar->len);
-        ck_assert_int_eq(13, cigar->allocated_size);
-        ck_assert_str_eq("1M1I3M2D3M1I", cigar->cigar);
+        ck_assert_int_eq(9, cigar->len);
+        ck_assert_int_eq(10, cigar->allocated_size);
+        ck_assert_str_eq("MI3M2D3MI", cigar->cigar);
 
         teardown_cigar(cigar);
     }END_TEST
@@ -70,6 +82,19 @@ START_TEST (test_generate_cigar_simple_sw)
         region_t region = find_region_and_score_for_local(a_seq, b_seq);
 
         cigar_p cigar = compute_cigar_for_sw(a_seq, b_seq, region);
+
+        ck_assert_int_eq(2, cigar->len);
+        ck_assert_int_eq(3, cigar->allocated_size);
+        ck_assert_str_eq("2M", cigar->cigar);
+
+        teardown_cigar(cigar);
+
+        // test size of sequences switched
+        setup_cigar("AT", "AATG", 2, 4);
+
+        region = find_region_and_score_for_local(a_seq, b_seq);
+
+        cigar = compute_cigar_for_sw(a_seq, b_seq, region);
 
         ck_assert_int_eq(2, cigar->len);
         ck_assert_int_eq(3, cigar->allocated_size);

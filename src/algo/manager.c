@@ -13,6 +13,7 @@
 #include "../libssa_datatypes.h"
 #include "../db_iterator.h"
 #include "../query.h"
+#include "align.h"
 #include "aligner.h"
 #include "searcher.h"
 
@@ -139,6 +140,8 @@ p_alignment_list m_run(p_query query, int hit_count, int flags) {
     it_free();
 
     minheap_sort(res->heap);
+
+    init_align_function(&align_sw);
 
     p_alignment_list alist = a_align(res->heap, sdp->queries, sdp->q_count);
 

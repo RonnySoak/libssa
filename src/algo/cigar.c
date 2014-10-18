@@ -191,15 +191,19 @@ static void add_to_cigar(char op, long op_count, cigar_p cigar) {
     }
     cigar->cigar[cigar->len++] = op;
 
-    uint64_t insert_pos = cigar->len;
+    check_allocated_size(cigar); // TODO call this only once
 
-    char counter_buf[25];
-    int len = sprintf(counter_buf, "%ld", op_count);
-    cigar->len += len;
+    if (op_count > 1) {
+        uint64_t insert_pos = cigar->len;
 
-    check_allocated_size(cigar);
+        char counter_buf[25];
+        int len = sprintf(counter_buf, "%ld", op_count);
+        cigar->len += len;
 
-    strncpy(cigar->cigar + insert_pos, counter_buf, len);
+        check_allocated_size(cigar);
+
+        strncpy(cigar->cigar + insert_pos, counter_buf, len);
+    }
 }
 
 cigar_p reverse_cigar(cigar_p rev_cigar) {
