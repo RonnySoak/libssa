@@ -9,6 +9,7 @@
 
 #include "../../src/algo/aligner.h"
 #include "../../src/algo/align.h"
+#include "../../src/algo/manager.h"
 
 #include "../../src/util.h"
 #include "../../src/libssa.h"
@@ -16,6 +17,9 @@
 #include "../../src/matrices.h"
 #include "../../src/db_iterator.h"
 #include "../../src/query.h"
+
+extern p_alignment_data prepare_alignment_data( int pair_count,
+        elem_t * result_sequence_pairs);
 
 elem_t new_elem0(p_sdb_sequence sdb, int qid, long score) {
     elem_t e;
@@ -42,17 +46,13 @@ START_TEST (test_aligner_simple_sw)
 
         p_sdb_sequence sdb = it_next_sequence();
 
-        elem_t e = new_elem0(sdb, 0, 2);
-        minheap_add(heap, &e);
+        elem_t e1 = new_elem0(sdb, 0, 2);
+        elem_t * elements = { &e1 };
 
-        seq_buffer queries[1];
-        queries[0].seq = query->nt[0];
-        queries[0].strand = 0;
-        queries[0].frame = 0;
+        init_for_sw(query, 1);
+        p_alignment_data adp = prepare_alignment_data(1, elements);
 
-        a_init_align_function(&align_sw);
-
-        p_alignment_list alist = a_align(heap, queries, 0);
+        p_alignment_list alist = a_align(adp);
 
         ck_assert_int_eq(1, alist->len);
 
@@ -125,14 +125,10 @@ START_TEST (test_aligner_more_sequences_sw)
         minheap_add(heap, &e);
         it_free_sequence(sdb);
 
-        seq_buffer queries[1];
-        queries[0].seq = query->nt[0];
-        queries[0].strand = 0;
-        queries[0].frame = 0;
+        init_for_sw(query, 1);
+        p_alignment_data adp = prepare_alignment_data(5, heap->array);
 
-        a_init_align_function(&align_sw);
-
-        p_alignment_list alist = a_align(heap, queries, 0);
+        p_alignment_list alist = a_align(adp);
 
         ck_assert_int_eq(5, alist->len);
 

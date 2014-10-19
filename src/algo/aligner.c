@@ -9,16 +9,9 @@
 
 #include <stdlib.h>
 
-#include "../libssa_datatypes.h"
 #include "../matrices.h"
 #include "../db_iterator.h"
 #include "searcher.h"
-
-static void (* compute_alignment) (alignment_p);
-
-void a_init_align_function(void (* align_function) (alignment_p)) {
-    compute_alignment = align_function;
-}
 
 static void init_alignment(alignment_p a, elem_t e, seq_buffer* queries) {
     p_seqinfo info = it_get_sequence(e.db_id);
@@ -102,21 +95,23 @@ void a_free(p_alignment_list alist) {
     free(alist);
 }
 
-p_alignment_list a_align(p_minheap heap, seq_buffer* queries, int q_count) {
-    if (!compute_alignment) {
-        ffatal("Alignment algorithm not initialized");
-    }
+void * a_align(void * alignment_data) {
+    p_alignment_data adp = (p_alignment_data) alignment_data;
 
     p_alignment_list alignment_list = xmalloc(sizeof(struct alignment_list));
-    alignment_list->alignments = xmalloc(heap->count * sizeof(alignment_t));
-    alignment_list->len = heap->count;
+    alignment_list->alignments = xmalloc(adp->pair_count * sizeof(alignment_t));
+    alignment_list->len = adp->pair_count;
 
-    for (int i = 0; i < heap->count; i++) {
+    printf("start doing alignments\n");
+
+    for (int i = 0; i < adp->pair_count; i++) {
+        printf("do alignment\n");
+
         // do alignment for each pair
         alignment_p a = xmalloc(sizeof(alignment_t));
-        init_alignment(a, heap->array[i], queries);
+        init_alignment(a, adp->result_sequence_pairs[i], adp->queries);
 
-        compute_alignment(a);
+        adp->align_function(a);
 
         alignment_list->alignments[i] = a;
     }

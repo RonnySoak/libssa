@@ -27,8 +27,6 @@ int64_t full_nw(sequence * dseq, sequence * qseq, int64_t * hearray, int64_t * s
         h = (j == 0) ? 0 : (-gapO + (j + 1) * -gapE); // value in first cell of line
 
         for (uint64_t i = 0; i < qseq->len; i++) {
-            long index = qseq->len * j + i;
-
             n = *hep;
             e = *(hep + 1);
             h += SCORE_MATRIX_63(dseq->seq[j], qseq->seq[i]);

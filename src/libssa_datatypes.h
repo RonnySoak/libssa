@@ -38,16 +38,27 @@ typedef struct {
 } seq_buffer;
 
 struct search_data {
-    struct db_thread_s * dbt;
-    struct db_thread_s * dbta[8];
+    int hit_count;
+    int64_t (*search_algo)(sequence*, sequence*, int64_t*, int64_t*);
 
     uint8_t * dprofile;
-    uint8_t * hearray;
+    uint64_t hearraylen;
 
     seq_buffer queries[6];
     int q_count; // max 6
 };
 typedef struct search_data * p_search_data;
+
+struct alignment_data {
+    elem_t * result_sequence_pairs;
+    int pair_count;
+
+    seq_buffer queries[6];
+    int q_count;
+
+    void (* align_function) (alignment_p);
+};
+typedef struct alignment_data * p_alignment_data;
 
 /** @typedef    structure of a sequence
  *

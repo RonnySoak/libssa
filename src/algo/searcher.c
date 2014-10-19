@@ -14,25 +14,9 @@
 #include "../db_iterator.h"
 #include "../matrices.h"
 
-static p_search_data sdp;
-static long (* algo) (sequence *, sequence *, int64_t *, int64_t *);
-static p_search_result res = 0;
+static int64_t* hearray;
 
-void s_init_search_algo(
-        long (*algo_p)(sequence *, sequence *, int64_t *, int64_t *)) {
-    algo = algo_p;
-}
-
-void s_init(p_search_data data, long hit_count) {
-    sdp = data;
-
-    res = xmalloc(sizeof(struct search_result));
-    res->heap = minheap_init(hit_count);
-    res->chunk_count = 0;
-    res->seq_count = 0;
-}
-
-static void search_chunk(p_minheap heap, p_db_chunk chunk) {
+static void search_chunk(p_minheap heap, p_db_chunk chunk, p_search_data sdp) {
     for (unsigned long i = 0; i < chunk->size; i++) {
         p_sdb_sequence dseq = chunk->seq[i];
 
@@ -45,10 +29,9 @@ static void search_chunk(p_minheap heap, p_db_chunk chunk) {
             e->dframe = dseq->frame;
             e->dstrand = dseq->strand;
 
-            // TODO add other algorithms (7, 8, 16 bit)
-            e->score = algo(&dseq->seq,
+            e->score = sdp->search_algo(&dseq->seq,
                         &query.seq,
-                        sdp->hearray, // TODO how to cope with different parameters in different implementation?
+                        hearray, // TODO how to cope with different parameters in different implementation?
                         score_matrix_63);
             /*
              * Alignments, with a score equal to the current lowest score in the
@@ -75,7 +58,7 @@ static void search_chunk(p_minheap heap, p_db_chunk chunk) {
     }
 }
 
-void s_free() {
+void s_free(p_search_result res) {
     if (!res) {
         return;
     }
@@ -96,18 +79,21 @@ void s_free() {
     res->seq_count = 0;
     free(res);
     res = 0;
-
-    algo = 0;
 }
 
-p_search_result s_search() {
-    if (!algo) {
-        ffatal("Search algorithm not initialized");
-    }
+void * s_search(void * search_data) {
+    p_search_data sdp = (p_search_data) search_data;
+
+    p_search_result res = xmalloc(sizeof(struct search_result));
+    res->heap = minheap_init(sdp->hit_count);
+    res->chunk_count = 0;
+    res->seq_count = 0;
+
+    hearray = xmalloc(sdp->hearraylen * 32);
 
     p_db_chunk chunk;
     while((chunk = it_next_chunk())) {
-        search_chunk(res->heap, chunk);
+        search_chunk(res->heap, chunk, sdp);
 
         res->chunk_count++;
         res->seq_count += chunk->size;

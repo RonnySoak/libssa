@@ -21,7 +21,7 @@
 // Configuration data
 // ##################
 int _verbose = VERBOSE_OFF;
-int _nr_threads; // todo get number of CPUs
+int _max_thread_count = -1;
 int _use_simd = SIMD_ON;
 
 // #############################################################################
@@ -38,7 +38,7 @@ void set_verbose(int debug) {
 }
 
 void set_threads(int nr) {
-    _nr_threads = nr;
+    _max_thread_count = nr;
 }
 
 void set_use_simd(int simd) {
@@ -205,9 +205,9 @@ void free_sequence(p_query p) {
 p_alignment_list sw_align(p_query p, int hitcount /* TODO ...*/) {
     ssa_db_reset_sequence_counter();
 
-    init_for_sw();
+    init_for_sw(p, hitcount);
 
-    return m_run(p, hitcount);
+    return m_run();
 }
 
 /**
@@ -221,9 +221,9 @@ p_alignment_list sw_align(p_query p, int hitcount /* TODO ...*/) {
 p_alignment_list nw_align(p_query p, int hitcount /* TODO ...*/) {
     ssa_db_reset_sequence_counter();
 
-    init_for_nw();
+    init_for_nw(p, hitcount);
 
-    return m_run(p, hitcount);
+    return m_run();
 }
 
 /**
@@ -239,9 +239,9 @@ p_alignment_list nw_align(p_query p, int hitcount /* TODO ...*/) {
 p_alignment_list nw_sellers_align(p_query p, int hitcount /* TODO ...*/) {
     ssa_db_reset_sequence_counter();
 
-    init_for_nw_sellers();
+    init_for_nw_sellers(p, hitcount);
 
-    return m_run(p, hitcount);
+    return m_run();
 }
 
 /**

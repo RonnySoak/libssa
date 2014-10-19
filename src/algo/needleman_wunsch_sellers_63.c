@@ -110,6 +110,9 @@ const unsigned char maskextleft = 8;
 
 int64_t full_nw_sellers(sequence * dseq, sequence * qseq, int64_t * hearray,
         int64_t * score_matrix) {
+
+    ffatal("full_nw_sellers: TODO: not all implemented yet");
+
     /*
      * TODO
      */

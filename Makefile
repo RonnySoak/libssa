@@ -48,8 +48,8 @@ MPI_LINK := `mpicxx --showme:link`
 COMMON := -g -pg
 # add "-fprofile-arcs -ftest-coverage" to COMMON for code coverage
 
-LIBS := -lpthread
-TEST_LIBS := -lcheck -lm -lrt
+LIBS := -lpthread -lm
+TEST_LIBS := -lcheck -lrt
 LINKFLAGS := $(COMMON)
 
 # Intel options
@@ -91,12 +91,12 @@ libssa : $(OBJS) $(USR_OBJS) $(DEPS)
 
 libssa_check : $(TESTS) $(OBJS) $(USR_OBJS) $(DEPS)
 	@echo 'Building target: $@'
-	$(CXX) $(LINKFLAGS) -o $@ $(OBJS) $(TESTS) $(TEST_LIBS) $(LIBS) -L. -lsdb
+	$(CXX) $(LINKFLAGS) -o $@ $(OBJS) $(TESTS) $(TEST_LIBS) -L. -lsdb $(LIBS) 
 	@echo 'Finished building target: $@'
 	
 libssa_example : $(OBJS) $(USR_OBJS) $(DEPS)
 	@echo 'Building target: $@'
-	$(CXX) $(CXXFLAGS) $(LINKFLAGS) -o $@ ./src/libssa_example.c $(LIBS) -L. -lssa -lsdb
+	$(CXX) $(CXXFLAGS) $(LINKFLAGS) -o $@ ./src/libssa_example.c -L. -lssa -lsdb $(LIBS) 
 	@echo 'Finished building target: $@'
 
 # clean created files

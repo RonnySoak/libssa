@@ -28,6 +28,9 @@ int main(int argc, char**argv) {
     for (int i = 0; i < alist->len; i++) {
         alignment_p a = alist->alignments[i];
 
+        printf("a: %p", a);
+        printf("a->a: %p", a->alignment);
+
         printf("alignment %d: %s\n", i, a->alignment);
     }
     free_alignment(alist);

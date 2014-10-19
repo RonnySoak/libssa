@@ -13,13 +13,8 @@
 extern uint8_t gapO;
 extern uint8_t gapE;
 
-void s_init_search_algo(
-        long (*algo_p)(sequence *, sequence *, int64_t *, int64_t *));
-
-void s_init(p_search_data data, long hit_count);
-
 void s_free();
 
-p_search_result s_search();
+void * s_search(void *);
 
 #endif /* SEARCHER_H_ */

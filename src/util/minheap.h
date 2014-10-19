@@ -16,13 +16,13 @@ typedef struct topscore {
     long score;
 } elem_t;
 
-struct minheap_s {
+struct minheap_t {
     int alloc;
     int count;
     elem_t * array;
 };
 
-typedef struct minheap_s * p_minheap;
+typedef struct minheap_t * p_minheap;
 
 p_minheap minheap_init(int size);
 

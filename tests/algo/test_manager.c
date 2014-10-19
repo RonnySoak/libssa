@@ -9,6 +9,7 @@
 
 #include "../../src/algo/manager.h"
 #include "../../src/algo/aligner.h"
+#include "../../src/algo/search.h"
 
 #include "../../src/util.h"
 #include "../../src/libssa.h"
@@ -16,7 +17,7 @@
 #include "../../src/matrices.h"
 #include "../../src/query.h"
 
-extern p_search_data init_searchdata(p_query query);
+extern p_search_data sdp;
 
 START_TEST (test_manager_simple_sw)
     {
@@ -26,11 +27,19 @@ START_TEST (test_manager_simple_sw)
         p_query query = query_read("./tests/testdata/one_seq.fas");
         ssa_db_init_fasta("./tests/testdata/test.fas");
 
-        init_for_sw();
-        p_alignment_list alist = m_run(query, 3);
+        init_for_sw(query, 3);
+
+        p_alignment_list alist = m_run();
         // TODO test alist
 
         ck_assert_int_eq(3, alist->len);
+
+        for (int i = 0; i < alist->len; i++) {
+            alignment_p a = alist->alignments[i];
+            ck_assert_ptr_ne(NULL, a);
+
+            ck_assert_ptr_eq(query->nt[0].seq, a->query.seq);
+        }
 
         a_free(alist);
 
@@ -46,10 +55,13 @@ START_TEST (test_manager_simple2_sw)
         p_query query = query_read("./tests/testdata/one_seq.fas");
         ssa_db_init_fasta("./tests/testdata/test2.fas");
 
-        init_for_sw();
-        p_alignment_list alist = m_run(query, 1);
+        init_for_sw(query, 1);
+        p_alignment_list alist = m_run();
 
         ck_assert_int_eq(1, alist->len);
+
+        ck_assert_ptr_ne(NULL, alist->alignments[0]);
+        ck_assert_ptr_eq(query->nt[0].seq, alist->alignments[0]->query.seq);
 
         a_free(alist);
 
@@ -63,7 +75,7 @@ START_TEST (test_init_search_data)
 
         p_query query = query_read("./tests/testdata/one_seq.fas");
 
-        p_search_data sdp = init_searchdata(query);
+        init_for_sw(query, 1);
 
         // query data
         ck_assert_int_eq(1, sdp->q_count);
@@ -81,10 +93,11 @@ START_TEST (test_init_search_data)
         ck_assert_int_eq(0, sdp->queries[4].seq.len);
         ck_assert_int_eq(0, sdp->queries[5].seq.len);
 
-        // other data
-        ck_assert_ptr_ne(NULL, sdp->hearray);
+        ck_assert_int_eq(1, sdp->hit_count);
+        ck_assert_ptr_eq(&full_sw, sdp->search_algo);
 
-        // TODO test profile and thread data
+        ck_assert_int_eq(54, sdp->hearraylen);
+        // TODO test profile
 
         query_free(query);
     }END_TEST
@@ -95,7 +108,7 @@ START_TEST (test_init_search_data2)
 
         p_query query = query_read("./tests/testdata/one_seq.fas");
 
-        p_search_data sdp = init_searchdata(query);
+        init_for_nw(query, 5);
 
         // query data
         ck_assert_int_eq(1, sdp->q_count);
@@ -112,6 +125,11 @@ START_TEST (test_init_search_data2)
         ck_assert_int_eq(0, sdp->queries[4].seq.len);
         ck_assert_int_eq(0, sdp->queries[5].seq.len);
 
+        ck_assert_int_eq(5, sdp->hit_count);
+        ck_assert_ptr_eq(full_nw, sdp->search_algo);
+
+        ck_assert_int_eq(54, sdp->hearraylen);
+
         query_free(query);
     }END_TEST
 
@@ -121,7 +139,7 @@ START_TEST (test_init_search_data3)
 
         p_query query = query_read("./tests/testdata/one_seq.fas");
 
-        p_search_data sdp = init_searchdata(query);
+        init_for_nw_sellers(query, 5);
 
         // query data
         ck_assert_int_eq(3, sdp->q_count);
@@ -148,8 +166,10 @@ START_TEST (test_init_search_data3)
         ck_assert_int_eq(0, sdp->queries[4].seq.len);
         ck_assert_int_eq(0, sdp->queries[5].seq.len);
 
-        // other data
-        ck_assert_ptr_ne(NULL, sdp->hearray);
+        ck_assert_int_eq(5, sdp->hit_count);
+        ck_assert_ptr_eq(full_nw_sellers, sdp->search_algo);
+
+        ck_assert_int_eq(18, sdp->hearraylen);
 
         query_free(query);
     }END_TEST
@@ -160,7 +180,7 @@ START_TEST (test_init_search_data4)
 
         p_query query = query_read("./tests/testdata/one_seq.fas");
 
-        p_search_data sdp = init_searchdata(query);
+        init_for_nw(query, 3);
 
         // query data
         ck_assert_int_eq(6, sdp->q_count);
@@ -201,8 +221,10 @@ START_TEST (test_init_search_data4)
         ck_assert_int_eq(2, buf.frame);
         ck_assert_int_eq(1, buf.strand);
 
-        // other data
-        ck_assert_ptr_ne(NULL, sdp->hearray);
+        ck_assert_int_eq(3, sdp->hit_count);
+        ck_assert_ptr_eq(full_nw, sdp->search_algo);
+
+        ck_assert_int_eq(18, sdp->hearraylen);
 
         query_free(query);
     }END_TEST
@@ -213,7 +235,7 @@ START_TEST (test_init_search_data5)
 
         p_query query = query_read("./tests/testdata/one_seq.fas");
 
-        p_search_data sdp = init_searchdata(query);
+        init_for_sw(query, 1);
 
         // query data
         ck_assert_int_eq(1, sdp->q_count);
@@ -230,8 +252,10 @@ START_TEST (test_init_search_data5)
         ck_assert_int_eq(0, sdp->queries[4].seq.len);
         ck_assert_int_eq(0, sdp->queries[5].seq.len);
 
-        // other data
-        ck_assert_ptr_ne(NULL, sdp->hearray);
+        ck_assert_int_eq(1, sdp->hit_count);
+        ck_assert_ptr_eq(full_sw, sdp->search_algo);
+
+        ck_assert_int_eq(54, sdp->hearraylen);
 
         query_free(query);
     }END_TEST

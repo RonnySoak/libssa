@@ -11,8 +11,6 @@
 
 #include <stdint.h>
 
-#include "libssa_datatypes.h"
-
 /*
  *
  * TODO do SWIPE and SWARM prepare the DB and query or do we read them from a
@@ -134,6 +132,13 @@ struct alignment_list {
     long len;
 };
 typedef struct alignment_list * p_alignment_list;
+
+// #############################################################################
+// Configuration data
+// ##################
+extern int _verbose;
+extern int _max_thread_count;
+extern int _use_simd;
 
 // #############################################################################
 // Technical initialisation

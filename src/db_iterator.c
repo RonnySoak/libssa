@@ -8,6 +8,7 @@
 #include "db_iterator.h"
 
 #include <stdlib.h>
+#include <pthread.h>
 
 #include "util_sequence.h"
 #include "libssa_extern_db.h"
@@ -20,6 +21,8 @@ static unsigned long chunk_size;
 static int buffer_max = 0;
 static p_sdb_sequence* buffer;
 static int buffer_p = 0;
+
+pthread_mutex_t chunk_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 /**
  * Initialises the buffer. Translates the DB sequence and computes the reverse
@@ -237,6 +240,12 @@ p_db_chunk it_next_chunk() {
         chunk->seq[i] = 0;
     }
 
+    /*
+     * TODO lock only the sequence collection from the DB
+     * and not the translation and preparation of the sequences
+     */
+    pthread_mutex_lock(&chunk_mutex);
+
     // TODO make it better and move it to the DB
     for (int i = 0; i < chunk_size; i++) {
         chunk->seq[chunk->size] = it_next_sequence();
@@ -246,6 +255,7 @@ p_db_chunk it_next_chunk() {
 
         chunk->size++;
     }
+    pthread_mutex_unlock(&chunk_mutex);
 
     if (!chunk->size) {
         it_free_chunk(chunk);
