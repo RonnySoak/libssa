@@ -49,7 +49,7 @@ void close_out() {
 }
 
 void outf(const char* format, ...) {
-    if (!out_file) { // TODO test it, might be broken
+    if (!out_file) { // TODO test it, is broken
         init_out(NULL);
     }
 

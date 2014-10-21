@@ -22,7 +22,7 @@ static int buffer_max = 0;
 static p_sdb_sequence* buffer;
 static int buffer_p = 0;
 
-pthread_mutex_t chunk_mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t chunk_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 /**
  * Initialises the buffer. Translates the DB sequence and computes the reverse

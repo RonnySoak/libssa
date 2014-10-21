@@ -18,8 +18,7 @@
 #include "../../src/db_iterator.h"
 #include "../../src/query.h"
 
-extern p_alignment_data prepare_alignment_data( int pair_count,
-        elem_t * result_sequence_pairs);
+extern p_alignment_data adp;
 
 elem_t new_elem0(p_sdb_sequence sdb, int qid, long score) {
     elem_t e;
@@ -50,9 +49,11 @@ START_TEST (test_aligner_simple_sw)
         elem_t * elements = { &e1 };
 
         init_for_sw(query, 1);
-        p_alignment_data adp = prepare_alignment_data(1, elements);
+        adp->pair_count = 1;
+        adp->result_sequence_pairs = elements;
+        set_alignment_data(adp);
 
-        p_alignment_list alist = a_align(adp);
+        p_alignment_list alist = a_align(NULL);
 
         ck_assert_int_eq(1, alist->len);
 
@@ -126,9 +127,11 @@ START_TEST (test_aligner_more_sequences_sw)
         it_free_sequence(sdb);
 
         init_for_sw(query, 1);
-        p_alignment_data adp = prepare_alignment_data(5, heap->array);
+        adp->pair_count = 5;
+        adp->result_sequence_pairs = heap->array;
+        set_alignment_data(adp);
 
-        p_alignment_list alist = a_align(adp);
+        p_alignment_list alist = a_align(NULL);
 
         ck_assert_int_eq(5, alist->len);
 

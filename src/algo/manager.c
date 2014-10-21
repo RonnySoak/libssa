@@ -10,9 +10,11 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <math.h>
-#include <unistd.h>
+
+#include <assert.h>
 
 #include "../util/minheap.h"
+#include "../util/thread_pool.h"
 #include "../libssa_datatypes.h"
 #include "../db_iterator.h"
 #include "../query.h"
@@ -22,7 +24,7 @@
 #include "search.h"
 
 p_search_data sdp;
-static void (*align_function)(alignment_p);
+p_alignment_data adp;
 
 static unsigned long max_chunk_size = 1000; // TODO change and/or make it configurable
 
@@ -37,21 +39,15 @@ static void add_to_buffer(seq_buffer* buf, sequence seq, int strand,
 //                }
 }
 
-p_alignment_data prepare_alignment_data( int pair_count,
-        elem_t * result_sequence_pairs) {
-    p_alignment_data adp = xmalloc(sizeof(struct alignment_data));
+static void init_alignment_data(void (*align_function)(alignment_p)) {
+    adp = xmalloc(sizeof(struct alignment_data));
 
     adp->align_function = align_function;
-
-    adp->pair_count = pair_count;
-    adp->result_sequence_pairs = result_sequence_pairs;
 
     adp->q_count = sdp->q_count;
     for (int i = 0; i < sdp->q_count; i++) {
         adp->queries[i] = sdp->queries[i];
     }
-
-    return adp;
 }
 
 static void init_searchdata(p_query query, int hit_count,
@@ -125,7 +121,7 @@ void free_search_data() {
     free(sdp);
 }
 
-void free_alignment_data(p_alignment_data adp) {
+void free_alignment_data() {
     if (!adp) {
        return;
     }
@@ -138,28 +134,25 @@ void free_alignment_data(p_alignment_data adp) {
 }
 
 static void init(p_query query, int hit_count,
-        int64_t (*search_algo)(sequence*, sequence*, int64_t*, int64_t*)) {
+        int64_t (*search_algo)(sequence*, sequence*, int64_t*, int64_t*),
+        void (*align_function)(alignment_p)) {
     init_searchdata(query, hit_count, search_algo);
+
+    init_alignment_data(align_function);
 
     it_init(max_chunk_size);
 }
 
 void init_for_sw(p_query query, int hit_count) {
-    init(query, hit_count, &full_sw);
-
-    align_function = &align_sw;
+    init(query, hit_count, &full_sw,  &align_sw);
 }
 
 void init_for_nw(p_query query, int hit_count) {
-    init(query, hit_count, &full_nw);
-
-    align_function = &align_nw;
+    init(query, hit_count, &full_nw, &align_nw);
 }
 
 void init_for_nw_sellers(p_query query, int hit_count) {
-    init(query, hit_count, &full_nw_sellers);
-
-    align_function = &align_nw_sellers;
+    init(query, hit_count, &full_nw_sellers, &align_nw_sellers);
 }
 
 /**
@@ -168,97 +161,67 @@ void init_for_nw_sellers(p_query query, int hit_count) {
  * configured through set bits in 'flags'.
  */
 p_alignment_list m_run() {
-    if (_max_thread_count == -1) {
-        /*
-         * TODO move this into a general config initializer
-         */
-        _max_thread_count = sysconf(_SC_NPROCESSORS_ONLN);
-    }
+    init_thread_pool();
 
-    pthread_t thread_list[_max_thread_count];
-
-    for (int i = 0; i < _max_thread_count; i++) {
-        /*
-
-    XXX synchronize it_get_next_chunk function (use mutex to read sequences)
-        -> and prepare the sequences after reading them and releasing the mutex
-         */
-        pthread_create(&thread_list[i], NULL, s_search, sdp);
-    }
+    start_threads_unified_arguments(s_search, sdp);
 
     p_search_result search_result_list[_max_thread_count];
+
+    unsigned long chunks_processed = 0;
+    unsigned long db_sequences_processed = 0;
+
+    wait_for_threads((void **)&search_result_list);
     p_minheap search_results = minheap_init(sdp->hit_count);
-
-    for (int i = 0; i < _max_thread_count; i++) {
-        pthread_join(thread_list[i], (void**) &search_result_list[i]);
-
+    for (int i = 0; i < get_current_thread_count(); i++) {
         for (int j = 0; j < search_result_list[i]->heap->count; j++) {
             minheap_add(search_results, &search_result_list[i]->heap->array[j]);
         }
+
+        chunks_processed += search_result_list[i]->chunk_count;
+        db_sequences_processed += search_result_list[i]->seq_count;
     }
+
+    printf("db sequence count: %ld\n", ssa_db_get_sequence_count());
+    printf("db sequences processed: %ld\n", db_sequences_processed);
+    printf("chunks expected: %lf\n", ceil(ssa_db_get_sequence_count() / (double)max_chunk_size));
+    printf("chunks processed: %ld\n", chunks_processed);
+
+    assert(ssa_db_get_sequence_count() == db_sequences_processed);
+    assert(ceil(ssa_db_get_sequence_count() / (double) max_chunk_size) == chunks_processed);
 
     minheap_sort(search_results);
     it_free();
 
-    /*
-     * TODO write test and improve this
-     */
-    int alignments_per_thread = search_results->count / _max_thread_count;
-    int rest = search_results->count % _max_thread_count;
+    adp->pair_count = search_results->count;
+    adp->result_sequence_pairs = search_results->array;
+    set_alignment_data(adp);
 
-    int align_thread_count;
-    if (alignments_per_thread == 0) {
-        align_thread_count = rest;
-    }
-    else {
-        align_thread_count = _max_thread_count;
-    }
-
-    printf("alignments_per_thread: %d\n", alignments_per_thread);
-
-    p_alignment_data adp_list[_max_thread_count];
-    int search_result_ptr = 0;
-    for (int i = 0; i < align_thread_count; i++) {
-        printf("search_result_ptr: %d\n", search_result_ptr);
-
-        adp_list[i] = prepare_alignment_data(alignments_per_thread,
-                search_results->array + search_result_ptr);
-
-//        if (i < rest) {
-//            adp_list[i]->
-//        }
-
-        pthread_create(&thread_list[i], NULL, a_align, adp_list[i]);
-
-        search_result_ptr += alignments_per_thread;
-    }
+    start_threads_unified_arguments(a_align, NULL);
 
     p_alignment_list alist = xmalloc(sdp->hit_count * sizeof(struct alignment_list));
     alist->alignments = xmalloc(sdp->hit_count * sizeof(alignment_t));
     alist->len = sdp->hit_count;
 
-    p_alignment_list align_result_list[_max_thread_count];
+    p_alignment_list align_result_list[get_current_thread_count()];
+
+    wait_for_threads((void **)&align_result_list);
 
     int alist_ptr = 0;
-    for (int i = 0; i < align_thread_count; i++) {
-        pthread_join(thread_list[i], (void**) &align_result_list[i]);
-
-        printf("a count: %d\n", align_result_list[i]->len);
-
+    for (int i = 0; i < get_current_thread_count(); i++) {
         for(int j = 0; j < align_result_list[i]->len; j++) {
-            printf("alist_ptr: %d\n", alist_ptr);
             alist->alignments[alist_ptr++] = align_result_list[i]->alignments[j];
         }
+
+        free(align_result_list[i]->alignments);
+        free(align_result_list[i]);
     }
 
     minheap_exit(search_results);
 
     free_search_data();
+    free_alignment_data();
     for (int i = 0; i < _max_thread_count; i++) {
         s_free(search_result_list[i]);
-    }
-    for (int i = 0; i < align_thread_count; i++) {
-        free_alignment_data(adp_list[i]);
     }
 
     return alist;

@@ -14,9 +14,8 @@
 #include "../db_iterator.h"
 #include "../matrices.h"
 
-static int64_t* hearray;
-
-static void search_chunk(p_minheap heap, p_db_chunk chunk, p_search_data sdp) {
+static void search_chunk(p_minheap heap, p_db_chunk chunk, p_search_data sdp,
+        int64_t* hearray) {
     for (unsigned long i = 0; i < chunk->size; i++) {
         p_sdb_sequence dseq = chunk->seq[i];
 
@@ -89,17 +88,22 @@ void * s_search(void * search_data) {
     res->chunk_count = 0;
     res->seq_count = 0;
 
-    hearray = xmalloc(sdp->hearraylen * 32);
+    int64_t* hearray = xmalloc(sdp->hearraylen * 32);
 
     p_db_chunk chunk;
     while((chunk = it_next_chunk())) {
-        search_chunk(res->heap, chunk, sdp);
+        search_chunk(res->heap, chunk, sdp, hearray);
+
+        printf("add chunk\n");
+        printf("seq count: %ld\n", chunk->size);
 
         res->chunk_count++;
         res->seq_count += chunk->size;
 
         it_free_chunk(chunk);
     }
+
+    free(hearray);
 
     return res;
 }

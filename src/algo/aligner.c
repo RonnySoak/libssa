@@ -8,30 +8,36 @@
 #include "aligner.h"
 
 #include <stdlib.h>
+#include <pthread.h>
 
 #include "../matrices.h"
 #include "../db_iterator.h"
 #include "searcher.h"
 
-static void init_alignment(alignment_p a, elem_t e, seq_buffer* queries) {
-    p_seqinfo info = it_get_sequence(e.db_id);
+static p_alignment_data adp;
+static int chunk_counter = 0;
+
+static pthread_mutex_t chunk_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+static void init_alignment(alignment_p a, elem_t * e, seq_buffer* queries) {
+    p_seqinfo info = it_get_sequence(e->db_id);
     if (!info) {
         // TODO raise error, as this should not be possible
-        ffatal("Could not get sequence from DB: %ld", e.db_id);
+        ffatal("Could not get sequence from DB: %ld", e->db_id);
     }
 
     /*
      * TODO find a better way, maybe move code for translating based on symtype,
-     * etc to util_sequence.c
+     * etc to util_sequence->c
      */
-    sequence dseq = it_translate_sequence(info, e.dframe, e.dstrand);
+    sequence dseq = it_translate_sequence(info, e->dframe, e->dstrand);
 
-    seq_buffer qseq = queries[e.query_id];
+    seq_buffer qseq = queries[e->query_id];
 
     a->db_seq.seq = dseq.seq;
     a->db_seq.len = dseq.len;
-    a->db_seq.strand = e.dframe;
-    a->db_seq.frame = e.dstrand;
+    a->db_seq.strand = e->dframe;
+    a->db_seq.frame = e->dstrand;
     a->db_seq.header = info->header;
     a->db_seq.headerlen = info->headerlen;
     a->db_seq.ID = info->ID;
@@ -46,7 +52,7 @@ static void init_alignment(alignment_p a, elem_t e, seq_buffer* queries) {
     a->align_q_end = 0;
     a->align_d_end = 0;
     a->alignment = 0;
-    a->score = e.score;
+    a->score = e->score;
 }
 
 void a_free(p_alignment_list alist) {
@@ -95,26 +101,42 @@ void a_free(p_alignment_list alist) {
     free(alist);
 }
 
-void * a_align(void * alignment_data) {
-    p_alignment_data adp = (p_alignment_data) alignment_data;
+void set_alignment_data(p_alignment_data data) {
+    adp = data;
 
+    chunk_counter = 0;
+}
+
+static elem_t * get_chunk() {
+    int next_chunk;
+
+    pthread_mutex_lock(&chunk_mutex);
+    next_chunk = chunk_counter++;
+    pthread_mutex_unlock(&chunk_mutex);
+
+    if (next_chunk >= adp->pair_count) {
+        return 0;
+    }
+    return &adp->result_sequence_pairs[next_chunk];
+}
+
+void * a_align(void * unused) {
     p_alignment_list alignment_list = xmalloc(sizeof(struct alignment_list));
     alignment_list->alignments = xmalloc(adp->pair_count * sizeof(alignment_t));
-    alignment_list->len = adp->pair_count;
+    alignment_list->len = 0;
 
-    printf("start doing alignments\n");
-
-    for (int i = 0; i < adp->pair_count; i++) {
-        printf("do alignment\n");
-
+    elem_t * chunk = 0;
+    while((chunk = get_chunk()) != 0) {
         // do alignment for each pair
         alignment_p a = xmalloc(sizeof(alignment_t));
-        init_alignment(a, adp->result_sequence_pairs[i], adp->queries);
+        init_alignment(a, chunk, adp->queries);
 
         adp->align_function(a);
 
-        alignment_list->alignments[i] = a;
+        alignment_list->alignments[alignment_list->len++] = a;
     }
+
+//    alignment_list->alignments = xrealloc(alignment_list->alignments, alignment_list->len);
 
     return alignment_list;
 }

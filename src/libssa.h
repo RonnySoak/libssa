@@ -137,7 +137,7 @@ typedef struct alignment_list * p_alignment_list;
 // Configuration data
 // ##################
 extern int _verbose;
-extern int _max_thread_count;
+extern long _max_thread_count;
 extern int _use_simd;
 
 // #############################################################################
@@ -145,7 +145,7 @@ extern int _use_simd;
 // ########################
 void set_verbose(int verbose);
 
-void set_threads(int nr);
+void set_threads(long nr);
 
 void set_use_simd(int simd);
 

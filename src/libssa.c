@@ -16,12 +16,13 @@
 #include "algo/aligner.h"
 #include "algo/searcher.h"
 #include "query.h"
+#include "util/thread_pool.h"
 
 // #############################################################################
 // Configuration data
 // ##################
 int _verbose = VERBOSE_OFF;
-int _max_thread_count = -1;
+long _max_thread_count = -1;
 int _use_simd = SIMD_ON;
 
 // #############################################################################
@@ -37,7 +38,7 @@ void set_verbose(int debug) {
     _verbose = debug;
 }
 
-void set_threads(int nr) {
+void set_threads(long nr) {
     _max_thread_count = nr;
 }
 
@@ -273,6 +274,8 @@ void free_alignment(p_alignment_list alist) {
 
 void ssa_exit() {
     mat_free();
+
+    exit_thread_pool();
 
     close_out();
 }

@@ -12,6 +12,8 @@
 
 void a_free(p_alignment_list alist);
 
+void set_alignment_data(p_alignment_data data);
+
 void * a_align(void * adp);
 
 #endif /* ALIGNER_H_ */
