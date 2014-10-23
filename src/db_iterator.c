@@ -17,7 +17,19 @@
 
 static unsigned long seq_index;
 static unsigned long chunk_size;
+static unsigned long next_chunk_start = 0;
 
+/*
+ * TODO create these globals thread specific:
+ * http://stackoverflow.com/questions/15100824/how-do-i-create-a-global-variable-that-is-thread-specific-in-c-using-posix-thread
+ * http://www-01.ibm.com/support/knowledgecenter/ssw_ibm_i_71/apis/users_34.htm
+ *
+ * Or in some other way, but right now each next thread concurs
+ * with the others about these ...
+ *
+ * XXX Maybe call an init function for the whole lib at the beginning, setting the number of threads
+ * and use this number here, to create an array of buffers, accessible by the thread-ID.
+ */
 static int buffer_max = 0;
 static p_sdb_sequence* buffer;
 static int buffer_p = 0;
@@ -216,11 +228,13 @@ void it_free_sequence(p_sdb_sequence seq) {
 
 void it_free_chunk(p_db_chunk chunk) {
     if (chunk) {
-        for (int i = 0; i < chunk_size; i++) {
+        for (int i = 0; i < chunk->size; i++) {
             if (chunk->seq[i]) {
+        		it_free_sequence(chunk->seq[i]);
                 chunk->seq[i] = 0;
             }
         }
+
         if (chunk->seq) {
             free(chunk->seq);
             chunk->seq = 0;
@@ -230,37 +244,58 @@ void it_free_chunk(p_db_chunk chunk) {
     }
 }
 
-p_db_chunk it_next_chunk() {
-    p_db_chunk chunk = xmalloc(sizeof(struct db_chunk));
-
-    chunk->seq = xmalloc(chunk_size * sizeof(p_sdb_sequence));
-    chunk->size = 0;
-
-    for (int i = 0; i < chunk_size; i++) {
-        chunk->seq[i] = 0;
-    }
-
-    /*
-     * TODO lock only the sequence collection from the DB
-     * and not the translation and preparation of the sequences
-     */
-    pthread_mutex_lock(&chunk_mutex);
-
-    // TODO make it better and move it to the DB
-    for (int i = 0; i < chunk_size; i++) {
-        chunk->seq[chunk->size] = it_next_sequence();
-        if (!chunk->seq[chunk->size]) {
-            break;
-        }
-
-        chunk->size++;
-    }
-    pthread_mutex_unlock(&chunk_mutex);
-
-    if (!chunk->size) {
-        it_free_chunk(chunk);
-        return NULL;
-    }
-    return chunk;
+void reset_chunk_counter() {
+	next_chunk_start = 0;
 }
 
+static int get_next_chunk_start_id() {
+	int next_chunk;
+
+	pthread_mutex_lock(&chunk_mutex);
+	next_chunk = next_chunk_start;
+	next_chunk_start += chunk_size;
+	pthread_mutex_unlock(&chunk_mutex);
+
+	return next_chunk;
+}
+
+p_db_chunk it_next_chunk() {
+    p_seqinfo * db_sequences = xmalloc(chunk_size * sizeof(p_seqinfo));
+    int db_sequence_count = 0;
+
+    /*
+     * TODO add negative result value to get_next_chunk_start, if there is none left
+     */
+    int next_chunk = get_next_chunk_start_id();
+
+    for (int i = next_chunk; i < (next_chunk + chunk_size); i++) {
+    	p_seqinfo db_seq = it_get_sequence(i);
+
+    	if (!db_seq) {
+    		break;
+    	}
+
+    	db_sequences[db_sequence_count++] = db_seq;
+    }
+
+    if (db_sequence_count == 0) {
+    	free(db_sequences);
+    	return NULL;
+    }
+
+    p_db_chunk chunk = xmalloc(sizeof(struct db_chunk));
+    chunk->size = 0;
+    chunk->seq = xmalloc(db_sequence_count * buffer_max * sizeof(p_sdb_sequence));
+
+    for (int i = 0; i < db_sequence_count; i++) {
+        fill_buffer(db_sequences[i]);
+
+        for (int j = 0; j < buffer_max; j++) {
+        	chunk->seq[chunk->size++] = buffer[j];
+        }
+    }
+
+    free(db_sequences);
+
+    return chunk;
+}

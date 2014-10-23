@@ -181,11 +181,6 @@ p_alignment_list m_run() {
         db_sequences_processed += search_result_list[i]->seq_count;
     }
 
-    printf("db sequence count: %ld\n", ssa_db_get_sequence_count());
-    printf("db sequences processed: %ld\n", db_sequences_processed);
-    printf("chunks expected: %lf\n", ceil(ssa_db_get_sequence_count() / (double)max_chunk_size));
-    printf("chunks processed: %ld\n", chunks_processed);
-
     assert(ssa_db_get_sequence_count() == db_sequences_processed);
     assert(ceil(ssa_db_get_sequence_count() / (double) max_chunk_size) == chunks_processed);
 

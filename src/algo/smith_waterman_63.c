@@ -32,7 +32,6 @@
 
 int64_t full_sw(sequence * dseq, sequence * qseq, int64_t * hearray,
         int64_t * score_matrix) {
-
     int64_t h, n, e, f, s;
     int64_t *hep;
     const char *qp, *dp;

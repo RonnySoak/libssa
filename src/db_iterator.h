@@ -30,6 +30,8 @@ void it_free_sequence(p_sdb_sequence seq);
 
 void it_free_chunk(p_db_chunk chunk);
 
+void reset_chunk_counter();
+
 p_db_chunk it_next_chunk();
 
 #endif /* DB_ITERATOR_H_ */

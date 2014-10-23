@@ -17,6 +17,7 @@
 #include "algo/searcher.h"
 #include "query.h"
 #include "util/thread_pool.h"
+#include "db_iterator.h"
 
 // #############################################################################
 // Configuration data
@@ -205,6 +206,7 @@ void free_sequence(p_query p) {
  */
 p_alignment_list sw_align(p_query p, int hitcount /* TODO ...*/) {
     ssa_db_reset_sequence_counter();
+    reset_chunk_counter();
 
     init_for_sw(p, hitcount);
 
@@ -221,6 +223,7 @@ p_alignment_list sw_align(p_query p, int hitcount /* TODO ...*/) {
  */
 p_alignment_list nw_align(p_query p, int hitcount /* TODO ...*/) {
     ssa_db_reset_sequence_counter();
+    reset_chunk_counter();
 
     init_for_nw(p, hitcount);
 
@@ -239,6 +242,7 @@ p_alignment_list nw_align(p_query p, int hitcount /* TODO ...*/) {
  */
 p_alignment_list nw_sellers_align(p_query p, int hitcount /* TODO ...*/) {
     ssa_db_reset_sequence_counter();
+    reset_chunk_counter();
 
     init_for_nw_sellers(p, hitcount);
 
@@ -255,6 +259,7 @@ p_alignment_list nw_sellers_align(p_query p, int hitcount /* TODO ...*/) {
  */
 p_alignment_list nw_ignore_gaps_align(p_query p, int hitcount /* TODO ... ignored gaps...*/) {
     ssa_db_reset_sequence_counter();
+    reset_chunk_counter();
 
     return NULL; // TODO
 }
