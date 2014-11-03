@@ -17,8 +17,8 @@ int main(int argc, char**argv) {
 //    set_threads(2);
 
 //    init_db_fasta("tests/testdata/test.fas");
-    init_db_fasta("tests/testdata/AF091148.fas");
-//    init_db_fasta("tests/testdata/Rfam_11_0.fasta");
+//    init_db_fasta("tests/testdata/AF091148.fas");
+    init_db_fasta("tests/testdata/Rfam_11_0.fasta");
 
     p_query query = init_sequence_fasta("tests/testdata/one_seq.fas");
 

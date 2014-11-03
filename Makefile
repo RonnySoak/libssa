@@ -45,7 +45,7 @@ TO_CLEAN := libssa.a
 MPI_COMPILE := `mpicxx --showme:compile`
 MPI_LINK := `mpicxx --showme:link`
 
-COMMON := -g -pg
+COMMON := -pg
 # add "-fprofile-arcs -ftest-coverage" to COMMON for code coverage
 
 LIBS := -lpthread -lm
@@ -60,7 +60,7 @@ LINKFLAGS := $(COMMON)
 CXX := gcc
 # -Wno-write-strings removes the `deprecated conversion from\
  string constant to char*` warnings
-CXXFLAGS := -Wall -O0 -std=c99 -march=native $(COMMON)
+CXXFLAGS := -Wall -Os -std=c99 -march=native $(COMMON)
 
 PROG := libssa libssa_check libssa_example
 
@@ -96,7 +96,7 @@ libssa_check : $(TESTS) $(OBJS) $(USR_OBJS) $(DEPS)
 	
 libssa_example : $(OBJS) $(USR_OBJS) $(DEPS)
 	@echo 'Building target: $@'
-	$(CXX) $(CXXFLAGS) $(LINKFLAGS) -o $@ ./src/libssa_example.c -L. -lssa -lsdb $(LIBS) 
+	$(CXX) $(CXXFLAGS) $(LINKFLAGS) -o example ./src/libssa_example.c -L. -lssa -lsdb $(LIBS) 
 	@echo 'Finished building target: $@'
 
 # clean created files
@@ -112,4 +112,4 @@ check:
 
 # run example
 example:
-	./libssa_example
+	./example

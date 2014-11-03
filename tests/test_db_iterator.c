@@ -77,7 +77,7 @@ START_TEST (test_next_empty)
 
         p_db_chunk chunk = it_new_chunk();
         it_next_chunk(chunk);
-        ck_assert_int_eq(0, chunk->size);
+        ck_assert_int_eq(0, chunk->fill_pointer);
 
         it_free();
     }END_TEST
@@ -93,7 +93,7 @@ START_TEST (test_next_one_nuc_forward)
 
         p_db_chunk chunk = it_new_chunk();
         it_next_chunk(chunk);
-        ck_assert_int_eq(1, chunk->size);
+        ck_assert_int_eq(1, chunk->fill_pointer);
 
         p_sdb_sequence seq = chunk->seq[0];
         ck_assert_int_eq(0, seq->ID);
@@ -106,7 +106,7 @@ START_TEST (test_next_one_nuc_forward)
 
         // check for the end of sequences
         it_next_chunk(chunk);
-        ck_assert_int_eq(0, chunk->size);
+        ck_assert_int_eq(0, chunk->fill_pointer);
 
         it_free_chunk(chunk);
 
@@ -126,7 +126,7 @@ START_TEST (test_next_one_nuc_both)
         p_db_chunk chunk = it_new_chunk();
         it_next_chunk(chunk);
 
-        ck_assert_int_eq(2, chunk->size);
+        ck_assert_int_eq(2, chunk->fill_pointer);
 
         p_sdb_sequence seq = chunk->seq[0];
         ck_assert_int_eq(0, seq->ID);
@@ -152,7 +152,7 @@ START_TEST (test_next_one_nuc_both)
 
         // check for the end of sequences
         it_next_chunk(chunk);
-        ck_assert_int_eq(0, chunk->size);
+        ck_assert_int_eq(0, chunk->fill_pointer);
 
         it_free_chunk(chunk);
 
@@ -175,7 +175,7 @@ START_TEST (test_next_one_db_translate_forward)
         p_db_chunk chunk = it_new_chunk();
         it_next_chunk(chunk);
 
-        ck_assert_int_eq(3, chunk->size);
+        ck_assert_int_eq(3, chunk->fill_pointer);
 
         p_sdb_sequence seq = chunk->seq[0];
         ck_assert_ptr_eq(0, seq->ID);
@@ -202,7 +202,7 @@ START_TEST (test_next_one_db_translate_forward)
 
         // check for the end of sequences
         it_next_chunk(chunk);
-        ck_assert_int_eq(0, chunk->size);
+        ck_assert_int_eq(0, chunk->fill_pointer);
 
         it_free_chunk(chunk);
 
@@ -225,7 +225,7 @@ START_TEST (test_next_one_db_translate_both)
         p_db_chunk chunk = it_new_chunk();
         it_next_chunk(chunk);
 
-        ck_assert_int_eq(6, chunk->size);
+        ck_assert_int_eq(6, chunk->fill_pointer);
 
         p_sdb_sequence seq = chunk->seq[0];
         ck_assert_ptr_eq(0, seq->ID);
@@ -276,7 +276,7 @@ START_TEST (test_next_one_db_translate_both)
 
         // check for the end of sequences
         it_next_chunk(chunk);
-        ck_assert_int_eq(0, chunk->size);
+        ck_assert_int_eq(0, chunk->fill_pointer);
 
         it_free_chunk(chunk);
 
@@ -301,7 +301,7 @@ START_TEST (test_next_chunk)
 		it_next_chunk(chunk);
 
         // 1.
-        ck_assert_int_eq(chunk_size, (int)chunk->size);
+        ck_assert_int_eq(chunk_size, (int)chunk->fill_pointer);
         ck_assert_int_eq(0, chunk->seq[0]->ID);
         ck_assert_int_eq(1, chunk->seq[1]->ID);
         ck_assert_int_eq(2, chunk->seq[2]->ID);
@@ -309,7 +309,7 @@ START_TEST (test_next_chunk)
         // 2.
 		it_next_chunk(chunk);
 
-        ck_assert_int_eq(2, (int)chunk->size);
+        ck_assert_int_eq(2, (int)chunk->fill_pointer);
         ck_assert_int_eq(3, chunk->seq[0]->ID);
         ck_assert_int_eq(4, chunk->seq[1]->ID);
 
@@ -317,7 +317,7 @@ START_TEST (test_next_chunk)
         // check for the end of sequences
 		it_next_chunk(chunk);
 
-        ck_assert_int_eq(0, chunk->size);
+        ck_assert_int_eq(0, chunk->fill_pointer);
 
         it_free_chunk(chunk);
 

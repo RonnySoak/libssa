@@ -1,0 +1,498 @@
+Flat profile:
+
+Each sample counts as 0.01 seconds.
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls  ms/call  ms/call  name    
+ 49.45      9.39     9.39   370579     0.03     0.03  full_sw
+ 48.87     18.68     9.28   369814     0.03     0.03  full_nw
+  1.00     18.87     0.19        1   190.09   260.13  db_read
+  0.32     18.93     0.06 53596117     0.00     0.00  adjust_data_alloc
+  0.32     18.99     0.06   729564     0.00     0.00  us_map_sequence
+  0.05     19.00     0.01        1    10.00    10.00  create_index
+  0.05     19.01     0.01                             ssa_db_free
+  0.00     19.01     0.00  1481752     0.00     0.00  xmalloc
+  0.00     19.01     0.00   747406     0.00     0.00  minheap_add
+  0.00     19.01     0.00   732479     0.00     0.00  db_getseqinfo
+  0.00     19.01     0.00   731137     0.00     0.00  ssa_db_get_sequence
+  0.00     19.01     0.00   730800     0.00     0.00  db_getsequencecount
+  0.00     19.01     0.00   383004     0.00     0.00  read_header
+  0.00     19.01     0.00      752     0.00     0.08  it_next_chunk
+  0.00     19.01     0.00      341     0.00     0.00  check_allocated_size
+  0.00     19.01     0.00      223     0.00     0.00  add_to_cigar
+  0.00     19.01     0.00       80     0.00     0.00  xrealloc
+  0.00     19.01     0.00       70     0.00     0.00  get_current_thread_count
+  0.00     19.01     0.00       27     0.00     0.00  read_line
+  0.00     19.01     0.00       18     0.00     0.00  minheap_exit
+  0.00     19.01     0.00       16     0.00     0.00  it_free_chunk
+  0.00     19.01     0.00       16     0.00     0.00  s_free
+  0.00     19.01     0.00       14     0.00     0.00  minheap_init
+  0.00     19.01     0.00       12     0.00     0.00  it_new_chunk
+  0.00     19.01     0.00       10     0.00     0.00  free_cigar
+  0.00     19.01     0.00       10     0.00     0.00  it_get_sequence
+  0.00     19.01     0.00       10     0.00     0.00  it_translate_sequence
+  0.00     19.01     0.00       10     0.00     0.00  reverse_cigar
+  0.00     19.01     0.00        5     0.00     0.00  align_nw
+  0.00     19.01     0.00        5     0.00     0.00  align_sw
+  0.00     19.01     0.00        5     0.00     0.00  compute_cigar_for_nw
+  0.00     19.01     0.00        5     0.00     0.00  compute_cigar_for_sw
+  0.00     19.01     0.00        5     0.00     0.00  find_region_and_score_for_local
+  0.00     19.01     0.00        4     0.00     0.00  ssa_db_get_sequence_count
+  0.00     19.01     0.00        4     0.00     0.00  start_threads_unified_arguments
+  0.00     19.01     0.00        4     0.00     0.00  wait_for_threads
+  0.00     19.01     0.00        3     0.00     0.00  ssa_db_reset_sequence_counter
+  0.00     19.01     0.00        2     0.00     0.00  exit_thread_pool
+  0.00     19.01     0.00        2     0.00     0.00  free_alignment_data
+  0.00     19.01     0.00        2     0.00     0.00  free_search_data
+  0.00     19.01     0.00        2     0.00     0.00  init_alignment_data
+  0.00     19.01     0.00        2     0.00     0.00  init_searchdata
+  0.00     19.01     0.00        2     0.00     0.00  init_thread_pool
+  0.00     19.01     0.00        2     0.00     0.00  it_free
+  0.00     19.01     0.00        2     0.00     0.00  it_init
+  0.00     19.01     0.00        2     0.00     0.00  it_reset_chunk_counter
+  0.00     19.01     0.00        2     0.00     0.00  minheap_sort
+  0.00     19.01     0.00        2     0.00     0.00  set_alignment_data
+  0.00     19.01     0.00        1     0.00     0.00  close_out
+  0.00     19.01     0.00        1     0.00     0.00  db_free
+  0.00     19.01     0.00        1     0.00     0.00  db_open
+  0.00     19.01     0.00        1     0.00     0.00  finalize_matrices
+  0.00     19.01     0.00        1     0.00     0.00  init
+  0.00     19.01     0.00        1     0.00     0.00  init_for_nw
+  0.00     19.01     0.00        1     0.00     0.00  init_for_sw
+  0.00     19.01     0.00        1     0.00     0.00  init_translate_table
+  0.00     19.01     0.00        1     0.00     0.00  mat_free
+  0.00     19.01     0.00        1     0.00     0.00  prepare_matrices
+  0.00     19.01     0.00        1     0.00     0.00  set_error
+
+ %         the percentage of the total running time of the
+time       program used by this function.
+
+cumulative a running sum of the number of seconds accounted
+ seconds   for by this function and those listed above it.
+
+ self      the number of seconds accounted for by this
+seconds    function alone.  This is the major sort for this
+           listing.
+
+calls      the number of times this function was invoked, if
+           this function is profiled, else blank.
+ 
+ self      the average number of milliseconds spent in this
+ms/call    function per call, if this function is profiled,
+	   else blank.
+
+ total     the average number of milliseconds spent in this
+ms/call    function and its descendents per call, if this 
+	   function is profiled, else blank.
+
+name       the name of the function.  This is the minor sort
+           for this listing. The index shows the location of
+	   the function in the gprof listing. If the index is
+	   in parenthesis it shows where it would appear in
+	   the gprof listing if it were to be printed.
+
+Copyright (C) 2012 Free Software Foundation, Inc.
+
+Copying and distribution of this file, with or without modification,
+are permitted in any medium without royalty provided the copyright
+notice and this notice are preserved.
+
+		     Call graph (explanation follows)
+
+
+granularity: each sample hit covers 2 byte(s) for 0.05% of 19.01 seconds
+
+index % time    self  children    called     name
+                                                 <spontaneous>
+[1]     98.6    0.00   18.74                 s_search [1]
+                9.39    0.00  370579/370579      full_sw [2]
+                9.28    0.00  369814/369814      full_nw [3]
+                0.00    0.06     752/752         it_next_chunk [8]
+                0.00    0.00  747326/747406      minheap_add [15]
+                0.00    0.00  743475/1481752     xmalloc [14]
+                0.00    0.00      16/16          it_free_chunk [25]
+                0.00    0.00      12/14          minheap_init [27]
+                0.00    0.00      12/12          it_new_chunk [28]
+-----------------------------------------------
+                9.39    0.00  370579/370579      s_search [1]
+[2]     49.4    9.39    0.00  370579         full_sw [2]
+-----------------------------------------------
+                9.28    0.00  369814/369814      s_search [1]
+[3]     48.8    9.28    0.00  369814         full_nw [3]
+-----------------------------------------------
+                0.19    0.07       1/1           ssa_db_init_fasta [5]
+[4]      1.4    0.19    0.07       1         db_read [4]
+                0.06    0.00 53213113/53596117     adjust_data_alloc [6]
+                0.01    0.00       1/1           create_index [9]
+                0.00    0.00  383004/383004      read_header [11]
+                0.00    0.00       1/1481752     xmalloc [14]
+-----------------------------------------------
+                                                 <spontaneous>
+[5]      1.4    0.00    0.26                 ssa_db_init_fasta [5]
+                0.19    0.07       1/1           db_read [4]
+                0.00    0.00       1/1           db_open [54]
+                0.00    0.00       1/3           ssa_db_reset_sequence_counter [40]
+-----------------------------------------------
+                0.00    0.00  383004/53596117     read_header [11]
+                0.06    0.00 53213113/53596117     db_read [4]
+[6]      0.3    0.06    0.00 53596117         adjust_data_alloc [6]
+                0.00    0.00      80/80          xrealloc [21]
+-----------------------------------------------
+                0.00    0.00      10/729564      it_translate_sequence [12]
+                0.06    0.00  729554/729564      it_next_chunk [8]
+[7]      0.3    0.06    0.00  729564         us_map_sequence [7]
+                0.00    0.00  731185/1481752     xmalloc [14]
+-----------------------------------------------
+                0.00    0.06     752/752         s_search [1]
+[8]      0.3    0.00    0.06     752         it_next_chunk [8]
+                0.06    0.00  729554/729564      us_map_sequence [7]
+                0.00    0.00  731127/731137      ssa_db_get_sequence [17]
+-----------------------------------------------
+                0.01    0.00       1/1           db_read [4]
+[9]      0.1    0.01    0.00       1         create_index [9]
+                0.00    0.00       1/1481752     xmalloc [14]
+-----------------------------------------------
+                                                 <spontaneous>
+[10]     0.1    0.01    0.00                 ssa_db_free [10]
+                0.00    0.00       1/1           db_free [53]
+                0.00    0.00       1/1           close_out [52]
+-----------------------------------------------
+                0.00    0.00  383004/383004      db_read [4]
+[11]     0.0    0.00    0.00  383004         read_header [11]
+                0.00    0.00  383004/53596117     adjust_data_alloc [6]
+-----------------------------------------------
+                0.00    0.00      10/10          a_align [13]
+[12]     0.0    0.00    0.00      10         it_translate_sequence [12]
+                0.00    0.00      10/729564      us_map_sequence [7]
+-----------------------------------------------
+                                                 <spontaneous>
+[13]     0.0    0.00    0.00                 a_align [13]
+                0.00    0.00      10/10          it_translate_sequence [12]
+                0.00    0.00      42/1481752     xmalloc [14]
+                0.00    0.00      10/731137      ssa_db_get_sequence [17]
+                0.00    0.00      10/10          it_get_sequence [30]
+                0.00    0.00      10/10          free_cigar [29]
+                0.00    0.00       5/5           align_nw [32]
+                0.00    0.00       5/5           align_sw [33]
+-----------------------------------------------
+                0.00    0.00       1/1481752     init_thread_pool [46]
+                0.00    0.00       1/1481752     init [56]
+                0.00    0.00       1/1481752     create_index [9]
+                0.00    0.00       1/1481752     db_read [4]
+                0.00    0.00       2/1481752     init_alignment_data [44]
+                0.00    0.00       2/1481752     query_read [111]
+                0.00    0.00       4/1481752     init_searchdata [45]
+                0.00    0.00       4/1481752     m_run [96]
+                0.00    0.00       5/1481752     prepare_matrices [61]
+                0.00    0.00      10/1481752     find_region_and_score_for_local [36]
+                0.00    0.00      20/1481752     reverse_cigar [31]
+                0.00    0.00      20/1481752     compute_cigar_for_nw [34]
+                0.00    0.00      20/1481752     compute_cigar_for_sw [35]
+                0.00    0.00      31/1481752     minheap_init [27]
+                0.00    0.00      42/1481752     a_align [13]
+                0.00    0.00    6928/1481752     it_new_chunk [28]
+                0.00    0.00  731185/1481752     us_map_sequence [7]
+                0.00    0.00  743475/1481752     s_search [1]
+[14]     0.0    0.00    0.00 1481752         xmalloc [14]
+-----------------------------------------------
+                0.00    0.00      80/747406      m_run [96]
+                0.00    0.00  747326/747406      s_search [1]
+[15]     0.0    0.00    0.00  747406         minheap_add [15]
+-----------------------------------------------
+                0.00    0.00  732479/732479      ssa_db_get_sequence [17]
+[16]     0.0    0.00    0.00  732479         db_getseqinfo [16]
+                0.00    0.00  730796/730800      db_getsequencecount [18]
+-----------------------------------------------
+                0.00    0.00      10/731137      a_align [13]
+                0.00    0.00  731127/731137      it_next_chunk [8]
+[17]     0.0    0.00    0.00  731137         ssa_db_get_sequence [17]
+                0.00    0.00  732479/732479      db_getseqinfo [16]
+-----------------------------------------------
+                0.00    0.00       4/730800      ssa_db_get_sequence_count [37]
+                0.00    0.00  730796/730800      db_getseqinfo [16]
+[18]     0.0    0.00    0.00  730800         db_getsequencecount [18]
+-----------------------------------------------
+                0.00    0.00     341/341         add_to_cigar [20]
+[19]     0.0    0.00    0.00     341         check_allocated_size [19]
+-----------------------------------------------
+                0.00    0.00     106/223         compute_cigar_for_nw [34]
+                0.00    0.00     117/223         compute_cigar_for_sw [35]
+[20]     0.0    0.00    0.00     223         add_to_cigar [20]
+                0.00    0.00     341/341         check_allocated_size [19]
+-----------------------------------------------
+                0.00    0.00      80/80          adjust_data_alloc [6]
+[21]     0.0    0.00    0.00      80         xrealloc [21]
+-----------------------------------------------
+                0.00    0.00       1/70          init_thread_pool [46]
+                0.00    0.00      31/70          start_threads_unified_arguments [38]
+                0.00    0.00      38/70          m_run [96]
+[22]     0.0    0.00    0.00      70         get_current_thread_count [22]
+-----------------------------------------------
+                0.00    0.00      27/27          mat_init_from_string [102]
+[23]     0.0    0.00    0.00      27         read_line [23]
+-----------------------------------------------
+                0.00    0.00       2/18          m_run [96]
+                0.00    0.00      16/18          s_free [26]
+[24]     0.0    0.00    0.00      18         minheap_exit [24]
+-----------------------------------------------
+                0.00    0.00      16/16          s_search [1]
+[25]     0.0    0.00    0.00      16         it_free_chunk [25]
+-----------------------------------------------
+                0.00    0.00      16/16          m_run [96]
+[26]     0.0    0.00    0.00      16         s_free [26]
+                0.00    0.00      16/18          minheap_exit [24]
+-----------------------------------------------
+                0.00    0.00       2/14          m_run [96]
+                0.00    0.00      12/14          s_search [1]
+[27]     0.0    0.00    0.00      14         minheap_init [27]
+                0.00    0.00      31/1481752     xmalloc [14]
+-----------------------------------------------
+                0.00    0.00      12/12          s_search [1]
+[28]     0.0    0.00    0.00      12         it_new_chunk [28]
+                0.00    0.00    6928/1481752     xmalloc [14]
+-----------------------------------------------
+                0.00    0.00      10/10          a_align [13]
+[29]     0.0    0.00    0.00      10         free_cigar [29]
+-----------------------------------------------
+                0.00    0.00      10/10          a_align [13]
+[30]     0.0    0.00    0.00      10         it_get_sequence [30]
+-----------------------------------------------
+                0.00    0.00       5/10          compute_cigar_for_nw [34]
+                0.00    0.00       5/10          compute_cigar_for_sw [35]
+[31]     0.0    0.00    0.00      10         reverse_cigar [31]
+                0.00    0.00      20/1481752     xmalloc [14]
+-----------------------------------------------
+                0.00    0.00       5/5           a_align [13]
+[32]     0.0    0.00    0.00       5         align_nw [32]
+                0.00    0.00       5/5           compute_cigar_for_nw [34]
+-----------------------------------------------
+                0.00    0.00       5/5           a_align [13]
+[33]     0.0    0.00    0.00       5         align_sw [33]
+                0.00    0.00       5/5           find_region_and_score_for_local [36]
+                0.00    0.00       5/5           compute_cigar_for_sw [35]
+-----------------------------------------------
+                0.00    0.00       5/5           align_nw [32]
+[34]     0.0    0.00    0.00       5         compute_cigar_for_nw [34]
+                0.00    0.00     106/223         add_to_cigar [20]
+                0.00    0.00      20/1481752     xmalloc [14]
+                0.00    0.00       5/10          reverse_cigar [31]
+-----------------------------------------------
+                0.00    0.00       5/5           align_sw [33]
+[35]     0.0    0.00    0.00       5         compute_cigar_for_sw [35]
+                0.00    0.00     117/223         add_to_cigar [20]
+                0.00    0.00      20/1481752     xmalloc [14]
+                0.00    0.00       5/10          reverse_cigar [31]
+-----------------------------------------------
+                0.00    0.00       5/5           align_sw [33]
+[36]     0.0    0.00    0.00       5         find_region_and_score_for_local [36]
+                0.00    0.00      10/1481752     xmalloc [14]
+-----------------------------------------------
+                0.00    0.00       4/4           m_run [96]
+[37]     0.0    0.00    0.00       4         ssa_db_get_sequence_count [37]
+                0.00    0.00       4/730800      db_getsequencecount [18]
+-----------------------------------------------
+                0.00    0.00       4/4           m_run [96]
+[38]     0.0    0.00    0.00       4         start_threads_unified_arguments [38]
+                0.00    0.00      31/70          get_current_thread_count [22]
+-----------------------------------------------
+                0.00    0.00       4/4           m_run [96]
+[39]     0.0    0.00    0.00       4         wait_for_threads [39]
+-----------------------------------------------
+                0.00    0.00       1/3           sw_align [126]
+                0.00    0.00       1/3           nw_align [105]
+                0.00    0.00       1/3           ssa_db_init_fasta [5]
+[40]     0.0    0.00    0.00       3         ssa_db_reset_sequence_counter [40]
+-----------------------------------------------
+                0.00    0.00       1/2           ssa_exit [125]
+                0.00    0.00       1/2           init_thread_pool [46]
+[41]     0.0    0.00    0.00       2         exit_thread_pool [41]
+-----------------------------------------------
+                0.00    0.00       2/2           m_run [96]
+[42]     0.0    0.00    0.00       2         free_alignment_data [42]
+-----------------------------------------------
+                0.00    0.00       2/2           m_run [96]
+[43]     0.0    0.00    0.00       2         free_search_data [43]
+-----------------------------------------------
+                0.00    0.00       1/2           init_for_sw [58]
+                0.00    0.00       1/2           init_for_nw [57]
+[44]     0.0    0.00    0.00       2         init_alignment_data [44]
+                0.00    0.00       2/1481752     xmalloc [14]
+-----------------------------------------------
+                0.00    0.00       1/2           init_for_sw [58]
+                0.00    0.00       1/2           init_for_nw [57]
+[45]     0.0    0.00    0.00       2         init_searchdata [45]
+                0.00    0.00       4/1481752     xmalloc [14]
+-----------------------------------------------
+                0.00    0.00       2/2           m_run [96]
+[46]     0.0    0.00    0.00       2         init_thread_pool [46]
+                0.00    0.00       1/2           exit_thread_pool [41]
+                0.00    0.00       1/70          get_current_thread_count [22]
+                0.00    0.00       1/1481752     xmalloc [14]
+-----------------------------------------------
+                0.00    0.00       2/2           m_run [96]
+[47]     0.0    0.00    0.00       2         it_free [47]
+-----------------------------------------------
+                0.00    0.00       1/2           sw_align [126]
+                0.00    0.00       1/2           nw_align [105]
+[48]     0.0    0.00    0.00       2         it_init [48]
+-----------------------------------------------
+                0.00    0.00       1/2           sw_align [126]
+                0.00    0.00       1/2           nw_align [105]
+[49]     0.0    0.00    0.00       2         it_reset_chunk_counter [49]
+-----------------------------------------------
+                0.00    0.00       2/2           m_run [96]
+[50]     0.0    0.00    0.00       2         minheap_sort [50]
+-----------------------------------------------
+                0.00    0.00       2/2           m_run [96]
+[51]     0.0    0.00    0.00       2         set_alignment_data [51]
+-----------------------------------------------
+                0.00    0.00       1/1           ssa_db_free [10]
+[52]     0.0    0.00    0.00       1         close_out [52]
+-----------------------------------------------
+                0.00    0.00       1/1           ssa_db_free [10]
+[53]     0.0    0.00    0.00       1         db_free [53]
+                0.00    0.00       1/1           set_error [62]
+-----------------------------------------------
+                0.00    0.00       1/1           ssa_db_init_fasta [5]
+[54]     0.0    0.00    0.00       1         db_open [54]
+-----------------------------------------------
+                0.00    0.00       1/1           mat_init_from_string [102]
+[55]     0.0    0.00    0.00       1         finalize_matrices [55]
+-----------------------------------------------
+                0.00    0.00       1/1           query_read [111]
+[56]     0.0    0.00    0.00       1         init [56]
+                0.00    0.00       1/1481752     xmalloc [14]
+-----------------------------------------------
+                0.00    0.00       1/1           nw_align [105]
+[57]     0.0    0.00    0.00       1         init_for_nw [57]
+                0.00    0.00       1/2           init_alignment_data [44]
+                0.00    0.00       1/2           init_searchdata [45]
+-----------------------------------------------
+                0.00    0.00       1/1           sw_align [126]
+[58]     0.0    0.00    0.00       1         init_for_sw [58]
+                0.00    0.00       1/2           init_searchdata [45]
+                0.00    0.00       1/2           init_alignment_data [44]
+-----------------------------------------------
+                0.00    0.00       1/1           us_init_translation [127]
+[59]     0.0    0.00    0.00       1         init_translate_table [59]
+-----------------------------------------------
+                0.00    0.00       1/1           ssa_exit [125]
+[60]     0.0    0.00    0.00       1         mat_free [60]
+-----------------------------------------------
+                0.00    0.00       1/1           mat_init_from_string [102]
+[61]     0.0    0.00    0.00       1         prepare_matrices [61]
+                0.00    0.00       5/1481752     xmalloc [14]
+-----------------------------------------------
+                0.00    0.00       1/1           db_free [53]
+[62]     0.0    0.00    0.00       1         set_error [62]
+-----------------------------------------------
+
+ This table describes the call tree of the program, and was sorted by
+ the total amount of time spent in each function and its children.
+
+ Each entry in this table consists of several lines.  The line with the
+ index number at the left hand margin lists the current function.
+ The lines above it list the functions that called this function,
+ and the lines below it list the functions this one called.
+ This line lists:
+     index	A unique number given to each element of the table.
+		Index numbers are sorted numerically.
+		The index number is printed next to every function name so
+		it is easier to look up where the function is in the table.
+
+     % time	This is the percentage of the `total' time that was spent
+		in this function and its children.  Note that due to
+		different viewpoints, functions excluded by options, etc,
+		these numbers will NOT add up to 100%.
+
+     self	This is the total amount of time spent in this function.
+
+     children	This is the total amount of time propagated into this
+		function by its children.
+
+     called	This is the number of times the function was called.
+		If the function called itself recursively, the number
+		only includes non-recursive calls, and is followed by
+		a `+' and the number of recursive calls.
+
+     name	The name of the current function.  The index number is
+		printed after it.  If the function is a member of a
+		cycle, the cycle number is printed between the
+		function's name and the index number.
+
+
+ For the function's parents, the fields have the following meanings:
+
+     self	This is the amount of time that was propagated directly
+		from the function into this parent.
+
+     children	This is the amount of time that was propagated from
+		the function's children into this parent.
+
+     called	This is the number of times this parent called the
+		function `/' the total number of times the function
+		was called.  Recursive calls to the function are not
+		included in the number after the `/'.
+
+     name	This is the name of the parent.  The parent's index
+		number is printed after it.  If the parent is a
+		member of a cycle, the cycle number is printed between
+		the name and the index number.
+
+ If the parents of the function cannot be determined, the word
+ `<spontaneous>' is printed in the `name' field, and all the other
+ fields are blank.
+
+ For the function's children, the fields have the following meanings:
+
+     self	This is the amount of time that was propagated directly
+		from the child into the function.
+
+     children	This is the amount of time that was propagated from the
+		child's children to the function.
+
+     called	This is the number of times the function called
+		this child `/' the total number of times the child
+		was called.  Recursive calls by the child are not
+		listed in the number after the `/'.
+
+     name	This is the name of the child.  The child's index
+		number is printed after it.  If the child is a
+		member of a cycle, the cycle number is printed
+		between the name and the index number.
+
+ If there are any cycles (circles) in the call graph, there is an
+ entry for the cycle-as-a-whole.  This entry shows who called the
+ cycle (as parents) and the members of the cycle (as children.)
+ The `+' recursive calls entry shows the number of function calls that
+ were internal to the cycle, and the calls entry for each member shows,
+ for that member, how many times it was called from other members of
+ the cycle.
+
+Copyright (C) 2012 Free Software Foundation, Inc.
+
+Copying and distribution of this file, with or without modification,
+are permitted in any medium without royalty provided the copyright
+notice and this notice are preserved.
+
+Index by function name
+
+  [20] add_to_cigar            [3] full_nw                [24] minheap_exit
+   [6] adjust_data_alloc (database.c) [2] full_sw         [27] minheap_init
+  [32] align_nw               [22] get_current_thread_count [50] minheap_sort
+  [33] align_sw               [56] init                   [61] prepare_matrices
+  [19] check_allocated_size   [44] init_alignment_data    [11] read_header (database.c)
+  [52] close_out              [57] init_for_nw            [23] read_line
+  [34] compute_cigar_for_nw   [58] init_for_sw            [31] reverse_cigar
+  [35] compute_cigar_for_sw   [45] init_searchdata        [26] s_free
+   [9] create_index (database.c) [46] init_thread_pool    [51] set_alignment_data
+  [53] db_free                [59] init_translate_table   [62] set_error
+  [16] db_getseqinfo          [47] it_free                [10] ssa_db_free
+  [18] db_getsequencecount    [25] it_free_chunk          [17] ssa_db_get_sequence
+  [54] db_open                [30] it_get_sequence        [37] ssa_db_get_sequence_count
+   [4] db_read                [48] it_init                [40] ssa_db_reset_sequence_counter
+  [41] exit_thread_pool       [28] it_new_chunk           [38] start_threads_unified_arguments
+  [55] finalize_matrices       [8] it_next_chunk           [7] us_map_sequence
+  [36] find_region_and_score_for_local [49] it_reset_chunk_counter [39] wait_for_threads
+  [42] free_alignment_data    [12] it_translate_sequence  [14] xmalloc
+  [29] free_cigar             [60] mat_free               [21] xrealloc
+  [43] free_search_data       [15] minheap_add

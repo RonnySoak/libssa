@@ -19,7 +19,7 @@ static unsigned long search_chunk(p_minheap heap, p_db_chunk chunk, p_search_dat
         int64_t* hearray) {
 	unsigned long searches_done = 0;
 
-    for (unsigned long i = 0; i < chunk->size; i++) {
+    for (unsigned long i = 0; i < chunk->fill_pointer; i++) {
         p_sdb_sequence dseq = chunk->seq[i];
 
         if (!dseq->seq.len) {
@@ -103,13 +103,13 @@ void * s_search(void * search_data) {
     p_db_chunk chunk = it_new_chunk();
     it_next_chunk(chunk);
 
-    while(chunk->size) {
+    while(chunk->fill_pointer) {
         int searched_sequences = search_chunk(res->heap, chunk, sdp, hearray);
 
-        assert(searched_sequences == chunk->size * sdp->q_count);
+        assert(searched_sequences == chunk->fill_pointer * sdp->q_count);
 
         res->chunk_count++;
-        res->seq_count += chunk->size;
+        res->seq_count += chunk->fill_pointer;
 
         it_next_chunk(chunk);
     }
