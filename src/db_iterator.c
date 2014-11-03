@@ -14,8 +14,8 @@
 #include "libssa_extern_db.h"
 #include "util.h"
 #include "query.h"
+#include "util/thread_pool.h"
 
-static unsigned long seq_index;
 static unsigned long chunk_size;
 static unsigned long next_chunk_start = 0;
 
@@ -29,19 +29,26 @@ static unsigned long next_chunk_start = 0;
  *
  * XXX Maybe call an init function for the whole lib at the beginning, setting the number of threads
  * and use this number here, to create an array of buffers, accessible by the thread-ID.
+ *
+ * XXX if I remove get_next_sequence I can have fill_buffer return the p_sdb_sequence objects directly
+ * -> thi way I do not need to go via an buffer object
+ * -> I can then have buffer_max as fix set global and return an array of this size in fill_buffer
+ *
+ * XXX best would be to allocate memory for a chunk and reuse it every time a new chunk is loaded,
+ * after the search this memory is freed at the moment. The amount of sequences in the chunk is
+ * defined by the size field, so I do not need to reset the pointers in the chunk. I just need to be carefull ;-)
  */
 static int buffer_max = 0;
-static p_sdb_sequence* buffer;
-static int buffer_p = 0;
-
 static pthread_mutex_t chunk_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 /**
  * Initialises the buffer. Translates the DB sequence and computes the reverse
  * complement of the forward strand, if necessary.
  */
-static void fill_buffer(p_seqinfo seqinfo) {
-    sequence db_seq;
+static p_sdb_sequence * get_translated_sequences(p_seqinfo seqinfo) {
+	p_sdb_sequence * buffer = xmalloc(buffer_max * sizeof(sdb_sequence));
+
+	sequence db_seq;
     db_seq.seq = seqinfo->seq;
     db_seq.len = seqinfo->seqlen;
 
@@ -104,24 +111,17 @@ static void fill_buffer(p_seqinfo seqinfo) {
         buffer[0]->strand = 0;
         buffer[0]->frame = 0;
     }
+
+    return buffer;
 }
 
 void it_free() {
     buffer_max = 0;
-    buffer_p = 0;
-
-    if (buffer) {
-        free(buffer);
-        buffer = 0;
-    }
 }
 
 void it_init(unsigned long size) {
     // TODO call external DB to set chunk size
     chunk_size = size;
-
-    // reset the DB sequence index
-    seq_index = 0;
 
     // set buffer size according symtype: 1, 2 oder 6
     if (symtype == NUCLEOTIDE) {
@@ -138,15 +138,6 @@ void it_init(unsigned long size) {
     }
     else {
         buffer_max = 1;
-    }
-
-    // at first we start with a "full" buffer, to force a sequence loading!
-    buffer_p = buffer_max;
-
-    buffer = xmalloc(buffer_max * sizeof(p_sdb_sequence));
-
-    for (int i = 0; i < buffer_max; i++) {
-        buffer[i] = 0;
     }
 }
 
@@ -181,33 +172,7 @@ sequence it_translate_sequence(p_seqinfo info, int f, int s) {
     return result;
 }
 
-/**
- * Returns the next sequence from the database. Translates the DB sequences, if
- * necessary, and returns the translated sequences one by one.
- *
- * @return the next sequence in the DB, or NULL if none is left
- */
-p_sdb_sequence it_next_sequence() {
-    if (buffer_p < buffer_max) {
-        return buffer[buffer_p++];
-    }
-
-    // get sequence from DB
-    p_seqinfo seqinfo = ssa_db_next_sequence();
-    if (!seqinfo) {
-        // last sequence read
-        return NULL;
-    }
-
-    // translate sequence according sym-type
-    fill_buffer(seqinfo);
-
-    // return current version
-    buffer_p = 0;
-    return buffer[buffer_p++];
-}
-
-void it_free_sequence(p_sdb_sequence seq) {
+static void it_free_sequence(p_sdb_sequence seq) {
     if (!seq) {
         return;
     }
@@ -224,6 +189,15 @@ void it_free_sequence(p_sdb_sequence seq) {
 
     free(seq);
     seq = 0;
+}
+
+static void free_chunk_sequences(p_db_chunk chunk) {
+	for (int i = 0; i < chunk->size; i++) {
+		if (chunk->seq[i]) {
+			it_free_sequence(chunk->seq[i]);
+			chunk->seq[i] = 0;
+		}
+	}
 }
 
 void it_free_chunk(p_db_chunk chunk) {
@@ -244,7 +218,14 @@ void it_free_chunk(p_db_chunk chunk) {
     }
 }
 
-void reset_chunk_counter() {
+p_db_chunk it_new_chunk() {
+	p_db_chunk chunk = xmalloc(sizeof(struct db_chunk));
+	chunk->size = 0;
+	chunk->seq = xmalloc(chunk_size * buffer_max * sizeof(p_sdb_sequence));
+	return chunk;
+}
+
+void it_reset_chunk_counter() {
 	next_chunk_start = 0;
 }
 
@@ -259,7 +240,13 @@ static int get_next_chunk_start_id() {
 	return next_chunk;
 }
 
-p_db_chunk it_next_chunk() {
+void it_next_chunk(p_db_chunk chunk) {
+	if (!chunk) {
+		ffatal("Chunk not initialized");
+	}
+	free_chunk_sequences(chunk);
+	chunk->size = 0;
+
     p_seqinfo * db_sequences = xmalloc(chunk_size * sizeof(p_seqinfo));
     int db_sequence_count = 0;
 
@@ -280,22 +267,21 @@ p_db_chunk it_next_chunk() {
 
     if (db_sequence_count == 0) {
     	free(db_sequences);
-    	return NULL;
+    	return;
     }
 
-    p_db_chunk chunk = xmalloc(sizeof(struct db_chunk));
-    chunk->size = 0;
-    chunk->seq = xmalloc(db_sequence_count * buffer_max * sizeof(p_sdb_sequence));
-
     for (int i = 0; i < db_sequence_count; i++) {
-        fill_buffer(db_sequences[i]);
+        p_sdb_sequence * buffer = get_translated_sequences(db_sequences[i]);
 
         for (int j = 0; j < buffer_max; j++) {
         	chunk->seq[chunk->size++] = buffer[j];
         }
+
+        /*
+         * TODO reuse buffer
+         */
+        free(buffer);
     }
 
     free(db_sequences);
-
-    return chunk;
 }

@@ -32,11 +32,8 @@ START_TEST (test_searcher_simple_sw)
 
         it_init(1);
 
-        printf("1\n");
-
         p_search_result res = s_search(sdp);
 
-        printf("1\n");
         ck_assert_int_eq(1, res->chunk_count);
         ck_assert_int_eq(1, res->seq_count);
 

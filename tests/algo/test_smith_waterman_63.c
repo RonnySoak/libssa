@@ -26,13 +26,13 @@ START_TEST (test_search63_simple)
 
         ssa_db_init_fasta("./tests/testdata/short_db.fas");
         it_init(1);
-        p_sdb_sequence dseq = it_next_sequence();
+        sequence dseq = it_translate_sequence(ssa_db_get_sequence(0), 0, 0);
 
         long *hearray = calloc(sizeof(long), 32 * query->nt[0].len);
         uint8_t gapopenextend = 1;
         uint8_t gapextend = 1;
 
-        int score = full_sw(&dseq->seq,
+        int score = full_sw(&dseq,
                 &query->nt[0],
                 hearray,
                 score_matrix_63,
@@ -54,13 +54,13 @@ START_TEST (test_search63_simple_blosum62)
 
         ssa_db_init_fasta("./tests/testdata/short_db.fas");
         it_init(1);
-        p_sdb_sequence dseq = it_next_sequence();
+        sequence dseq = it_translate_sequence(ssa_db_get_sequence(0), 0, 0);
 
         long *hearray = calloc(sizeof(long), 32 * query->nt[0].len);
         uint8_t gapopenextend = 1;
         uint8_t gapextend = 1;
 
-        int score = full_sw(&dseq->seq,
+        int score = full_sw(&dseq,
                 &query->nt[0],
                 hearray,
                 score_matrix_63,

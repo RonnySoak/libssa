@@ -75,14 +75,15 @@ START_TEST (test_next_empty)
 
         it_init(1);
 
-        ck_assert_ptr_eq(NULL, it_next_sequence());
+        p_db_chunk chunk = it_new_chunk();
+        it_next_chunk(chunk);
+        ck_assert_int_eq(0, chunk->size);
 
         it_free();
     }END_TEST
 
-START_TEST (test_next_one)
+START_TEST (test_next_one_nuc_forward)
     {
-        // test with only forward strand
         ssa_db_init_fasta("tests/testdata/one_seq.fas");
 
         symtype = NUCLEOTIDE;
@@ -90,7 +91,11 @@ START_TEST (test_next_one)
 
         it_init(1);
 
-        p_sdb_sequence seq = it_next_sequence();
+        p_db_chunk chunk = it_new_chunk();
+        it_next_chunk(chunk);
+        ck_assert_int_eq(1, chunk->size);
+
+        p_sdb_sequence seq = chunk->seq[0];
         ck_assert_int_eq(0, seq->ID);
         ck_assert_int_eq(54, seq->seq.len);
         ck_assert_str_eq(
@@ -100,19 +105,30 @@ START_TEST (test_next_one)
         ck_assert_int_eq(0, seq->frame);
 
         // check for the end of sequences
-        ck_assert_ptr_eq(NULL, it_next_sequence());
+        it_next_chunk(chunk);
+        ck_assert_int_eq(0, chunk->size);
+
+        it_free_chunk(chunk);
 
         it_free();
         ssa_db_free();
 
-        // test both reverse complement strand creation
+    }END_TEST
+
+START_TEST (test_next_one_nuc_both)
+    {
         ssa_db_init_fasta("tests/testdata/one_seq.fas");
 
         symtype = NUCLEOTIDE;
         query_strands = BOTH_STRANDS;
         it_init(1);
 
-        seq = it_next_sequence();
+        p_db_chunk chunk = it_new_chunk();
+        it_next_chunk(chunk);
+
+        ck_assert_int_eq(2, chunk->size);
+
+        p_sdb_sequence seq = chunk->seq[0];
         ck_assert_int_eq(0, seq->ID);
         ck_assert_int_eq(54, seq->seq.len);
         ck_assert_str_eq(
@@ -120,10 +136,10 @@ START_TEST (test_next_one)
                 us_map_sequence(seq->seq, sym_ncbi_nt16u).seq);
         ck_assert_int_eq(0, seq->strand);
         ck_assert_int_eq(0, seq->frame);
-        it_free_sequence(seq);
 
         // get reverse complement strand
-        seq = it_next_sequence();
+
+        seq = chunk->seq[1];
         ck_assert_int_eq(0, seq->ID);
         ck_assert_int_eq(54, seq->seq.len);
         ck_assert_str_eq(
@@ -133,14 +149,19 @@ START_TEST (test_next_one)
                 us_map_sequence(seq->seq, sym_ncbi_nt16u).seq);
         ck_assert_int_eq(1, seq->strand);
         ck_assert_int_eq(0, seq->frame);
-        it_free_sequence(seq);
 
         // check for the end of sequences
-        ck_assert_ptr_eq(NULL, it_next_sequence());
+        it_next_chunk(chunk);
+        ck_assert_int_eq(0, chunk->size);
+
+        it_free_chunk(chunk);
 
         it_free();
         ssa_db_free();
+    }END_TEST
 
+START_TEST (test_next_one_db_translate_forward)
+    {
         // test with forward strand and db translation
         ssa_db_init_fasta("tests/testdata/one_seq.fas");
 
@@ -149,40 +170,48 @@ START_TEST (test_next_one)
 
         us_init_translation(1, 3);
 
-        it_init(1);
+        it_init(3);
 
-        seq = it_next_sequence();
+        p_db_chunk chunk = it_new_chunk();
+        it_next_chunk(chunk);
+
+        ck_assert_int_eq(3, chunk->size);
+
+        p_sdb_sequence seq = chunk->seq[0];
         ck_assert_ptr_eq(0, seq->ID);
         ck_assert_int_eq(18, seq->seq.len);
         ck_converted_prot_eq("MPKTNSVEGFSSFEDDV*", seq->seq);
         ck_assert_int_eq(1, seq->strand);
         ck_assert_int_eq(0, seq->frame);
-        it_free_sequence(seq);
 
         // 2.
-        seq = it_next_sequence();
+        seq = chunk->seq[1];
         ck_assert_ptr_eq(0, seq->ID);
         ck_assert_int_eq(17, seq->seq.len);
         ck_converted_prot_eq("CPSWMA*RGFHHLRTMY", seq->seq);
         ck_assert_int_eq(1, seq->strand);
         ck_assert_int_eq(1, seq->frame);
-        it_free_sequence(seq);
 
         // 3.
-        seq = it_next_sequence();
+        seq = chunk->seq[2];
         ck_assert_ptr_eq(0, seq->ID);
         ck_assert_int_eq(17, seq->seq.len);
         ck_converted_prot_eq("AQAE*RRGVFIIWGRCM", seq->seq);
         ck_assert_int_eq(1, seq->strand);
         ck_assert_int_eq(2, seq->frame);
-        it_free_sequence(seq);
 
         // check for the end of sequences
-        ck_assert_ptr_eq(NULL, it_next_sequence());
+        it_next_chunk(chunk);
+        ck_assert_int_eq(0, chunk->size);
+
+        it_free_chunk(chunk);
 
         it_free();
         ssa_db_free();
+    }END_TEST
 
+START_TEST (test_next_one_db_translate_both)
+    {
         // test with both strand and db translation
         ssa_db_init_fasta("tests/testdata/one_seq.fas");
 
@@ -191,45 +220,46 @@ START_TEST (test_next_one)
 
         us_init_translation(1, 3);
 
-        it_init(1);
+        it_init(6);
 
-        seq = it_next_sequence();
+        p_db_chunk chunk = it_new_chunk();
+        it_next_chunk(chunk);
+
+        ck_assert_int_eq(6, chunk->size);
+
+        p_sdb_sequence seq = chunk->seq[0];
         ck_assert_ptr_eq(0, seq->ID);
         ck_assert_int_eq(18, seq->seq.len);
         ck_converted_prot_eq("MPKTNSVEGFSSFEDDV*", seq->seq);
         ck_assert_int_eq(0, seq->strand);
         ck_assert_int_eq(0, seq->frame);
-        it_free_sequence(seq);
 
         // 2.
-        seq = it_next_sequence();
+        seq = chunk->seq[1];
         ck_assert_ptr_eq(0, seq->ID);
         ck_assert_int_eq(17, seq->seq.len);
         ck_converted_prot_eq("CPSWMA*RGFHHLRTMY", seq->seq);
         ck_assert_int_eq(0, seq->strand);
         ck_assert_int_eq(1, seq->frame);
-        it_free_sequence(seq);
 
         // 3.
-        seq = it_next_sequence();
+        seq = chunk->seq[2];
         ck_assert_ptr_eq(0, seq->ID);
         ck_assert_int_eq(17, seq->seq.len);
         ck_converted_prot_eq("AQAE*RRGVFIIWGRCM", seq->seq);
         ck_assert_int_eq(0, seq->strand);
         ck_assert_int_eq(2, seq->frame);
-        it_free_sequence(seq);
 
         // 4.
-        seq = it_next_sequence();
+        seq = chunk->seq[3];
         ck_assert_ptr_eq(0, seq->ID);
         ck_assert_int_eq(18, seq->seq.len);
         ck_converted_prot_eq("LYIVTKWWKPTYAIQTGH", seq->seq);
         ck_assert_int_eq(1, seq->strand);
         ck_assert_int_eq(0, seq->frame);
-        it_free_sequence(seq);
 
         // 5.
-        seq = it_next_sequence();
+        seq = chunk->seq[4];
         ck_assert_ptr_eq(0, seq->ID);
         ck_assert_int_eq(17, seq->seq.len);
         ck_converted_prot_eq("YTSSSNDENPSTTFSLG", seq->seq);
@@ -237,7 +267,7 @@ START_TEST (test_next_one)
         ck_assert_int_eq(1, seq->frame);
 
         // 6.
-        seq = it_next_sequence();
+        seq = chunk->seq[5];
         ck_assert_ptr_eq(0, seq->ID);
         ck_assert_int_eq(17, seq->seq.len);
         ck_converted_prot_eq("MHRPQMMKTPTRYSAWA", seq->seq);
@@ -245,45 +275,10 @@ START_TEST (test_next_one)
         ck_assert_int_eq(2, seq->frame);
 
         // check for the end of sequences
-        ck_assert_ptr_eq(NULL, it_next_sequence());
+        it_next_chunk(chunk);
+        ck_assert_int_eq(0, chunk->size);
 
-        it_free();
-        ssa_db_free();
-    }END_TEST
-
-START_TEST (test_next)
-    {
-        ssa_db_init_fasta("tests/testdata/test.fas");
-
-        // test with only forward strand
-        symtype = NUCLEOTIDE;
-        query_strands = FORWARD_STRAND;
-
-        it_init(1);
-
-        // 1.
-        p_sdb_sequence seq = it_next_sequence();
-        ck_assert_int_eq(0, seq->ID);
-        it_free_sequence(seq);
-        // 2.
-        seq = it_next_sequence();
-        ck_assert_int_eq(1, seq->ID);
-        it_free_sequence(seq);
-        // 3.
-        seq = it_next_sequence();
-        ck_assert_int_eq(2, seq->ID);
-        it_free_sequence(seq);
-        // 4.
-        seq = it_next_sequence();
-        ck_assert_int_eq(3, seq->ID);
-        it_free_sequence(seq);
-        // 5.
-        seq = it_next_sequence();
-        ck_assert_int_eq(4, seq->ID);
-        it_free_sequence(seq);
-
-        // check for the end of sequences
-        ck_assert_ptr_eq(NULL, it_next_sequence());
+        it_free_chunk(chunk);
 
         it_free();
         ssa_db_free();
@@ -301,28 +296,28 @@ START_TEST (test_next_chunk)
 
         it_init(chunk_size);
 
-        p_db_chunk chunk = it_next_chunk();
+        p_db_chunk chunk = it_new_chunk();
+
+		it_next_chunk(chunk);
 
         // 1.
         ck_assert_int_eq(chunk_size, (int)chunk->size);
         ck_assert_int_eq(0, chunk->seq[0]->ID);
         ck_assert_int_eq(1, chunk->seq[1]->ID);
         ck_assert_int_eq(2, chunk->seq[2]->ID);
-        it_free_chunk(chunk);
 
         // 2.
-        chunk = it_next_chunk();
+		it_next_chunk(chunk);
 
         ck_assert_int_eq(2, (int)chunk->size);
         ck_assert_int_eq(3, chunk->seq[0]->ID);
         ck_assert_int_eq(4, chunk->seq[1]->ID);
 
-        it_free_chunk(chunk);
 
         // check for the end of sequences
-        chunk = it_next_chunk();
+		it_next_chunk(chunk);
 
-        ck_assert_ptr_eq(NULL, chunk);
+        ck_assert_int_eq(0, chunk->size);
 
         it_free_chunk(chunk);
 
@@ -336,8 +331,10 @@ void addDBIteratorTC(Suite *s) {
     TCase *tc_core = tcase_create("db_iterator");
     tcase_add_test(tc_core, test_init);
     tcase_add_test(tc_core, test_next_empty);
-    tcase_add_test(tc_core, test_next_one);
-    tcase_add_test(tc_core, test_next);
+    tcase_add_test(tc_core, test_next_one_db_translate_both);
+    tcase_add_test(tc_core, test_next_one_db_translate_forward);
+    tcase_add_test(tc_core, test_next_one_nuc_both);
+    tcase_add_test(tc_core, test_next_one_nuc_forward);
     tcase_add_test(tc_core, test_next_chunk);
 
     suite_add_tcase(s, tc_core);

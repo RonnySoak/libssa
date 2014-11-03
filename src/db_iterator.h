@@ -18,20 +18,12 @@ p_seqinfo it_get_sequence(unsigned long id);
 
 sequence it_translate_sequence(p_seqinfo info, int f, int s);
 
-/**
- * Returns the next sequence from the database. Translates the DB sequences, if
- * necessary, and returns the translated sequences one by one.
- *
- * @return the next sequence in the DB, or NULL if none is left
- */
-p_sdb_sequence it_next_sequence();
+p_db_chunk it_new_chunk();
 
-void it_free_sequence(p_sdb_sequence seq);
+void it_next_chunk(p_db_chunk chunk);
 
 void it_free_chunk(p_db_chunk chunk);
 
-void reset_chunk_counter();
-
-p_db_chunk it_next_chunk();
+void it_reset_chunk_counter();
 
 #endif /* DB_ITERATOR_H_ */

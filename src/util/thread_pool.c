@@ -19,26 +19,28 @@ static pthread_t * thread_list = 0;
 static long current_thread_count = 0;
 
 int get_current_thread_count() {
-    return current_thread_count;
+	if(!current_thread_count) {
+		if (_max_thread_count == -1) {
+			_max_thread_count = get_nprocs();//sysconf(_SC_NPROCESSORS_ONLN);
+		}
+
+		current_thread_count = _max_thread_count;
+	}
+	return current_thread_count;
 }
 
 void init_thread_pool() {
-    if (thread_list && (_max_thread_count == get_nprocs())) {
+    if (thread_list) {
         return;
     }
 
     exit_thread_pool();
 
-    if (_max_thread_count == -1) {
-        /*
-         * TODO move this into a general config initializer
-         */
-        _max_thread_count = get_nprocs();//sysconf(_SC_NPROCESSORS_ONLN);
-    }
+    int thread_count = get_current_thread_count();
 
-    printf("Using %ld threads\n", _max_thread_count);
+    printf("Using %ld threads\n", thread_count);
 
-    thread_list = xmalloc(_max_thread_count * sizeof(pthread_t));
+    thread_list = xmalloc(thread_count * sizeof(pthread_t));
 }
 
 void exit_thread_pool() {
@@ -53,9 +55,7 @@ void exit_thread_pool() {
 
 void start_threads_unified_arguments(void *(*start_routine) (void *),
         void * thread_argument) {
-    current_thread_count = _max_thread_count;
-
-    for (int i = 0; i < current_thread_count; i++) {
+    for (int i = 0; i < get_current_thread_count(); i++) {
         pthread_create(&thread_list[i], NULL, start_routine, thread_argument);
     }
 }

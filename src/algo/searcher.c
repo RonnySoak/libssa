@@ -100,8 +100,10 @@ void * s_search(void * search_data) {
 
     int64_t* hearray = xmalloc(sdp->hearraylen * 32);
 
-    p_db_chunk chunk;
-    while((chunk = it_next_chunk())) {
+    p_db_chunk chunk = it_new_chunk();
+    it_next_chunk(chunk);
+
+    while(chunk->size) {
         int searched_sequences = search_chunk(res->heap, chunk, sdp, hearray);
 
         assert(searched_sequences == chunk->size * sdp->q_count);
@@ -109,8 +111,10 @@ void * s_search(void * search_data) {
         res->chunk_count++;
         res->seq_count += chunk->size;
 
-        it_free_chunk(chunk);
+        it_next_chunk(chunk);
     }
+
+	it_free_chunk(chunk);
 
     free(hearray);
 

@@ -20,11 +20,11 @@
 
 extern p_alignment_data adp;
 
-elem_t new_elem0(p_sdb_sequence sdb, int qid, long score) {
+elem_t new_elem0(int ID, int frame, int strand, int qid, long score) {
     elem_t e;
-    e.db_id = sdb->ID;
-    e.dframe = sdb->frame;
-    e.dstrand = sdb->strand;
+    e.db_id = ID;
+    e.dframe = frame;
+    e.dstrand = strand;
     e.query_id = qid;
     e.score = score;
 
@@ -43,9 +43,9 @@ START_TEST (test_aligner_simple_sw)
 
         p_minheap heap = minheap_init(1);
 
-        p_sdb_sequence sdb = it_next_sequence();
+        sequence sdb = it_translate_sequence(ssa_db_get_sequence(0), 0, 0);
 
-        elem_t e1 = new_elem0(sdb, 0, 2);
+        elem_t e1 = new_elem0(0, 0, 0, 0, 2);
         elem_t * elements = { &e1 };
 
         init_for_sw(query, 1);
@@ -59,11 +59,11 @@ START_TEST (test_aligner_simple_sw)
 
         alignment_p al = alist->alignments[0];
 
-        ck_assert_str_eq(sdb->seq.seq, al->db_seq.seq);
-        ck_assert_int_eq(sdb->seq.len, al->db_seq.len);
-        ck_assert_int_eq(sdb->frame, al->db_seq.frame);
-        ck_assert_int_eq(sdb->strand, al->db_seq.strand);
-        ck_assert_int_eq(sdb->ID, al->db_seq.ID);
+        ck_assert_str_eq(sdb.seq, al->db_seq.seq);
+        ck_assert_int_eq(sdb.len, al->db_seq.len);
+        ck_assert_int_eq(0, al->db_seq.frame);
+        ck_assert_int_eq(0, al->db_seq.strand);
+        ck_assert_int_eq(0, al->db_seq.ID);
 
         ck_assert_str_eq(query->nt[0].seq, al->query.seq);
         ck_assert_int_eq(query->nt[0].len, al->query.len);
@@ -77,8 +77,6 @@ START_TEST (test_aligner_simple_sw)
         ck_assert_int_eq(1, al->align_q_end);
 
         ck_assert_str_eq("2M", al->alignment); // TODO check this
-
-        it_free_sequence(sdb);
 
         a_free(alist);
         minheap_exit(heap);
@@ -101,30 +99,21 @@ START_TEST (test_aligner_more_sequences_sw)
 
         p_minheap heap = minheap_init(5);
 
-        p_sdb_sequence sdb0 = it_next_sequence();
-
-        elem_t e = new_elem0(sdb0, 0, 2);
+        sequence sdb0 = it_translate_sequence(ssa_db_get_sequence(0), 0, 0);
+        elem_t e = new_elem0(0, 0, 0, 0, 2);
         minheap_add(heap, &e);
 
-        p_sdb_sequence sdb = it_next_sequence();
-        e = new_elem0(sdb0, 0, 2);
+        e = new_elem0(1, 0, 0, 0, 2);
         minheap_add(heap, &e);
-        it_free_sequence(sdb);
 
-        sdb = it_next_sequence();
-        e = new_elem0(sdb0, 0, 2);
+        e = new_elem0(2, 0, 0, 0, 2);
         minheap_add(heap, &e);
-        it_free_sequence(sdb);
 
-        sdb = it_next_sequence();
-        e = new_elem0(sdb0, 0, 2);
+        e = new_elem0(3, 0, 0, 0, 2);
         minheap_add(heap, &e);
-        it_free_sequence(sdb);
 
-        sdb = it_next_sequence();
-        e = new_elem0(sdb0, 0, 2);
+        e = new_elem0(4, 0, 0, 0, 2);
         minheap_add(heap, &e);
-        it_free_sequence(sdb);
 
         init_for_sw(query, 1);
         adp->pair_count = 5;
@@ -137,11 +126,11 @@ START_TEST (test_aligner_more_sequences_sw)
 
         alignment_p al = alist->alignments[0];
 
-        ck_assert_str_eq(sdb0->seq.seq, al->db_seq.seq);
-        ck_assert_int_eq(sdb0->seq.len, al->db_seq.len);
-        ck_assert_int_eq(sdb0->frame, al->db_seq.frame);
-        ck_assert_int_eq(sdb0->strand, al->db_seq.strand);
-        ck_assert_int_eq(sdb0->ID, al->db_seq.ID);
+        ck_assert_str_eq(sdb0.seq, al->db_seq.seq);
+        ck_assert_int_eq(sdb0.len, al->db_seq.len);
+        ck_assert_int_eq(0, al->db_seq.frame);
+        ck_assert_int_eq(0, al->db_seq.strand);
+        ck_assert_int_eq(0, al->db_seq.ID);
 
         ck_assert_str_eq(query->nt[0].seq, al->query.seq);
         ck_assert_int_eq(query->nt[0].len, al->query.len);
@@ -157,8 +146,6 @@ START_TEST (test_aligner_more_sequences_sw)
                 "DMI2MI2MIM3IM2IM4IM9I2MIM4I2M4I2M7IM6IMI3M" \
                 "3I2MI2M6ID3MIM3IM3IMIMD4M4IMI4MDMIMIMI3MDMI",
                 al->alignment); // TODO check this
-
-        it_free_sequence(sdb0);
 
         a_free(alist);
         minheap_exit(heap);
