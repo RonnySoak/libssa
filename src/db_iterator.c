@@ -173,7 +173,7 @@ static void it_free_sequence(p_sdb_sequence seq) {
         return;
     }
 
-    if (seq->seq.seq) {
+    if (&seq->seq) {
         free(seq->seq.seq);
         seq->seq.seq = 0;
         seq->seq.len = 0;
@@ -190,10 +190,8 @@ static void it_free_sequence(p_sdb_sequence seq) {
 void it_free_chunk(p_db_chunk chunk) {
     if (chunk) {
         for (int i = 0; i < chunk->size; i++) {
-            if (chunk->seq[i]) {
-        		it_free_sequence(chunk->seq[i]);
-                chunk->seq[i] = 0;
-            }
+            it_free_sequence(chunk->seq[i]);
+            chunk->seq[i] = 0;
         }
 
         if (chunk->seq) {
@@ -211,8 +209,13 @@ p_db_chunk it_new_chunk() {
 	chunk->size = chunk_db_seq_count * buffer_max;
 	chunk->seq = xmalloc(chunk->size * sizeof(p_sdb_sequence));
 
-	for (int i = 0; i < chunk->size; ++i) {
+    for (int i = 0; i < chunk->size; ++i) {
         chunk->seq[i] = xmalloc(sizeof(sdb_sequence));
+
+        chunk->seq[i]->seq = (sequence) {0, 0};
+        chunk->seq[i]->frame = 0;
+        chunk->seq[i]->strand = 0;
+        chunk->seq[i]->ID = 0;
     }
 
 	return chunk;
@@ -222,27 +225,18 @@ void it_reset_chunk_counter() {
 	next_chunk_start = 0;
 }
 
-static int get_next_chunk_start_id() {
-	int next_chunk;
-
-	pthread_mutex_lock(&chunk_mutex);
-	next_chunk = next_chunk_start;
-	next_chunk_start += chunk_db_seq_count;
-	pthread_mutex_unlock(&chunk_mutex);
-
-	return next_chunk;
-}
-
 void it_next_chunk(p_db_chunk chunk) {
 	if (!chunk) {
 		ffatal("Chunk not initialized");
 	}
 	chunk->fill_pointer = 0;
 
-    /*
-     * TODO add negative result value to get_next_chunk_start, if there is none left
-     */
-    int next_chunk = get_next_chunk_start_id();
+    int next_chunk;
+
+    pthread_mutex_lock(&chunk_mutex);
+    next_chunk = next_chunk_start;
+    next_chunk_start += chunk_db_seq_count;
+    pthread_mutex_unlock(&chunk_mutex);
 
     for (int i = next_chunk; i < (next_chunk + chunk_db_seq_count); i++) {
     	p_seqinfo db_seq = it_get_sequence(i);

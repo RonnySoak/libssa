@@ -22,10 +22,6 @@ static unsigned long search_chunk(p_minheap heap, p_db_chunk chunk, p_search_dat
     for (unsigned long i = 0; i < chunk->fill_pointer; i++) {
         p_sdb_sequence dseq = chunk->seq[i];
 
-        if (!dseq->seq.len) {
-        	printf("length = 0\n");
-        }
-
         for (int x = 0; x < sdp->q_count; x++) {
             seq_buffer query = sdp->queries[x];
 

@@ -17,13 +17,13 @@ int64_t full_nw(sequence * dseq, sequence * qseq, int64_t * hearray, int64_t * s
     int64_t *hep;
 
     for (uint64_t i = 0; i < qseq->len; i++) {
-        hearray[2 * i] = -gapO + (i + 1) * -gapE; // H (N)    scores in previous column
-        hearray[2 * i + 1] = hearray[2 * i]; // E    gap values in previous column
+        hearray[2 * i] = -gapO + (i + 1) * -gapE; // H (N) scores in previous column
+        hearray[2 * i + 1] = hearray[2 * i];      // E     gap values in previous column
     }
 
     for (uint64_t j = 0; j < dseq->len; j++) {
         hep = hearray;
-        f = -gapO + (j + 1) * -gapE;          // value in first upper cell
+        f = -gapO + (j + 1) * -gapE;                  // value in first upper cell
         h = (j == 0) ? 0 : (-gapO + (j + 1) * -gapE); // value in first cell of line
 
         for (uint64_t i = 0; i < qseq->len; i++) {
