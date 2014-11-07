@@ -15,6 +15,7 @@
 #include "../src/libssa_datatypes.h"
 
 void addMinHeapTC(Suite *s);
+void addThreadPoolTC(Suite *s);
 void addQueryTC(Suite *s);
 void addMatricesTC(Suite *s);
 void addUtilSequenceTC(Suite *s);

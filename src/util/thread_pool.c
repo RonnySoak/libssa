@@ -53,8 +53,7 @@ void exit_thread_pool() {
     }
 }
 
-void start_threads_unified_arguments(void *(*start_routine) (void *),
-        void * thread_argument) {
+void start_threads(void *(*start_routine)(void *), void * thread_argument) {
     for (int i = 0; i < get_current_thread_count(); i++) {
         pthread_create(&thread_list[i], NULL, start_routine, thread_argument);
     }

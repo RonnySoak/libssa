@@ -163,7 +163,7 @@ void init_for_nw_sellers(p_query query, int hit_count) {
 p_alignment_list m_run() {
     init_thread_pool();
 
-    start_threads_unified_arguments(s_search, sdp);
+    start_threads(s_search, sdp);
 
     p_search_result search_result_list[_max_thread_count];
 
@@ -191,7 +191,7 @@ p_alignment_list m_run() {
     adp->result_sequence_pairs = search_results->array;
     set_alignment_data(adp);
 
-    start_threads_unified_arguments(a_align, NULL);
+    start_threads(a_align, NULL);
 
     p_alignment_list alist = xmalloc(sdp->hit_count * sizeof(struct alignment_list));
     alist->alignments = xmalloc(sdp->hit_count * sizeof(alignment_t));

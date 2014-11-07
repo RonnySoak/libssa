@@ -16,6 +16,7 @@ Suite* libssa_suite(void) {
 
     /* Core test case */
     addMinHeapTC(s);
+    addThreadPoolTC(s);
     addUtilSequenceTC(s);
     addMatricesTC(s);
     addQueryTC(s);

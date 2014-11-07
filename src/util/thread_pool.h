@@ -14,7 +14,7 @@ void exit_thread_pool();
 
 int get_current_thread_count();
 
-void start_threads_unified_arguments(void *(*start_routine) (void *),
+void start_threads(void *(*start_routine) (void *),
         void * thread_argument);
 
 void wait_for_threads(void ** thread_results);

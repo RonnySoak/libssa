@@ -38,6 +38,7 @@ TO_CLEAN := libssa.a
 # All of the sources participating in the build are defined here
 -include tests/subdir.mk
 -include tests/algo/subdir.mk
+-include tests/util/subdir.mk
 -include src/subdir.mk
 -include src/algo/subdir.mk
 -include src/util/subdir.mk
@@ -45,7 +46,7 @@ TO_CLEAN := libssa.a
 MPI_COMPILE := `mpicxx --showme:compile`
 MPI_LINK := `mpicxx --showme:link`
 
-COMMON := -pg
+COMMON :=
 # add "-fprofile-arcs -ftest-coverage" to COMMON for code coverage
 
 LIBS := -lpthread -lm
@@ -60,7 +61,7 @@ LINKFLAGS := $(COMMON)
 CXX := gcc
 # -Wno-write-strings removes the `deprecated conversion from\
  string constant to char*` warnings
-CXXFLAGS := -Wall -Os -std=c99 -march=native $(COMMON)
+CXXFLAGS := -Wall -O3 -std=c99 -march=native $(COMMON)
 
 PROG := libssa libssa_check libssa_example
 

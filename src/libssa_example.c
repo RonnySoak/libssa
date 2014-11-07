@@ -14,7 +14,19 @@ int main(int argc, char**argv) {
     init_gap_penalties(4, 2);
     init_symbol_translation(NUCLEOTIDE, FORWARD_STRAND, 3, 3);
 
-//    set_threads(2);
+    /*
+     * TODO
+     *
+     * - find a saturated add for adding signed values
+     * - or add a bias to have the matrix positive and deduct that bias after adding the matrix value
+     * - check if score == MAX_INT, than we went out of bounds of our saturated operation
+     * - with the bias we have to check for MAX_INT - bias
+     * - or use signed operations and treat -MAX_INT as 0 and add the bias later on, to get the real score
+     *
+     * meeting next Tuesday??
+     */
+
+    set_threads(4);
 
 //    init_db_fasta("tests/testdata/test.fas");
 //    init_db_fasta("tests/testdata/AF091148.fas");
@@ -30,7 +42,7 @@ int main(int argc, char**argv) {
     for (int i = 0; i < alist->len; i++) {
         alignment_p a = alist->alignments[i];
 
-        printf("alignment %d: %s\n", i, a->alignment);
+        printf("alignment %d: %ld, %s\n", i, a->db_seq.ID, a->alignment);
     }
     free_alignment(alist);
 
@@ -42,7 +54,7 @@ int main(int argc, char**argv) {
     for (int i = 0; i < alist->len; i++) {
         alignment_p a = alist->alignments[i];
 
-        printf("alignment %d: %s\n", i, a->alignment);
+        printf("alignment %d: %ld, %s\n", i, a->db_seq.ID, a->alignment);
     }
     free_alignment(alist);
 
