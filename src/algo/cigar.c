@@ -188,6 +188,20 @@ static void check_allocated_size(cigar_p cigar) {
     }
 }
 
+// TODO implement the cigar creation, so it does not need to write number reversed ...
+char * strrev(char *str) {
+    char *p1, *p2;
+
+    if (!str || !*str)
+        return str;
+    for (p1 = str, p2 = str + strlen(str) - 1; p2 > p1; ++p1, --p2) {
+        *p1 ^= *p2;
+        *p2 ^= *p1;
+        *p1 ^= *p2;
+    }
+    return str;
+}
+
 // TODO inline these
 static void add_to_cigar(char op, long op_count, cigar_p cigar) {
     if (op_count == 0) {
@@ -206,7 +220,8 @@ static void add_to_cigar(char op, long op_count, cigar_p cigar) {
 
         check_allocated_size(cigar);
 
-        strncpy(cigar->cigar + insert_pos, counter_buf, len);
+        // TODO replace strrev call by more intelligent code, not using it
+        strncpy(cigar->cigar + insert_pos, strrev(counter_buf), len);
     }
 }
 

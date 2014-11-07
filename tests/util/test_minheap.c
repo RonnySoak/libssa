@@ -5,10 +5,10 @@
  *      Author: kaos
  */
 
-#include "tests.h"
+#include "../tests.h"
 
-#include "../src/util.h"
-#include "../src/util/minheap.h"
+#include "../../src/util.h"
+#include "../../src/util/minheap.h"
 
 elem_t new_elem(long value, unsigned long db_id, int query_id) {
     elem_t e;

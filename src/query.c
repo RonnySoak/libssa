@@ -93,7 +93,7 @@ p_query query_read(const char * queryname) {
     FILE * query_fp;
 
     if (strcmp(queryname, "-") == 0)
-        query_fp = stdin;
+        ffatal("Query not specified"); // TODO
     else
         query_fp = fopen(queryname, "r");
 

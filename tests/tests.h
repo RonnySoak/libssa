@@ -14,6 +14,7 @@
 
 #include "../src/libssa_datatypes.h"
 
+void addUtilTC(Suite *s);
 void addMinHeapTC(Suite *s);
 void addThreadPoolTC(Suite *s);
 void addQueryTC(Suite *s);
@@ -26,6 +27,7 @@ void addSmithWaterman63TC(Suite *s);
 void addSearcherTC(Suite *s);
 void addManagerTC(Suite *s);
 void addAlignerTC(Suite *s);
+void addLibssaTC(Suite *s);
 
 // some utility functions
 void dbg_print(int n, void* param);

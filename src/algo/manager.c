@@ -15,6 +15,7 @@
 
 #include "../util/minheap.h"
 #include "../util/thread_pool.h"
+#include "../util.h"
 #include "../libssa_datatypes.h"
 #include "../db_iterator.h"
 #include "../query.h"
@@ -155,6 +156,21 @@ void init_for_nw_sellers(p_query query, int hit_count) {
     init(query, hit_count, &full_nw_sellers, &align_nw_sellers);
 }
 
+static int alignment_compare(const void * a, const void * b) {
+    alignment_p * x = (alignment_p *) a;
+    alignment_p * y = (alignment_p *) b;
+
+    int cmp = CMP_ASC((*x)->score, (*y)->score);
+    if(!cmp) {
+        cmp = CMP_ASC((*x)->db_seq.ID, (*y)->db_seq.ID);
+    }
+    return cmp;
+}
+
+static void sort_alignment_list(p_alignment_list alist) {
+    qsort(alist->alignments, alist->len, sizeof(alignment_p), alignment_compare);
+}
+
 /**
  * Run a search for query in the database. Aligns the query sequence against
  * each sequence in the DB and returns 'hit_count' alignments. The search is
@@ -210,6 +226,7 @@ p_alignment_list m_run() {
         free(align_result_list[i]->alignments);
         free(align_result_list[i]);
     }
+    sort_alignment_list(alist);
 
     minheap_exit(search_results);
 

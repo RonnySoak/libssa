@@ -15,6 +15,7 @@ Suite* libssa_suite(void) {
     _max_thread_count = 1;
 
     /* Core test case */
+    addUtilTC(s);
     addMinHeapTC(s);
     addThreadPoolTC(s);
     addUtilSequenceTC(s);
@@ -27,6 +28,7 @@ Suite* libssa_suite(void) {
     addSearcherTC(s);
     addAlignerTC(s);
     addManagerTC(s);
+    addLibssaTC(s);
 
     return s;
 }

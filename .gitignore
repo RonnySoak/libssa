@@ -23,14 +23,11 @@
 *.hex
 
 #others
+*.gcda
+*.gcno
 /libssa_check
 /.cproject
 /.project
 /libssa_example
-/05102014_2044.gprof
-/05102014_2118.gprof
-/05102014_2120.gprof
-/chunk_size_100.gprof
-/chunk_size_1000.gprof
-/8_threads.gprof
 /example
+/coverage_data

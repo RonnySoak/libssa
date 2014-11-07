@@ -20,6 +20,8 @@ void setup_pool(int nr_of_threads) {
 }
 
 void teardown_pool() {
+    exit_thread_pool();
+
     set_threads(1);
 }
 

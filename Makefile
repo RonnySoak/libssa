@@ -35,6 +35,8 @@ TESTS :=
 # files to clean, that are not in OBJS or TESTS 
 TO_CLEAN := libssa.a
 
+COVERAGE_DIR = coverage_data
+
 # All of the sources participating in the build are defined here
 -include tests/subdir.mk
 -include tests/algo/subdir.mk
@@ -46,12 +48,12 @@ TO_CLEAN := libssa.a
 MPI_COMPILE := `mpicxx --showme:compile`
 MPI_LINK := `mpicxx --showme:link`
 
-COMMON :=
+COMMON := --coverage
 # add "-fprofile-arcs -ftest-coverage" to COMMON for code coverage
 
 LIBS := -lpthread -lm
 TEST_LIBS := -lcheck -lrt
-LINKFLAGS := $(COMMON)
+LINKFLAGS :=
 
 # Intel options
 #CXX := icpc
@@ -61,7 +63,7 @@ LINKFLAGS := $(COMMON)
 CXX := gcc
 # -Wno-write-strings removes the `deprecated conversion from\
  string constant to char*` warnings
-CXXFLAGS := -Wall -O3 -std=c99 -march=native $(COMMON)
+CXXFLAGS := -Wall -O0 -std=c99 -march=native $(COMMON)
 
 PROG := libssa libssa_check libssa_example
 
@@ -92,7 +94,7 @@ libssa : $(OBJS) $(USR_OBJS) $(DEPS)
 
 libssa_check : $(TESTS) $(OBJS) $(USR_OBJS) $(DEPS)
 	@echo 'Building target: $@'
-	$(CXX) $(LINKFLAGS) -o $@ $(OBJS) $(TESTS) $(TEST_LIBS) -L. -lsdb $(LIBS) 
+	$(CXX) $(CXXFLAGS) $(LINKFLAGS) -o $@ $(OBJS) $(TESTS) $(TEST_LIBS) -L. -lsdb $(LIBS) 
 	@echo 'Finished building target: $@'
 	
 libssa_example : $(OBJS) $(USR_OBJS) $(DEPS)
@@ -103,6 +105,10 @@ libssa_example : $(OBJS) $(USR_OBJS) $(DEPS)
 # clean created files
 clean:
 	-rm -f $(OBJS) $(TESTS) $(TO_CLEAN) $(PROG) libsdb.a gmon.out
+	rm -rf $(COVERAGE_DIR)
+	find . -type f -name '*.gcda' -print | xargs /bin/rm -f
+	find . -type f -name '*.gcno' -print | xargs /bin/rm -f
+	find . -type f -name '*.gcov' -print | xargs /bin/rm -f
 	
 	
 # to clean later *.gcov tests/*.gcda tests/*.gcno src/*.gcda src/*.gcno
@@ -110,6 +116,18 @@ clean:
 # run tests
 check:
 	./libssa_check
+
+
+coverage :
+	lcov --directory . -z	# reset gcov counters
+	@echo Running tests
+#	./example
+	./libssa_check
+	@echo Computing test coverage
+	mkdir -p $(COVERAGE_DIR)
+	lcov --directory . --capture --output-file $(COVERAGE_DIR)/libssa.info
+	genhtml --output-directory $(COVERAGE_DIR)/cov_htmp $(COVERAGE_DIR)/libssa.info
+	@echo Finished computing test coverage
 
 # run example
 example:

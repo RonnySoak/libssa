@@ -4,8 +4,8 @@ TESTS += \
 ./tests/test_db_iterator.o \
 ./tests/test_util_sequence.o \
 ./tests/test_matrices.o \
-./tests/test_minheap.o \
-./tests/test_util.o
+./tests/test_util.o \
+./tests/test_libssa.o
 
 USR_OBJS += \
 ./tests/tests.h
