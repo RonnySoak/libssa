@@ -92,12 +92,18 @@ START_TEST (test_buildin)
 
 START_TEST (test_init_from_file)
     {
-        // TODO
+        mat_init_from_file("tests/testdata/blosum90.txt");
+        ck_assert_int_eq(5, (int)score_matrix_63[33]);
+        ck_assert_int_eq(-2, (int)score_matrix_63[48]);
+        mat_free();
     }END_TEST
 
 START_TEST (test_init_from_string)
     {
-        // TODO
+        mat_init_from_string(mat_blosum80);
+        ck_assert_int_eq(5, (int)score_matrix_63[33]);
+        ck_assert_int_eq(-2, (int)score_matrix_63[48]);
+        mat_free();
     }END_TEST
 
 START_TEST (test_init_constant_scoring)

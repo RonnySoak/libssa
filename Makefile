@@ -117,16 +117,24 @@ clean:
 check:
 	./libssa_check
 
-
-coverage :
+test_coverage :
 	lcov --directory . -z	# reset gcov counters
 	@echo Running tests
-#	./example
 	./libssa_check
 	@echo Computing test coverage
 	mkdir -p $(COVERAGE_DIR)
-	lcov --directory . --capture --output-file $(COVERAGE_DIR)/libssa.info
-	genhtml --output-directory $(COVERAGE_DIR)/cov_htmp $(COVERAGE_DIR)/libssa.info
+	lcov --directory . --capture --output-file $(COVERAGE_DIR)/libssa_tests.info
+	genhtml --output-directory $(COVERAGE_DIR)/cov_tests $(COVERAGE_DIR)/libssa_tests.info
+	@echo Finished computing test coverage
+
+example_coverage :
+	lcov --directory . -z	# reset gcov counters
+	@echo Running example
+	./example
+	@echo Computing test coverage
+	mkdir -p $(COVERAGE_DIR)
+	lcov --directory . --capture --output-file $(COVERAGE_DIR)/libssa_example.info
+	genhtml --output-directory $(COVERAGE_DIR)/cov_example $(COVERAGE_DIR)/libssa_example.info
 	@echo Finished computing test coverage
 
 # run example

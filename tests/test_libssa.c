@@ -8,6 +8,9 @@
 #include "tests.h"
 
 #include "../src/libssa.h"
+#include "../src/query.h"
+#include "../src/matrices.h"
+#include "../src/algo/searcher.h"
 
 START_TEST (test_simple_one_thread)
     {
@@ -144,13 +147,52 @@ START_TEST (test_nw_multiple_threads)
         ssa_exit();
     }END_TEST
 
+START_TEST (test_init_functions)
+    {
+        init_score_matrix(BLOSUM45);
+        init_score_matrix(BLOSUM50);
+        init_score_matrix(BLOSUM62);
+        init_score_matrix(BLOSUM80);
+        init_score_matrix(BLOSUM90);
+        init_score_matrix(PAM30);
+        init_score_matrix(PAM70);
+        init_score_matrix(PAM250);
+        free_matrix();
 
+        init_score_matrix_file("tests/testdata/blosum90.txt");
+        free_matrix();
+
+        init_score_matrix_string(mat_blosum80);
+        free_matrix();
+
+        init_gap_penalties(8, 5);
+        ck_assert_int_eq(8, gapO);
+        ck_assert_int_eq(5, gapE);
+
+        init_scoring(3, 6);
+        free_matrix();
+
+        init_symbol_translation(NUCLEOTIDE, BOTH_STRANDS, 3, 3);
+        ck_assert_int_eq(NUCLEOTIDE, symtype);
+        ck_assert_int_eq(BOTH_STRANDS, query_strands);
+
+        init_db_fasta("tests/testdata/AF091148.fas");
+        ck_assert_int_eq(1403, ssa_db_get_sequence_count());
+        free_db();
+
+        p_query query = init_sequence_fasta("tests/testdata/one_seq.fas");
+        ck_assert_str_eq("97485665bcded44c4d86c131ca714848", query->header);
+        free_sequence(query);
+
+        ssa_exit();
+    }END_TEST
 
 void addLibssaTC(Suite *s) {
     TCase *tc_core = tcase_create("libssa");
     tcase_add_test(tc_core, test_simple_one_thread);
     tcase_add_test(tc_core, test_sw_multiple_threads);
     tcase_add_test(tc_core, test_nw_multiple_threads);
+    tcase_add_test(tc_core, test_init_functions);
 
     suite_add_tcase(s, tc_core);
 }

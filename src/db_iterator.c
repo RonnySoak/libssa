@@ -19,25 +19,6 @@
 static unsigned long chunk_db_seq_count;
 static unsigned long next_chunk_start = 0;
 
-/*
- * TODO create these globals thread specific:
- * http://stackoverflow.com/questions/15100824/how-do-i-create-a-global-variable-that-is-thread-specific-in-c-using-posix-thread
- * http://www-01.ibm.com/support/knowledgecenter/ssw_ibm_i_71/apis/users_34.htm
- *
- * Or in some other way, but right now each next thread concurs
- * with the others about these ...
- *
- * XXX Maybe call an init function for the whole lib at the beginning, setting the number of threads
- * and use this number here, to create an array of buffers, accessible by the thread-ID.
- *
- * XXX if I remove get_next_sequence I can have fill_buffer return the p_sdb_sequence objects directly
- * -> thi way I do not need to go via an buffer object
- * -> I can then have buffer_max as fix set global and return an array of this size in fill_buffer
- *
- * XXX best would be to allocate memory for a chunk and reuse it every time a new chunk is loaded,
- * after the search this memory is freed at the moment. The amount of sequences in the chunk is
- * defined by the size field, so I do not need to reset the pointers in the chunk. I just need to be carefull ;-)
- */
 static int buffer_max = 0;
 static pthread_mutex_t chunk_mutex = PTHREAD_MUTEX_INITIALIZER;
 
@@ -53,7 +34,6 @@ static void get_translated_sequences(p_seqinfo seqinfo, p_sdb_sequence * buffer)
     if (symtype == NUCLEOTIDE) {
         // first element
 
-//        buffer[0] = xmalloc(sizeof(sdb_sequence));
         buffer[0]->ID = seqinfo->ID;
         buffer[0]->seq = us_map_sequence(db_seq, map_ncbi_nt16);
         buffer[0]->strand = 0;
@@ -61,7 +41,6 @@ static void get_translated_sequences(p_seqinfo seqinfo, p_sdb_sequence * buffer)
 
         if (query_strands & 2) {
             // reverse complement
-//            buffer[1] = xmalloc(sizeof(sdb_sequence));
             buffer[1]->ID = seqinfo->ID;
             // no need for a second mapping
             buffer[1]->seq = us_revcompl(buffer[0]->seq);
@@ -73,25 +52,9 @@ static void get_translated_sequences(p_seqinfo seqinfo, p_sdb_sequence * buffer)
         // map first and then translate the sequences
         sequence conv_seq = us_map_sequence(db_seq, map_ncbi_nt16);
 
-        if (query_strands ^ BOTH_STRANDS) {
-            // for forward or complementary strand only
-            int s = query_strands - 1;
-
-            for (int f = 0; f < 3; f++) { // frames
-//                buffer[f] = xmalloc(sizeof(sdb_sequence));
-                buffer[f]->ID = seqinfo->ID;
-
-                buffer[f]->strand = query_strands;
-                buffer[f]->frame = f;
-
-                us_translate_sequence(1, conv_seq, s, f, &buffer[f]->seq);
-            }
-        }
-        else {
-            // for both strands translation
+        if (query_strands == BOTH_STRANDS) {
             for (int s = 0; s < 2; s++) { // strands
                 for (int f = 0; f < 3; f++) { // frames
-//                    buffer[3 * s + f] = xmalloc(sizeof(sdb_sequence));
                     buffer[3 * s + f]->ID = seqinfo->ID;
 
                     buffer[3 * s + f]->strand = s;
@@ -101,9 +64,20 @@ static void get_translated_sequences(p_seqinfo seqinfo, p_sdb_sequence * buffer)
                 }
             }
         }
+        else {
+            int s = query_strands - 1;
+
+            for (int f = 0; f < 3; f++) { // frames
+                buffer[f]->ID = seqinfo->ID;
+
+                buffer[f]->strand = query_strands;
+                buffer[f]->frame = f;
+
+                us_translate_sequence(1, conv_seq, s, f, &buffer[f]->seq);
+            }
+        }
     }
     else {
-//        buffer[0] = xmalloc(sizeof(sdb_sequence));
         buffer[0]->ID = seqinfo->ID;
         buffer[0]->seq = us_map_sequence(db_seq, map_ncbi_aa);
         buffer[0]->strand = 0;
