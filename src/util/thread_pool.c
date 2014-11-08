@@ -12,6 +12,8 @@
 #include <pthread.h>
 #include <sys/sysinfo.h>
 
+#include <stdio.h> // TODO remove and change output to outf function in util.c
+
 #include "../libssa.h"
 #include "../util.h"
 
@@ -38,7 +40,7 @@ void init_thread_pool() {
 
     int thread_count = get_current_thread_count();
 
-    printf("Using %ld threads\n", thread_count);
+    printf("Using %d threads\n", thread_count);
 
     thread_list = xmalloc(thread_count * sizeof(pthread_t));
 }

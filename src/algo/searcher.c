@@ -69,13 +69,11 @@ void s_free(p_search_result res) {
     }
 
     for (int i = 0; i < res->heap->count; i++) {
-        elem_t e = res->heap->array[i];
-
-        e.db_id = 0;
-        e.dframe = 0;
-        e.dstrand = 0;
-        e.query_id = 0;
-        e.score = 0;
+        res->heap->array[i].db_id = 0;
+        res->heap->array[i].dframe = 0;
+        res->heap->array[i].dstrand = 0;
+        res->heap->array[i].query_id = 0;
+        res->heap->array[i].score = 0;
     }
 
     minheap_exit(res->heap);

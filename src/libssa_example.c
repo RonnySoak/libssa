@@ -26,7 +26,7 @@ int main(int argc, char**argv) {
      * meeting next Tuesday??
      */
 
-//    set_threads(4);
+    set_threads(4);
 
 //    init_db_fasta("tests/testdata/test.fas");
     init_db_fasta("tests/testdata/AF091148.fas");

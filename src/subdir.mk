@@ -15,7 +15,6 @@ USER_OBJS += \
 ./src/matrices.h \
 ./src/query.h \
 ./src/util_sequence.h \
-./src/db_iterator.h \
-./src/libssa_examples.c
+./src/db_iterator.h
 
 TO_CLEAN +=
