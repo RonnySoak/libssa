@@ -91,7 +91,7 @@ START_TEST (test_20_threads)
         teardown_pool();
     }END_TEST
 
-START_TEST (test_2000_more_threads)
+START_TEST (test_2000_threads)
     {
         int n = 2000;
         setup_pool(n);
@@ -116,7 +116,7 @@ void addThreadPoolTC(Suite *s) {
     tcase_add_test(tc_core, test_one_thread);
     tcase_add_test(tc_core, test_nr_of_cores_threads);
     tcase_add_test(tc_core, test_20_threads);
-    tcase_add_test(tc_core, test_2000_more_threads);
+    tcase_add_test(tc_core, test_2000_threads);
 
     suite_add_tcase(s, tc_core);
 }

@@ -28,6 +28,7 @@ void addSearcherTC(Suite *s);
 void addManagerTC(Suite *s);
 void addAlignerTC(Suite *s);
 void addLibssaTC(Suite *s);
+void addSmithWatermanSIMD16TC(Suite *s);
 
 // some utility functions
 void dbg_print(int n, void* param);

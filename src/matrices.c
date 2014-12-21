@@ -442,7 +442,7 @@ void mat_init_constant_scoring(const int8_t matchscore,
 
     int a, b;
     for (a = 1; a < 32; a++) {
-        for (b = 1; b < 33; b++) {
+        for (b = 1; b < 32; b++) {
             SCORE_MATRIX_63(a, b) = ((a == b) ? matchscore : mismatchscore);
         }
     }

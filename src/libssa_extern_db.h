@@ -48,6 +48,8 @@ unsigned long ssa_db_get_sequence_count();
  */
 p_seqinfo ssa_db_get_sequence(unsigned long id);
 
+long ssa_db_get_longest_sequence();
+
 /**
  * Returns the next sequence available in the database.
  *

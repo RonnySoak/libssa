@@ -25,6 +25,7 @@ Suite* libssa_suite(void) {
     addCigarTC(s);
     addAlignTC(s);
     addSmithWaterman63TC(s);
+    addSmithWatermanSIMD16TC(s);
     addSearcherTC(s);
     addAlignerTC(s);
     addManagerTC(s);

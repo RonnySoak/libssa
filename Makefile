@@ -37,7 +37,7 @@ TEST_LIBS := -lcheck -lrt
 
 # GNU options
 CXX := gcc
-CXXFLAGS := -Wall -O0 -std=c99 -march=native --coverage
+CXXFLAGS := -Wall -O3 -std=c99 -march=native --coverage -g
 
 PROG := libssa libssa_check libssa_example
 
@@ -77,14 +77,11 @@ libssa_example : init libssa ./src/libssa_example.o
 
 # clean created files
 clean:
-	-rm -f $(OBJS) $(TESTS) $(TO_CLEAN) $(PROG) libsdb.a gmon.out
+	rm -f $(OBJS) $(TESTS) $(TO_CLEAN) $(PROG) libsdb.a gmon.out
 	rm -rf $(COVERAGE_DIR)
 	find . -type f -name '*.gcda' -print | xargs /bin/rm -f
 	find . -type f -name '*.gcno' -print | xargs /bin/rm -f
 	find . -type f -name '*.gcov' -print | xargs /bin/rm -f
-	
-	
-# to clean later *.gcov tests/*.gcda tests/*.gcno src/*.gcda src/*.gcno
 
 # run tests
 check:

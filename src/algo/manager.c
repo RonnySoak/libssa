@@ -27,7 +27,7 @@
 p_search_data sdp;
 p_alignment_data adp;
 
-static unsigned long max_chunk_size = 1000; // TODO change and/or make it configurable
+unsigned long max_chunk_size = 1000; // TODO change and/or make it configurable
 
 static void add_to_buffer(seq_buffer* buf, sequence seq, int strand,
         int frame) {

@@ -44,4 +44,6 @@ void close_out();
 void outf(const char* format, ...);
 // output data
 
+char *strdup(const char *str);
+
 #endif /* UTIL_H_ */
