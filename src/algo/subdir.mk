@@ -7,7 +7,7 @@ OBJS += \
 ./src/algo/needleman_wunsch_sellers_63.o \
 ./src/algo/align.o \
 ./src/algo/cigar.o \
-./src/algo/align_simd_orig.o
+./src/algo/align_simd.o
 
 USER_OBJS += \
 ./src/algo/aligner.h \

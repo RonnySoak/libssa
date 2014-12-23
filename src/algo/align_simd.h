@@ -21,22 +21,15 @@
 
 #include <stdint.h>
 
-typedef signed short int16_t;
+#include "../libssa_datatypes.h"
 
 struct s16info_s;
 
-struct s16info_s * search16_init( int16_t score_match, int16_t score_mismatch, int16_t penalty_gap_open_query_left,
-        int16_t penalty_gap_open_target_left, int16_t penalty_gap_open_query_interior,
-        int16_t penalty_gap_open_target_interior, int16_t penalty_gap_open_query_right,
-        int16_t penalty_gap_open_target_right, int16_t penalty_gap_extension_query_left,
-        int16_t penalty_gap_extension_target_left, int16_t penalty_gap_extension_query_interior,
-        int16_t penalty_gap_extension_target_interior, int16_t penalty_gap_extension_query_right,
-        int16_t penalty_gap_extension_target_right );
+struct s16info_s * search16_init( int16_t penalty_gap_open, int16_t penalty_gap_extension );
 
 void search16_exit( struct s16info_s * s );
 
 void search16_qprep( struct s16info_s * s, char * qseq, int qlen );
 
-void search16( struct s16info_s * s, unsigned int sequences, unsigned int * seqnos, int16_t * pscores,
-        unsigned short * paligned, unsigned short * pmatches, unsigned short * pmismatches, unsigned short * pgaps,
-        char * * pcigar );
+void search16( struct s16info_s * s, p_db_chunk chunk, int16_t * pscores, unsigned short * paligned,
+        unsigned short * pmatches, unsigned short * pmismatches, unsigned short * pgaps, char ** pcigar );

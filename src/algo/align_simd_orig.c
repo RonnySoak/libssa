@@ -28,9 +28,12 @@
 
 #include "../util_sequence.h"
 #include "../util.h"
+#include "../matrices.h"
 
 #define CHANNELS 8
 #define CDEPTH 4
+
+static long scorematrix[16][16];
 
 /*
  Using 16-bit signed values, from -32768 to +32767.
@@ -41,43 +44,43 @@
  maximize score
  */
 
-//static void _mm_print( __m128i x ) {
-//    unsigned short * y = (unsigned short*) &x;
-//    for( int i = 0; i < 8; i++ )
-//        printf( "%s%6d", (i > 0 ? " " : ""), y[7 - i] );
-//}
-//
-//static void _mm_print2( __m128i x ) {
-//    signed short * y = (signed short*) &x;
-//    for( int i = 0; i < 8; i++ )
-//        printf( "%s%2d", (i > 0 ? " " : ""), y[7 - i] );
-//}
-//
-//static void dprofile_dump16( int16_t * dprofile ) {
-//    const char * s = sym_ncbi_nt16u;
-//    printf( "\ndprofile:\n" );
-//    for( int i = 0; i < 16; i++ ) {
-//        printf( "%c: ", s[i] );
-//        for( int k = 0; k < CDEPTH; k++ ) {
-//            printf( "[" );
-//            for( int j = 0; j < CHANNELS; j++ )
-//                printf( " %3d", dprofile[CHANNELS * CDEPTH * i + CHANNELS * k + j] );
-//            printf( "]" );
-//        }
-//        printf( "\n" );
-//    }
-//}
-//
-//static void dumpscorematrix( int16_t * m ) {
-//    for( int i = 0; i < 16; i++ ) {
-//        printf( "%2d %c", i, sym_ncbi_nt16u[i] );
-//        for( int j = 0; j < 16; j++ )
-//            printf( " %2d", m[16 * i + j] );
-//        printf( "\n" );
-//    }
-//}
+void _mm_print( __m128i x ) {
+    unsigned short * y = (unsigned short*) &x;
+    for( int i = 0; i < 8; i++ )
+        printf( "%s%6d", (i > 0 ? " " : ""), y[7 - i] );
+}
 
-static void dprofile_fill16( int16_t * dprofile_word, int16_t * score_matrix_word, uint8_t * dseq ) {
+void _mm_print2( __m128i x ) {
+    signed short * y = (signed short*) &x;
+    for( int i = 0; i < 8; i++ )
+        printf( "%s%2d", (i > 0 ? " " : ""), y[7 - i] );
+}
+
+void dprofile_dump16( int16_t * dprofile ) {
+    char * s = sym_ncbi_nt16u;
+    printf( "\ndprofile:\n" );
+    for( int i = 0; i < 16; i++ ) {
+        printf( "%c: ", s[i] );
+        for( int k = 0; k < CDEPTH; k++ ) {
+            printf( "[" );
+            for( int j = 0; j < CHANNELS; j++ )
+                printf( " %3d", dprofile[CHANNELS * CDEPTH * i + CHANNELS * k + j] );
+            printf( "]" );
+        }
+        printf( "\n" );
+    }
+}
+
+void dumpscorematrix( int16_t * m ) {
+    for( int i = 0; i < 16; i++ ) {
+        printf( "%2d %c", i, sym_ncbi_nt16u[i] );
+        for( int j = 0; j < 16; j++ )
+            printf( " %2d", m[16 * i + j] );
+        printf( "\n" );
+    }
+}
+
+void dprofile_fill16( int16_t * dprofile_word, int16_t * score_matrix_word, BYTE * dseq ) {
     __m128i xmm0, xmm1, xmm2, xmm3, xmm4, xmm5, xmm6, xmm7;
     __m128i xmm8, xmm9, xmm10, xmm11, xmm12, xmm13, xmm14, xmm15;
     __m128i xmm16, xmm17, xmm18, xmm19, xmm20, xmm21, xmm22, xmm23;
@@ -92,7 +95,7 @@ static void dprofile_fill16( int16_t * dprofile_word, int16_t * score_matrix_wor
     for (int j=0; j<CDEPTH; j++)
     {
         for(int z=0; z<CHANNELS; z++)
-        fprintf(stderr, " [%c]", sym_nt_4bit[dseq[j*CHANNELS+z]]);
+        fprintf(stderr, " [%c]", sym_ncbi_nt16u[dseq[j*CHANNELS+z]]);
         fprintf(stderr, "\n");
     }
 #endif
@@ -187,7 +190,7 @@ static void dprofile_fill16( int16_t * dprofile_word, int16_t * score_matrix_wor
   *(PATH+3) = _mm_movemask_epi8(_mm_cmpgt_epi16(E, HE));        \
   E = _mm_max_epi16(E, HE);
 
-static void aligncolumns_first( __m128i * Sm, __m128i * hep, __m128i ** qp, __m128i QR_q_i, __m128i R_q_i, __m128i QR_q_r,
+void aligncolumns_first( __m128i * Sm, __m128i * hep, __m128i ** qp, __m128i QR_q_i, __m128i R_q_i, __m128i QR_q_r,
         __m128i R_q_r, __m128i QR_t_0, __m128i R_t_0, __m128i QR_t_1, __m128i R_t_1, __m128i QR_t_2, __m128i R_t_2,
         __m128i QR_t_3, __m128i R_t_3, __m128i h0, __m128i h1, __m128i h2, __m128i h3, __m128i E0, __m128i Mm,
         __m128i M_QR_t_left, __m128i M_R_t_left, long ql, unsigned short * dir ) {
@@ -248,7 +251,7 @@ static void aligncolumns_first( __m128i * Sm, __m128i * hep, __m128i ** qp, __m1
     Sm[3] = h8;
 }
 
-static void aligncolumns_rest( __m128i * Sm, __m128i * hep, __m128i ** qp, __m128i QR_q_i, __m128i R_q_i, __m128i QR_q_r,
+void aligncolumns_rest( __m128i * Sm, __m128i * hep, __m128i ** qp, __m128i QR_q_i, __m128i R_q_i, __m128i QR_q_r,
         __m128i R_q_r, __m128i QR_t_0, __m128i R_t_0, __m128i QR_t_1, __m128i R_t_1, __m128i QR_t_2, __m128i R_t_2,
         __m128i QR_t_3, __m128i R_t_3, __m128i h0, __m128i h1, __m128i h2, __m128i h3, long ql, unsigned short * dir ) {
     __m128i h4, h5, h6, h7, h8, f0, f1, f2, f3, E, HE, HF;
@@ -317,7 +320,6 @@ struct s16info_s {
     int qlen;
     int maxqlen;
     int maxdlen;
-
     int16_t penalty_gap_open_query_left;
     int16_t penalty_gap_open_target_left;
     int16_t penalty_gap_open_query_interior;
@@ -332,7 +334,7 @@ struct s16info_s {
     int16_t penalty_gap_extension_target_right;
 };
 
-static inline void pushop( struct s16info_s * s, char newop ) {
+inline void pushop( struct s16info_s * s, char newop ) {
     if( newop == s->op )
         s->opcount++;
     else {
@@ -348,7 +350,7 @@ static inline void pushop( struct s16info_s * s, char newop ) {
     }
 }
 
-static inline void finishop( struct s16info_s * s ) {
+inline void finishop( struct s16info_s * s ) {
     if( s->op && s->opcount ) {
         *--s->cigarend = s->op;
         if( s->opcount > 1 ) {
@@ -362,9 +364,8 @@ static inline void finishop( struct s16info_s * s ) {
     }
 }
 
-static void backtrack16( struct s16info_s * s, char * dseq, unsigned long dlen, unsigned long offset, unsigned long channel,
+void backtrack16( struct s16info_s * s, char * dseq, unsigned long dlen, unsigned long offset, unsigned long channel,
         unsigned short * paligned, unsigned short * pmatches, unsigned short * pmismatches, unsigned short * pgaps ) {
-
     unsigned short * dirbuffer = s->dir;
     unsigned long dirbuffersize = s->maxqlen * s->maxdlen * 4;
     unsigned long qlen = s->qlen;
@@ -512,18 +513,16 @@ static void backtrack16( struct s16info_s * s, char * dseq, unsigned long dlen, 
     *pgaps = gaps;
 }
 
-struct s16info_s * search16_init( int16_t score_match, int16_t score_mismatch, int16_t penalty_gap_open_query_left,
-        int16_t penalty_gap_open_target_left, int16_t penalty_gap_open_query_interior,
-        int16_t penalty_gap_open_target_interior, int16_t penalty_gap_open_query_right,
-        int16_t penalty_gap_open_target_right, int16_t penalty_gap_extension_query_left,
+struct s16info_s * search16_init( int16_t match_score, int16_t mismatch_score, int16_t penalty_gap_open_query_left,
+        int16_t penalty_gap_open_target_left, int16_t penalty_gap_open_query_interior, int16_t penalty_gap_open_target_interior,
+        int16_t penalty_gap_open_query_right, int16_t penalty_gap_open_target_right, int16_t penalty_gap_extension_query_left,
         int16_t penalty_gap_extension_target_left, int16_t penalty_gap_extension_query_interior,
         int16_t penalty_gap_extension_target_interior, int16_t penalty_gap_extension_query_right,
         int16_t penalty_gap_extension_target_right ) {
-
     /* prepare alloc of qtable, dprofile, hearray, dir */
     struct s16info_s * s = (struct s16info_s *) xmalloc( sizeof(struct s16info_s) );
 
-    s->maxdlen = 4 * ((ssa_db_get_longest_sequence() + 3) / 4);
+    s->maxdlen = 4 * ((db_getlongestsequence() + 3) / 4);
     s->dprofile = (__m128i *) xmalloc( 2 * 4 * 8 * 16 );
     s->qlen = 0;
     s->qseq = 0;
@@ -538,12 +537,24 @@ struct s16info_s * search16_init( int16_t score_match, int16_t score_mismatch, i
         for( int j = 0; j < 16; j++ ) {
             int16_t value;
             if( i == j )
-                value = score_match;
+                value = match_score;
             else if( (i == 0) || (j == 0) || (i > 4) || (j > 4) )
                 value = 0;
             else
-                value = score_mismatch;
+                value = mismatch_score;
             ((int16_t*) (&s->matrix))[16 * i + j] = value;
+        }
+
+    for( int i = 0; i < 16; i++ )
+        for( int j = 0; j < 16; j++ ) {
+            int16_t value;
+            if( (i == 0) || (j == 0) || (i > 4) || (j > 4) )
+                value = 0;
+            else if( i == j )
+                value = match_score;
+            else
+                value = mismatch_score;
+            scorematrix[i][j] = value;
         }
 
     s->penalty_gap_open_query_left = penalty_gap_open_query_left;
@@ -612,10 +623,8 @@ void search16_qprep( struct s16info_s * s, char * qseq, int qlen ) {
         s->qtable[i] = s->dprofile + 4 * map_ncbi_nt16[(int) (qseq[i])];
 }
 
-void search16( struct s16info_s * s, unsigned int sequences, unsigned int * seqnos, int16_t * pscores,
-        unsigned short * paligned, unsigned short * pmatches, unsigned short * pmismatches, unsigned short * pgaps,
-        char ** pcigar ) {
-
+void search16( struct s16info_s * s, unsigned int sequences, unsigned int * seqnos, int16_t * pscores, unsigned short * paligned,
+        unsigned short * pmatches, unsigned short * pmismatches, unsigned short * pgaps, char ** pcigar ) {
     int16_t ** q_start = (int16_t**) s->qtable;
     int16_t * dprofile = (int16_t*) s->dprofile;
     int16_t * hearray = (int16_t*) s->hearray;
@@ -637,18 +646,18 @@ void search16( struct s16info_s * s, unsigned int sequences, unsigned int * seqn
 
     __m128i *hep, **qp;
 
-    uint8_t * d_begin[CHANNELS];
-    uint8_t * d_end[CHANNELS];
+    BYTE * d_begin[CHANNELS];
+    BYTE * d_end[CHANNELS];
     unsigned long d_offset[CHANNELS];
-    uint8_t * d_address[CHANNELS];
+    BYTE * d_address[CHANNELS];
     unsigned long d_length[CHANNELS];
     long seq_id[CHANNELS];
 
     __m128i dseqalloc[CDEPTH];
     __m128i S[4];
 
-    uint8_t * dseq = (uint8_t*) &dseqalloc;
-    uint8_t zero = 0;
+    BYTE * dseq = (BYTE*) &dseqalloc;
+    BYTE zero = 0;
 
     unsigned long next_id = 0;
     unsigned long done = 0;
@@ -805,6 +814,7 @@ void search16( struct s16info_s * s, unsigned int sequences, unsigned int * seqn
                     }
 
                     if( next_id < sequences ) {
+
                         long seqno;
                         char* address;
                         long length = 0;
@@ -821,7 +831,7 @@ void search16( struct s16info_s * s, unsigned int sequences, unsigned int * seqn
                             next_id++;
                         }
 
-                        d_address[c] = (uint8_t*) address;
+                        d_address[c] = (BYTE*) address;
                         d_length[c] = length;
                         d_begin[c] = (unsigned char*) address;
                         d_end[c] = (unsigned char*) address + length;

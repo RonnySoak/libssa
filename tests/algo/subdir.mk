@@ -5,6 +5,6 @@ TESTS += \
 ./tests/algo/test_aligner.o \
 ./tests/algo/test_align.o \
 ./tests/algo/test_cigar.o \
-./tests/algo/test_sw_align_simd.o
+./tests/algo/test_nw_align_simd.o
 
 USR_OBJS +=
