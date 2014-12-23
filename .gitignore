@@ -26,7 +26,6 @@
 *.gcda
 *.gcno
 /libssa_check
-/Debug
 /.cproject
 /.project
 /libssa_example
@@ -35,3 +34,4 @@
 /callgrind.out.18071
 /perf.data
 /perf.data.old
+/Debug/
