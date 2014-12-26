@@ -26,7 +26,7 @@ static pthread_mutex_t chunk_mutex = PTHREAD_MUTEX_INITIALIZER;
  * Initialises the buffer. Translates the DB sequence and computes the reverse
  * complement of the forward strand, if necessary.
  */
-static void get_translated_sequences(p_seqinfo seqinfo, p_sdb_sequence * buffer) {
+static void set_translated_sequences(p_seqinfo seqinfo, p_sdb_sequence * buffer) {
 	sequence db_seq;
     db_seq.seq = seqinfo->seq;
     db_seq.len = seqinfo->seqlen;
@@ -219,7 +219,7 @@ void it_next_chunk(p_db_chunk chunk) {
     		break;
     	}
 
-        get_translated_sequences(db_seq, chunk->seq + chunk->fill_pointer);
+        set_translated_sequences(db_seq, chunk->seq + chunk->fill_pointer);
 
         chunk->fill_pointer += buffer_max;
     }

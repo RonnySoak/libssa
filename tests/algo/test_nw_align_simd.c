@@ -12,6 +12,7 @@
 #include "../../src/matrices.h"
 #include "../../src/db_iterator.h"
 #include "../../src/query.h"
+#include "../../src/util/minheap.h"
 #include "../../src/algo/align_simd.h"
 #include "../../src/algo/search.h"
 
@@ -32,23 +33,18 @@ START_TEST (test_nw_align_simd_simple)
 
         search16_qprep( s16info, query->nt[0].seq, query->nt[0].len );
 
-        int16_t nwscore = 0;
-        uint16_t nwalignmentlength;
-        unsigned short nwmatches;
-        unsigned short nwmismatches;
-        unsigned short nwgaps;
-        char * nwcigar;
-
         p_db_chunk chunk = it_new_chunk();
         it_next_chunk(chunk);
 
-        search16( s16info, chunk, &nwscore, &nwalignmentlength, &nwmatches, &nwmismatches, &nwgaps,
-                &nwcigar );
+        p_minheap heap = minheap_init( 1 );
 
-        ck_assert_int_eq( 0, nwscore );
+        search16( s16info, chunk, heap, 1 );
+
+        ck_assert_int_eq( 0, heap->array[0].score );
 
         search16_exit( s16info );
 
+        minheap_exit(heap);
         it_free();
         mat_free();
         query_free( query );
@@ -70,27 +66,22 @@ START_TEST (test_nw_simd_blosum62)
 
         search16_qprep( s16info, query->nt[0].seq, query->nt[0].len );
 
-        int16_t nwscore[1403];
-        uint16_t nwalignmentlength[1403];
-        unsigned short nwmatches[1403];
-        unsigned short nwmismatches[1403];
-        unsigned short nwgaps[1403];
-        char * nwcigar[1403];
-
         p_db_chunk chunk = it_new_chunk();
         it_next_chunk(chunk);
 
-        search16( s16info, chunk, nwscore, nwalignmentlength, nwmatches, nwmismatches, nwgaps, nwcigar );
+        p_minheap heap = minheap_init( 3 );
 
-        /*
-         * The resulting sequences are not ordered right now, so these scores are not necessarily the best scores!
-         */
-        ck_assert_int_eq( 204, nwscore[0] );
-        ck_assert_int_eq( 192, nwscore[1] );
-        ck_assert_int_eq( 203, nwscore[2] );
+        search16( s16info, chunk, heap, 1 );
+
+        minheap_sort( heap );
+
+        ck_assert_int_eq( 219, heap->array[0].score );
+        ck_assert_int_eq( 215, heap->array[1].score );
+        ck_assert_int_eq( 214, heap->array[2].score );
 
         search16_exit( s16info );
 
+        minheap_exit(heap);
         it_free();
         mat_free();
         query_free( query );
@@ -113,26 +104,24 @@ START_TEST (test_nw_simd_more_sequences_nw)
 
         search16_qprep( s16info, query->nt[0].seq, query->nt[0].len );
 
-        int16_t nwscore[5];
-        uint16_t nwalignmentlength[5];
-        unsigned short nwmatches[5];
-        unsigned short nwmismatches[5];
-        unsigned short nwgaps[5];
-        char * nwcigar[5];
-
         p_db_chunk chunk = it_new_chunk();
         it_next_chunk(chunk);
 
-        search16( s16info, chunk, nwscore, nwalignmentlength, nwmatches, nwmismatches, nwgaps, nwcigar );
+        p_minheap heap = minheap_init( 5 );
 
-        ck_assert_int_eq( -52, nwscore[0] );
-        ck_assert_int_eq( -147, nwscore[1] );
-        ck_assert_int_eq( -52, nwscore[2] );
-        ck_assert_int_eq( -50, nwscore[3] );
-        ck_assert_int_eq( -43, nwscore[4] );
+        search16( s16info, chunk, heap, 1 );
+
+        minheap_sort( heap );
+
+        ck_assert_int_eq( -43, heap->array[0].score );
+        ck_assert_int_eq( -50, heap->array[1].score );
+        ck_assert_int_eq( -52, heap->array[2].score );
+        ck_assert_int_eq( -52, heap->array[3].score );
+        ck_assert_int_eq( -147, heap->array[4].score );
 
         search16_exit( s16info );
 
+        minheap_exit(heap);
         it_free();
         mat_free();
         query_free( query );

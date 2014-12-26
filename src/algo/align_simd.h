@@ -22,6 +22,7 @@
 #include <stdint.h>
 
 #include "../libssa_datatypes.h"
+#include "../util/minheap.h"
 
 struct s16info_s;
 
@@ -31,5 +32,4 @@ void search16_exit( struct s16info_s * s );
 
 void search16_qprep( struct s16info_s * s, char * qseq, int qlen );
 
-void search16( struct s16info_s * s, p_db_chunk chunk, int16_t * pscores, unsigned short * paligned,
-        unsigned short * pmatches, unsigned short * pmismatches, unsigned short * pgaps, char ** pcigar );
+void search16( struct s16info_s * s, p_db_chunk chunk, p_minheap heap, int query_id );

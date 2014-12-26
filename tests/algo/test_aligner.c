@@ -41,7 +41,6 @@ START_TEST (test_aligner_simple_sw)
 
         it_init( 1 );
 
-        p_minheap heap = minheap_init( 1 );
 
         sequence sdb = it_translate_sequence( ssa_db_get_sequence( 0 ), 0, 0 );
 
@@ -79,7 +78,6 @@ START_TEST (test_aligner_simple_sw)
         ck_assert_str_eq( "2M", al->alignment );
 
         a_free( alist );
-        minheap_exit( heap );
 
         mat_free();
         query_free( query );
@@ -164,8 +162,6 @@ START_TEST (test_aligner_simple_nw)
 
         it_init( 1 );
 
-        p_minheap heap = minheap_init( 1 );
-
         sequence sdb = it_translate_sequence( ssa_db_get_sequence( 0 ), 0, 0 );
 
         elem_t e1 = new_elem0( 0, 0, 0, 0, 2 );
@@ -202,7 +198,6 @@ START_TEST (test_aligner_simple_nw)
         ck_assert_str_eq( "I2MI", al->alignment );
 
         a_free( alist );
-        minheap_exit( heap );
 
         mat_free();
         query_free( query );
