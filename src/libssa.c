@@ -9,8 +9,8 @@
 
 #include "libssa.h"
 
-#include "util.h"
-#include "util_sequence.h"
+#include "util/util.h"
+#include "util/util_sequence.h"
 #include "matrices.h"
 #include "algo/manager.h"
 #include "algo/aligner.h"

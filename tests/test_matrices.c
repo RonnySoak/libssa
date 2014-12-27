@@ -9,7 +9,7 @@
 
 #include "../src/libssa.h"
 #include "../src/libssa_datatypes.h"
-#include "../src/util.h"
+#include "../src/util/util.h"
 #include "../src/matrices.h"
 
 START_TEST (test_free)

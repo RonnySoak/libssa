@@ -7,11 +7,11 @@
 
 #include "tests.h"
 
-#include "../src/util.h"
+#include "../src/util/util.h"
 #include "../src/libssa_extern_db.h"
 #include "../src/query.h"
 #include "../src/db_iterator.h"
-#include "../src/util_sequence.h"
+#include "../src/util/util_sequence.h"
 
 extern void ck_converted_prot_eq( char* ref, sequence seq );
 

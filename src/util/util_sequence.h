@@ -10,7 +10,7 @@
 
 #include <stddef.h>
 
-#include "libssa_datatypes.h"
+#include "../libssa_datatypes.h"
 
 extern const char map_ncbi_aa[256];
 extern const char map_ncbi_nt16[256];

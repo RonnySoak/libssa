@@ -15,7 +15,7 @@
 
 #include "../util/minheap.h"
 #include "../util/thread_pool.h"
-#include "../util.h"
+#include "../util/util.h"
 #include "../libssa_datatypes.h"
 #include "../db_iterator.h"
 #include "../query.h"

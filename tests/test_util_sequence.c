@@ -6,8 +6,8 @@
  */
 
 #include "tests.h"
-#include "../src/util.h"
-#include "../src/util_sequence.h"
+#include "../src/util/util.h"
+#include "../src/util/util_sequence.h"
 
 START_TEST (test_revcompl)
     {

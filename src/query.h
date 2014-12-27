@@ -8,7 +8,7 @@
 #ifndef QUERY_H_
 #define QUERY_H_
 
-#include "util.h"
+#include "util/util.h"
 #include "libssa_datatypes.h"
 
 /* Describes, if the DB sequences should be translated prior to the alignments.

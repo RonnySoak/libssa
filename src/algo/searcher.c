@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#include "../util.h"
+#include "../util/util.h"
 #include "../util/minheap.h"
 #include "../db_iterator.h"
 #include "../matrices.h"

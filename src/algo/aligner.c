@@ -13,7 +13,7 @@
 #include "../matrices.h"
 #include "../db_iterator.h"
 #include "searcher.h"
-#include "../util.h"
+#include "../util/util.h"
 
 static p_alignment_data adp;
 static int chunk_counter = 0;

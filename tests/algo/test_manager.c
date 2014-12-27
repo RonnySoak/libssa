@@ -11,7 +11,7 @@
 #include "../../src/algo/aligner.h"
 #include "../../src/algo/search.h"
 
-#include "../../src/util.h"
+#include "../../src/util/util.h"
 #include "../../src/libssa.h"
 #include "../../src/util/minheap.h"
 #include "../../src/matrices.h"

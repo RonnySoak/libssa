@@ -25,8 +25,8 @@
 
 #include <immintrin.h>
 
-#include "util.h"
-#include "../util_sequence.h"
+#include "util/util.h"
+#include "../util/util_sequence.h"
 
 //#define DEBUG
 

@@ -14,8 +14,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "util_sequence.h"
-#include "util.h"
+#include "util/util_sequence.h"
+#include "util/util.h"
 #include "libssa.h"
 
 const char mat_blosum45[] =

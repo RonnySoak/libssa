@@ -7,7 +7,7 @@
 
 #include "../tests.h"
 
-#include "../../src/util.h"
+#include "../../src/util/util.h"
 #include "../../src/libssa.h"
 #include "../../src/matrices.h"
 #include "../../src/db_iterator.h"

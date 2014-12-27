@@ -10,9 +10,9 @@
 
 #include <stddef.h>
 
-#include "libssa.h"
-#include "libssa_datatypes.h"
-#include "util/minheap.h"
+#include "../libssa.h"
+#include "../libssa_datatypes.h"
+#include "minheap.h"
 
 #define CMP_ASC(a,b) (a > b ? -1 : (a < b) ? +1 : 0) // TODO is this really ascending
 //#define CMP_DESC(a,b) (a > b ? +1 : (a < b) ? -1 : 0)

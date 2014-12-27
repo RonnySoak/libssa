@@ -10,7 +10,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#include "../src/util.h"
+#include "../src/util/util.h"
 #include "../src/libssa_extern_db.h"
 
 /**

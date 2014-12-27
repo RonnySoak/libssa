@@ -26,8 +26,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "../util_sequence.h"
-#include "../util.h"
+#include "../util/util_sequence.h"
+#include "../util/util.h"
 #include "../matrices.h"
 
 #define CHANNELS 8

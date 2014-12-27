@@ -10,7 +10,6 @@
 #include <stdlib.h>
 
 #include "util_sequence.h"
-
 #include "util.h"
 
 /*

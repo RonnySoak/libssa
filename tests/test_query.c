@@ -9,9 +9,9 @@
 
 #include "../src/libssa.h"
 #include "../src/libssa_datatypes.h"
-#include "../src/util.h"
+#include "../src/util/util.h"
 #include "../src/query.h"
-#include "../src/util_sequence.h"
+#include "../src/util/util_sequence.h"
 
 char * get_reverse_complement( sequence orig ) {
     sequence rc =  { xmalloc( orig.len + 1 ), orig.len };

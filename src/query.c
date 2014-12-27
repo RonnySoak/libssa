@@ -12,8 +12,8 @@
 #include <stdlib.h>
 
 #include "libssa.h"
-#include "util_sequence.h"
-#include "util.h"
+#include "util/util_sequence.h"
+#include "util/util.h"
 
 int symtype = DEFAULT_SYMTYPE;
 int query_strands = DEFAULT_STRAND;

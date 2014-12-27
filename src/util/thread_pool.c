@@ -15,7 +15,7 @@
 #include <stdio.h> // TODO remove and change output to outf function in util.c
 
 #include "../libssa.h"
-#include "../util.h"
+#include "util.h"
 
 static pthread_t * thread_list = 0;
 static long current_thread_count = 0;

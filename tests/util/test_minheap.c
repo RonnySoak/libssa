@@ -7,7 +7,7 @@
 
 #include "../tests.h"
 
-#include "../../src/util.h"
+#include "../../src/util/util.h"
 #include "../../src/util/minheap.h"
 
 elem_t new_elem(long value, unsigned long db_id, int query_id) {

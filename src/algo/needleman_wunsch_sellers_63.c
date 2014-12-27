@@ -27,7 +27,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "../util.h"
+#include "../util/util.h"
 #include "../matrices.h"
 
 #define MIN(a,b) (a < b ? a : b)

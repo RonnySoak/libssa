@@ -12,7 +12,7 @@
 #include "../../src/algo/align.h"
 #include "../../src/algo/searcher.h"
 #include "../../src/matrices.h"
-#include "../../src/util_sequence.h"
+#include "../../src/util/util_sequence.h"
 
 extern void fill_translated_sequence(sequence* s, char * seq, long len);
 

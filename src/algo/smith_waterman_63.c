@@ -27,7 +27,7 @@
 
 #include <string.h>
 
-#include "../util.h"
+#include "../util/util.h"
 #include "../matrices.h"
 
 int64_t full_sw(sequence * dseq, sequence * qseq, int64_t * hearray,

@@ -10,9 +10,9 @@
 #include <stdlib.h>
 #include <pthread.h>
 
-#include "util_sequence.h"
+#include "util/util_sequence.h"
 #include "libssa_extern_db.h"
-#include "util.h"
+#include "util/util.h"
 #include "query.h"
 #include "util/thread_pool.h"
 
