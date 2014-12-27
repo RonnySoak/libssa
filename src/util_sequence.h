@@ -41,7 +41,7 @@ void us_init_translation(int qtableno, int dtableno);
  * @param map   the mapping to use
  * @return      the new mapped sequence
  */
-sequence us_map_sequence(sequence seq, const char * map);
+void us_map_sequence( sequence orig, sequence mapped, const char* map );
 
 /**
  * Translates a DNA sequence into a protein sequence, according the strand and
@@ -66,6 +66,6 @@ void us_translate_sequence(int db_sequence, sequence dna,
  * @param len   the length of the sequence
  * @return      the reverse complement or 0 in case of an empty sequence
  */
-sequence us_revcompl(sequence seq);
+void us_revcompl( sequence orig, sequence rc );
 
 #endif /* UTIL_SEQUENCE_H_ */

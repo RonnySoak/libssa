@@ -30,6 +30,6 @@ struct s16info_s * search16_init( int16_t penalty_gap_open, int16_t penalty_gap_
 
 void search16_exit( struct s16info_s * s );
 
-void search16_qprep( struct s16info_s * s, char * qseq, int qlen );
+void search16_init_query( struct s16info_s * s, char * qseq, int qlen );
 
 void search16( struct s16info_s * s, p_db_chunk chunk, p_minheap heap, int query_id );

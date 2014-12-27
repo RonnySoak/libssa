@@ -13,6 +13,7 @@
 
 #include "libssa.h"
 #include "util_sequence.h"
+#include "util.h"
 
 int symtype = DEFAULT_SYMTYPE;
 int query_strands = DEFAULT_STRAND;
@@ -23,12 +24,12 @@ int query_strands = DEFAULT_STRAND;
  * @return  a pointer to the newly created query struct
  */
 static p_query init() {
-    p_query query = xmalloc(sizeof(struct _query));
+    p_query query = xmalloc( sizeof(struct _query) );
 
     query->header = 0;
     query->headerlen = 0;
 
-    if ((symtype == AMINOACID) || (symtype == TRANS_DB)) {
+    if( (symtype == AMINOACID) || (symtype == TRANS_DB) ) {
         query->map = map_ncbi_aa;
         query->sym = sym_ncbi_aa;
     }
@@ -37,11 +38,11 @@ static p_query init() {
         query->sym = sym_ncbi_nt16;
     }
 
-    for (int s = 0; s < 2; s++) {
+    for( int s = 0; s < 2; s++ ) {
         query->nt[s].seq = 0;
         query->nt[s].len = 0;
 
-        for (int f = 0; f < 3; f++) {
+        for( int f = 0; f < 3; f++ ) {
             query->aa[3 * s + f].seq = 0;
             query->aa[3 * s + f].len = 0;
         }
@@ -55,30 +56,30 @@ static p_query init() {
  *
  * @param query     pointer to the query memory
  */
-void query_free(p_query query) {
-    if (!query)
+void query_free( p_query query ) {
+    if( !query )
         return;
 
-    if (query->header)
-        free(query->header);
+    if( query->header )
+        free( query->header );
     query->header = 0;
     query->headerlen = 0;
 
-    for (int s = 0; s < 2; s++) {
-        if (query->nt[s].seq)
-            free(query->nt[s].seq);
+    for( int s = 0; s < 2; s++ ) {
+        if( query->nt[s].seq )
+            free( query->nt[s].seq );
         query->nt[s].seq = 0;
         query->nt[s].len = 0;
 
-        for (int f = 0; f < 3; f++) {
-            if (query->aa[3 * s + f].seq)
-                free(query->aa[3 * s + f].seq);
+        for( int f = 0; f < 3; f++ ) {
+            if( query->aa[3 * s + f].seq )
+                free( query->aa[3 * s + f].seq );
             query->aa[3 * s + f].seq = 0;
             query->aa[3 * s + f].len = 0;
         }
     }
 
-    free(query);
+    free( query );
     query = 0;
 }
 
@@ -89,108 +90,109 @@ void query_free(p_query query) {
  * @param queryname     name of the file containing the query
  * @return              a pointer to the read query
  */
-p_query query_read(const char * queryname) {
+p_query query_read( const char * queryname ) {
     FILE * query_fp;
 
-    if (strcmp(queryname, "-") == 0)
-        ffatal("Query not specified"); // TODO
+    if( strcmp( queryname, "-" ) == 0 )
+        ffatal( "Query not specified" ); // TODO
     else
-        query_fp = fopen(queryname, "r");
+        query_fp = fopen( queryname, "r" );
 
-    if (!query_fp)
-        ffatal("Cannot open query file.");
+    if( !query_fp )
+        ffatal( "Cannot open query file." );
 
     // open the file and initialise the query
-    p_query query = init(queryname);
+    p_query query = init( queryname );
 
     char query_line[LINE_MAX];
 
     query_line[0] = 0;
-    if ( NULL == fgets(query_line, LINE_MAX, query_fp)) {
-        ffatal("Could not initialise from query sequence");
+    if( NULL == fgets( query_line, LINE_MAX, query_fp ) ) {
+        ffatal( "Could not initialise from query sequence" );
     }
 
     // read description
-    unsigned long len = strlen(query_line);
+    unsigned long len = strlen( query_line );
 
-    if (query_line[len - 1] == '\n') {
+    if( query_line[len - 1] == '\n' ) {
         query_line[len - 1] = 0;
         len--;
     }
 
-    if (query_line[0] == '>') {
-        query->header = xmalloc(len);
-        strcpy(query->header, query_line + 1);
+    if( query_line[0] == '>' ) {
+        query->header = xmalloc( len );
+        strcpy( query->header, query_line + 1 );
         query->headerlen = len - 1;
 
         query_line[0] = 0;
-        if ( NULL == fgets(query_line, LINE_MAX, query_fp)) {
-            ffatal("Could not read first line from query sequence");
+        if( NULL == fgets( query_line, LINE_MAX, query_fp ) ) {
+            ffatal( "Could not read first line from query sequence" );
         }
     }
     else {
-        query->header = xmalloc(1);
+        query->header = xmalloc( 1 );
         query->header[0] = 0;
         query->headerlen = 0;
     }
 
     int size = LINE_MAX;
-    char * query_sequence = xmalloc(size);
+    char * query_sequence = xmalloc( size );
     query_sequence[0] = 0;
     long query_length = 0;
 
     char m;
-    while (query_line[0] && (query_line[0] != '>')) {
+    while( query_line[0] && (query_line[0] != '>') ) {
         char * p = query_line;
         int8_t c = *p++;
-        while (c) {
-            if ((m = query->map[c]) >= 0) {
-                if (query_length + 1 >= size) {
+        while( c ) {
+            if( (m = query->map[c]) >= 0 ) {
+                if( query_length + 1 >= size ) {
                     size += LINE_MAX;
-                    query_sequence = xrealloc(query_sequence, size);
+                    query_sequence = xrealloc( query_sequence, size );
                 }
                 query_sequence[query_length++] = m;
             }
             c = *p++;
         }
         query_line[0] = 0;
-        if ( NULL == fgets(query_line, LINE_MAX, query_fp)) {
+        if( NULL == fgets( query_line, LINE_MAX, query_fp ) ) {
             break;
         }
     }
     query_sequence[query_length] = 0;
 
-    if ((symtype == NUCLEOTIDE) || (symtype == TRANS_QUERY)
-            || (symtype == TRANS_BOTH)) {
-        query->nt[0] = (sequence){ query_sequence, query_length };
+    if( (symtype == NUCLEOTIDE) || (symtype == TRANS_QUERY) || (symtype == TRANS_BOTH) ) {
+        query->nt[0] = (sequence ) { query_sequence, query_length };
 
-        if (query_strands & 2) {
+        if( query_strands & 2 ) {
             //      outf("Reverse complement.\n");
-            query->nt[1] = us_revcompl(query->nt[0]);
+            query->nt[1] = (sequence) { xmalloc( query_length + 1 ), query_length };
+
+            us_revcompl( query->nt[0], query->nt[1] );
         }
 
-        if ((symtype == TRANS_QUERY) || (symtype == TRANS_BOTH)) {
-            for (int s = 0; s < 2; s++) {
-                if ((s + 1) & query_strands) {
-                    for (int f = 0; f < 3; f++) {
+        if( (symtype == TRANS_QUERY) || (symtype == TRANS_BOTH) ) {
+            for( int s = 0; s < 2; s++ ) {
+                if( (s + 1) & query_strands ) {
+                    for( int f = 0; f < 3; f++ ) {
                         // it always takes the first sequence and reverses it, if necessary, in the translate method
-                        us_translate_sequence(0, // query sequence
+                        us_translate_sequence( 0, // query sequence
                                 query->nt[0], // DNA
                                 s, // strand
                                 f, // frame
-                                &query->aa[3 * s + f]); // Protein
+                                &query->aa[3 * s + f] ); // Protein
                     }
                 }
             }
         }
     }
     else {
-        query->aa[0] = (sequence){ query_sequence, query_length };
+        query->aa[0] = (sequence ) { query_sequence, query_length };
     }
 
     // close the file pointer
-    if (query_fp != stdin)
-        fclose(query_fp);
+    if( query_fp != stdin )
+        fclose( query_fp );
 
     return query;
 }
@@ -202,20 +204,20 @@ p_query query_read(const char * queryname) {
  *
  * TODO not tested
  */
-void query_show(p_query query) {
+void query_show( p_query query ) {
     int linewidth = 60;
 
-    if (query->header) {
-        for (unsigned int i = 0; i < strlen(query->header); i += linewidth) {
-            printf("x%ud", i);
-            if (i == 0)
-                outf("Query description: %-60.60s\n", query->header + i);
+    if( query->header ) {
+        for( unsigned int i = 0; i < strlen( query->header ); i += linewidth ) {
+            printf( "x%ud", i );
+            if( i == 0 )
+                outf( "Query description: %-60.60s\n", query->header + i );
             else
-                outf("                   %-60.60s\n", query->header + i);
+                outf( "                   %-60.60s\n", query->header + i );
         }
     }
     else {
-        outf("Query description: UNKNOWN\n");
+        outf( "Query description: UNKNOWN\n" );
     }
 
 #if 0

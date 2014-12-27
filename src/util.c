@@ -85,4 +85,26 @@ char *strdup( const char *str ) {
     return dup;
 }
 
+void add_to_minheap( p_minheap heap, int query_id, p_sdb_sequence db_seq, long score ) {
+    elem_t * e = xmalloc( sizeof(elem_t) );
+    e->query_id = query_id;
+
+    e->db_id = db_seq->ID;
+    e->dframe = db_seq->frame;
+    e->dstrand = db_seq->strand;
+    e->score = score;
+
+    /* Alignments, with a score equal to the current lowest score in the
+     heap are ignored! */
+    minheap_add( heap, e );
+
+    /*
+     * minheap_add dereferences e and stores a copy of e, if its score
+     * is higher than the lowest score in the heap.
+     *
+     * This means, we can and should free e here!
+     */
+    free( e );
+}
+
 #endif /* DATA_H_ */

@@ -11,7 +11,6 @@
 #include "libssa_extern_db.h"
 #include "libssa.h"
 
-#include "util.h"
 #include "util/minheap.h"
 
 /** @typedef    structure of a sequence

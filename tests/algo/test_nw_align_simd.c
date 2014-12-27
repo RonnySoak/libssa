@@ -31,7 +31,7 @@ START_TEST (test_nw_align_simd_simple)
 
         struct s16info_s * s16info = search16_init( gapO, gapE );
 
-        search16_qprep( s16info, query->nt[0].seq, query->nt[0].len );
+        search16_init_query( s16info, query->nt[0].seq, query->nt[0].len );
 
         p_db_chunk chunk = it_new_chunk();
         it_next_chunk(chunk);
@@ -64,7 +64,7 @@ START_TEST (test_nw_simd_blosum62)
 
         struct s16info_s * s16info = search16_init( gapO, gapE );
 
-        search16_qprep( s16info, query->nt[0].seq, query->nt[0].len );
+        search16_init_query( s16info, query->nt[0].seq, query->nt[0].len );
 
         p_db_chunk chunk = it_new_chunk();
         it_next_chunk(chunk);
@@ -102,7 +102,7 @@ START_TEST (test_nw_simd_more_sequences_nw)
 
         struct s16info_s * s16info = search16_init( gapO, gapE );
 
-        search16_qprep( s16info, query->nt[0].seq, query->nt[0].len );
+        search16_init_query( s16info, query->nt[0].seq, query->nt[0].len );
 
         p_db_chunk chunk = it_new_chunk();
         it_next_chunk(chunk);

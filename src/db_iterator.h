@@ -18,6 +18,8 @@ p_seqinfo it_get_sequence(unsigned long id);
 
 sequence it_translate_sequence(p_seqinfo info, int f, int s);
 
+void it_free_sequence( p_sdb_sequence seq );
+
 p_db_chunk it_new_chunk();
 
 void it_next_chunk(p_db_chunk chunk);

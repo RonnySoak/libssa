@@ -13,7 +13,7 @@ START_TEST (test_revcompl)
     {
         // test always the same
         sequence seq;
-        seq.seq = xmalloc(5);
+        seq.seq = xmalloc( 5 );
         seq.len = 4;
         seq.seq[0] = 1;
         seq.seq[1] = 2;
@@ -21,15 +21,16 @@ START_TEST (test_revcompl)
         seq.seq[3] = 4;
         seq.seq[4] = 0;
 
-        sequence rc1 = us_revcompl(seq);
-        sequence rc2 = us_revcompl(seq);
-        ck_assert_str_eq(rc1.seq, rc2.seq);
-        free(rc1.seq);
-        free(rc2.seq);
+        sequence rc1 = { xmalloc( seq.len + 1 ), seq.len };
+        us_revcompl( seq, rc1 );
+        sequence rc2 = { xmalloc( seq.len + 1 ), seq.len };
+        us_revcompl( seq, rc2 );
+        ck_assert_str_eq( rc1.seq, rc2.seq );
+        free( rc1.seq );
+        free( rc2.seq );
 
         // test rev compl calculation
-        char ntcompl[16] = { 0, 8, 4, 12, 2, 10, 6, 14, 1, 9, 5, 13, 3, 11, 7,
-                15 };
+        char ntcompl[16] = { 0, 8, 4, 12, 2, 10, 6, 14, 1, 9, 5, 13, 3, 11, 7, 15 };
 
         char rev_seq[seq.len];
 
@@ -38,173 +39,173 @@ START_TEST (test_revcompl)
         rev_seq[2] = ntcompl[(int) (seq.seq[1])];
         rev_seq[3] = ntcompl[(int) (seq.seq[0])];
 
-        rc2 = us_revcompl(seq);
-        ck_assert_str_eq(rev_seq, rc2.seq);
-        free(rc2.seq);
+        rc2 = (sequence ) { xmalloc( seq.len + 1 ), seq.len };
+        us_revcompl( seq, rc2 );
+        ck_assert_str_eq( rev_seq, rc2.seq );
+        free( rc2.seq );
 
-        // empty
-        rc1.seq = 0;
-        rc1.len = 0;
+        // TODO test if orig and rc sequence have different length!!!
 
-        rc2 = us_revcompl(rc1);
-        ck_assert_ptr_eq(0, rc2.seq);
-        free(rc2.seq);
-        free(seq.seq);
+//        rc2 = (sequence ) { xmalloc( seq.len + 1 ), seq.len };
+//        us_revcompl( rc1, rc2 );
+//        ck_assert_ptr_eq( 0, rc2.seq );
+//        free( rc2.seq );
+//        free( seq.seq );
     }END_TEST
 
-void ck_converted_prot_eq(char* ref, sequence seq) {
+void ck_converted_prot_eq( char* ref, sequence seq ) {
     sequence conv_dna;
     conv_dna.len = seq.len;
-    conv_dna.seq = xmalloc(seq.len + 1);
-    for (int i = 0; i < seq.len; i++) {
+    conv_dna.seq = xmalloc( seq.len + 1 );
+    for( int i = 0; i < seq.len; i++ ) {
         conv_dna.seq[i] = sym_ncbi_aa[(int) seq.seq[i]];
     }
     conv_dna.seq[seq.len] = 0;
 
-    ck_assert_str_eq(ref, conv_dna.seq);
+    ck_assert_str_eq( ref, conv_dna.seq );
 }
 
 START_TEST (test_translate_query_RNA)
     {
-        us_init_translation(3, 1);
+        us_init_translation( 3, 1 );
 
         char* dna = "AUGCCCAAGCUGAAUAGCGUAGAGGGGUUUUCAUCAUUUGAGGACGAUGUAUAA";
-        unsigned long dlen = strlen(dna);
+        unsigned long dlen = strlen( dna );
         sequence protp;
 
         sequence conv_dna;
         conv_dna.len = dlen;
-        conv_dna.seq = xmalloc(dlen + 1);
-        for (int i = 0; i < dlen; i++) {
+        conv_dna.seq = xmalloc( dlen + 1 );
+        for( int i = 0; i < dlen; i++ ) {
             conv_dna.seq[i] = map_ncbi_nt16[(int) dna[i]];
         }
         conv_dna.seq[dlen] = 0;
-        us_translate_sequence(0, conv_dna, 0, 0, &protp);
+        us_translate_sequence( 0, conv_dna, 0, 0, &protp );
 
-        ck_assert_int_eq(18, protp.len);
-        ck_converted_prot_eq("MPKTNSVEGFSSFEDDV*", protp);
-        free(protp.seq);
-        free(conv_dna.seq);
+        ck_assert_int_eq( 18, protp.len );
+        ck_converted_prot_eq( "MPKTNSVEGFSSFEDDV*", protp );
+        free( protp.seq );
+        free( conv_dna.seq );
     }END_TEST
 
 START_TEST (test_translate_query)
     {
-        us_init_translation(3, 1);
+        us_init_translation( 3, 1 );
 
         char* dna = "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA";
-        unsigned long dlen = strlen(dna);
+        unsigned long dlen = strlen( dna );
         sequence protp;
 
         sequence conv_dna;
         conv_dna.len = dlen;
-        conv_dna.seq = xmalloc(dlen + 1);
-        for (int i = 0; i < dlen; i++) {
+        conv_dna.seq = xmalloc( dlen + 1 );
+        for( int i = 0; i < dlen; i++ ) {
             conv_dna.seq[i] = map_ncbi_nt16[(int) dna[i]];
         }
         conv_dna.seq[dlen] = 0;
 
         // forward strand
         // frame 1
-        us_translate_sequence(0, conv_dna, 0, 0, &protp);
+        us_translate_sequence( 0, conv_dna, 0, 0, &protp );
 
-        ck_assert_int_eq(18, protp.len);
-        ck_converted_prot_eq("MPKTNSVEGFSSFEDDV*", protp);
-        free(protp.seq);
+        ck_assert_int_eq( 18, protp.len );
+        ck_converted_prot_eq( "MPKTNSVEGFSSFEDDV*", protp );
+        free( protp.seq );
 
         // frame 2
-        us_translate_sequence(0, conv_dna, 0, 1, &protp);
+        us_translate_sequence( 0, conv_dna, 0, 1, &protp );
 
-        ck_assert_int_eq(17, protp.len);
-        ck_converted_prot_eq("CPSWMA*RGFHHLRTMY", protp);
-        free(protp.seq);
+        ck_assert_int_eq( 17, protp.len );
+        ck_converted_prot_eq( "CPSWMA*RGFHHLRTMY", protp );
+        free( protp.seq );
 
         // frame 3
-        us_translate_sequence(0, conv_dna, 0, 2, &protp);
-        ck_assert_int_eq(17, protp.len);
-        ck_converted_prot_eq("AQAE*RRGVFIIWGRCM", protp);
-        free(protp.seq);
+        us_translate_sequence( 0, conv_dna, 0, 2, &protp );
+        ck_assert_int_eq( 17, protp.len );
+        ck_converted_prot_eq( "AQAE*RRGVFIIWGRCM", protp );
+        free( protp.seq );
 
         // complementary strand
         // frame 1
-        us_translate_sequence(0, conv_dna, 1, 0, &protp);
+        us_translate_sequence( 0, conv_dna, 1, 0, &protp );
 
-        ck_assert_int_eq(18, protp.len);
-        ck_converted_prot_eq("LYIVTKWWKPTYAIQTGH", protp);
-        free(protp.seq);
+        ck_assert_int_eq( 18, protp.len );
+        ck_converted_prot_eq( "LYIVTKWWKPTYAIQTGH", protp );
+        free( protp.seq );
 
         // frame 2
-        us_translate_sequence(0, conv_dna, 1, 1, &protp);
+        us_translate_sequence( 0, conv_dna, 1, 1, &protp );
 
-        ck_assert_int_eq(17, protp.len);
-        ck_converted_prot_eq("YTSSSNDENPSTTFSLG", protp);
-        free(protp.seq);
+        ck_assert_int_eq( 17, protp.len );
+        ck_converted_prot_eq( "YTSSSNDENPSTTFSLG", protp );
+        free( protp.seq );
 
         // frame 3
-        us_translate_sequence(0, conv_dna, 1, 2, &protp);
-        ck_assert_int_eq(17, protp.len);
-        ck_converted_prot_eq("MHRPQMMKTPTRYSAWA", protp);
+        us_translate_sequence( 0, conv_dna, 1, 2, &protp );
+        ck_assert_int_eq( 17, protp.len );
+        ck_converted_prot_eq( "MHRPQMMKTPTRYSAWA", protp );
 
-        free(protp.seq);
-        free(conv_dna.seq);
+        free( protp.seq );
+        free( conv_dna.seq );
     }END_TEST
 
 START_TEST (test_translate_query_DNA)
     {
-        us_init_translation(3, 1);
+        us_init_translation( 3, 1 );
 
         char* dna = "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA";
-        unsigned long dlen = strlen(dna);
+        unsigned long dlen = strlen( dna );
         sequence protp;
 
         sequence conv_dna;
         conv_dna.len = dlen;
-        conv_dna.seq = xmalloc(dlen + 1);
-        for (int i = 0; i < dlen; i++) {
+        conv_dna.seq = xmalloc( dlen + 1 );
+        for( int i = 0; i < dlen; i++ ) {
             conv_dna.seq[i] = map_ncbi_nt16[(int) dna[i]];
         }
         conv_dna.seq[dlen] = 0;
 
-        us_translate_sequence(0, conv_dna, 0, 0, &protp);
+        us_translate_sequence( 0, conv_dna, 0, 0, &protp );
 
-        ck_assert_int_eq(18, protp.len);
-        ck_converted_prot_eq("MPKTNSVEGFSSFEDDV*", protp);
-        free(protp.seq);
-        free(conv_dna.seq);
+        ck_assert_int_eq( 18, protp.len );
+        ck_converted_prot_eq( "MPKTNSVEGFSSFEDDV*", protp );
+        free( protp.seq );
+        free( conv_dna.seq );
     }END_TEST
 
 START_TEST (test_translate_db)
     {
-        us_init_translation(1, 3);
+        us_init_translation( 1, 3 );
 
         char* dna = "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA";
-        unsigned long dlen = strlen(dna);
+        unsigned long dlen = strlen( dna );
         sequence protp;
 
         sequence conv_dna;
         conv_dna.len = dlen;
-        conv_dna.seq = xmalloc(dlen + 1);
-        for (int i = 0; i < dlen; i++) {
+        conv_dna.seq = xmalloc( dlen + 1 );
+        for( int i = 0; i < dlen; i++ ) {
             conv_dna.seq[i] = map_ncbi_nt16[(int) dna[i]];
         }
         conv_dna.seq[dlen] = 0;
 
         // translate it as a db sequence, using the db translation table
-        us_translate_sequence(1, conv_dna, 0, 0, &protp);
+        us_translate_sequence( 1, conv_dna, 0, 0, &protp );
 
-        ck_assert_int_eq(18, protp.len);
-        ck_converted_prot_eq("MPKTNSVEGFSSFEDDV*", protp);
-        free(protp.seq);
-        free(conv_dna.seq);
+        ck_assert_int_eq( 18, protp.len );
+        ck_converted_prot_eq( "MPKTNSVEGFSSFEDDV*", protp );
+        free( protp.seq );
+        free( conv_dna.seq );
     }END_TEST
 
-void addUtilSequenceTC(Suite *s) {
-    TCase *tc_core = tcase_create("util_sequence");
-    tcase_add_test(tc_core, test_revcompl);
-    tcase_add_test(tc_core, test_translate_query);
-    tcase_add_test(tc_core, test_translate_query_DNA);
-    tcase_add_test(tc_core, test_translate_query_RNA);
-    tcase_add_test(tc_core, test_translate_db);
+void addUtilSequenceTC( Suite *s ) {
+    TCase *tc_core = tcase_create( "util_sequence" );
+    tcase_add_test( tc_core, test_revcompl );
+    tcase_add_test( tc_core, test_translate_query );
+    tcase_add_test( tc_core, test_translate_query_DNA );
+    tcase_add_test( tc_core, test_translate_query_RNA );
+    tcase_add_test( tc_core, test_translate_db );
 
-    suite_add_tcase(s, tc_core);
+    suite_add_tcase( s, tc_core );
 }
 

@@ -10,8 +10,8 @@
 #include <sys/sysinfo.h>
 
 #include "../../src/util/thread_pool.h"
-
 #include "../../src/libssa.h"
+#include "../../src/util.h"
 
 void setup_pool(int nr_of_threads) {
     set_threads(nr_of_threads);

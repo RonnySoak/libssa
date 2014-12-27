@@ -11,6 +11,8 @@
 #include <stddef.h>
 
 #include "libssa.h"
+#include "libssa_datatypes.h"
+#include "util/minheap.h"
 
 #define CMP_ASC(a,b) (a > b ? -1 : (a < b) ? +1 : 0) // TODO is this really ascending
 //#define CMP_DESC(a,b) (a > b ? +1 : (a < b) ? -1 : 0)
@@ -30,20 +32,22 @@
 #define LINE_MAX 2048
 #endif
 
-void * xmalloc(size_t size);
-void * xrealloc(void *ptr, size_t size);
+void * xmalloc( size_t size );
+void * xrealloc( void *ptr, size_t size );
 
 // output data
-void ffatal(const char * format, ...);
+void ffatal( const char * format, ... );
 
 /** Initialises the output stream. Default is stdout */
-void init_out(const char* filename);
+void init_out( const char* filename );
 /** Closes the file pointer to the output stream, if it is not stdout */
 void close_out();
 /** Writes to the output stream */
-void outf(const char* format, ...);
+void outf( const char* format, ... );
 // output data
 
-char *strdup(const char *str);
+char *strdup( const char *str );
+
+void add_to_minheap( p_minheap heap, int query_id, p_sdb_sequence db_seq, long score );
 
 #endif /* UTIL_H_ */

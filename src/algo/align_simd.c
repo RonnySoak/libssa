@@ -347,7 +347,7 @@ void search16_exit( struct s16info_s * s ) {
     free( s );
 }
 
-void search16_qprep( struct s16info_s * s, char * qseq, int qlen ) {
+void search16_init_query( struct s16info_s * s, char * qseq, int qlen ) {
     s->qlen = qlen;
 
     if( s->qlen > s->maxqlen ) {
@@ -370,7 +370,7 @@ void search16_qprep( struct s16info_s * s, char * qseq, int qlen ) {
         s->qtable[i] = s->dprofile + 4 * (int) (qseq[i]);
 }
 
-static void fill_channel( int c, uint8_t* d_begin[CHANNELS], uint8_t* d_end[CHANNELS], uint8_t* dseq ) {
+static inline void fill_channel( int c, uint8_t* d_begin[CHANNELS], uint8_t* d_end[CHANNELS], uint8_t* dseq ) {
     /* fill channel */
     for( int j = 0; j < CDEPTH; j++ ) {
         if( d_begin[c] < d_end[c] ) {
@@ -479,40 +479,17 @@ void search16( struct s16info_s * s, p_db_chunk chunk, p_minheap heap, int query
                     if( cand_id >= 0 ) {
                         /* save score */
 
-                        long dbseqlen = d_length[c];
-                        long z = (dbseqlen + 3) % 4;
+                        long z = (d_length[c] + 3) % 4;
                         long score = ((int16_t*) S)[z * CHANNELS + c];
-
-                        elem_t * e = xmalloc(sizeof(elem_t));
-                        e->query_id = query_id;
-
-                        e->db_id = chunk->seq[next_id - 1]->ID;
-                        e->dframe = chunk->seq[next_id - 1]->frame;
-                        e->dstrand = chunk->seq[next_id - 1]->strand;
-                        e->score = score;
 
                         if( (score > SHRT_MIN) && (score < SHRT_MAX) ) {
                             /* Alignments, with a score equal to the current lowest score in the
                                heap are ignored! */
-                            minheap_add( heap, e );
+                            add_to_minheap( heap, query_id, chunk->seq[next_id - 1], score );
                         }
                         else {
                             // TODO else report recalculation
                         }
-
-                        /*
-                         * minheap_add dereferences e and stores a copy of e, if its score
-                         * is higher than the lowest score in the heap.
-                         *
-                         * This means, we can and should free e here!
-                         */
-                        e->db_id = 0;
-                        e->dframe = 0;
-                        e->dstrand = 0;
-                        e->query_id = 0;
-                        e->score = 0;
-                        free(e);
-                        e = 0;
 
                         done++;
                     }

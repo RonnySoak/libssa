@@ -22,42 +22,20 @@ static unsigned long search_chunk(p_minheap heap, p_db_chunk chunk, p_search_dat
     for (unsigned long i = 0; i < chunk->fill_pointer; i++) {
         p_sdb_sequence dseq = chunk->seq[i];
 
-        for (int x = 0; x < sdp->q_count; x++) {
-            seq_buffer query = sdp->queries[x];
+        for (int q_id = 0; q_id < sdp->q_count; q_id++) {
+            seq_buffer query = sdp->queries[q_id];
 
-            elem_t * e = xmalloc(sizeof(elem_t));
-            e->query_id = x;
-            e->db_id = dseq->ID;
-            e->dframe = dseq->frame;
-            e->dstrand = dseq->strand;
+            long score = sdp->search_algo(&dseq->seq,
+                    &query.seq,
+                    hearray, // TODO how to cope with different parameters in different implementations?
+                    score_matrix_63);
 
-            e->score = sdp->search_algo(&dseq->seq,
-                        &query.seq,
-                        hearray, // TODO how to cope with different parameters in different implementation?
-                        score_matrix_63);
+            add_to_minheap( heap, q_id, dseq, score );
 
             searches_done++;
-
-            /*
-             * Alignments, with a score equal to the current lowest score in the
-             * heap are ignored!
-             */
-            minheap_add(heap, e);
-
-            /*
-             * minheap_add dereferences e and stores a copy of e, if its score
-             * is higher than the lowest score in the heap.
-             *
-             * This means, we can and should free e here!
-             */
-            e->db_id = 0;
-            e->dframe = 0;
-            e->dstrand = 0;
-            e->query_id = 0;
-            e->score = 0;
-            free(e);
-            e = 0;
         }
+
+//        it_free_sequence( dseq );
     }
 
     return searches_done;
@@ -66,14 +44,6 @@ static unsigned long search_chunk(p_minheap heap, p_db_chunk chunk, p_search_dat
 void s_free(p_search_result res) {
     if (!res) {
         return;
-    }
-
-    for (int i = 0; i < res->heap->count; i++) {
-        res->heap->array[i].db_id = 0;
-        res->heap->array[i].dframe = 0;
-        res->heap->array[i].dstrand = 0;
-        res->heap->array[i].query_id = 0;
-        res->heap->array[i].score = 0;
     }
 
     minheap_exit(res->heap);

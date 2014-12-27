@@ -13,6 +13,12 @@
 #include "../src/query.h"
 #include "../src/util_sequence.h"
 
+char * get_reverse_complement( sequence orig ) {
+    sequence rc =  { xmalloc( orig.len + 1 ), orig.len };
+    us_revcompl(orig, rc);
+    return rc.seq;
+}
+
 START_TEST (test_query_read_sym0)
     {
         query_strands = COMPLEMENTARY_STRAND;
@@ -23,7 +29,7 @@ START_TEST (test_query_read_sym0)
         ck_assert_msg(NULL != query->nt[1].seq);
 
         // as defined for strands == 2
-        ck_assert_str_eq(query->nt[1].seq, us_revcompl(query->nt[0]).seq);
+        ck_assert_str_eq(query->nt[1].seq, get_reverse_complement(query->nt[0]));
 
         ck_assert_msg(NULL == query->aa[0].seq);
         ck_assert_msg(NULL == query->aa[1].seq);
@@ -84,7 +90,7 @@ START_TEST (test_query_read_sym2)
         ck_assert_msg(NULL != query->nt[1].seq);
 
         // as defined for strands == 2
-        ck_assert_str_eq(query->nt[1].seq, us_revcompl(query->nt[0]).seq);
+        ck_assert_str_eq(query->nt[1].seq, get_reverse_complement(query->nt[0]));
 
         ck_assert_msg(NULL == query->aa[0].seq);
         ck_assert_msg(NULL == query->aa[1].seq);
@@ -145,7 +151,7 @@ START_TEST (test_query_read_sym4)
         ck_assert_msg(NULL != query->nt[1].seq);
 
         // as defined for strands == 2
-        ck_assert_str_eq(query->nt[1].seq, us_revcompl(query->nt[0]).seq);
+        ck_assert_str_eq(query->nt[1].seq, get_reverse_complement(query->nt[0]));
 
         ck_assert_msg(NULL == query->aa[0].seq);
         ck_assert_msg(NULL == query->aa[1].seq);
@@ -196,7 +202,7 @@ START_TEST (test_strands_param)
         ck_assert_msg(NULL != query->nt[1].seq);
 
         // as defined for strands == 2
-        ck_assert_str_eq(query->nt[1].seq, us_revcompl(query->nt[0]).seq);
+        ck_assert_str_eq(query->nt[1].seq, get_reverse_complement(query->nt[0]));
 
         ck_assert_msg(NULL == query->aa[0].seq);
         ck_assert_msg(NULL == query->aa[1].seq);
@@ -216,8 +222,7 @@ START_TEST (test_strands_param)
         ck_assert_msg(NULL != query->nt[1].seq);
 
         // as defined for strands == 3
-        ck_assert_str_eq(query->nt[1].seq,
-                us_revcompl(query->nt[0]).seq);
+        ck_assert_str_eq(query->nt[1].seq, get_reverse_complement(query->nt[0]));
 
         ck_assert_msg(NULL != query->aa[0].seq);
         ck_assert_msg(NULL != query->aa[1].seq);
