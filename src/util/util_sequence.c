@@ -256,43 +256,40 @@ void us_map_sequence( sequence orig, sequence mapped, const char* map ) {
  * @param prot_seq  the resulting protein sequence
  */
 void us_translate_sequence( int db_sequence, sequence dna, int strand, int frame, sequence * prot_seq ) {
-//    outf|printf("dlen=%ld, strand=%d, frame=%d\n", dlen, strand, frame);
-
     char* ttable = (db_sequence) ? d_translate : q_translate;
 
     long pos, c;
     long ppos = 0;
-    unsigned long plen = (dna.len - frame) / 3;
-    char * prot = xmalloc( 1 + plen );
+
+    prot_seq->len = (dna.len - frame) / 3;
+    prot_seq->seq = xrealloc( prot_seq->seq, prot_seq->len + 1 );
 
     // forward strand
     if( strand == 0 ) {
         pos = frame;
-        while( ppos < plen ) {
+        while( ppos < prot_seq->len ) {
             c = dna.seq[pos++];
             c <<= 4;
             c |= dna.seq[pos++];
             c <<= 4;
             c |= dna.seq[pos++];
-            prot[ppos++] = ttable[c];
+            prot_seq->seq[ppos++] = ttable[c];
         }
     }
     // complement strand, done in reverse complement
     else {
         pos = dna.len - 1 - frame;
-        while( ppos < plen ) {
+        while( ppos < prot_seq->len ) {
             c = ntcompl[(int) (dna.seq[pos--])];
             c <<= 4;
             c |= ntcompl[(int) (dna.seq[pos--])];
             c <<= 4;
             c |= ntcompl[(int) (dna.seq[pos--])];
-            prot[ppos++] = ttable[c];
+            prot_seq->seq[ppos++] = ttable[c];
         }
     }
 
-    prot[ppos] = 0;
-    prot_seq->seq = prot;
-    prot_seq->len = plen;
+    prot_seq->seq[ppos] = 0;
 }
 
 /**

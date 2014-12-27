@@ -22,6 +22,11 @@ static unsigned long next_chunk_start = 0;
 static int buffer_max = 0;
 static pthread_mutex_t chunk_mutex = PTHREAD_MUTEX_INITIALIZER;
 
+static void realloc_sequence( sequence * seq, unsigned long len ) {
+    seq->seq = xrealloc( seq->seq, len + 1 );
+    seq->len = len;
+}
+
 /**
  * Initialises the buffer. Translates the DB sequence and computes the reverse
  * complement of the forward strand, if necessary.
@@ -35,7 +40,7 @@ static void set_translated_sequences( p_seqinfo seqinfo, p_sdb_sequence * buffer
         // first element
 
         buffer[0]->ID = seqinfo->ID;
-        buffer[0]->seq = (sequence ) { xmalloc( db_seq.len + 1 ), db_seq.len };
+        realloc_sequence( &buffer[0]->seq, db_seq.len );
         us_map_sequence( db_seq, buffer[0]->seq, map_ncbi_nt16 );
         buffer[0]->strand = 0;
         buffer[0]->frame = 0;
@@ -44,7 +49,7 @@ static void set_translated_sequences( p_seqinfo seqinfo, p_sdb_sequence * buffer
             // reverse complement
             buffer[1]->ID = seqinfo->ID;
             // no need for a second mapping
-            buffer[1]->seq = (sequence ) { xmalloc( db_seq.len + 1 ), db_seq.len };
+            realloc_sequence( &buffer[1]->seq, db_seq.len );
 
             us_revcompl( buffer[0]->seq, buffer[1]->seq );
             buffer[1]->strand = 1;
@@ -84,7 +89,7 @@ static void set_translated_sequences( p_seqinfo seqinfo, p_sdb_sequence * buffer
     }
     else {
         buffer[0]->ID = seqinfo->ID;
-        buffer[0]->seq = (sequence ) { xmalloc( db_seq.len + 1 ), db_seq.len };
+        realloc_sequence( &   buffer[0]->seq, db_seq.len );
         us_map_sequence( db_seq, buffer[0]->seq, map_ncbi_aa );
         buffer[0]->strand = 0;
         buffer[0]->frame = 0;
@@ -96,7 +101,6 @@ void it_free() {
 }
 
 void it_init( unsigned long size ) {
-    // TODO call external DB to set chunk size
     chunk_db_seq_count = size;
 
     // set buffer size according symtype: 1, 2 oder 6
@@ -195,7 +199,8 @@ p_db_chunk it_new_chunk() {
     for( int i = 0; i < chunk->size; ++i ) {
         chunk->seq[i] = xmalloc( sizeof(sdb_sequence) );
 
-        chunk->seq[i]->seq = (sequence ) { 0, 0 };
+        chunk->seq[i]->seq = (sequence ) { xmalloc( 1 ), 0 };
+        chunk->seq[i]->seq.seq[0] = 0;
         chunk->seq[i]->frame = 0;
         chunk->seq[i]->strand = 0;
         chunk->seq[i]->ID = 0;

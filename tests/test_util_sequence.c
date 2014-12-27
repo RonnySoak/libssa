@@ -71,7 +71,7 @@ START_TEST (test_translate_query_RNA)
 
         char* dna = "AUGCCCAAGCUGAAUAGCGUAGAGGGGUUUUCAUCAUUUGAGGACGAUGUAUAA";
         unsigned long dlen = strlen( dna );
-        sequence protp;
+        sequence protp = { xmalloc( 1 ), 0 };
 
         sequence conv_dna;
         conv_dna.len = dlen;
@@ -94,7 +94,7 @@ START_TEST (test_translate_query)
 
         char* dna = "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA";
         unsigned long dlen = strlen( dna );
-        sequence protp;
+        sequence protp = { xmalloc( 1 ), 0 };
 
         sequence conv_dna;
         conv_dna.len = dlen;
@@ -155,7 +155,7 @@ START_TEST (test_translate_query_DNA)
 
         char* dna = "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA";
         unsigned long dlen = strlen( dna );
-        sequence protp;
+        sequence protp = { xmalloc( 1 ), 0 };
 
         sequence conv_dna;
         conv_dna.len = dlen;
@@ -179,7 +179,7 @@ START_TEST (test_translate_db)
 
         char* dna = "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA";
         unsigned long dlen = strlen( dna );
-        sequence protp;
+        sequence protp = { xmalloc( 1 ), 0 };
 
         sequence conv_dna;
         conv_dna.len = dlen;
