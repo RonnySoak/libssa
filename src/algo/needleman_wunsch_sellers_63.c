@@ -108,8 +108,7 @@ const unsigned char maskextleft = 8;
 
  */
 
-int64_t full_nw_sellers(sequence * dseq, sequence * qseq, int64_t * hearray,
-        int64_t * score_matrix) {
+int64_t full_nw_sellers(sequence * dseq, sequence * qseq, int64_t * hearray ) {
 
     ffatal("full_nw_sellers: TODO: not all implemented yet");
 
@@ -146,7 +145,7 @@ int64_t full_nw_sellers(sequence * dseq, sequence * qseq, int64_t * hearray,
 //
 //            n = *hep;
 //            e = *(hep + 1);
-//            h += score_matrix[(dseq[j] << 5) + qseq[i]];
+//            h += score_matrix[(dseq[j] << 5) + qseq[i]]; SCORE_MATRIX_63
 //
 //            directions[index] |= (f < h ? maskup : 0);
 //            h = MIN(h, f);

@@ -9,7 +9,7 @@
 
 #include "../matrices.h"
 
-int64_t full_nw(sequence * dseq, sequence * qseq, int64_t * hearray, int64_t * score_matrix) {
+int64_t full_nw(sequence * dseq, sequence * qseq, int64_t * hearray) {
     int64_t h; // current value
     int64_t n; // diagonally previous value
     int64_t e; // value in left cell

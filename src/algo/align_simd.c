@@ -21,7 +21,6 @@
 
 #include "align_simd.h"
 
-#include <immintrin.h>
 #include <limits.h>
 #include <stdio.h>
 #include <string.h>
@@ -35,7 +34,6 @@
 
 /*
  * TODO
- * - add use of min-heap, to get the best sequences
  * - change interface, to be the same, than the naive implementations
  * - integrate in the library
  */
@@ -299,23 +297,9 @@ static void aligncolumns_rest( __m128i * Sm, __m128i * hep, __m128i ** qp, __m12
     Sm[3] = h8;
 }
 
-struct s16info_s {
-    __m128i matrix[32];
-    __m128i * hearray;
-    __m128i * dprofile;
-    __m128i ** qtable;
-
-    int qlen;
-    int maxqlen;
-    int maxdlen;
-
-    int16_t penalty_gap_open;
-    int16_t penalty_gap_extension;
-};
-
-struct s16info_s * search16_init( int16_t penalty_gap_open, int16_t penalty_gap_extension ) {
+p_s16info search16_init( int16_t penalty_gap_open, int16_t penalty_gap_extension ) {
     /* prepare alloc of qtable, dprofile, hearray, dir */
-    struct s16info_s * s = (struct s16info_s *) xmalloc( sizeof(struct s16info_s) );
+    p_s16info s = (p_s16info) xmalloc( sizeof(struct s16info) );
 
     s->maxdlen = 4 * ((ssa_db_get_longest_sequence() + 3) / 4);
     s->dprofile = (__m128i *) xmalloc( 2 * 4 * 8 * 16 );
@@ -336,7 +320,7 @@ struct s16info_s * search16_init( int16_t penalty_gap_open, int16_t penalty_gap_
     return s;
 }
 
-void search16_exit( struct s16info_s * s ) {
+void search16_exit( p_s16info s ) {
     /* free mem for dprofile, hearray, dir, qtable */
     if( s->hearray )
         free( s->hearray );
@@ -347,7 +331,7 @@ void search16_exit( struct s16info_s * s ) {
     free( s );
 }
 
-void search16_init_query( struct s16info_s * s, char * qseq, int qlen ) {
+void search16_init_query( p_s16info s, char * qseq, int qlen ) {
     s->qlen = qlen;
 
     if( s->qlen > s->maxqlen ) {
@@ -382,7 +366,7 @@ static inline void fill_channel( int c, uint8_t* d_begin[CHANNELS], uint8_t* d_e
     }
 }
 
-void search16( struct s16info_s * s, p_db_chunk chunk, p_minheap heap, int query_id ) {
+void search16( p_s16info s, p_db_chunk chunk, p_minheap heap, int query_id ) {
     int16_t ** q_start = (int16_t**) s->qtable;
     int16_t * dprofile = (int16_t*) s->dprofile;
     int16_t * hearray = (int16_t*) s->hearray;

@@ -16,13 +16,10 @@
 uint8_t gapO;
 uint8_t gapE;
 
-int64_t full_sw(sequence * dseq, sequence * qseq, int64_t * hearray,
-        int64_t * score_matrix);
+int64_t full_sw(sequence * dseq, sequence * qseq, int64_t * hearray );
 
-int64_t full_nw(sequence * dseq, sequence * qseq, int64_t * hearray,
-        int64_t * score_matrix);
+int64_t full_nw(sequence * dseq, sequence * qseq, int64_t * hearray );
 
-int64_t full_nw_sellers(sequence * dseq, sequence * qseq, int64_t * hearray,
-        int64_t * score_matrix);
+int64_t full_nw_sellers(sequence * dseq, sequence * qseq, int64_t * hearray );
 
 #endif /* SEARCH_H_ */

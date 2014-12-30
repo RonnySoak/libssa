@@ -31,7 +31,6 @@
 /libssa_example
 /example
 /coverage_data
-/callgrind.out.18071
-/perf.data
-/perf.data.old
+/callgrind.out.*
+/perf.data*
 /Debug/

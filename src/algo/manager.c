@@ -52,7 +52,7 @@ static void init_alignment_data(void (*align_function)(alignment_p)) {
 }
 
 static void init_searchdata(p_query query, int hit_count,
-        int64_t (*search_algo)(sequence*, sequence*, int64_t*, int64_t*)) {
+        int64_t (*search_algo)(sequence*, sequence*, int64_t*)) {
     sdp = xmalloc(sizeof(struct search_data));
 
     sdp->hit_count = hit_count;
@@ -135,7 +135,7 @@ void free_alignment_data() {
 }
 
 static void init(p_query query, int hit_count,
-        int64_t (*search_algo)(sequence*, sequence*, int64_t*, int64_t*),
+        int64_t (*search_algo)(sequence*, sequence*, int64_t*),
         void (*align_function)(alignment_p)) {
     init_searchdata(query, hit_count, search_algo);
 

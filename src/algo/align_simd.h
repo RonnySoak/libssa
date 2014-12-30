@@ -20,16 +20,31 @@
  */
 
 #include <stdint.h>
+#include <immintrin.h>
 
 #include "../libssa_datatypes.h"
 #include "../util/minheap.h"
 
-struct s16info_s;
+struct s16info {
+    __m128i matrix[32];
+    __m128i * hearray;
+    __m128i * dprofile;
+    __m128i ** qtable;
 
-struct s16info_s * search16_init( int16_t penalty_gap_open, int16_t penalty_gap_extension );
+    int qlen;
+    int maxqlen;
+    int maxdlen;
 
-void search16_exit( struct s16info_s * s );
+    int16_t penalty_gap_open;
+    int16_t penalty_gap_extension;
+};
 
-void search16_init_query( struct s16info_s * s, char * qseq, int qlen );
+typedef struct s16info * p_s16info;
 
-void search16( struct s16info_s * s, p_db_chunk chunk, p_minheap heap, int query_id );
+p_s16info search16_init( int16_t penalty_gap_open, int16_t penalty_gap_extension );
+
+void search16_exit( p_s16info s );
+
+void search16_init_query( p_s16info s, char * qseq, int qlen );
+
+void search16( p_s16info s, p_db_chunk chunk, p_minheap heap, int query_id );

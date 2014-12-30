@@ -14,24 +14,19 @@
 #include "../util/minheap.h"
 #include "../db_iterator.h"
 #include "../matrices.h"
+#include "align_simd.h"
 
-static unsigned long search_chunk( p_minheap heap, p_db_chunk chunk, p_search_data sdp, int64_t* hearray ) {
+static unsigned long search_chunk( p_minheap heap, p_db_chunk chunk, struct s16info * s ) {
     unsigned long searches_done = 0;
 
     for( int q_id = 0; q_id < sdp->q_count; q_id++ ) {
         seq_buffer query = sdp->queries[q_id];
 
-        for( unsigned long i = 0; i < chunk->fill_pointer; i++ ) {
-            p_sdb_sequence dseq = chunk->seq[i];
+        search16_init_query( s, query.seq.seq, query.seq.len );
 
-            long score = sdp->search_algo( &dseq->seq,
-                    &query.seq,
-                    hearray ); // TODO how to cope with different parameters in different implementations?
+        search16( s, chunk, heap, q_id );
 
-            add_to_minheap( heap, q_id, dseq, score );
-
-            searches_done++;
-        }
+        searches_done += chunk->fill_pointer;
     }
 
     return searches_done;
@@ -58,13 +53,13 @@ void * s_search( void * search_data ) {
     res->chunk_count = 0;
     res->seq_count = 0;
 
-    int64_t* hearray = xmalloc( sdp->hearraylen * 32 );
+    p_s16info s = search16_init( gapO, gapE );
 
     p_db_chunk chunk = it_new_chunk();
     it_next_chunk( chunk );
 
     while( chunk->fill_pointer ) {
-        int searched_sequences = search_chunk( res->heap, chunk, sdp, hearray );
+        int searched_sequences = search_chunk( res->heap, chunk, s );
 
         assert( searched_sequences == chunk->fill_pointer * sdp->q_count );
 
@@ -75,8 +70,7 @@ void * s_search( void * search_data ) {
     }
 
     it_free_chunk( chunk );
-
-    free( hearray );
+    search16_exit( s );
 
     return res;
 }

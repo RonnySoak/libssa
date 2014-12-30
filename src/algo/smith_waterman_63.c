@@ -30,31 +30,27 @@
 #include "../util/util.h"
 #include "../matrices.h"
 
-int64_t full_sw(sequence * dseq, sequence * qseq, int64_t * hearray,
-        int64_t * score_matrix) {
-    int64_t h, n, e, f, s;
-    int64_t *hep;
-    const char *qp, *dp;
-    const int64_t * sp;
+int64_t full_sw(sequence * dseq, sequence * qseq, int64_t * hearray ) {
+    int64_t h; // current value
+    int64_t n; // diagonally previous value
+    int64_t e; // value in left cell
+    int64_t f; // value in upper cell
+    int64_t s;
 
-    char* qend = qseq->seq + qseq->len;
-    char* dend = dseq->seq + dseq->len;
+    int64_t *hep;
 
     s = 0;
-    dp = dseq->seq;
-    memset(hearray, 0, 2 * sizeof(int64_t) * (qend - qseq->seq));
+    memset(hearray, 0, 2 * sizeof(int64_t) * (qseq->len));
 
-    while (dp < dend) {
+    for (uint64_t j = 0; j < dseq->len; j++) {
         f = 0;
         h = 0;
         hep = hearray;
-        qp = qseq->seq;
-        sp = score_matrix + (*dp << 5);
 
-        while (qp < qend) {
+        for (uint64_t i = 0; i < qseq->len; i++) {
             n = *hep;
             e = *(hep + 1);
-            h += sp[(int) (*qp)];
+            h += SCORE_MATRIX_63(dseq->seq[j], qseq->seq[i]);
 
             if (e > h)
                 h = e;
@@ -78,10 +74,7 @@ int64_t full_sw(sequence * dseq, sequence * qseq, int64_t * hearray,
             *(hep + 1) = e;
             h = n;
             hep += 2;
-            qp++;
         }
-
-        dp++;
     }
 
     return s;

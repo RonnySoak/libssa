@@ -29,7 +29,7 @@ START_TEST (test_nw_align_simd_simple)
         gapO = 0;
         gapE = 1;
 
-        struct s16info_s * s16info = search16_init( gapO, gapE );
+        p_s16info s16info = search16_init( gapO, gapE );
 
         search16_init_query( s16info, query->nt[0].seq, query->nt[0].len );
 
@@ -62,7 +62,7 @@ START_TEST (test_nw_simd_blosum62)
         gapO = 1;
         gapE = 1;
 
-        struct s16info_s * s16info = search16_init( gapO, gapE );
+        p_s16info s16info = search16_init( gapO, gapE );
 
         search16_init_query( s16info, query->nt[0].seq, query->nt[0].len );
 
@@ -100,7 +100,7 @@ START_TEST (test_nw_simd_more_sequences_nw)
         gapO = 1;
         gapE = 1;
 
-        struct s16info_s * s16info = search16_init( gapO, gapE );
+        p_s16info s16info = search16_init( gapO, gapE );
 
         search16_init_query( s16info, query->nt[0].seq, query->nt[0].len );
 
