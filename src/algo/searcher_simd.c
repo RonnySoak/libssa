@@ -24,7 +24,7 @@ static unsigned long search_chunk( p_minheap heap, p_db_chunk chunk, struct s16i
 
         search16_init_query( s, query.seq.seq, query.seq.len );
 
-        search16( s, chunk, heap, q_id );
+        search16_nw( s, chunk, heap, q_id );
 
         searches_done += chunk->fill_pointer;
     }

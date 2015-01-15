@@ -83,6 +83,65 @@ void query_free( p_query query ) {
     query = 0;
 }
 
+static void fill_query( p_query query, char * query_sequence, unsigned long query_length ) {
+    if( (symtype == NUCLEOTIDE) || (symtype == TRANS_QUERY) || (symtype == TRANS_BOTH) ) {
+        query->nt[0] = (sequence ) { query_sequence, query_length };
+
+        if( query_strands & 2 ) {
+            //      outf("Reverse complement.\n");
+            query->nt[1] = (sequence ) { xmalloc( query_length + 1 ), query_length };
+
+            us_revcompl( query->nt[0], query->nt[1] );
+        }
+
+        if( (symtype == TRANS_QUERY) || (symtype == TRANS_BOTH) ) {
+            for( int s = 0; s < 2; s++ ) {
+                if( (s + 1) & query_strands ) {
+                    for( int f = 0; f < 3; f++ ) {
+                        // it always takes the first sequence and reverses it, if necessary, in the translate method
+                        us_translate_sequence( 0, // query sequence
+                                query->nt[0], // DNA
+                                s, // strand
+                                f, // frame
+                                &query->aa[3 * s + f] ); // Protein
+                    }
+                }
+            }
+        }
+    }
+    else {
+        query->aa[0] = (sequence ) { query_sequence, query_length };
+    }
+}
+
+p_query query_read_from_string( char * header, char * sequence ) {
+    p_query query = init();
+
+    query->headerlen = strlen( header );
+    query->header = xmalloc( query->headerlen );
+    strcpy( query->header, header );
+
+    unsigned long length = strlen( sequence );
+    char * query_sequence = xmalloc( length );
+
+    char m;
+    char * p = sequence;
+    char * p_q = query_sequence;
+    int8_t c = *p++;
+    while( c ) {
+        if( (m = query->map[c]) >= 0 ) {
+            (*p_q++) = m;
+        }
+        c = *p++;
+    }
+
+    query_sequence[length] = 0;
+
+    fill_query( query, query_sequence, length );
+
+    return query;
+}
+
 /**
  * Reads in a query from a file and returns a pointer to a struct holding the
  * query data.
@@ -90,19 +149,18 @@ void query_free( p_query query ) {
  * @param queryname     name of the file containing the query
  * @return              a pointer to the read query
  */
-p_query query_read( const char * queryname ) {
+p_query query_read_from_file( const char * filename ) {
     FILE * query_fp;
 
-    if( strcmp( queryname, "-" ) == 0 )
+    if( strcmp( filename, "-" ) == 0 )
         ffatal( "Query not specified" ); // TODO
     else
-        query_fp = fopen( queryname, "r" );
+        query_fp = fopen( filename, "r" );
 
     if( !query_fp )
         ffatal( "Cannot open query file." );
 
-    // open the file and initialise the query
-    p_query query = init( queryname );
+    p_query query = init();
 
     char query_line[LINE_MAX];
 
@@ -135,6 +193,7 @@ p_query query_read( const char * queryname ) {
         query->headerlen = 0;
     }
 
+    // read sequence
     int size = LINE_MAX;
     char * query_sequence = xmalloc( size );
     query_sequence[0] = 0;
@@ -161,34 +220,7 @@ p_query query_read( const char * queryname ) {
     }
     query_sequence[query_length] = 0;
 
-    if( (symtype == NUCLEOTIDE) || (symtype == TRANS_QUERY) || (symtype == TRANS_BOTH) ) {
-        query->nt[0] = (sequence ) { query_sequence, query_length };
-
-        if( query_strands & 2 ) {
-            //      outf("Reverse complement.\n");
-            query->nt[1] = (sequence) { xmalloc( query_length + 1 ), query_length };
-
-            us_revcompl( query->nt[0], query->nt[1] );
-        }
-
-        if( (symtype == TRANS_QUERY) || (symtype == TRANS_BOTH) ) {
-            for( int s = 0; s < 2; s++ ) {
-                if( (s + 1) & query_strands ) {
-                    for( int f = 0; f < 3; f++ ) {
-                        // it always takes the first sequence and reverses it, if necessary, in the translate method
-                        us_translate_sequence( 0, // query sequence
-                                query->nt[0], // DNA
-                                s, // strand
-                                f, // frame
-                                &query->aa[3 * s + f] ); // Protein
-                    }
-                }
-            }
-        }
-    }
-    else {
-        query->aa[0] = (sequence ) { query_sequence, query_length };
-    }
+    fill_query( query, query_sequence, query_length );
 
     // close the file pointer
     if( query_fp != stdin )

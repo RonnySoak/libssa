@@ -179,7 +179,7 @@ void init_symbol_translation(int type, int strands, int d_gencode,
  * @return pointer to the query profile structure
  */
 p_query init_sequence_fasta(const char* fasta_seq_file) {
-    return query_read(fasta_seq_file);
+    return query_read_from_file(fasta_seq_file);
 }
 
 /**

@@ -332,7 +332,7 @@ inline void dprofile_fill16(uint16_t * dprofile_word,
     //  dprofile_dump16(dprofile_word);
 }
 
-void search16(uint16_t * * q_start,
+void search16_nw(uint16_t * * q_start,
         uint16_t gap_open_penalty,
         uint16_t gap_extend_penalty,
         uint16_t * score_matrix,

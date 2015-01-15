@@ -27,6 +27,8 @@ extern int query_strands;
  */
 void query_free(p_query query);
 
+p_query query_read_from_string( char * header, char * sequence );
+
 /**
  * Reads in a query from a file and returns a pointer to a struct holding the
  * query data.
@@ -34,7 +36,7 @@ void query_free(p_query query);
  * @param queryname     name of the file containing the query
  * @return              a pointer to the read query
  */
-p_query query_read(const char * queryname);
+p_query query_read_from_file( const char * filename );
 
 /**
  * Prints the query to the configured output file.

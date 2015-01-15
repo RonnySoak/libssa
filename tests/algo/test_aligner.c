@@ -36,7 +36,7 @@ START_TEST (test_aligner_simple_sw)
         mat_init_constant_scoring( 1, -1 );
         init_symbol_translation( NUCLEOTIDE, FORWARD_STRAND, 3, 3 );
 
-        p_query query = query_read( "./tests/testdata/short_query.fas" );
+        p_query query = query_read_from_string( "short query", "AT" );
         ssa_db_init_fasta( "./tests/testdata/short_db.fas" );
 
         it_init( 1 );
@@ -90,7 +90,7 @@ START_TEST (test_aligner_more_sequences_sw)
         mat_init_constant_scoring( 1, -1 );
         init_symbol_translation( NUCLEOTIDE, FORWARD_STRAND, 3, 3 );
 
-        p_query query = query_read( "./tests/testdata/one_seq.fas" );
+        p_query query = query_read_from_string( "query", "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA" );
         ssa_db_init_fasta( "./tests/testdata/test.fas" );
 
         it_init( 3 );
@@ -157,7 +157,7 @@ START_TEST (test_aligner_simple_nw)
         mat_init_constant_scoring( 1, -1 );
         init_symbol_translation( NUCLEOTIDE, FORWARD_STRAND, 3, 3 );
 
-        p_query query = query_read( "./tests/testdata/short_query.fas" );
+        p_query query = query_read_from_string( "short query", "AT" );
         ssa_db_init_fasta( "./tests/testdata/short_db.fas" );
 
         it_init( 1 );

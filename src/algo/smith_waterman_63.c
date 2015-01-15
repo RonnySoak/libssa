@@ -30,6 +30,10 @@
 #include "../util/util.h"
 #include "../matrices.h"
 
+/*
+ * TODO why is called 63, instead of 64? we use an int64_t and not a 63bit type ...
+ */
+
 int64_t full_sw(sequence * dseq, sequence * qseq, int64_t * hearray ) {
     int64_t h; // current value
     int64_t n; // diagonally previous value
@@ -43,9 +47,9 @@ int64_t full_sw(sequence * dseq, sequence * qseq, int64_t * hearray ) {
     memset(hearray, 0, 2 * sizeof(int64_t) * (qseq->len));
 
     for (uint64_t j = 0; j < dseq->len; j++) {
+        hep = hearray;
         f = 0;
         h = 0;
-        hep = hearray;
 
         for (uint64_t i = 0; i < qseq->len; i++) {
             n = *hep;

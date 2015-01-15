@@ -24,7 +24,7 @@ START_TEST (test_searcher_simple_sw)
         init_symbol_translation( NUCLEOTIDE, FORWARD_STRAND, 3, 3 );
         mat_init_constant_scoring( 1, -1 );
 
-        p_query query = query_read( "./tests/testdata/short_query.fas" );
+        p_query query = query_read_from_string( "short query", "AT" );
 
         ssa_db_init_fasta( "./tests/testdata/short_db.fas" );
 
@@ -61,7 +61,7 @@ START_TEST (test_searcher_more_sequences_sw)
         init_symbol_translation( NUCLEOTIDE, FORWARD_STRAND, 3, 3 );
         mat_init_constant_scoring( 1, -1 );
 
-        p_query query = query_read( "./tests/testdata/one_seq.fas" );
+        p_query query = query_read_from_string( "query", "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA" );
 
         ssa_db_init_fasta( "./tests/testdata/test.fas" );
 
@@ -97,7 +97,7 @@ START_TEST (test_searcher_simple_nw)
         init_symbol_translation( NUCLEOTIDE, FORWARD_STRAND, 3, 3 );
         mat_init_constant_scoring( 1, -1 );
 
-        p_query query = query_read( "./tests/testdata/short_query.fas" );
+        p_query query = query_read_from_string( "short query", "AT" );
 
         ssa_db_init_fasta( "./tests/testdata/short_db.fas" );
 
@@ -134,7 +134,7 @@ START_TEST (test_searcher_nw_blosum62)
         init_symbol_translation( NUCLEOTIDE, FORWARD_STRAND, 3, 3 );
         mat_init_buildin( BLOSUM62 );
 
-        p_query query = query_read( "./tests/testdata/NP_009305.1.fas" );
+        p_query query = query_read_from_file( "./tests/testdata/NP_009305.1.fas" );
 
         ssa_db_init_fasta( "./tests/testdata/AF091148.fas" );
 
@@ -171,7 +171,7 @@ START_TEST (test_searcher_more_sequences_nw)
         init_symbol_translation( NUCLEOTIDE, FORWARD_STRAND, 3, 3 );
         mat_init_constant_scoring( 1, -1 );
 
-        p_query query = query_read( "./tests/testdata/one_seq.fas" );
+        p_query query = query_read_from_string( "query", "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA" );
 
         ssa_db_init_fasta( "./tests/testdata/test.fas" );
 

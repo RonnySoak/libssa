@@ -39,7 +39,22 @@ struct s16info {
     int16_t penalty_gap_extension;
 };
 
+struct s8info {
+    __m128i matrix[32];
+    __m128i * hearray;
+    __m128i * dprofile;
+    __m128i ** qtable;
+
+    int qlen;
+    int maxqlen;
+    int maxdlen;
+
+    int8_t penalty_gap_open;
+    int8_t penalty_gap_extension;
+};
+
 typedef struct s16info * p_s16info;
+typedef struct s8info * p_s8info;
 
 p_s16info search16_init( int16_t penalty_gap_open, int16_t penalty_gap_extension );
 
@@ -47,4 +62,6 @@ void search16_exit( p_s16info s );
 
 void search16_init_query( p_s16info s, char * qseq, int qlen );
 
-void search16( p_s16info s, p_db_chunk chunk, p_minheap heap, int query_id );
+void search16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, int query_id );
+
+void search16_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, int query_id );

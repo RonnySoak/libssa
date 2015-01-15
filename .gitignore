@@ -34,3 +34,4 @@
 /callgrind.out.*
 /perf.data*
 /Debug/
+/perf_example
