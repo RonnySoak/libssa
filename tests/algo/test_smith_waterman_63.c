@@ -12,9 +12,7 @@
 #include "../../src/matrices.h"
 #include "../../src/db_iterator.h"
 #include "../../src/query.h"
-
-extern long full_sw( sequence * dseq, sequence * qseq, int64_t * hearray, int64_t * score_matrix, uint8_t gapopenextend,
-        uint8_t gapextend );
+#include "../../src/algo/search.h"
 
 START_TEST (test_search63_simple)
     {
@@ -28,10 +26,10 @@ START_TEST (test_search63_simple)
         sequence dseq = it_translate_sequence( ssa_db_get_sequence( 0 ), 0, 0 );
 
         long *hearray = calloc( sizeof(long), 32 * query->nt[0].len );
-        uint8_t gapopenextend = 1;
-        uint8_t gapextend = 1;
+        gapO = 1;
+        gapE = 1;
 
-        int score = full_sw( &dseq, &query->nt[0], hearray, score_matrix_63, gapopenextend, gapextend );
+        int score = full_sw( &dseq, &query->nt[0], hearray );
 
         ck_assert_int_eq( score, 2 );
 
@@ -45,19 +43,19 @@ START_TEST (test_search63_simple_2)
         init_symbol_translation( NUCLEOTIDE, FORWARD_STRAND, 3, 3 );
         mat_init_constant_scoring( 1, -1 );
 
-        p_query query = query_read_from_string( "query", "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA" );
+        p_query query = query_read_from_string( "query", "ATGCAAA" );
 
-        ssa_db_init_fasta( "./tests/testdata/one_seq_db.fas" );
+        ssa_db_init_fasta( "./tests/testdata/tmp.fas" );
         it_init( 1 );
         sequence dseq = it_translate_sequence( ssa_db_get_sequence( 0 ), 0, 0 );
 
         long *hearray = calloc( sizeof(long), 32 * query->nt[0].len );
-        uint8_t gapopenextend = 1;
-        uint8_t gapextend = 1;
+        gapO = 1;
+        gapE = 1;
 
-        int score = full_sw( &dseq, &query->nt[0], hearray, score_matrix_63, gapopenextend, gapextend );
+        int score = full_sw( &dseq, &query->nt[0], hearray );
 
-        ck_assert_int_eq( score, 54 );
+        ck_assert_int_eq( score, 4 );
 
         it_free();
         mat_free();
@@ -76,12 +74,12 @@ START_TEST (test_search63_simple_blosum62)
         sequence dseq = it_translate_sequence( ssa_db_get_sequence( 0 ), 0, 0 );
 
         long *hearray = calloc( sizeof(long), 32 * query->nt[0].len );
-        uint8_t gapopenextend = 1;
-        uint8_t gapextend = 1;
+        gapO = 1;
+        gapE = 1;
 
-        int score = full_sw( &dseq, &query->nt[0], hearray, score_matrix_63, gapopenextend, gapextend );
+        int score = full_sw( &dseq, &query->nt[0], hearray );
 
-        ck_assert_int_eq( score, 509 );
+        ck_assert_int_eq( score, 244 );
 
         it_free();
         mat_free();

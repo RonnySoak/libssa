@@ -65,26 +65,31 @@ START_TEST (test_searcher_more_sequences_sw)
 
         ssa_db_init_fasta( "./tests/testdata/test.fas" );
 
-        init_for_sw( query, 3 );
+        init_for_sw( query, 5 );
         gapO = 1;
         gapE = 1;
 
-        it_init( 3 );
+        it_init( 5 );
         p_search_result res = s_search( sdp );
 
-        ck_assert_int_eq( 2, res->chunk_count );
+        ck_assert_int_eq( 1, res->chunk_count );
         ck_assert_int_eq( 5, res->seq_count );
 
-        ck_assert_int_eq( 3, res->heap->alloc );
-        ck_assert_int_eq( 3, res->heap->count );
+        ck_assert_int_eq( 5, res->heap->alloc );
+        ck_assert_int_eq( 5, res->heap->count );
 
         minheap_sort( res->heap );
 
         elem_t e = res->heap->array[0];
 
-        ck_assert_int_eq( 1, e.db_id );
+        ck_assert_int_eq( 0, e.db_id );
         ck_assert_int_eq( 0, e.query_id );
-        ck_assert_int_eq( 53, e.score );
+        ck_assert_int_eq( 8, e.score );
+
+        ck_assert_int_eq( 0, res->heap->array[1].score ); // TODO check if correct!!
+        ck_assert_int_eq( 8, res->heap->array[2].score );
+        ck_assert_int_eq( 8, res->heap->array[3].score );
+        ck_assert_int_eq( 8, res->heap->array[4].score );
 
         s_free( res );
         it_free();

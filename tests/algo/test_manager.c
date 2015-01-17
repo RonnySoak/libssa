@@ -24,13 +24,12 @@ START_TEST (test_manager_simple_sw)
         init_symbol_translation(NUCLEOTIDE, FORWARD_STRAND, 3, 3);
         mat_init_constant_scoring(1, -1);
 
-        p_query query = query_read_from_file("./tests/testdata/one_seq.fas");
+        p_query query = query_read_from_string( "query", "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA" );
         ssa_db_init_fasta("./tests/testdata/test.fas");
 
         init_for_sw(query, 3);
 
         p_alignment_list alist = m_run();
-        // TODO test alist
 
         ck_assert_int_eq(3, alist->len);
 
@@ -52,7 +51,7 @@ START_TEST (test_manager_simple2_sw)
         init_symbol_translation(NUCLEOTIDE, FORWARD_STRAND, 3, 3);
         mat_init_constant_scoring(1, -1);
 
-        p_query query = query_read_from_file("./tests/testdata/one_seq.fas");
+        p_query query = query_read_from_string( "query", "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA" );
         ssa_db_init_fasta("./tests/testdata/test2.fas");
 
         init_for_sw(query, 1);
@@ -73,7 +72,7 @@ START_TEST (test_init_search_data)
     {
         init_symbol_translation(NUCLEOTIDE, FORWARD_STRAND, 3, 3);
 
-        p_query query = query_read_from_file("./tests/testdata/one_seq.fas");
+        p_query query = query_read_from_string( "query", "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA" );
 
         init_for_sw(query, 1);
 
@@ -106,7 +105,7 @@ START_TEST (test_init_search_data2)
     {
         init_symbol_translation(NUCLEOTIDE, COMPLEMENTARY_STRAND, 3, 3);
 
-        p_query query = query_read_from_file("./tests/testdata/one_seq.fas");
+        p_query query = query_read_from_string( "query", "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA" );
 
         init_for_nw(query, 5);
 
@@ -137,7 +136,7 @@ START_TEST (test_init_search_data3)
     {
         init_symbol_translation(TRANS_QUERY, FORWARD_STRAND, 3, 3);
 
-        p_query query = query_read_from_file("./tests/testdata/one_seq.fas");
+        p_query query = query_read_from_string( "query", "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA" );
 
         init_for_nw_sellers(query, 5);
 
@@ -178,7 +177,7 @@ START_TEST (test_init_search_data4)
     {
         init_symbol_translation(TRANS_QUERY, BOTH_STRANDS, 3, 3);
 
-        p_query query = query_read_from_file("./tests/testdata/one_seq.fas");
+        p_query query = query_read_from_string( "query", "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA" );
 
         init_for_nw(query, 3);
 
@@ -233,7 +232,7 @@ START_TEST (test_init_search_data5)
     {
         init_symbol_translation(AMINOACID, BOTH_STRANDS, 3, 3);
 
-        p_query query = query_read_from_file("./tests/testdata/one_seq.fas");
+        p_query query = query_read_from_string( "query", "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA" );
 
         init_for_sw(query, 1);
 

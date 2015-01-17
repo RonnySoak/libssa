@@ -39,11 +39,10 @@ int64_t full_nw(sequence * dseq, sequence * qseq, int64_t * hearray) {
 
             *hep = h;
 
-            h += -gapO + -gapE;
-
             // test for gap extensions
             e += -gapE;
             f += -gapE;
+            h += -gapO + -gapE;
 
             if (f < h)
                 f = h;

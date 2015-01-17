@@ -47,25 +47,25 @@
  maximize score
  */
 
-static void _mm_print( char * desc, __m128i x ) {
-    unsigned short * y = (unsigned short*) &x;
-
-    printf( "%s: ", desc );
-
-    for( int i = 0; i < 8; i++ )
-        printf( "%s%6d", (i > 0 ? " " : ""), y[7 - i] );
-    printf( "\n" );
-}
-
-static void _mm_print2( char * desc, __m128i x ) {
-    signed short * y = (signed short*) &x;
-
-    printf( "%s: ", desc );
-
-    for( int i = 0; i < 8; i++ )
-        printf( "%s%2d", (i > 0 ? " " : ""), y[7 - i] );
-    printf( "\n" );
-}
+//static void _mm_print( char * desc, __m128i x ) {
+//    unsigned short * y = (unsigned short*) &x;
+//
+//    printf( "%s: ", desc );
+//
+//    for( int i = 0; i < 8; i++ )
+//        printf( "%s%6d", (i > 0 ? " " : ""), y[7 - i] );
+//    printf( "\n" );
+//}
+//
+//static void _mm_print2( char * desc, __m128i x ) {
+//    signed short * y = (signed short*) &x;
+//
+//    printf( "%s: ", desc );
+//
+//    for( int i = 0; i < 8; i++ )
+//        printf( "%s%2d", (i > 0 ? " " : ""), y[7 - i] );
+//    printf( "\n" );
+//}
 
 //static void dprofile_dump16( int16_t * dprofile ) {
 //    const char * s = sym_ncbi_nt16u;
@@ -175,10 +175,6 @@ static void dprofile_fill16( int16_t * dprofile_word, int16_t * score_matrix_wor
 #endif
 }
 
-/*
- * TODO Can we mix epi and epu intrinsics?
- */
-
 #define ALIGNCORE(H, N, F, V, QR, R, S)                                        \
  H = _mm_adds_epi16(H, V);            /* add value of scoring matrix */        \
  H = _mm_max_epi16(H, F);             /* max(H, F) */                          \
@@ -201,49 +197,20 @@ static void aligncolumns_first( __m128i * Sm, __m128i * hep, __m128i ** qp, __m1
 
     f0 = f1 = f2 = f3 = _mm_setzero_si128();
 
-//    _mm_print2( "M_QR_t_left", M_QR_t_left );
-
     for( i = 0; i < ql - 1; i++ ) {
-//    printf("round: %d\n", i);
         vp = qp[i + 0];
 
-//    _mm_print2( "vp 0", vp[0] );
-//    _mm_print2( "vp 1", vp[1] );
-//    _mm_print2( "vp 2", vp[2] );
-//    _mm_print2( "vp 3", vp[3] );
-
         h4 = hep[2 * i + 0];
-//        _mm_print2( "h4", h4 );
-
         h4 = _mm_subs_epu16( h4, Mm );
-//        _mm_print2( "h4", h4 );
-
-//        h4 = _mm_subs_epu16( h4, M_QR_t_left );
-//        _mm_print2( "h4", h4 );
 
 
         E = hep[2 * i + 1];
-//        _mm_print2( "E", E );
-
         E = _mm_subs_epu16( E, Mm );
-//        _mm_print2( "E", E );
-
-//        E = _mm_adds_epi16( E, E0 );
-//        _mm_print2( "E", E );
-
-//        _mm_print2( "h0", h0 );
-//        _mm_print2( "h1", h1 );
-//        _mm_print2( "h2", h2 );
-//        _mm_print2( "h3", h3 );
 
         ALIGNCORE( h0, h5, f0, vp[0], gap_open_extend, gap_extend, *Sm );
-//        _mm_print2( "S", *Sm );
         ALIGNCORE( h1, h6, f1, vp[1], gap_open_extend, gap_extend, *Sm );
-//        _mm_print2( "S", *Sm );
         ALIGNCORE( h2, h7, f2, vp[2], gap_open_extend, gap_extend, *Sm );
-//        _mm_print2( "S", *Sm );
         ALIGNCORE( h3, h8, f3, vp[3], gap_open_extend, gap_extend, *Sm );
-//        _mm_print2( "S", *Sm );
 
         hep[2 * i + 0] = h8;
         hep[2 * i + 1] = E;
@@ -252,18 +219,10 @@ static void aligncolumns_first( __m128i * Sm, __m128i * hep, __m128i ** qp, __m1
         h1 = h5;
         h2 = h6;
         h3 = h7;
-
-//        _mm_print2( "S", *Sm );
-//        _mm_print2( "h0", h0 );
-//        _mm_print2( "h1", h1 );
-//        _mm_print2( "h2", h2 );
-//        _mm_print2( "h3", h3 );
-
     }
-//        exit(1);
 
     /* the final round - using alternative query gap penalties */
-
+    
     vp = qp[i + 0];
 
     E = hep[2 * i + 1];
@@ -285,7 +244,6 @@ static void aligncolumns_rest( __m128i * Sm, __m128i * hep, __m128i ** qp, __m12
     long i;
 
     f0 = f1 = f2 = f3 = _mm_setzero_si128();
- //   h0 = h1 = h2 = h3 = _mm_setzero_si128();
 
     for( i = 0; i < ql - 1; i++ ) {
         vp = qp[i + 0];
@@ -337,24 +295,26 @@ static inline void fill_channel( int c, uint8_t* d_begin[CHANNELS], uint8_t* d_e
 
 /*
  * use the range from -32768 - 0 - to 32767
- * 
+ *
  * init with int16_min and add int16_max to max
- * 
+ *
  * add -32768 twice, to reset to zero (modify masking values)
- * 
+ *
  * a biased Version adds more instructions in ALIGNCORE, than the other version
  */
 
 void search16_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, int query_id ) {
     int16_t * dprofile = (int16_t*) s->dprofile;
-    int16_t * hearray = (int16_t*) s->hearray;
     unsigned long qlen = s->qlen;
 
     __m128i T, M, T0;
 
     __m128i gap_open_extend, gap_extend;
 
-    __m128i *hep;
+    union {
+        __m128i * v;
+        int16_t * a;
+    } hep;
 
     uint8_t * d_begin[CHANNELS];
     uint8_t * d_end[CHANNELS];
@@ -376,10 +336,10 @@ void search16_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, int query_id ) 
     T0 = _mm_set_epi16( 0, 0, 0, 0, 0, 0, 0, 0xffff );
     S.v = _mm_setzero_si128();
 
+    hep.a = (int16_t*) s->hearray; // TODO why do we go the detour from _m128i * to int16_t * and back?
+
     gap_open_extend = _mm_set1_epi16( s->penalty_gap_open + s->penalty_gap_extension );
     gap_extend = _mm_set1_epi16( s->penalty_gap_extension );
-
-    hep = (__m128i *) hearray;
 
     for( int c = 0; c < CHANNELS; c++ ) {
         d_begin[c] = &zero;
@@ -411,8 +371,6 @@ void search16_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, int query_id ) 
          */
 
         if( no_sequences_ended ) {
-            _mm_print( "Score 2", S.v );
-
             /* fill all channels with symbols from the database sequences */
 
             for( int c = 0; c < CHANNELS; c++ ) {
@@ -424,7 +382,7 @@ void search16_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, int query_id ) 
 
             dprofile_fill16( dprofile, (int16_t*) s->matrix, dseq );
 
-            aligncolumns_rest( &S.v, hep, s->qtable, gap_open_extend, gap_extend, H0, H1, H2, H3, qlen );
+            aligncolumns_rest( &S.v, hep.v, s->qtable, gap_open_extend, gap_extend, H0, H1, H2, H3, qlen );
         }
         else {
             /* One or more sequences ended in the previous block.
@@ -433,8 +391,6 @@ void search16_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, int query_id ) 
 
             M = _mm_setzero_si128();
             T = T0;
-
-            _mm_print( "Score 1", S.v );
 
             for( int c = 0; c < CHANNELS; c++ ) {
                 if( d_begin[c] < d_end[c] ) {
@@ -513,7 +469,7 @@ void search16_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, int query_id ) 
 
             dprofile_fill16( dprofile, (int16_t *) s->matrix, dseq );
 
-            aligncolumns_first( &S.v, hep, s->qtable, gap_open_extend, gap_extend, H0, H1, H2, H3, M,
+            aligncolumns_first( &S.v, hep.v, s->qtable, gap_open_extend, gap_extend, H0, H1, H2, H3, M,
                     qlen );
         }
     }

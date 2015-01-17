@@ -30,20 +30,20 @@ START_TEST (test_simple_one_thread)
         ck_assert_int_eq(5, alist->len);
 
         ck_assert_int_eq(1290, alist->alignments[0]->db_seq.ID);
-        ck_assert_int_eq(212, alist->alignments[0]->score);
-        ck_assert_str_eq("7M2I3MD3MD3M2D9M5I4M8I7MI5MI4M2I3MI2M", alist->alignments[0]->alignment);
+        ck_assert_int_eq(166, alist->alignments[0]->score);
+        ck_assert_str_eq("6M2I3MD3MD3M2D9M5I4M8I7MI5MI4M2I3MI3M", alist->alignments[0]->alignment);
         ck_assert_int_eq(1075, alist->alignments[1]->db_seq.ID);
-        ck_assert_int_eq(212, alist->alignments[1]->score);
-        ck_assert_str_eq("7M2I3MD3MD3M2D9M5I4M8I7MI5MI4M2I3MI2M", alist->alignments[1]->alignment);
-        ck_assert_int_eq(1337, alist->alignments[2]->db_seq.ID);
-        ck_assert_int_eq(210, alist->alignments[2]->score);
-        ck_assert_str_eq("7M2I3MD3MD4M2D8M5I4M8I7MI5MI4M2I3MI2M", alist->alignments[2]->alignment);
-        ck_assert_int_eq(1164, alist->alignments[3]->db_seq.ID);
-        ck_assert_int_eq(210, alist->alignments[3]->score);
-        ck_assert_str_eq("7M2I3MD3MD4M2D8M5I4M8I7MI5MI3M4I2MI2MI2M", alist->alignments[3]->alignment);
-        ck_assert_int_eq(1146, alist->alignments[4]->db_seq.ID);
-        ck_assert_int_eq(210, alist->alignments[4]->score);
-        ck_assert_str_eq("7M2I3MD3MD4M2D8M5I4M8I7MI5MI4M2I3MI2M", alist->alignments[4]->alignment);
+        ck_assert_int_eq(165, alist->alignments[1]->score);
+        ck_assert_str_eq("6M2I3MD3MD3M2D9M5I4M8I7MI5MI4M2I3MI3M", alist->alignments[1]->alignment);
+        ck_assert_int_eq(1144, alist->alignments[2]->db_seq.ID);
+        ck_assert_int_eq(163, alist->alignments[2]->score);
+        ck_assert_str_eq("6M2I3MD3MD3M2D9M5I4M8I7MI5MI4M2I2MI4M", alist->alignments[2]->alignment);
+        ck_assert_int_eq(965, alist->alignments[3]->db_seq.ID);
+        ck_assert_int_eq(163, alist->alignments[3]->score);
+        ck_assert_str_eq("4M2I5M3I6MIM2I3MD13M3I7M2I13M", alist->alignments[3]->alignment);
+        ck_assert_int_eq(313, alist->alignments[4]->db_seq.ID);
+        ck_assert_int_eq(163, alist->alignments[4]->score);
+        ck_assert_str_eq("7MI6MD3M2D9M5I4M8I7MI5MI4M2I3MI3M", alist->alignments[4]->alignment);
 
         free_alignment(alist);
 
@@ -88,20 +88,20 @@ START_TEST (test_sw_multiple_threads)
         ck_assert_int_eq(5, alist->len);
 
         ck_assert_int_eq(1290, alist->alignments[0]->db_seq.ID);
-        ck_assert_int_eq(212, alist->alignments[0]->score);
-        ck_assert_str_eq("7M2I3MD3MD3M2D9M5I4M8I7MI5MI4M2I3MI2M", alist->alignments[0]->alignment);
+        ck_assert_int_eq(166, alist->alignments[0]->score);
+        ck_assert_str_eq("6M2I3MD3MD3M2D9M5I4M8I7MI5MI4M2I3MI3M", alist->alignments[0]->alignment);
         ck_assert_int_eq(1075, alist->alignments[1]->db_seq.ID);
-        ck_assert_int_eq(212, alist->alignments[1]->score);
-        ck_assert_str_eq("7M2I3MD3MD3M2D9M5I4M8I7MI5MI4M2I3MI2M", alist->alignments[1]->alignment);
-        ck_assert_int_eq(1337, alist->alignments[2]->db_seq.ID);
-        ck_assert_int_eq(210, alist->alignments[2]->score);
-        ck_assert_str_eq("7M2I3MD3MD4M2D8M5I4M8I7MI5MI4M2I3MI2M", alist->alignments[2]->alignment);
-        ck_assert_int_eq(1164, alist->alignments[3]->db_seq.ID);
-        ck_assert_int_eq(210, alist->alignments[3]->score);
-        ck_assert_str_eq("7M2I3MD3MD4M2D8M5I4M8I7MI5MI3M4I2MI2MI2M", alist->alignments[3]->alignment);
-        ck_assert_int_eq(1146, alist->alignments[4]->db_seq.ID);
-        ck_assert_int_eq(210, alist->alignments[4]->score);
-        ck_assert_str_eq("7M2I3MD3MD4M2D8M5I4M8I7MI5MI4M2I3MI2M", alist->alignments[4]->alignment);
+        ck_assert_int_eq(165, alist->alignments[1]->score);
+        ck_assert_str_eq("6M2I3MD3MD3M2D9M5I4M8I7MI5MI4M2I3MI3M", alist->alignments[1]->alignment);
+        ck_assert_int_eq(1144, alist->alignments[2]->db_seq.ID);
+        ck_assert_int_eq(163, alist->alignments[2]->score);
+        ck_assert_str_eq("6M2I3MD3MD3M2D9M5I4M8I7MI5MI4M2I2MI4M", alist->alignments[2]->alignment);
+        ck_assert_int_eq(965, alist->alignments[3]->db_seq.ID);
+        ck_assert_int_eq(163, alist->alignments[3]->score);
+        ck_assert_str_eq("4M2I5M3I6MIM2I3MD13M3I7M2I13M", alist->alignments[3]->alignment);
+        ck_assert_int_eq(313, alist->alignments[4]->db_seq.ID);
+        ck_assert_int_eq(163, alist->alignments[4]->score);
+        ck_assert_str_eq("7MI6MD3M2D9M5I4M8I7MI5MI4M2I3MI3M", alist->alignments[4]->alignment);
 
         free_alignment(alist);
 
@@ -188,28 +188,28 @@ START_TEST (test_1000_threads)
         ck_assert_int_eq(5, alist->len);
 
         ck_assert_int_eq(1290, alist->alignments[0]->db_seq.ID);
-        ck_assert_int_eq(212, alist->alignments[0]->score);
-        ck_assert_str_eq("7M2I3MD3MD3M2D9M5I4M8I7MI5MI4M2I3MI2M", alist->alignments[0]->alignment);
+        ck_assert_int_eq(166, alist->alignments[0]->score);
+        ck_assert_str_eq("6M2I3MD3MD3M2D9M5I4M8I7MI5MI4M2I3MI3M", alist->alignments[0]->alignment);
         ck_assert_int_eq(1075, alist->alignments[1]->db_seq.ID);
-        ck_assert_int_eq(212, alist->alignments[1]->score);
-        ck_assert_str_eq("7M2I3MD3MD3M2D9M5I4M8I7MI5MI4M2I3MI2M", alist->alignments[1]->alignment);
+        ck_assert_int_eq(165, alist->alignments[1]->score);
+        ck_assert_str_eq("6M2I3MD3MD3M2D9M5I4M8I7MI5MI4M2I3MI3M", alist->alignments[1]->alignment);
         /*
          * TODO the rest of the test is not working, since there are more than 3 alignments with a score of 210.
          *
          *      The current algorithms does not give alignments with the same score a particular order, it takes
          *      them, as they come ... here we have to decide, what is best to do in that case!
          */
-//        ck_assert_int_eq(1393, alist->alignments[2]->db_seq.ID);
-//        ck_assert_int_eq(210, alist->alignments[2]->score);
-//        ck_assert_str_eq("7M2I3MD3MD4M2D8M5I4M8I7MI5MI3M2I4MI2M", alist->alignments[2]->alignment);
-//        ck_assert_int_eq(1337, alist->alignments[3]->db_seq.ID);
-//        ck_assert_int_eq(210, alist->alignments[3]->score);
+//        ck_assert_int_eq(1340, alist->alignments[2]->db_seq.ID);
+//        ck_assert_int_eq(163, alist->alignments[2]->score);
+//        ck_assert_str_eq("6M2I3MD3MD3M2D9M5I4M8I7MI5MI4M2I3MI3M", alist->alignments[2]->alignment);
+//        ck_assert_int_eq(965, alist->alignments[3]->db_seq.ID);
+//        ck_assert_int_eq(163, alist->alignments[3]->score);
 //        ck_assert_str_eq("7M2I3MD3MD4M2D8M5I4M8I7MI5MI4M2I3MI2M", alist->alignments[3]->alignment);
 //        ck_assert_int_eq(1164, alist->alignments[4]->db_seq.ID);
 //        ck_assert_int_eq(210, alist->alignments[4]->score);
 //        ck_assert_str_eq("7M2I3MD3MD4M2D8M5I4M8I7MI5MI4M2I3MI2M", alist->alignments[4]->alignment);
-//
-//        free_alignment(alist);
+
+        free_alignment(alist);
 
         free_db();
         free_sequence( query );

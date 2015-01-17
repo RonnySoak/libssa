@@ -176,15 +176,6 @@ static void dprofile_fill16( int16_t * dprofile_word, int16_t * score_matrix_wor
 }
 
 /*
- The direction bits are set as follows:
- in DIR[0..1] if F>H initially (must go up) (4th pri)
- in DIR[2..3] if E>max(H,F) (must go left) (3rd pri)
- in DIR[4..5] if new F>H (must extend up) (2nd pri)
- in DIR[6..7] if new E>H (must extend left) (1st pri)
- no bits set: go diagonally
- */
-
-/*
  * TODO detect, if the score goes below INT16_MIN or above INT16_MAX in between the calculation
  */
 
@@ -378,7 +369,6 @@ static inline void fill_channel( int c, uint8_t* d_begin[CHANNELS], uint8_t* d_e
 
 void search16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, int query_id ) {
     int16_t * dprofile = (int16_t*) s->dprofile;
-    int16_t * hearray = (int16_t*) s->hearray;
     unsigned long qlen = s->qlen;
 
     __m128i T, M, T0, E0;
@@ -387,7 +377,10 @@ void search16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, int query_id ) 
 
     __m128i gap_open_extend, gap_extend;
 
-    __m128i *hep;
+    union {
+        __m128i * v;
+        int16_t * a;
+    } hep;
 
     uint8_t * d_begin[CHANNELS];
     uint8_t * d_end[CHANNELS];
@@ -408,7 +401,7 @@ void search16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, int query_id ) 
     gap_open_extend = _mm_set1_epi16( s->penalty_gap_open + s->penalty_gap_extension );
     gap_extend = _mm_set1_epi16( s->penalty_gap_extension );
 
-    hep = (__m128i *) hearray;
+    hep.a = (int16_t*) s->hearray; // TODO why do we go the detour from _m128i * to int16_t * and back?
 
     for( int c = 0; c < CHANNELS; c++ ) {
         d_begin[c] = &zero;
@@ -446,7 +439,7 @@ void search16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, int query_id ) 
 
             dprofile_fill16( dprofile, (int16_t*) s->matrix, dseq );
 
-            aligncolumns_rest( S, hep, s->qtable, gap_open_extend, gap_extend, H0, H1, H2, H3, qlen );
+            aligncolumns_rest( S, hep.v, s->qtable, gap_open_extend, gap_extend, H0, H1, H2, H3, qlen );
         }
         else {
             /* One or more sequences ended in the previous block.
@@ -544,7 +537,7 @@ void search16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, int query_id ) 
 
             dprofile_fill16( dprofile, (int16_t *) s->matrix, dseq );
 
-            aligncolumns_first( S, hep, s->qtable, gap_open_extend, gap_extend, H0, H1, H2, H3, E0, M,
+            aligncolumns_first( S, hep.v, s->qtable, gap_open_extend, gap_extend, H0, H1, H2, H3, E0, M,
                     M_QR_target_left, M_R_target_left, qlen );
         }
 

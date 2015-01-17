@@ -17,6 +17,7 @@
 #include "../../src/matrices.h"
 #include "../../src/db_iterator.h"
 #include "../../src/query.h"
+#include "../../src/algo/searcher.h"
 
 extern p_alignment_data adp;
 
@@ -33,14 +34,15 @@ elem_t new_elem0( int ID, int frame, int strand, int qid, long score ) {
 
 START_TEST (test_aligner_simple_sw)
     {
-        mat_init_constant_scoring( 1, -1 );
         init_symbol_translation( NUCLEOTIDE, FORWARD_STRAND, 3, 3 );
+        mat_init_constant_scoring( 1, -1 );
 
         p_query query = query_read_from_string( "short query", "AT" );
         ssa_db_init_fasta( "./tests/testdata/short_db.fas" );
 
         it_init( 1 );
-
+        gapO = 1;
+        gapE = 1;
 
         sequence sdb = it_translate_sequence( ssa_db_get_sequence( 0 ), 0, 0 );
 
@@ -85,6 +87,42 @@ START_TEST (test_aligner_simple_sw)
         ssa_db_free();
     }END_TEST
 
+START_TEST (test_aligner_simple_sw_2)
+    {
+        init_symbol_translation( NUCLEOTIDE, FORWARD_STRAND, 3, 3 );
+        mat_init_constant_scoring( 1, -1 );
+
+        p_query query = query_read_from_string( "query", "ATGCAAAAA" );
+        ssa_db_init_fasta( "./tests/testdata/one_seq_db.fas" );
+
+        it_init( 1 );
+        gapO = 1;
+        gapE = 1;
+
+        elem_t e1 = new_elem0( 0, 0, 0, 0, 9 );
+        elem_t * elements = { &e1 };
+
+        init_for_sw( query, 1 );
+        adp->pair_count = 1;
+        adp->result_sequence_pairs = elements;
+        set_alignment_data( adp );
+
+        p_alignment_list alist = a_align( NULL );
+
+        ck_assert_int_eq( 1, alist->len );
+
+        alignment_p al = alist->alignments[0];
+
+        ck_assert_str_eq( "9M", al->alignment );
+
+        a_free( alist );
+
+        mat_free();
+        query_free( query );
+        it_free();
+        ssa_db_free();
+    }END_TEST
+
 START_TEST (test_aligner_more_sequences_sw)
     {
         mat_init_constant_scoring( 1, -1 );
@@ -94,6 +132,8 @@ START_TEST (test_aligner_more_sequences_sw)
         ssa_db_init_fasta( "./tests/testdata/test.fas" );
 
         it_init( 3 );
+        gapO = 1;
+        gapE = 1;
 
         p_minheap heap = minheap_init( 5 );
 
@@ -136,12 +176,11 @@ START_TEST (test_aligner_more_sequences_sw)
         ck_assert_int_eq( 0, al->query.strand );
 
         ck_assert_int_eq( 2, al->score ); // the score is 2, since we set it to 2
-        ck_assert_int_eq( 1, al->align_d_start );
-        ck_assert_int_eq( 120, al->align_d_end );
-        ck_assert_int_eq( 1, al->align_q_start );
-        ck_assert_int_eq( 53, al->align_q_end );
-        ck_assert_str_eq( "DMI2MI2MIM3IM2IM4IM9I2MIM4I2M4I2M7IM6IMI3M"
-                "3I2MI2M6ID3MIM3IM3IMIMD4M4IMI4MDMIMIMI3MDMI", al->alignment ); // TODO check this
+        ck_assert_int_eq( 31, al->align_d_start );
+        ck_assert_int_eq( 54, al->align_d_end );
+        ck_assert_int_eq( 10, al->align_q_start );
+        ck_assert_int_eq( 34, al->align_q_end );
+        ck_assert_str_eq( "20MD4M", al->alignment );
 
         a_free( alist );
         minheap_exit( heap );
@@ -161,6 +200,8 @@ START_TEST (test_aligner_simple_nw)
         ssa_db_init_fasta( "./tests/testdata/short_db.fas" );
 
         it_init( 1 );
+        gapO = 1;
+        gapE = 1;
 
         sequence sdb = it_translate_sequence( ssa_db_get_sequence( 0 ), 0, 0 );
 
@@ -195,7 +236,7 @@ START_TEST (test_aligner_simple_nw)
         ck_assert_int_eq( 0, al->align_q_start );
         ck_assert_int_eq( 1, al->align_q_end );
 
-        ck_assert_str_eq( "I2MI", al->alignment );
+        ck_assert_str_eq( "MIMI", al->alignment );
 
         a_free( alist );
 
@@ -208,6 +249,7 @@ START_TEST (test_aligner_simple_nw)
 void addAlignerTC( Suite *s ) {
     TCase *tc_core = tcase_create( "aligner" );
     tcase_add_test( tc_core, test_aligner_simple_sw );
+    tcase_add_test( tc_core, test_aligner_simple_sw_2 );
     tcase_add_test( tc_core, test_aligner_simple_nw );
     tcase_add_test( tc_core, test_aligner_more_sequences_sw );
 
