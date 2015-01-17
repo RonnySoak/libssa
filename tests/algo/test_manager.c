@@ -10,6 +10,7 @@
 #include "../../src/algo/manager.h"
 #include "../../src/algo/aligner.h"
 #include "../../src/algo/search.h"
+#include "../../src/algo/63/search_63.h"
 
 #include "../../src/util/util.h"
 #include "../../src/libssa.h"

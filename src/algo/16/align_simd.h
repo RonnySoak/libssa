@@ -22,8 +22,8 @@
 #include <stdint.h>
 #include <immintrin.h>
 
-#include "../libssa_datatypes.h"
-#include "../util/minheap.h"
+#include "../../libssa_datatypes.h"
+#include "../../util/minheap.h"
 
 struct s16info {
     __m128i matrix[32];

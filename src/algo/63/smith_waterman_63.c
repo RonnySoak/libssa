@@ -23,12 +23,12 @@
  PO Box 1080 Blindern, NO-0316 Oslo, Norway
  */
 
-#include "search.h"
+#include "../search.h"
 
 #include <string.h>
 
-#include "../util/util.h"
-#include "../matrices.h"
+#include "../../util/util.h"
+#include "../../matrices.h"
 
 /*
  * TODO why is called 63, instead of 64? we use an int64_t and not a 63bit type ...

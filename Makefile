@@ -18,9 +18,13 @@ COVERAGE_DIR = coverage_data
 # All of the sources participating in the build are defined here
 -include tests/subdir.mk
 -include tests/algo/subdir.mk
+-include tests/algo/16/subdir.mk
+-include tests/algo/63/subdir.mk
 -include tests/util/subdir.mk
 -include src/subdir.mk
 -include src/algo/subdir.mk
+-include src/algo/16/subdir.mk
+-include src/algo/63/subdir.mk
 -include src/util/subdir.mk
 
 MPI_COMPILE := `mpicxx --showme:compile`

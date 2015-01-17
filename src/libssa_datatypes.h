@@ -38,6 +38,7 @@ typedef struct {
 
 struct search_data {
     int hit_count;
+
     int64_t (*search_algo)(sequence*, sequence*, int64_t*);
 
     uint8_t * dprofile;

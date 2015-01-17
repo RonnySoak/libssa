@@ -5,9 +5,9 @@
  *      Author: Jakob Frielingsdorf
  */
 
-#include "search.h"
+#include "../search.h"
 
-#include "../matrices.h"
+#include "../../matrices.h"
 
 int64_t full_nw(sequence * dseq, sequence * qseq, int64_t * hearray) {
     int64_t h; // current value

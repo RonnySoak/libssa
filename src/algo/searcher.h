@@ -9,9 +9,13 @@
 #define SEARCHER_H_
 
 #include "../libssa_datatypes.h"
+#include "search.h"
 
-extern uint8_t gapO;
-extern uint8_t gapE;
+#define SMITH_WATERMAN 0
+#define NEEDLEMAN_WUNSCH 1
+#define NEEDLEMAN_WUNSCH_SELLERS 2
+
+void s_init( p_search_data sdp, int search_type, int bit_width );
 
 void s_free();
 

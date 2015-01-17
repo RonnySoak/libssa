@@ -51,12 +51,12 @@ static void init_alignment_data(void (*align_function)(alignment_p)) {
     }
 }
 
-static void init_searchdata(p_query query, int hit_count,
-        int64_t (*search_algo)(sequence*, sequence*, int64_t*)) {
+static void init_searchdata(p_query query, int hit_count, int search_type ) {
     sdp = xmalloc(sizeof(struct search_data));
 
+    s_init( sdp, search_type, 64 ); // TODO make configurable
+
     sdp->hit_count = hit_count;
-    sdp->search_algo = search_algo;
 
     sdp->dprofile = xmalloc(4 * 16 * 32);
     unsigned long qlen = 0;
@@ -135,9 +135,8 @@ void free_alignment_data() {
 }
 
 static void init(p_query query, int hit_count,
-        int64_t (*search_algo)(sequence*, sequence*, int64_t*),
-        void (*align_function)(alignment_p)) {
-    init_searchdata(query, hit_count, search_algo);
+        int search_type, void (*align_function)(alignment_p)) {
+    init_searchdata(query, hit_count, search_type );
 
     init_alignment_data(align_function);
 
@@ -145,15 +144,15 @@ static void init(p_query query, int hit_count,
 }
 
 void init_for_sw(p_query query, int hit_count) {
-    init(query, hit_count, &full_sw,  &align_sw);
+    init(query, hit_count, SMITH_WATERMAN,  &align_sw);
 }
 
 void init_for_nw(p_query query, int hit_count) {
-    init(query, hit_count, &full_nw, &align_nw);
+    init(query, hit_count, NEEDLEMAN_WUNSCH, &align_nw);
 }
 
 void init_for_nw_sellers(p_query query, int hit_count) {
-    init(query, hit_count, &full_nw_sellers, &align_nw_sellers);
+    init(query, hit_count, NEEDLEMAN_WUNSCH_SELLERS, &align_nw_sellers);
 }
 
 static int alignment_compare(const void * a, const void * b) {

@@ -5,14 +5,16 @@
  *      Author: kaos
  */
 
-#include "../tests.h"
+#include "../../tests.h"
 
-#include "../../src/util/util.h"
-#include "../../src/libssa.h"
-#include "../../src/matrices.h"
-#include "../../src/db_iterator.h"
-#include "../../src/query.h"
-#include "../../src/algo/search.h"
+#include "../../../src/util/util.h"
+#include "../../../src/libssa.h"
+#include "../../../src/matrices.h"
+#include "../../../src/db_iterator.h"
+#include "../../../src/query.h"
+#include "../../../src/algo/search.h"
+
+#include "../../../src/algo/63/search_63.h"
 
 START_TEST (test_search63_simple)
     {

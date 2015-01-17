@@ -25,9 +25,9 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "../util/util_sequence.h"
-#include "../util/util.h"
-#include "../matrices.h"
+#include "../../util/util_sequence.h"
+#include "../../util/util.h"
+#include "../../matrices.h"
 
 #define CHANNELS 8
 #define CDEPTH 4
@@ -39,11 +39,11 @@
  */
 
 /*
- Using 16-bit signed values, from 0 to +65535.
+ Using 16-bit signed values, from -32768 to +32767.
  match: positive
  mismatch: negative
  gap penalties: positive (open, extend)
- optimal local alignment (SW)
+ optimal global alignment (NW)
  maximize score
  */
 
@@ -56,7 +56,7 @@
 //        printf( "%s%6d", (i > 0 ? " " : ""), y[7 - i] );
 //    printf( "\n" );
 //}
-//
+
 //static void _mm_print2( char * desc, __m128i x ) {
 //    signed short * y = (signed short*) &x;
 //
@@ -175,11 +175,14 @@ static void dprofile_fill16( int16_t * dprofile_word, int16_t * score_matrix_wor
 #endif
 }
 
-#define ALIGNCORE(H, N, F, V, QR, R, S)                                        \
+/*
+ * TODO detect, if the score goes below INT16_MIN or above INT16_MAX in between the calculation
+ */
+
+#define ALIGNCORE(H, N, F, V, QR, R)                                           \
  H = _mm_adds_epi16(H, V);            /* add value of scoring matrix */        \
  H = _mm_max_epi16(H, F);             /* max(H, F) */                          \
  H = _mm_max_epi16(H, E);             /* max(H, E) */                          \
- S = _mm_max_epi16(H, S);             /* save max score */                     \
  N = H;                               /* save H in HE-array */                 \
  HF = _mm_subs_epi16(H, QR);          /* subtract gap open-extend */           \
  F = _mm_subs_epi16(F, R);            /* subtract gap extend */                \
@@ -189,28 +192,31 @@ static void dprofile_fill16( int16_t * dprofile_word, int16_t * score_matrix_wor
  E = _mm_max_epi16(E, HE);            /* test for gap extension, or opening */
 
 static void aligncolumns_first( __m128i * Sm, __m128i * hep, __m128i ** qp, __m128i gap_open_extend, __m128i gap_extend,
-        __m128i h0, __m128i h1, __m128i h2, __m128i h3, __m128i Mm,
+        __m128i h0, __m128i h1, __m128i h2, __m128i h3, __m128i E0, __m128i Mm, __m128i M_QR_t_left, __m128i M_R_t_left,
         long ql ) {
     __m128i h4, h5, h6, h7, h8, f0, f1, f2, f3, E, HE, HF;
     __m128i * vp;
     long i;
 
-    f0 = f1 = f2 = f3 = _mm_setzero_si128();
+    f0 = f1 = f2 = f3 = _mm_set1_epi16( SHRT_MIN );
 
     for( i = 0; i < ql - 1; i++ ) {
         vp = qp[i + 0];
 
         h4 = hep[2 * i + 0];
         h4 = _mm_subs_epu16( h4, Mm );
-
+        h4 = _mm_subs_epi16( h4, M_QR_t_left );
+        M_QR_t_left = _mm_adds_epi16( M_QR_t_left, M_R_t_left );
 
         E = hep[2 * i + 1];
-        E = _mm_subs_epu16( E, Mm );
+        E = _mm_subs_epu16( E, Mm ); // sets new beginning columns to 0
+        E = _mm_adds_epi16( E, E0 ); // sets new beginning columns to -32768
+        // because we have to open an gap, and cannot extend it, since we are beginning here
 
-        ALIGNCORE( h0, h5, f0, vp[0], gap_open_extend, gap_extend, *Sm );
-        ALIGNCORE( h1, h6, f1, vp[1], gap_open_extend, gap_extend, *Sm );
-        ALIGNCORE( h2, h7, f2, vp[2], gap_open_extend, gap_extend, *Sm );
-        ALIGNCORE( h3, h8, f3, vp[3], gap_open_extend, gap_extend, *Sm );
+        ALIGNCORE( h0, h5, f0, vp[0], gap_open_extend, gap_extend );
+        ALIGNCORE( h1, h6, f1, vp[1], gap_open_extend, gap_extend );
+        ALIGNCORE( h2, h7, f2, vp[2], gap_open_extend, gap_extend );
+        ALIGNCORE( h3, h8, f3, vp[3], gap_open_extend, gap_extend );
 
         hep[2 * i + 0] = h8;
         hep[2 * i + 1] = E;
@@ -222,19 +228,25 @@ static void aligncolumns_first( __m128i * Sm, __m128i * hep, __m128i ** qp, __m1
     }
 
     /* the final round - using alternative query gap penalties */
-    
+
     vp = qp[i + 0];
 
     E = hep[2 * i + 1];
     E = _mm_subs_epu16( E, Mm );
+    E = _mm_adds_epi16( E, E0 );
 
-    ALIGNCORE( h0, h5, f0, vp[0], gap_open_extend, gap_extend, *Sm );
-    ALIGNCORE( h1, h6, f1, vp[1], gap_open_extend, gap_extend, *Sm );
-    ALIGNCORE( h2, h7, f2, vp[2], gap_open_extend, gap_extend, *Sm );
-    ALIGNCORE( h3, h8, f3, vp[3], gap_open_extend, gap_extend, *Sm );
+    ALIGNCORE( h0, h5, f0, vp[0], gap_open_extend, gap_extend );
+    ALIGNCORE( h1, h6, f1, vp[1], gap_open_extend, gap_extend );
+    ALIGNCORE( h2, h7, f2, vp[2], gap_open_extend, gap_extend );
+    ALIGNCORE( h3, h8, f3, vp[3], gap_open_extend, gap_extend );
 
     hep[2 * i + 0] = h8;
     hep[2 * i + 1] = E;
+
+    Sm[0] = h5;
+    Sm[1] = h6;
+    Sm[2] = h7;
+    Sm[3] = h8;
 }
 
 static void aligncolumns_rest( __m128i * Sm, __m128i * hep, __m128i ** qp, __m128i gap_open_extend, __m128i gap_extend,
@@ -243,7 +255,7 @@ static void aligncolumns_rest( __m128i * Sm, __m128i * hep, __m128i ** qp, __m12
     __m128i * vp;
     long i;
 
-    f0 = f1 = f2 = f3 = _mm_setzero_si128();
+    f0 = f1 = f2 = f3 = _mm_set1_epi16( SHRT_MIN );
 
     for( i = 0; i < ql - 1; i++ ) {
         vp = qp[i + 0];
@@ -252,10 +264,10 @@ static void aligncolumns_rest( __m128i * Sm, __m128i * hep, __m128i ** qp, __m12
 
         E = hep[2 * i + 1];
 
-        ALIGNCORE( h0, h5, f0, vp[0], gap_open_extend, gap_extend, *Sm );
-        ALIGNCORE( h1, h6, f1, vp[1], gap_open_extend, gap_extend, *Sm );
-        ALIGNCORE( h2, h7, f2, vp[2], gap_open_extend, gap_extend, *Sm );
-        ALIGNCORE( h3, h8, f3, vp[3], gap_open_extend, gap_extend, *Sm );
+        ALIGNCORE( h0, h5, f0, vp[0], gap_open_extend, gap_extend );
+        ALIGNCORE( h1, h6, f1, vp[1], gap_open_extend, gap_extend );
+        ALIGNCORE( h2, h7, f2, vp[2], gap_open_extend, gap_extend );
+        ALIGNCORE( h3, h8, f3, vp[3], gap_open_extend, gap_extend );
 
         hep[2 * i + 0] = h8;
         hep[2 * i + 1] = E;
@@ -272,13 +284,75 @@ static void aligncolumns_rest( __m128i * Sm, __m128i * hep, __m128i ** qp, __m12
 
     E = hep[2 * i + 1];
 
-    ALIGNCORE( h0, h5, f0, vp[0], gap_open_extend, gap_extend, *Sm );
-    ALIGNCORE( h1, h6, f1, vp[1], gap_open_extend, gap_extend, *Sm );
-    ALIGNCORE( h2, h7, f2, vp[2], gap_open_extend, gap_extend, *Sm );
-    ALIGNCORE( h3, h8, f3, vp[3], gap_open_extend, gap_extend, *Sm );
+    ALIGNCORE( h0, h5, f0, vp[0], gap_open_extend, gap_extend );
+    ALIGNCORE( h1, h6, f1, vp[1], gap_open_extend, gap_extend );
+    ALIGNCORE( h2, h7, f2, vp[2], gap_open_extend, gap_extend );
+    ALIGNCORE( h3, h8, f3, vp[3], gap_open_extend, gap_extend );
 
     hep[2 * i + 0] = h8;
     hep[2 * i + 1] = E;
+
+    Sm[0] = h5;
+    Sm[1] = h6;
+    Sm[2] = h7;
+    Sm[3] = h8;
+}
+
+p_s16info search16_init( int16_t penalty_gap_open, int16_t penalty_gap_extension ) {
+    /* prepare alloc of qtable, dprofile, hearray, dir */
+    p_s16info s = (p_s16info) xmalloc( sizeof(struct s16info) );
+
+    s->maxdlen = 4 * ((ssa_db_get_longest_sequence() + 3) / 4);
+    s->dprofile = (__m128i *) xmalloc( 2 * 4 * 8 * 16 );
+    s->qlen = 0;
+    s->maxqlen = 0;
+    s->hearray = 0;
+    s->qtable = 0;
+
+    for( int i = 0; i < 16; i++ ) {
+        for( int j = 0; j < 16; j++ ) {
+            ((int16_t*) (&s->matrix))[16 * i + j] = SCORE_MATRIX_16( i, j );
+        }
+    }
+
+    s->penalty_gap_open = penalty_gap_open;
+    s->penalty_gap_extension = penalty_gap_extension;
+
+    return s;
+}
+
+void search16_exit( p_s16info s ) {
+    /* free mem for dprofile, hearray, dir, qtable */
+    if( s->hearray )
+        free( s->hearray );
+    if( s->dprofile )
+        free( s->dprofile );
+    if( s->qtable )
+        free( s->qtable );
+    free( s );
+}
+
+void search16_init_query( p_s16info s, char * qseq, int qlen ) {
+    s->qlen = qlen;
+
+    if( s->qlen > s->maxqlen ) {
+        if( s->maxqlen == 0 )
+            s->maxqlen = 256;
+        while( s->qlen > s->maxqlen )
+            s->maxqlen <<= 1;
+
+        if( s->hearray )
+            free( s->hearray );
+        s->hearray = (__m128i *) xmalloc( 2 * s->maxqlen * sizeof(__m128i ) );
+        memset( s->hearray, 0, 2 * s->maxqlen * sizeof(__m128i ) );
+
+        if( s->qtable )
+            free( s->qtable );
+        s->qtable = (__m128i **) xmalloc( s->maxqlen * sizeof(__m128i *) );
+    }
+
+    for( int i = 0; i < qlen; i++ )
+        s->qtable[i] = s->dprofile + 4 * (int) (qseq[i]);
 }
 
 static inline void fill_channel( int c, uint8_t* d_begin[CHANNELS], uint8_t* d_end[CHANNELS], uint8_t* dseq ) {
@@ -293,21 +367,13 @@ static inline void fill_channel( int c, uint8_t* d_begin[CHANNELS], uint8_t* d_e
     }
 }
 
-/*
- * use the range from -32768 - 0 - to 32767
- *
- * init with int16_min and add int16_max to max
- *
- * add -32768 twice, to reset to zero (modify masking values)
- *
- * a biased Version adds more instructions in ALIGNCORE, than the other version
- */
-
-void search16_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, int query_id ) {
+void search16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, int query_id ) {
     int16_t * dprofile = (int16_t*) s->dprofile;
     unsigned long qlen = s->qlen;
 
-    __m128i T, M, T0;
+    __m128i T, M, T0, E0;
+
+    __m128i M_QR_target_left, M_R_target_left;
 
     __m128i gap_open_extend, gap_extend;
 
@@ -318,14 +384,11 @@ void search16_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, int query_id ) 
 
     uint8_t * d_begin[CHANNELS];
     uint8_t * d_end[CHANNELS];
+    unsigned long d_length[CHANNELS];
     long seq_id[CHANNELS];
 
     __m128i dseqalloc[CDEPTH];
-
-    union {
-        __m128i v;
-        int16_t a[sizeof(__m128i )];
-    } S;
+    __m128i S[4];
 
     uint8_t * dseq = (uint8_t*) &dseqalloc;
     uint8_t zero = 0;
@@ -334,23 +397,25 @@ void search16_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, int query_id ) 
     unsigned long done = 0;
 
     T0 = _mm_set_epi16( 0, 0, 0, 0, 0, 0, 0, 0xffff );
-    S.v = _mm_setzero_si128();
-
-    hep.a = (int16_t*) s->hearray; // TODO why do we go the detour from _m128i * to int16_t * and back?
 
     gap_open_extend = _mm_set1_epi16( s->penalty_gap_open + s->penalty_gap_extension );
     gap_extend = _mm_set1_epi16( s->penalty_gap_extension );
 
+    hep.a = (int16_t*) s->hearray; // TODO why do we go the detour from _m128i * to int16_t * and back?
+
     for( int c = 0; c < CHANNELS; c++ ) {
         d_begin[c] = &zero;
         d_end[c] = d_begin[c];
+        d_length[c] = 0;
         seq_id[c] = -1;
     }
 
     for( int i = 0; i < 4; i++ ) {
+        S[i] = _mm_setzero_si128();
         dseqalloc[i] = _mm_setzero_si128();
     }
 
+    __m128i VECTOR_INT16_MIN = _mm_set1_epi16( INT16_MIN );
     __m128i H0 = _mm_setzero_si128();
     __m128i H1 = _mm_setzero_si128();
     __m128i H2 = _mm_setzero_si128();
@@ -362,14 +427,6 @@ void search16_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, int query_id ) 
      * TODO convert infinite loop into a loop with a condition
      */
     while( 1 ) {
-        /*
-         * TODO If there are less sequences, as channels, this loop switches constantly between
-         * the states "sequences ended" and "no sequences ended". Check if it is possible, to "disable"
-         * the "sequence ended" checks, for these unused channels.
-         *
-         * TODO same for NW implementation! Check if it is possible, to merge NW and SW implementations.
-         */
-
         if( no_sequences_ended ) {
             /* fill all channels with symbols from the database sequences */
 
@@ -382,7 +439,7 @@ void search16_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, int query_id ) 
 
             dprofile_fill16( dprofile, (int16_t*) s->matrix, dseq );
 
-            aligncolumns_rest( &S.v, hep.v, s->qtable, gap_open_extend, gap_extend, H0, H1, H2, H3, qlen );
+            aligncolumns_rest( S, hep.v, s->qtable, gap_open_extend, gap_extend, H0, H1, H2, H3, qlen );
         }
         else {
             /* One or more sequences ended in the previous block.
@@ -391,7 +448,6 @@ void search16_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, int query_id ) 
 
             M = _mm_setzero_si128();
             T = T0;
-
             for( int c = 0; c < CHANNELS; c++ ) {
                 if( d_begin[c] < d_end[c] ) {
                     /* this channel has more sequence */
@@ -411,9 +467,10 @@ void search16_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, int query_id ) 
                     if( cand_id >= 0 ) {
                         /* save score */
 
-                        long score = S.a[c];
+                        long z = (d_length[c] + 3) % 4;
+                        long score = ((int16_t*) S)[z * CHANNELS + c];
 
-                        if( (score >= 0) && (score < UINT16_MAX) ) {
+                        if( (score > INT16_MIN) && (score < INT16_MAX) ) {
                             /* Alignments, with a score equal to the current lowest score in the
                              heap are ignored! */
                             add_to_minheap( heap, query_id, chunk->seq[next_id - 1], score );
@@ -441,8 +498,14 @@ void search16_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, int query_id ) 
                             next_id++;
                         }
 
+                        d_length[c] = length;
                         d_begin[c] = (unsigned char*) address;
                         d_end[c] = (unsigned char*) address + length;
+
+                        ((int16_t*) &H0)[c] = 0;
+                        ((int16_t*) &H1)[c] = -s->penalty_gap_open - 1 * s->penalty_gap_extension;
+                        ((int16_t*) &H2)[c] = -s->penalty_gap_open - 2 * s->penalty_gap_extension;
+                        ((int16_t*) &H3)[c] = -s->penalty_gap_open - 3 * s->penalty_gap_extension;
 
                         fill_channel( c, d_begin, d_end, dseq );
 
@@ -455,7 +518,7 @@ void search16_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, int query_id ) 
                         seq_id[c] = -1;
                         d_begin[c] = &zero;
                         d_end[c] = d_begin[c];
-
+                        d_length[c] = 0;
                         for( int j = 0; j < CDEPTH; j++ )
                             dseq[CHANNELS * j + c] = 0;
                     }
@@ -467,10 +530,20 @@ void search16_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, int query_id ) 
             if( done == chunk->size )
                 break;
 
+            /* make masked versions of QR, R and E0 */
+            M_QR_target_left = _mm_and_si128( M, gap_open_extend );
+            M_R_target_left = _mm_and_si128( M, gap_extend );
+            E0 = _mm_and_si128( M, VECTOR_INT16_MIN );
+
             dprofile_fill16( dprofile, (int16_t *) s->matrix, dseq );
 
-            aligncolumns_first( &S.v, hep.v, s->qtable, gap_open_extend, gap_extend, H0, H1, H2, H3, M,
-                    qlen );
+            aligncolumns_first( S, hep.v, s->qtable, gap_open_extend, gap_extend, H0, H1, H2, H3, E0, M,
+                    M_QR_target_left, M_R_target_left, qlen );
         }
+
+        H0 = _mm_subs_epi16( H3, gap_extend );
+        H1 = _mm_subs_epi16( H0, gap_extend );
+        H2 = _mm_subs_epi16( H1, gap_extend );
+        H3 = _mm_subs_epi16( H2, gap_extend );
     }
 }
