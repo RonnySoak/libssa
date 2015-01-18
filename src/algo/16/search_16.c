@@ -25,7 +25,10 @@ void init_algo_16( int search_type ) {
     }
     else if( search_type == NEEDLEMAN_WUNSCH_SELLERS ) {
 //        search_algo = &search16_nw_sellers; TODO not yet implemented
-        printf( "\nnot yet implemented\n\n" );
+        ffatal( "\nnot yet implemented\n\n" );
+    }
+    else {
+        ffatal("\nunknown search type: %d\n\n", search_type );
     }
 }
 

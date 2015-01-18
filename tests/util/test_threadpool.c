@@ -39,7 +39,7 @@ START_TEST (test_one_thread)
     {
         setup_pool(1);
 
-        start_threads(&simple_test_thread, NULL);
+        start_threads(&simple_test_thread);
 
         ck_assert_int_eq(1, get_current_thread_count());
 
@@ -56,7 +56,7 @@ START_TEST (test_nr_of_cores_threads)
     {
         setup_pool(-1);
 
-        start_threads(&simple_test_thread, NULL);
+        start_threads(&simple_test_thread);
 
         ck_assert_int_eq(get_nprocs(), get_current_thread_count());
 
@@ -76,7 +76,7 @@ START_TEST (test_20_threads)
         int n = 20;
         setup_pool(n);
 
-        start_threads(&simple_test_thread, NULL);
+        start_threads(&simple_test_thread);
 
         ck_assert_int_eq(n, get_current_thread_count());
 
@@ -96,7 +96,7 @@ START_TEST (test_2000_threads)
         int n = 2000;
         setup_pool(n);
 
-        start_threads(&simple_test_thread, NULL);
+        start_threads(&simple_test_thread);
 
         ck_assert_int_eq(n, get_current_thread_count());
 

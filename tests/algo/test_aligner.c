@@ -19,8 +19,6 @@
 #include "../../src/query.h"
 #include "../../src/algo/searcher.h"
 
-extern p_alignment_data adp;
-
 elem_t new_elem0( int ID, int frame, int strand, int qid, long score ) {
     elem_t e;
     e.db_id = ID;
@@ -32,31 +30,53 @@ elem_t new_elem0( int ID, int frame, int strand, int qid, long score ) {
     return e;
 }
 
+static p_query setup_aligner_test( char * query_string, char * db_file, int chunk_size ) {
+    init_symbol_translation( NUCLEOTIDE, FORWARD_STRAND, 3, 3 );
+    mat_init_constant_scoring( 1, -1 );
+
+    p_query query = query_read_from_string( "short query", query_string );
+    ssa_db_init_fasta( concat( "./tests/testdata/", db_file ) );
+
+    it_init( chunk_size );
+    gapO = 1;
+    gapE = 1;
+
+    return query;
+}
+
+static p_alignment_list do_aligner_test_step_two( int search_type, p_query query, int hit_count, int pair_count, elem_t * result_sequence_pairs) {
+    s_init( search_type, BIT_WIDTH_64, query, hit_count );
+
+    a_init_data( search_type );
+
+    a_set_alignment_pairs( pair_count, result_sequence_pairs );
+
+    p_alignment_list alist = a_align( NULL );
+
+    ck_assert_int_eq( hit_count, alist->len );
+
+    return alist;
+}
+
+static void exit_aligner_test( p_alignment_list alist, p_query query ) {
+    a_free( alist );
+
+    mat_free();
+    query_free( query );
+    it_free();
+    ssa_db_free();
+}
+
 START_TEST (test_aligner_simple_sw)
     {
-        init_symbol_translation( NUCLEOTIDE, FORWARD_STRAND, 3, 3 );
-        mat_init_constant_scoring( 1, -1 );
-
-        p_query query = query_read_from_string( "short query", "AT" );
-        ssa_db_init_fasta( "./tests/testdata/short_db.fas" );
-
-        it_init( 1 );
-        gapO = 1;
-        gapE = 1;
+        p_query query = setup_aligner_test( "AT", "short_db.fas", 1 );
 
         sequence sdb = it_translate_sequence( ssa_db_get_sequence( 0 ), 0, 0 );
 
         elem_t e1 = new_elem0( 0, 0, 0, 0, 2 );
         elem_t * elements = { &e1 };
 
-        init_for_sw( query, 1 );
-        adp->pair_count = 1;
-        adp->result_sequence_pairs = elements;
-        set_alignment_data( adp );
-
-        p_alignment_list alist = a_align( NULL );
-
-        ck_assert_int_eq( 1, alist->len );
+        p_alignment_list alist = do_aligner_test_step_two( SMITH_WATERMAN, query, 1, 1, elements );
 
         alignment_p al = alist->alignments[0];
 
@@ -79,61 +99,28 @@ START_TEST (test_aligner_simple_sw)
 
         ck_assert_str_eq( "2M", al->alignment );
 
-        a_free( alist );
-
-        mat_free();
-        query_free( query );
-        it_free();
-        ssa_db_free();
+        exit_aligner_test( alist, query );
     }END_TEST
 
 START_TEST (test_aligner_simple_sw_2)
     {
-        init_symbol_translation( NUCLEOTIDE, FORWARD_STRAND, 3, 3 );
-        mat_init_constant_scoring( 1, -1 );
-
-        p_query query = query_read_from_string( "query", "ATGCAAAAA" );
-        ssa_db_init_fasta( "./tests/testdata/one_seq_db.fas" );
-
-        it_init( 1 );
-        gapO = 1;
-        gapE = 1;
+        p_query query = setup_aligner_test( "ATGCAAAAA", "one_seq_db.fas", 1 );
 
         elem_t e1 = new_elem0( 0, 0, 0, 0, 9 );
         elem_t * elements = { &e1 };
 
-        init_for_sw( query, 1 );
-        adp->pair_count = 1;
-        adp->result_sequence_pairs = elements;
-        set_alignment_data( adp );
-
-        p_alignment_list alist = a_align( NULL );
-
-        ck_assert_int_eq( 1, alist->len );
+        p_alignment_list alist = do_aligner_test_step_two( SMITH_WATERMAN, query, 1, 1, elements );
 
         alignment_p al = alist->alignments[0];
 
         ck_assert_str_eq( "9M", al->alignment );
 
-        a_free( alist );
-
-        mat_free();
-        query_free( query );
-        it_free();
-        ssa_db_free();
+        exit_aligner_test( alist, query );
     }END_TEST
 
 START_TEST (test_aligner_more_sequences_sw)
     {
-        mat_init_constant_scoring( 1, -1 );
-        init_symbol_translation( NUCLEOTIDE, FORWARD_STRAND, 3, 3 );
-
-        p_query query = query_read_from_string( "query", "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA" );
-        ssa_db_init_fasta( "./tests/testdata/test.fas" );
-
-        it_init( 3 );
-        gapO = 1;
-        gapE = 1;
+        p_query query = setup_aligner_test( "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA", "test.fas", 3 );
 
         p_minheap heap = minheap_init( 5 );
 
@@ -153,14 +140,8 @@ START_TEST (test_aligner_more_sequences_sw)
         e = new_elem0( 4, 0, 0, 0, 2 );
         minheap_add( heap, &e );
 
-        init_for_sw( query, 1 );
-        adp->pair_count = 5;
-        adp->result_sequence_pairs = heap->array;
-        set_alignment_data( adp );
-
-        p_alignment_list alist = a_align( NULL );
-
-        ck_assert_int_eq( 5, alist->len );
+        p_alignment_list alist = do_aligner_test_step_two( SMITH_WATERMAN, query, 5, heap->count, heap->array );
+        minheap_exit( heap );
 
         alignment_p al = alist->alignments[0];
 
@@ -182,40 +163,20 @@ START_TEST (test_aligner_more_sequences_sw)
         ck_assert_int_eq( 34, al->align_q_end );
         ck_assert_str_eq( "20MD4M", al->alignment );
 
-        a_free( alist );
-        minheap_exit( heap );
 
-        it_free();
-        mat_free();
-        query_free( query );
-        ssa_db_free();
+        exit_aligner_test( alist, query );
     }END_TEST
 
 START_TEST (test_aligner_simple_nw)
     {
-        mat_init_constant_scoring( 1, -1 );
-        init_symbol_translation( NUCLEOTIDE, FORWARD_STRAND, 3, 3 );
-
-        p_query query = query_read_from_string( "short query", "AT" );
-        ssa_db_init_fasta( "./tests/testdata/short_db.fas" );
-
-        it_init( 1 );
-        gapO = 1;
-        gapE = 1;
+        p_query query = setup_aligner_test( "AT", "short_db.fas", 1 );
 
         sequence sdb = it_translate_sequence( ssa_db_get_sequence( 0 ), 0, 0 );
 
         elem_t e1 = new_elem0( 0, 0, 0, 0, 2 );
         elem_t * elements = { &e1 };
 
-        init_for_nw( query, 1 );
-        adp->pair_count = 1;
-        adp->result_sequence_pairs = elements;
-        set_alignment_data( adp );
-
-        p_alignment_list alist = a_align( NULL );
-
-        ck_assert_int_eq( 1, alist->len );
+        p_alignment_list alist = do_aligner_test_step_two( NEEDLEMAN_WUNSCH, query, 1, 1, elements );
 
         alignment_p al = alist->alignments[0];
 
@@ -238,12 +199,7 @@ START_TEST (test_aligner_simple_nw)
 
         ck_assert_str_eq( "MIMI", al->alignment );
 
-        a_free( alist );
-
-        mat_free();
-        query_free( query );
-        it_free();
-        ssa_db_free();
+        exit_aligner_test( alist, query );
     }END_TEST
 
 void addAlignerTC( Suite *s ) {

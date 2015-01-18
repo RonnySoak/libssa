@@ -35,20 +35,20 @@ int _use_simd = SIMD_ON;
 // #############################################################################
 // Technical initialisation
 // ########################
-void set_verbose(int debug) {
+void set_verbose( int debug ) {
     _verbose = debug;
 }
 
-void set_threads(long nr) {
+void set_threads( long nr ) {
     _max_thread_count = nr;
 }
 
-void set_use_simd(int simd) {
+void set_use_simd( int simd ) {
     _use_simd = simd;
 }
 
-void set_output_file(const char* outfile) {
-    init_out(outfile);
+void set_output_file( const char* outfile ) {
+    init_out( outfile );
 }
 
 // #############################################################################
@@ -70,8 +70,8 @@ void set_output_file(const char* outfile) {
  *  - pam70
  *  - pam250
  */
-void init_score_matrix(const char* matrix_name) {
-    mat_init_buildin(matrix_name);
+void init_score_matrix( const char* matrix_name ) {
+    mat_init_buildin( matrix_name );
 }
 
 /**
@@ -80,8 +80,8 @@ void init_score_matrix(const char* matrix_name) {
  *
  * @param file_name  path to the file of the matrix
  */
-void init_score_matrix_file(const char* file_name) {
-    mat_init_from_file(file_name);
+void init_score_matrix_file( const char* file_name ) {
+    mat_init_from_file( file_name );
 }
 
 /**
@@ -90,8 +90,8 @@ void init_score_matrix_file(const char* file_name) {
  *
  * @param matrix matrix as a string
  */
-void init_score_matrix_string(const char* matrix) {
-    mat_init_from_string(matrix);
+void init_score_matrix_string( const char* matrix ) {
+    mat_init_from_string( matrix );
 }
 
 /**
@@ -109,7 +109,7 @@ void free_matrix() {
  * @param  gapO  penalty for opening a gap
  * @param  gapE  penalty for extending a gap
  */
-void init_gap_penalties(const uint8_t gap_open, const uint8_t gap_extend) {
+void init_gap_penalties( const uint8_t gap_open, const uint8_t gap_extend ) {
     gapO = gap_open;
     gapE = gap_extend;
 }
@@ -122,8 +122,8 @@ void init_gap_penalties(const uint8_t gap_open, const uint8_t gap_extend) {
  * @param  p    penalty for a mismatch
  * @param  m    reward for a match
  */
-void init_scoring(const uint8_t p, const uint8_t m) {
-    mat_init_constant_scoring(p, m);
+void init_scoring( const uint8_t p, const uint8_t m ) {
+    mat_init_constant_scoring( p, m );
 }
 
 /**
@@ -133,8 +133,8 @@ void init_scoring(const uint8_t p, const uint8_t m) {
  *
  * @param fasta_db_file  path to a file in FASTA format
  */
-void init_db_fasta(const char* fasta_db_file) {
-    ssa_db_init_fasta(fasta_db_file);
+void init_db_fasta( const char* fasta_db_file ) {
+    ssa_db_init_fasta( fasta_db_file );
 }
 
 /**
@@ -151,25 +151,24 @@ void free_db() {
  *
  * the symbol translation is done on the fly on both sides
  */
-void init_symbol_translation(int type, int strands, int d_gencode,
-        int q_gencode) {
-    if ((q_gencode < 1) || (q_gencode > 23) || !gencode_names[q_gencode - 1]) {
-        ffatal("Illegal query genetic code specified.");
+void init_symbol_translation( int type, int strands, int d_gencode, int q_gencode ) {
+    if( (q_gencode < 1) || (q_gencode > 23) || !gencode_names[q_gencode - 1] ) {
+        ffatal( "Illegal query genetic code specified." );
     }
-    if ((d_gencode < 1) || (d_gencode > 23) || !gencode_names[d_gencode - 1]) {
-        ffatal("Illegal database genetic code specified.");
+    if( (d_gencode < 1) || (d_gencode > 23) || !gencode_names[d_gencode - 1] ) {
+        ffatal( "Illegal database genetic code specified." );
     }
-    if ((symtype < 0) || (symtype > 4)) {
-        ffatal("Illegal symbol type specified.");
+    if( (symtype < 0) || (symtype > 4) ) {
+        ffatal( "Illegal symbol type specified." );
     }
-    if ((symtype < 0) || (symtype > 2)) {
-        ffatal("Illegal strands specified.");
+    if( (symtype < 0) || (symtype > 2) ) {
+        ffatal( "Illegal strands specified." );
     }
 
     symtype = type;
     query_strands = strands;
 
-    us_init_translation(q_gencode, d_gencode);
+    us_init_translation( q_gencode, d_gencode );
 }
 
 /**
@@ -178,8 +177,8 @@ void init_symbol_translation(int type, int strands, int d_gencode,
  * @param fasta_seq_file  path to a file in FASTA format
  * @return pointer to the query profile structure
  */
-p_query init_sequence_fasta(const char* fasta_seq_file) {
-    return query_read_from_file(fasta_seq_file);
+p_query init_sequence_fasta( const char* fasta_seq_file ) {
+    return query_read_from_file( fasta_seq_file );
 }
 
 /**
@@ -189,8 +188,8 @@ p_query init_sequence_fasta(const char* fasta_seq_file) {
  *
  * @see init_sequence_fasta
  */
-void free_sequence(p_query p) {
-    query_free(p);
+void free_sequence( p_query p ) {
+    query_free( p );
 }
 
 // #############################################################################
@@ -204,11 +203,11 @@ void free_sequence(p_query p) {
  * ...
  * @return pointer to the alignment structure
  */
-p_alignment_list sw_align(p_query p, int hitcount /* TODO ...*/) {
+p_alignment_list sw_align( p_query p, int hitcount, int bit_width /* TODO ...*/) {
     ssa_db_reset_sequence_counter();
     it_reset_chunk_counter();
 
-    init_for_sw(p, hitcount);
+    init_for_sw( p, hitcount, bit_width );
 
     return m_run();
 }
@@ -221,11 +220,11 @@ p_alignment_list sw_align(p_query p, int hitcount /* TODO ...*/) {
  * ...
  * @return pointer to the alignment structure
  */
-p_alignment_list nw_align(p_query p, int hitcount /* TODO ...*/) {
+p_alignment_list nw_align( p_query p, int hitcount, int bit_width /* TODO ...*/) {
     ssa_db_reset_sequence_counter();
     it_reset_chunk_counter();
 
-    init_for_nw(p, hitcount);
+    init_for_nw( p, hitcount, bit_width );
 
     return m_run();
 }
@@ -240,11 +239,11 @@ p_alignment_list nw_align(p_query p, int hitcount /* TODO ...*/) {
  * ...
  * @return pointer to the alignment structure
  */
-p_alignment_list nw_sellers_align(p_query p, int hitcount /* TODO ...*/) {
+p_alignment_list nw_sellers_align( p_query p, int hitcount, int bit_width /* TODO ...*/) {
     ssa_db_reset_sequence_counter();
     it_reset_chunk_counter();
 
-    init_for_nw_sellers(p, hitcount);
+    init_for_nw_sellers( p, hitcount, bit_width );
 
     return m_run();
 }
@@ -257,7 +256,7 @@ p_alignment_list nw_sellers_align(p_query p, int hitcount /* TODO ...*/) {
  * ...
  * @return pointer to the alignment structure
  */
-p_alignment_list nw_ignore_gaps_align(p_query p, int hitcount /* TODO ... ignored gaps...*/) {
+p_alignment_list nw_ignore_gaps_align( p_query p, int hitcount, int bit_width /* TODO ... ignored gaps...*/) {
     ssa_db_reset_sequence_counter();
     it_reset_chunk_counter();
 
@@ -273,8 +272,8 @@ p_alignment_list nw_ignore_gaps_align(p_query p, int hitcount /* TODO ... ignore
  * @see sw_align
  * @see nw_align
  */
-void free_alignment(p_alignment_list alist) {
-    a_free(alist);
+void free_alignment( p_alignment_list alist ) {
+    a_free( alist );
 }
 
 void ssa_exit() {

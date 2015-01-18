@@ -49,6 +49,10 @@
 #define COMPLEMENTARY_STRAND 2 // uses both strands, but translates only the complementary one
 #define BOTH_STRANDS 3 // uses both strands and translates both to amino acids
 
+#define BIT_WIDTH_8 0
+#define BIT_WIDTH_16 1
+#define BIT_WIDTH_64 2
+
 // #############################################################################
 // Data types
 // ##########
@@ -288,7 +292,7 @@ void free_sequence(p_query p);
  * ...
  * @return pointer to the alignment structure
  */
-p_alignment_list sw_align(p_query p, int hitcount /* TODO ...*/);
+p_alignment_list sw_align(p_query p, int hitcount, int bit_width /* TODO ...*/);
 
 /**
  * Aligns the query sequence against all sequences in the database using the
@@ -298,7 +302,7 @@ p_alignment_list sw_align(p_query p, int hitcount /* TODO ...*/);
  * ...
  * @return pointer to the alignment structure
  */
-p_alignment_list nw_align(p_query p, int hitcount /* TODO ...*/);
+p_alignment_list nw_align(p_query p, int hitcount, int bit_width /* TODO ...*/);
 
 /**
  * Aligns the query sequence against all sequences in the database using the
@@ -310,7 +314,7 @@ p_alignment_list nw_align(p_query p, int hitcount /* TODO ...*/);
  * ...
  * @return pointer to the alignment structure
  */
-p_alignment_list nw_sellers_align(p_query p, int hitcount /* TODO ...*/);
+p_alignment_list nw_sellers_align(p_query p, int hitcount, int bit_width /* TODO ...*/);
 
 /**
  * Aligns the query sequence against all sequences in the database using the
@@ -320,7 +324,7 @@ p_alignment_list nw_sellers_align(p_query p, int hitcount /* TODO ...*/);
  * ...
  * @return pointer to the alignment structure
  */
-p_alignment_list nw_ignore_gaps_align(p_query p, int hitcount /* TODO ... ignored gaps...*/);
+p_alignment_list nw_ignore_gaps_align(p_query p, int hitcount, int bit_width /* TODO ... ignored gaps...*/);
 
 /**
  * Release the memory allocated by the functions sw_align, nw_align,

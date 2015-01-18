@@ -27,6 +27,9 @@ void init_algo_63( int search_type ) {
     else if( search_type == NEEDLEMAN_WUNSCH_SELLERS ) {
         search_algo = &full_nw_sellers;
     }
+    else {
+        ffatal("\nunknown search type: %d\n\n", search_type );
+    }
 }
 
 static unsigned long search_chunk( p_minheap heap, p_db_chunk chunk, p_search_data sdp, int64_t* hearray ) {

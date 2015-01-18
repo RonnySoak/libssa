@@ -10,13 +10,11 @@
 
 #include "../libssa_datatypes.h"
 
-void free_search_data();
+void init_for_sw( p_query query, int hit_count, int bit_width );
 
-void init_for_sw(p_query query, int hit_count);
+void init_for_nw( p_query query, int hit_count, int bit_width );
 
-void init_for_nw(p_query query, int hit_count);
-
-void init_for_nw_sellers(p_query query, int hit_count);
+void init_for_nw_sellers( p_query query, int hit_count, int bit_width );
 
 /**
  * Run a search for query in the database. Aligns the query sequence against

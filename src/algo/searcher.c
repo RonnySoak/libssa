@@ -14,25 +14,111 @@
 #include "../util/minheap.h"
 #include "../db_iterator.h"
 #include "../matrices.h"
+#include "../query.h"
 
 #include "63/search_63.h"
 #include "16/search_16.h"
 
-void s_init( int search_type, int bit_width ) {
-    if( bit_width == 64 ) {
-        init_algo_63( search_type );
+p_search_data sdp;
+static void (*search_func)( p_db_chunk, p_search_data, p_search_result );
+
+static void add_to_buffer( seq_buffer* buf, sequence seq, int strand, int frame ) {
+    buf->seq = seq;
+    buf->frame = frame;
+    buf->strand = strand;
+}
+
+static void init_searchdata( p_query query, int hit_count ) {
+    sdp = xmalloc( sizeof(struct search_data) );
+
+    sdp->hit_count = hit_count;
+
+    unsigned long qlen = 0;
+    unsigned long hearraylen = 0;
+
+    sdp->q_count = 0;
+
+    // init buffer
+    for( int i = 0; i < 6; i++ ) {
+        sdp->queries[i].seq.len = 0;
+        sdp->queries[i].seq.seq = 0;
+        sdp->queries[i].strand = 0;
+        sdp->queries[i].frame = 0;
     }
-    else if( bit_width == 16 ) {
+
+    if( symtype == NUCLEOTIDE ) {
+        for( int s = 0; s < 2; s++ )
+            if( (s + 1) & query_strands ) {
+                qlen = query->nt[s].len;
+
+                add_to_buffer( &sdp->queries[sdp->q_count++], query->nt[s], s, 0 );
+
+                hearraylen = qlen > hearraylen ? qlen : hearraylen;
+            }
+    }
+    else if( (symtype == AMINOACID) || (symtype == TRANS_DB) ) {
+        qlen = query->aa[0].len;
+
+        add_to_buffer( &sdp->queries[sdp->q_count++], query->aa[0], 0, 0 );
+
+        hearraylen = qlen > hearraylen ? qlen : hearraylen;
+    }
+    else if( (symtype == TRANS_QUERY) || (symtype == TRANS_BOTH) ) {
+        for( int s = 0; s < 2; s++ )
+            if( (s + 1) & query_strands )
+                for( int f = 0; f < 3; f++ ) {
+                    qlen = query->aa[3 * s + f].len;
+
+                    add_to_buffer( &sdp->queries[sdp->q_count++], query->aa[3 * s + f], s, f );
+
+                    hearraylen = qlen > hearraylen ? qlen : hearraylen;
+                }
+    }
+
+    sdp->hearraylen = hearraylen;
+}
+
+int s_get_query_count() {
+    return sdp->q_count;
+}
+
+seq_buffer s_get_query( int idx ) {
+    return sdp->queries[idx];
+}
+
+void s_init( int search_type, int bit_width, p_query query, int hit_count ) {
+    if( bit_width == BIT_WIDTH_64 ) {
+        init_algo_63( search_type );
+
+        search_func = &search_63;
+    }
+    else if( bit_width == BIT_WIDTH_16 ) {
         init_algo_16( search_type );
+
+        search_func = &search_16;
+    }
+    else if( bit_width == BIT_WIDTH_8 ) {
+        ffatal( "\nnot implemented yet!\n\n" );
     }
     else {
-        printf( "\nnot implemented yet!\n\n" );
+        ffatal( "\nunknown bit width provided: %d\n\n", bit_width );
     }
+
+    init_searchdata( query, hit_count );
 }
 
 void s_free( p_search_result res ) {
     if( !res ) {
         return;
+    }
+
+    if( sdp ) {
+        sdp->q_count = 0;
+        sdp->hit_count = 0;
+
+        free( sdp );
+
+        sdp = 0;
     }
 
     minheap_exit( res->heap );
@@ -43,8 +129,10 @@ void s_free( p_search_result res ) {
     res = 0;
 }
 
-void * s_search( void * search_data ) {
-    p_search_data sdp = (p_search_data) search_data;
+void * s_search( void * not_used ) {
+    if( (search_func == NULL) || (sdp == NULL) ) {
+        ffatal( "\n not initialized!!\n\n" );
+    }
 
     p_search_result res = xmalloc( sizeof(struct search_result) );
     res->heap = minheap_init( sdp->hit_count );
@@ -53,7 +141,7 @@ void * s_search( void * search_data ) {
 
     p_db_chunk chunk = it_new_chunk();
 
-    search_63( chunk, sdp, res );
+    search_func( chunk, sdp, res );
 
     it_free_chunk( chunk );
 
