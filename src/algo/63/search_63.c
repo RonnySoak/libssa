@@ -15,15 +15,17 @@
 #include "../../util/util.h"
 #include "../../db_iterator.h"
 
-void init_algo_63( p_search_data sdp, int search_type ) {
+static int64_t (*search_algo)(sequence*, sequence*, int64_t*);
+
+void init_algo_63( int search_type ) {
     if( search_type == SMITH_WATERMAN ) {
-        sdp->search_algo = &full_sw;
+        search_algo = &full_sw;
     }
     else if( search_type == NEEDLEMAN_WUNSCH ) {
-        sdp->search_algo = &full_nw;
+        search_algo = &full_nw;
     }
     else if( search_type == NEEDLEMAN_WUNSCH_SELLERS ) {
-        sdp->search_algo = &full_nw_sellers;
+        search_algo = &full_nw_sellers;
     }
 }
 
@@ -36,7 +38,7 @@ static unsigned long search_chunk( p_minheap heap, p_db_chunk chunk, p_search_da
         for( unsigned long i = 0; i < chunk->fill_pointer; i++ ) {
             p_sdb_sequence dseq = chunk->seq[i];
 
-            long score = sdp->search_algo( &dseq->seq, &query.seq, hearray );
+            long score = search_algo( &dseq->seq, &query.seq, hearray );
 
             add_to_minheap( heap, q_id, dseq, score );
 

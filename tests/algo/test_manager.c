@@ -94,7 +94,6 @@ START_TEST (test_init_search_data)
         ck_assert_int_eq(0, sdp->queries[5].seq.len);
 
         ck_assert_int_eq(1, sdp->hit_count);
-        ck_assert_ptr_eq(&full_sw, sdp->search_algo);
 
         ck_assert_int_eq(54, sdp->hearraylen);
         // TODO test profile
@@ -126,7 +125,6 @@ START_TEST (test_init_search_data2)
         ck_assert_int_eq(0, sdp->queries[5].seq.len);
 
         ck_assert_int_eq(5, sdp->hit_count);
-        ck_assert_ptr_eq(full_nw, sdp->search_algo);
 
         ck_assert_int_eq(54, sdp->hearraylen);
 
@@ -167,7 +165,6 @@ START_TEST (test_init_search_data3)
         ck_assert_int_eq(0, sdp->queries[5].seq.len);
 
         ck_assert_int_eq(5, sdp->hit_count);
-        ck_assert_ptr_eq(full_nw_sellers, sdp->search_algo);
 
         ck_assert_int_eq(18, sdp->hearraylen);
 
@@ -222,7 +219,6 @@ START_TEST (test_init_search_data4)
         ck_assert_int_eq(1, buf.strand);
 
         ck_assert_int_eq(3, sdp->hit_count);
-        ck_assert_ptr_eq(full_nw, sdp->search_algo);
 
         ck_assert_int_eq(18, sdp->hearraylen);
 
@@ -253,7 +249,6 @@ START_TEST (test_init_search_data5)
         ck_assert_int_eq(0, sdp->queries[5].seq.len);
 
         ck_assert_int_eq(1, sdp->hit_count);
-        ck_assert_ptr_eq(full_sw, sdp->search_algo);
 
         ck_assert_int_eq(54, sdp->hearraylen);
 

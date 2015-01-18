@@ -19,7 +19,7 @@
  PO Box 1080 Blindern, NO-0316 Oslo, Norway
  */
 
-#include "align_simd.h"
+#include "search_16.h"
 
 #include <limits.h>
 #include <stdio.h>

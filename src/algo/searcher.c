@@ -16,13 +16,17 @@
 #include "../matrices.h"
 
 #include "63/search_63.h"
+#include "16/search_16.h"
 
-void s_init( p_search_data sdp, int search_type, int bit_width ) {
+void s_init( int search_type, int bit_width ) {
     if( bit_width == 64 ) {
-        init_algo_63( sdp, search_type );
+        init_algo_63( search_type );
+    }
+    else if( bit_width == 16 ) {
+        init_algo_16( search_type );
     }
     else {
-        printf("\nnot implemented yet!\n\n");
+        printf( "\nnot implemented yet!\n\n" );
     }
 }
 

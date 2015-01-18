@@ -39,9 +39,6 @@ typedef struct {
 struct search_data {
     int hit_count;
 
-    int64_t (*search_algo)(sequence*, sequence*, int64_t*);
-
-    uint8_t * dprofile;
     uint64_t hearraylen;
 
     seq_buffer queries[6];

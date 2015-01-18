@@ -54,11 +54,8 @@ static void init_alignment_data(void (*align_function)(alignment_p)) {
 static void init_searchdata(p_query query, int hit_count, int search_type ) {
     sdp = xmalloc(sizeof(struct search_data));
 
-    s_init( sdp, search_type, 64 ); // TODO make configurable
-
     sdp->hit_count = hit_count;
 
-    sdp->dprofile = xmalloc(4 * 16 * 32);
     unsigned long qlen = 0;
     unsigned long hearraylen = 0;
 
@@ -110,14 +107,8 @@ void free_search_data() {
         return;
     }
 
-    if (sdp->dprofile) {
-        free(sdp->dprofile);
-        sdp->dprofile = 0;
-    }
-
     sdp->q_count = 0;
     sdp->hit_count = 0;
-    sdp->search_algo = 0;
 
     free(sdp);
 }
@@ -137,6 +128,8 @@ void free_alignment_data() {
 static void init(p_query query, int hit_count,
         int search_type, void (*align_function)(alignment_p)) {
     init_searchdata(query, hit_count, search_type );
+
+    s_init( search_type, 64 ); // TODO make bit width configurable
 
     init_alignment_data(align_function);
 

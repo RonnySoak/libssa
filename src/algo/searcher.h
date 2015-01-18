@@ -15,7 +15,7 @@
 #define NEEDLEMAN_WUNSCH 1
 #define NEEDLEMAN_WUNSCH_SELLERS 2
 
-void s_init( p_search_data sdp, int search_type, int bit_width );
+void s_init( int search_type, int bit_width );
 
 void s_free();
 

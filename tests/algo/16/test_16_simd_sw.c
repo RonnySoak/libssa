@@ -13,7 +13,7 @@
 #include "../../../src/db_iterator.h"
 #include "../../../src/query.h"
 #include "../../../src/util/minheap.h"
-#include "../../../src/algo/16/align_simd.h"
+#include "../../../src/algo/16/search_16.h"
 #include "../../../src/algo/search.h"
 
 START_TEST (test_sw_align_simd_simple)

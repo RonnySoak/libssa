@@ -1,4 +1,5 @@
 OBJS += \
+./src/algo/16/search_16.o \
 ./src/algo/16/16_simd_nw.o \
 ./src/algo/16/16_simd_sw.o
 
