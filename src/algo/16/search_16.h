@@ -14,6 +14,9 @@
 #include "../../libssa_datatypes.h"
 #include "../../util/minheap.h"
 
+#define CHANNELS 8
+#define CDEPTH 4
+
 struct s16query {
     unsigned long q_len;
 
@@ -43,6 +46,8 @@ p_s16info search16_init( int16_t penalty_gap_open, int16_t penalty_gap_extension
 void search16_exit( p_s16info s );
 
 void search16_init_query( p_s16info s, int q_count, seq_buffer * queries );
+
+int fill_channel( int c, uint8_t* d_begin[CHANNELS], uint8_t* d_end[CHANNELS], uint8_t* dseq );
 
 void search_16_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, int query_id );
 

@@ -58,22 +58,37 @@ START_TEST (test_nw_simd_simple)
         exit_searcher_16_test( res );
     }END_TEST
 
-//START_TEST (test_nw_simd_blosum62) TODO
-//    {
+START_TEST (test_nw_simd_blosum62)
+    {
+        ck_abort_msg( "TODO not yet implemented" );
+//        mat_init_buildin( BLOSUM62 );
+//        init_symbol_translation( AMINOACID, FORWARD_STRAND, 3, 3 );
+//
 //        p_query query = query_read_from_file( "./tests/testdata/NP_009305.1.fas" );
 //
-//        p_s16info s16info = setup_searcher_16_test( query, "short_db.fas", NUCLEOTIDE, FORWARD_STRAND, 1403 );
+//        ssa_db_init_fasta( "./tests/testdata/short_db.fas" );
 //
-//        mat_init_buildin( BLOSUM62 );
+//        s_init( NEEDLEMAN_WUNSCH, BIT_WIDTH_16, query, 1403 );
 //
-//        p_minheap heap = do_searcher_16_test( s16info, 3, 0 );
+//        gapO = 1;
+//        gapE = 1;
 //
-//        ck_assert_int_eq( 219, heap->array[0].score );
-//        ck_assert_int_eq( 215, heap->array[1].score );
-//        ck_assert_int_eq( 214, heap->array[2].score );
+//        it_init( 1403 );
 //
-//        exit_searcher_16_test( s16info, heap );
-//    }END_TEST
+//        p_search_result res = s_search( NULL );
+//
+//        minheap_sort( res->heap );
+//
+//        query_free( query );
+//
+//        p_minheap heap = res->heap;
+//
+//        ck_assert_int_eq( 0, heap->array[0].score ); // TODO check if correct!!
+//        ck_assert_int_eq( 258, heap->array[1].score );
+//        ck_assert_int_eq( 258, heap->array[2].score );
+//
+//        exit_searcher_16_test( res );
+    }END_TEST
 
 START_TEST (test_nw_simd_more_sequences)
     {
@@ -94,7 +109,7 @@ START_TEST (test_nw_simd_more_sequences)
 void addNeedlemanWunsch16TC( Suite *s ) {
     TCase *tc_core = tcase_create( "NeedlemanWunsch16" );
     tcase_add_test( tc_core, test_nw_simd_simple );
-//    tcase_add_test( tc_core, test_nw_simd_blosum62 );
+    tcase_add_test( tc_core, test_nw_simd_blosum62 );
     tcase_add_test( tc_core, test_nw_simd_more_sequences );
 
     suite_add_tcase( s, tc_core );

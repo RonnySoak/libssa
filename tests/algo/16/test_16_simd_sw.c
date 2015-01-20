@@ -84,8 +84,9 @@ START_TEST (test_sw_simd_simple_2)
         exit_searcher_16_test( res );
     }END_TEST
 
-//START_TEST (test_sw_simd_blosum62) TODO
-//    {
+START_TEST (test_sw_simd_blosum62)
+    {
+    ck_abort_msg( "TODO not yet implemented" );
 //        p_query query = query_read_from_file( "./tests/testdata/NP_009305.1.fas" );
 //
 //        ssa_db_init_fasta( "./tests/testdata/short_db.fas" );
@@ -111,7 +112,7 @@ START_TEST (test_sw_simd_simple_2)
 //        ck_assert_int_eq( 258, heap->array[2].score );
 //
 //        exit_searcher_16_test( res );
-//    }END_TEST
+    }END_TEST
 
 START_TEST (test_sw_simd_more_sequences)
     {
@@ -120,11 +121,11 @@ START_TEST (test_sw_simd_more_sequences)
 
         p_minheap heap = res->heap;
 
-        ck_assert_int_eq( 0, heap->array[0].score ); // TODO check if correct!!
-        ck_assert_int_eq( 5, heap->array[1].score );
-        ck_assert_int_eq( 5, heap->array[2].score );
-        ck_assert_int_eq( 5, heap->array[3].score );
-        ck_assert_int_eq( 4, heap->array[4].score );
+        ck_assert_int_eq( 8, heap->array[0].score ); // TODO check if correct!!
+        ck_assert_int_eq( 8, heap->array[1].score );
+        ck_assert_int_eq( 8, heap->array[2].score );
+        ck_assert_int_eq( 8, heap->array[3].score );
+        ck_assert_int_eq( 8, heap->array[4].score );
 
         exit_searcher_16_test( res );
     }END_TEST
@@ -133,7 +134,7 @@ void addSmithWaterman16TC( Suite *s ) {
     TCase *tc_core = tcase_create( "SmithWaterman16" );
     tcase_add_test( tc_core, test_sw_simd_simple );
     tcase_add_test( tc_core, test_sw_simd_simple_2 );
-//    tcase_add_test( tc_core, test_sw_simd_blosum62 );
+    tcase_add_test( tc_core, test_sw_simd_blosum62 );
     tcase_add_test( tc_core, test_sw_simd_more_sequences );
 
     suite_add_tcase( s, tc_core );

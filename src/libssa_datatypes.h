@@ -72,7 +72,7 @@ typedef sdb_sequence* p_sdb_sequence;
 
 struct db_chunk {
     p_sdb_sequence* seq;
-    unsigned long size;
+    unsigned long size; // TODO change to long only
     unsigned long fill_pointer;
 };
 typedef struct db_chunk * p_db_chunk;

@@ -55,25 +55,6 @@ static void exit_searcher_test( p_search_result res ) {
     mat_free();
 }
 
-START_TEST (test_searcher_simple_sw)
-    {
-        p_search_result res = setup_searcher_test( BIT_WIDTH_64, SMITH_WATERMAN, "AT", "short_db.fas", 1 );
-
-        ck_assert_int_eq( 1, res->chunk_count );
-        ck_assert_int_eq( 1, res->seq_count );
-
-        ck_assert_int_eq( 1, res->heap->alloc );
-        ck_assert_int_eq( 1, res->heap->count );
-
-        elem_t e = res->heap->array[0];
-        ck_assert_int_eq( 0, e.db_id );
-        ck_assert_int_eq( 0, e.query_id );
-
-        ck_assert_int_eq( 2, e.score );
-
-        exit_searcher_test( res );
-    }END_TEST
-
 START_TEST (test_searcher_more_sequences_sw)
     {
         p_search_result res = setup_searcher_test( BIT_WIDTH_64, SMITH_WATERMAN,
@@ -95,25 +76,6 @@ START_TEST (test_searcher_more_sequences_sw)
         ck_assert_int_eq( 8, res->heap->array[2].score );
         ck_assert_int_eq( 8, res->heap->array[3].score );
         ck_assert_int_eq( 8, res->heap->array[4].score );
-
-        exit_searcher_test( res );
-    }END_TEST
-
-START_TEST (test_searcher_simple_nw)
-    {
-        p_search_result res = setup_searcher_test( BIT_WIDTH_64, NEEDLEMAN_WUNSCH, "AT", "short_db.fas", 1 );
-
-        ck_assert_int_eq( 1, res->chunk_count );
-        ck_assert_int_eq( 1, res->seq_count );
-
-        ck_assert_int_eq( 1, res->heap->alloc );
-        ck_assert_int_eq( 1, res->heap->count );
-
-        elem_t e = res->heap->array[0];
-        ck_assert_int_eq( 0, e.db_id );
-        ck_assert_int_eq( 0, e.query_id );
-
-        ck_assert_int_eq( -2, e.score );
 
         exit_searcher_test( res );
     }END_TEST

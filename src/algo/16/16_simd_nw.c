@@ -29,9 +29,6 @@
 #include "../../util/util.h"
 #include "../../matrices.h"
 
-#define CHANNELS 8
-#define CDEPTH 4
-
 /*
  * TODO
  * - change interface, to be the same, than the naive implementations
@@ -298,7 +295,8 @@ static void aligncolumns_rest( __m128i * Sm, __m128i * hep, __m128i ** qp, __m12
     Sm[3] = h8;
 }
 
-static inline void fill_channel( int c, uint8_t* d_begin[CHANNELS], uint8_t* d_end[CHANNELS], uint8_t* dseq ) {
+// TODO inline function?!
+int fill_channel( int c, uint8_t* d_begin[CHANNELS], uint8_t* d_end[CHANNELS], uint8_t* dseq ) {
     /* fill channel */
     for( int j = 0; j < CDEPTH; j++ ) {
         if( d_begin[c] < d_end[c] ) {
@@ -308,6 +306,10 @@ static inline void fill_channel( int c, uint8_t* d_begin[CHANNELS], uint8_t* d_e
             dseq[CHANNELS * j + c] = 0;
         }
     }
+
+    if( d_begin[c] == d_end[c] )
+        return 0;
+    return 1;
 }
 
 void search_16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, int q_id ) {
@@ -320,10 +322,7 @@ void search_16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, int q_id ) {
 
     __m128i gap_open_extend, gap_extend;
 
-    union {
-        __m128i * v;
-        int16_t * a;
-    } hep;
+    __m128i * hep;
 
     uint8_t * d_begin[CHANNELS];
     uint8_t * d_end[CHANNELS];
@@ -335,20 +334,19 @@ void search_16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, int q_id ) {
     __m128i S[4];
 
     uint8_t * dseq = (uint8_t*) &dseqalloc;
-    uint8_t zero = 0;
 
-    unsigned long next_id = 0;
-    unsigned long done = 0;
+    long next_id = 0;
+    long done = 0;
 
     T0 = _mm_set_epi16( 0, 0, 0, 0, 0, 0, 0, 0xffff );
 
     gap_open_extend = _mm_set1_epi16( s->penalty_gap_open + s->penalty_gap_extension );
     gap_extend = _mm_set1_epi16( s->penalty_gap_extension );
 
-    hep.a = (int16_t*) s->hearray; // TODO why do we go the detour from _m128i * to int16_t * and back?
+    hep = s->hearray;
 
     for( int c = 0; c < CHANNELS; c++ ) {
-        d_begin[c] = &zero;
+        d_begin[c] = 0;
         d_end[c] = d_begin[c];
         d_length[c] = 0;
         d_seq_id[c] = -1;
@@ -376,15 +374,12 @@ void search_16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, int q_id ) {
             /* fill all channels with symbols from the database sequences */
 
             for( int c = 0; c < CHANNELS; c++ ) {
-                fill_channel( c, d_begin, d_end, dseq );
-
-                if( d_begin[c] == d_end[c] )
-                    no_sequences_ended = 0;
+                no_sequences_ended = fill_channel( c, d_begin, d_end, dseq );
             }
 
             dprofile_fill16( dprofile, (int16_t*) s->matrix, dseq );
 
-            aligncolumns_rest( S, hep.v, s->queries[q_id]->q_table, gap_open_extend, gap_extend, H0, H1, H2, H3, qlen );
+            aligncolumns_rest( S, hep, s->queries[q_id]->q_table, gap_open_extend, gap_extend, H0, H1, H2, H3, qlen );
         }
         else {
             /* One or more sequences ended in the previous block.
@@ -395,12 +390,9 @@ void search_16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, int q_id ) {
             T = T0;
             for( int c = 0; c < CHANNELS; c++ ) {
                 if( d_begin[c] < d_end[c] ) {
-                    /* this channel has more sequence */
+                    /* the sequence in this channel is not finished */
 
-                    fill_channel( c, d_begin, d_end, dseq );
-
-                    if( d_begin[c] == d_end[c] )
-                        no_sequences_ended = 0;
+                    no_sequences_ended = fill_channel( c, d_begin, d_end, dseq );
                 }
                 else {
                     /* sequence in channel c ended. change of sequence */
@@ -428,13 +420,13 @@ void search_16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, int q_id ) {
                         done++;
                     }
 
-                    if( next_id < chunk->size ) {
+                    if( next_id < chunk->fill_pointer ) {
                         char* address;
-                        long length = 0; // TODO do we need this check for length > 0 ?
+                        long length = 0;
 
                         /* get next sequence with length>0 */
 
-                        while( (length == 0) && (next_id < chunk->size) ) {
+                        while( (length == 0) && (next_id < chunk->fill_pointer) ) { // TODO do we need this check for length > 0 ?
                             d_seq_id[c] = next_id;
                             d_seq_ptr[c] = chunk->seq[next_id];
 
@@ -453,16 +445,13 @@ void search_16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, int q_id ) {
                         ((int16_t*) &H2)[c] = -s->penalty_gap_open - 2 * s->penalty_gap_extension;
                         ((int16_t*) &H3)[c] = -s->penalty_gap_open - 3 * s->penalty_gap_extension;
 
-                        fill_channel( c, d_begin, d_end, dseq );
-
-                        if( d_begin[c] == d_end[c] )
-                            no_sequences_ended = 0;
+                        no_sequences_ended = fill_channel( c, d_begin, d_end, dseq );
                     }
                     else {
                         /* no more sequences, empty channel */
 
                         d_seq_id[c] = -1;
-                        d_begin[c] = &zero;
+                        d_begin[c] = 0;
                         d_end[c] = d_begin[c];
                         d_length[c] = 0;
                         for( int j = 0; j < CDEPTH; j++ )
@@ -483,7 +472,7 @@ void search_16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, int q_id ) {
 
             dprofile_fill16( dprofile, (int16_t *) s->matrix, dseq );
 
-            aligncolumns_first( S, hep.v, s->queries[q_id]->q_table, gap_open_extend, gap_extend, H0, H1, H2, H3, E0, M,
+            aligncolumns_first( S, hep, s->queries[q_id]->q_table, gap_open_extend, gap_extend, H0, H1, H2, H3, E0, M,
                     M_QR_target_left, M_R_target_left, qlen );
         }
 

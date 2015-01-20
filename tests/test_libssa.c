@@ -164,11 +164,9 @@ START_TEST (test_1000_threads)
 
         p_query query = init_sequence_fasta( "tests/testdata/one_seq.fas" );
 
-        printf("1\n");
         p_alignment_list alist = nw_align( query, 5, BIT_WIDTH_64 );
         ck_assert_int_eq( 5, alist->len );
 
-        printf("12\n");
         ck_assert_int_eq( 1050, alist->alignments[0]->db_seq.ID );
         ck_assert_int_eq( 112, alist->alignments[0]->score );
         ck_assert_str_eq( "5M2I5M3I8M3I2M15I4M3IMI3M5I4M8I7MI5MI3M4I2MI3MI2M7I", alist->alignments[0]->alignment );

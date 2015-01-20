@@ -116,6 +116,20 @@ p_alignment_list m_run() {
         free( align_result_list[i]->alignments );
         free( align_result_list[i] );
     }
+
+#if 0
+    for( int i = 0; i < alist->len; i++ ) {
+        for( int j = 0; j < alist->len; j++ ) {
+            if( i != j ) {
+                assert( alist->alignments[i]->db_seq.ID != alist->alignments[j]->db_seq.ID );
+            }
+            else {
+                assert( alist->alignments[i]->db_seq.ID == alist->alignments[j]->db_seq.ID );
+            }
+        }
+    }
+#endif
+
     sort_alignment_list( alist );
 
     minheap_exit( search_results );
