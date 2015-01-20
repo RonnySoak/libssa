@@ -46,9 +46,10 @@ static void do_manager_test_std( p_query query ) {
 
         // check for different database sequences
         for( int j = 0; j < alist->len; j++ ) {
-            if( i != j )
+            if( i != j ) {
                 ck_assert_int_ne( a->db_seq.header, alist->alignments[j]->db_seq.header );
                 ck_assert_int_ne( a->db_seq.ID, alist->alignments[j]->db_seq.ID );
+            }
         }
     }
 
