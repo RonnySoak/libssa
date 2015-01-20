@@ -319,6 +319,7 @@ void search_16_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, int q_id ) {
     uint8_t * d_begin[CHANNELS];
     uint8_t * d_end[CHANNELS];
     long seq_id[CHANNELS];
+    p_sdb_sequence d_seq_ptr[CHANNELS];
 
     __m128i dseqalloc[CDEPTH];
 
@@ -345,6 +346,7 @@ void search_16_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, int q_id ) {
         d_begin[c] = &zero;
         d_end[c] = d_begin[c];
         seq_id[c] = -1;
+        d_seq_ptr[c] = 0;
     }
 
     for( int i = 0; i < 4; i++ ) {
@@ -416,7 +418,7 @@ void search_16_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, int q_id ) {
                         if( (score >= 0) && (score < UINT16_MAX) ) {
                             /* Alignments, with a score equal to the current lowest score in the
                              heap are ignored! */
-                            add_to_minheap( heap, q_id, chunk->seq[next_id - 1], score );
+                            add_to_minheap( heap, q_id, d_seq_ptr[c], score );
                         }
                         else {
                             // TODO else report recalculation
@@ -434,9 +436,10 @@ void search_16_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, int q_id ) {
 
                         while( (length == 0) && (next_id < chunk->size) ) {
                             seq_id[c] = next_id;
+                            d_seq_ptr[c] = chunk->seq[next_id];
 
-                            address = chunk->seq[next_id]->seq.seq;
-                            length = chunk->seq[next_id]->seq.len;
+                            address = d_seq_ptr[c]->seq.seq;
+                            length = d_seq_ptr[c]->seq.len;
 
                             next_id++;
                         }

@@ -328,7 +328,8 @@ void search_16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, int q_id ) {
     uint8_t * d_begin[CHANNELS];
     uint8_t * d_end[CHANNELS];
     unsigned long d_length[CHANNELS];
-    long seq_id[CHANNELS];
+    long d_seq_id[CHANNELS];
+    p_sdb_sequence d_seq_ptr[CHANNELS];
 
     __m128i dseqalloc[CDEPTH];
     __m128i S[4];
@@ -350,7 +351,8 @@ void search_16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, int q_id ) {
         d_begin[c] = &zero;
         d_end[c] = d_begin[c];
         d_length[c] = 0;
-        seq_id[c] = -1;
+        d_seq_id[c] = -1;
+        d_seq_ptr[c] = 0;
     }
 
     for( int i = 0; i < 4; i++ ) {
@@ -405,7 +407,7 @@ void search_16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, int q_id ) {
 
                     M = _mm_xor_si128( M, T );
 
-                    long cand_id = seq_id[c];
+                    long cand_id = d_seq_id[c];
 
                     if( cand_id >= 0 ) {
                         /* save score */
@@ -416,7 +418,7 @@ void search_16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, int q_id ) {
                         if( (score > INT16_MIN) && (score < INT16_MAX) ) {
                             /* Alignments, with a score equal to the current lowest score in the
                              heap are ignored! */
-                            add_to_minheap( heap, q_id, chunk->seq[next_id - 1], score );
+                            add_to_minheap( heap, q_id, d_seq_ptr[c], score );
                         }
                         else {
                             // TODO else report recalculation
@@ -433,10 +435,11 @@ void search_16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, int q_id ) {
                         /* get next sequence with length>0 */
 
                         while( (length == 0) && (next_id < chunk->size) ) {
-                            seq_id[c] = next_id;
+                            d_seq_id[c] = next_id;
+                            d_seq_ptr[c] = chunk->seq[next_id];
 
-                            address = chunk->seq[next_id]->seq.seq;
-                            length = chunk->seq[next_id]->seq.len;
+                            address = d_seq_ptr[c]->seq.seq;
+                            length = d_seq_ptr[c]->seq.len;
 
                             next_id++;
                         }
@@ -458,7 +461,7 @@ void search_16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, int q_id ) {
                     else {
                         /* no more sequences, empty channel */
 
-                        seq_id[c] = -1;
+                        d_seq_id[c] = -1;
                         d_begin[c] = &zero;
                         d_end[c] = d_begin[c];
                         d_length[c] = 0;

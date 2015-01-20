@@ -43,6 +43,13 @@ static void do_manager_test_std( p_query query ) {
         ck_assert_ptr_ne( NULL, a );
 
         ck_assert_ptr_eq( query->nt[0].seq, a->query.seq );
+
+        // check for different database sequences
+        for( int j = 0; j < alist->len; j++ ) {
+            if( i != j )
+                ck_assert_int_ne( a->db_seq.header, alist->alignments[j]->db_seq.header );
+                ck_assert_int_ne( a->db_seq.ID, alist->alignments[j]->db_seq.ID );
+        }
     }
 
     exit_manager_test( alist );

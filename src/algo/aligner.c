@@ -17,7 +17,7 @@
 #include "../util/util.h"
 
 static p_alignment_data adp;
-static int chunk_counter = 0;
+static unsigned long chunk_counter = 0;
 
 static pthread_mutex_t chunk_mutex = PTHREAD_MUTEX_INITIALIZER;
 
@@ -52,6 +52,8 @@ void a_free_data() {
     adp->align_function = 0;
     adp->result_sequence_pairs = 0;
 
+    chunk_counter = 0;
+
     free( adp );
 }
 
@@ -64,7 +66,7 @@ static void init_alignment( alignment_p a, elem_t * e, seq_buffer* queries ) {
 
     /*
      * TODO find a better way, maybe move code for translating based on symtype,
-     * etc to util_sequence->c
+     * etc to util_sequence.c
      */
     sequence dseq = it_translate_sequence( info, e->dframe, e->dstrand );
 
@@ -156,8 +158,6 @@ static elem_t * get_chunk() {
 }
 
 void * a_align( void * unused ) {
-    chunk_counter = 0;
-
     p_alignment_list alignment_list = xmalloc( sizeof(struct alignment_list) );
     alignment_list->alignments = xmalloc( adp->pair_count * sizeof(alignment_t) );
     alignment_list->len = 0;
