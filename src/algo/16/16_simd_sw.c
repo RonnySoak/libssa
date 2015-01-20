@@ -303,9 +303,9 @@ static inline void fill_channel( int c, uint8_t* d_begin[CHANNELS], uint8_t* d_e
  * a biased Version adds more instructions in ALIGNCORE, than the other version
  */
 
-void search16_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, int query_id ) {
+void search_16_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, int q_id ) {
     int16_t * dprofile = (int16_t*) s->dprofile;
-    unsigned long qlen = s->qlen;
+    unsigned long qlen = s->queries[q_id]->q_len;
 
     __m128i T, M, T0;
 
@@ -382,7 +382,7 @@ void search16_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, int query_id ) 
 
             dprofile_fill16( dprofile, (int16_t*) s->matrix, dseq );
 
-            aligncolumns_rest( &S.v, hep.v, s->qtable, gap_open_extend, gap_extend, H0, H1, H2, H3, qlen );
+            aligncolumns_rest( &S.v, hep.v, s->queries[q_id]->q_table, gap_open_extend, gap_extend, H0, H1, H2, H3, qlen );
         }
         else {
             /* One or more sequences ended in the previous block.
@@ -416,7 +416,7 @@ void search16_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, int query_id ) 
                         if( (score >= 0) && (score < UINT16_MAX) ) {
                             /* Alignments, with a score equal to the current lowest score in the
                              heap are ignored! */
-                            add_to_minheap( heap, query_id, chunk->seq[next_id - 1], score );
+                            add_to_minheap( heap, q_id, chunk->seq[next_id - 1], score );
                         }
                         else {
                             // TODO else report recalculation
@@ -464,13 +464,14 @@ void search16_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, int query_id ) 
                 T = _mm_slli_si128( T, 2 );
             }
 
-            if( done == chunk->size )
+            if( done == chunk->fill_pointer )
                 break;
 
             dprofile_fill16( dprofile, (int16_t *) s->matrix, dseq );
 
-            aligncolumns_first( &S.v, hep.v, s->qtable, gap_open_extend, gap_extend, H0, H1, H2, H3, M,
+            aligncolumns_first( &S.v, hep.v, s->queries[q_id]->q_table, gap_open_extend, gap_extend, H0, H1, H2, H3, M,
                     qlen );
+
         }
     }
 }

@@ -17,6 +17,10 @@
 
 void s_init( int search_type, int bit_width, p_query query, int hit_count );
 
+p_search_data s_create_searchdata( p_query query, int hit_count );
+
+void s_free_search_data( p_search_data sdp );
+
 int s_get_query_count();
 
 seq_buffer s_get_query( int idx );

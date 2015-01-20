@@ -19,7 +19,7 @@
 #include "../../src/query.h"
 #include "../../src/algo/searcher.h"
 
-elem_t new_elem0( int ID, int frame, int strand, int qid, long score ) {
+static elem_t new_elem( int ID, int frame, int strand, int qid, long score ) {
     elem_t e;
     e.db_id = ID;
     e.dframe = frame;
@@ -73,7 +73,7 @@ START_TEST (test_aligner_simple_sw)
 
         sequence sdb = it_translate_sequence( ssa_db_get_sequence( 0 ), 0, 0 );
 
-        elem_t e1 = new_elem0( 0, 0, 0, 0, 2 );
+        elem_t e1 = new_elem( 0, 0, 0, 0, 2 );
         elem_t * elements = { &e1 };
 
         p_alignment_list alist = do_aligner_test_step_two( SMITH_WATERMAN, query, 1, 1, elements );
@@ -106,7 +106,7 @@ START_TEST (test_aligner_simple_sw_2)
     {
         p_query query = setup_aligner_test( "ATGCAAAAA", "one_seq_db.fas", 1 );
 
-        elem_t e1 = new_elem0( 0, 0, 0, 0, 9 );
+        elem_t e1 = new_elem( 0, 0, 0, 0, 9 );
         elem_t * elements = { &e1 };
 
         p_alignment_list alist = do_aligner_test_step_two( SMITH_WATERMAN, query, 1, 1, elements );
@@ -125,19 +125,19 @@ START_TEST (test_aligner_more_sequences_sw)
         p_minheap heap = minheap_init( 5 );
 
         sequence sdb0 = it_translate_sequence( ssa_db_get_sequence( 0 ), 0, 0 );
-        elem_t e = new_elem0( 0, 0, 0, 0, 2 );
+        elem_t e = new_elem( 0, 0, 0, 0, 2 );
         minheap_add( heap, &e );
 
-        e = new_elem0( 1, 0, 0, 0, 2 );
+        e = new_elem( 1, 0, 0, 0, 2 );
         minheap_add( heap, &e );
 
-        e = new_elem0( 2, 0, 0, 0, 2 );
+        e = new_elem( 2, 0, 0, 0, 2 );
         minheap_add( heap, &e );
 
-        e = new_elem0( 3, 0, 0, 0, 2 );
+        e = new_elem( 3, 0, 0, 0, 2 );
         minheap_add( heap, &e );
 
-        e = new_elem0( 4, 0, 0, 0, 2 );
+        e = new_elem( 4, 0, 0, 0, 2 );
         minheap_add( heap, &e );
 
         p_alignment_list alist = do_aligner_test_step_two( SMITH_WATERMAN, query, 5, heap->count, heap->array );
@@ -173,7 +173,7 @@ START_TEST (test_aligner_simple_nw)
 
         sequence sdb = it_translate_sequence( ssa_db_get_sequence( 0 ), 0, 0 );
 
-        elem_t e1 = new_elem0( 0, 0, 0, 0, 2 );
+        elem_t e1 = new_elem( 0, 0, 0, 0, 2 );
         elem_t * elements = { &e1 };
 
         p_alignment_list alist = do_aligner_test_step_two( NEEDLEMAN_WUNSCH, query, 1, 1, elements );

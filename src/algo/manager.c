@@ -78,6 +78,7 @@ p_alignment_list m_run() {
     unsigned long db_sequences_processed = 0;
 
     wait_for_threads( (void **) &search_result_list );
+
     p_minheap search_results = minheap_init( alignment_hit_count );
     for( int i = 0; i < get_current_thread_count(); i++ ) {
         for( int j = 0; j < search_result_list[i]->heap->count; j++ ) {

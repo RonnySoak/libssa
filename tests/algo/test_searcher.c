@@ -16,8 +16,6 @@
 #include "../../src/algo/searcher.h"
 #include "../../src/algo/search.h"
 
-extern p_search_data sdp;
-
 static p_query setup_searcher_test_init( int bit_width, int search_type, char * query_string, int hit_count,
         int symtype, int strands ) {
     init_symbol_translation( symtype, strands, 3, 3 );
@@ -57,7 +55,7 @@ static void exit_searcher_test( p_search_result res ) {
     mat_free();
 }
 
-START_TEST (test_searcher_simple_sw)
+START_TEST (test_searcher_simple_sw_64)
     {
         p_search_result res = setup_searcher_test( BIT_WIDTH_64, SMITH_WATERMAN, "AT", "short_db.fas", 1 );
 
@@ -76,32 +74,7 @@ START_TEST (test_searcher_simple_sw)
         exit_searcher_test( res );
     }END_TEST
 
-START_TEST (test_searcher_more_sequences_sw)
-    {
-        p_search_result res = setup_searcher_test( BIT_WIDTH_64, SMITH_WATERMAN,
-                "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA", "test.fas", 5 );
-
-        ck_assert_int_eq( 1, res->chunk_count );
-        ck_assert_int_eq( 5, res->seq_count );
-
-        ck_assert_int_eq( 5, res->heap->alloc );
-        ck_assert_int_eq( 5, res->heap->count );
-
-        elem_t e = res->heap->array[0];
-
-        ck_assert_int_eq( 0, e.db_id );
-        ck_assert_int_eq( 0, e.query_id );
-        ck_assert_int_eq( 8, e.score );
-
-        ck_assert_int_eq( 0, res->heap->array[1].score ); // TODO check if correct!!
-        ck_assert_int_eq( 8, res->heap->array[2].score );
-        ck_assert_int_eq( 8, res->heap->array[3].score );
-        ck_assert_int_eq( 8, res->heap->array[4].score );
-
-        exit_searcher_test( res );
-    }END_TEST
-
-START_TEST (test_searcher_simple_nw)
+START_TEST (test_searcher_simple_nw_64)
     {
         p_search_result res = setup_searcher_test( BIT_WIDTH_64, NEEDLEMAN_WUNSCH, "AT", "short_db.fas", 1 );
 
@@ -120,30 +93,49 @@ START_TEST (test_searcher_simple_nw)
         exit_searcher_test( res );
     }END_TEST
 
-START_TEST (test_searcher_more_sequences_nw)
+START_TEST (test_searcher_simple_sw_16)
     {
-        p_search_result res = setup_searcher_test( BIT_WIDTH_64, NEEDLEMAN_WUNSCH,
-                "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA", "test.fas", 3 );
+        p_search_result res = setup_searcher_test( BIT_WIDTH_16, SMITH_WATERMAN, "AT", "short_db.fas", 1 );
 
-        ck_assert_int_eq( 2, res->chunk_count );
-        ck_assert_int_eq( 5, res->seq_count );
+        ck_assert_int_eq( 1, res->chunk_count );
+        ck_assert_int_eq( 1, res->seq_count );
 
-        ck_assert_int_eq( 3, res->heap->alloc );
-        ck_assert_int_eq( 3, res->heap->count );
+        ck_assert_int_eq( 1, res->heap->alloc );
+        ck_assert_int_eq( 1, res->heap->count );
 
         elem_t e = res->heap->array[0];
-
-        ck_assert_int_eq( 4, e.db_id );
+        ck_assert_int_eq( 0, e.db_id );
         ck_assert_int_eq( 0, e.query_id );
-        ck_assert_int_eq( -43, e.score );
+
+        ck_assert_int_eq( 2, e.score );
+
+        exit_searcher_test( res );
+    }END_TEST
+
+START_TEST (test_searcher_simple_nw_16)
+    {
+        p_search_result res = setup_searcher_test( BIT_WIDTH_16, NEEDLEMAN_WUNSCH, "AT", "short_db.fas", 1 );
+
+        ck_assert_int_eq( 1, res->chunk_count );
+        ck_assert_int_eq( 1, res->seq_count );
+
+        ck_assert_int_eq( 1, res->heap->alloc );
+        ck_assert_int_eq( 1, res->heap->count );
+
+        elem_t e = res->heap->array[0];
+        ck_assert_int_eq( 0, e.db_id );
+        ck_assert_int_eq( 0, e.query_id );
+
+        ck_assert_int_eq( -2, e.score );
 
         exit_searcher_test( res );
     }END_TEST
 
 START_TEST (test_init_search_data)
     {
-        p_query query = setup_searcher_test_init( BIT_WIDTH_64, NEEDLEMAN_WUNSCH,
-                "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA", 1, NUCLEOTIDE, FORWARD_STRAND );
+        init_symbol_translation( NUCLEOTIDE, FORWARD_STRAND, 3, 3 );
+        p_query query = query_read_from_string( "short query", "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA" );
+        p_search_data sdp = s_create_searchdata( query, 1 );
 
         // query data
         ck_assert_int_eq( 1, sdp->q_count );
@@ -171,8 +163,9 @@ START_TEST (test_init_search_data)
 
 START_TEST (test_init_search_data2)
     {
-        p_query query = setup_searcher_test_init( BIT_WIDTH_64, NEEDLEMAN_WUNSCH,
-                "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA", 5, NUCLEOTIDE, COMPLEMENTARY_STRAND );
+        init_symbol_translation( NUCLEOTIDE, COMPLEMENTARY_STRAND, 3, 3 );
+        p_query query = query_read_from_string( "short query", "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA" );
+        p_search_data sdp = s_create_searchdata( query, 5 );
 
         // query data
         ck_assert_int_eq( 1, sdp->q_count );
@@ -198,8 +191,9 @@ START_TEST (test_init_search_data2)
 
 START_TEST (test_init_search_data3)
     {
-        p_query query = setup_searcher_test_init( BIT_WIDTH_64, NEEDLEMAN_WUNSCH,
-                "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA", 5, TRANS_QUERY, FORWARD_STRAND );
+        init_symbol_translation( TRANS_QUERY, FORWARD_STRAND, 3, 3 );
+        p_query query = query_read_from_string( "short query", "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA" );
+        p_search_data sdp = s_create_searchdata( query, 5 );
 
         // query data
         ck_assert_int_eq( 3, sdp->q_count );
@@ -235,8 +229,9 @@ START_TEST (test_init_search_data3)
 
 START_TEST (test_init_search_data4)
     {
-        p_query query = setup_searcher_test_init( BIT_WIDTH_64, NEEDLEMAN_WUNSCH,
-                "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA", 3, TRANS_QUERY, BOTH_STRANDS );
+        init_symbol_translation( TRANS_QUERY, BOTH_STRANDS, 3, 3 );
+        p_query query = query_read_from_string( "short query", "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA" );
+        p_search_data sdp = s_create_searchdata( query, 3 );
 
         // query data
         ck_assert_int_eq( 6, sdp->q_count );
@@ -286,8 +281,9 @@ START_TEST (test_init_search_data4)
 
 START_TEST (test_init_search_data5)
     {
-        p_query query = setup_searcher_test_init( BIT_WIDTH_64, NEEDLEMAN_WUNSCH,
-                "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA", 1, AMINOACID, BOTH_STRANDS );
+        init_symbol_translation( AMINOACID, BOTH_STRANDS, 3, 3 );
+        p_query query = query_read_from_string( "short query", "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA" );
+        p_search_data sdp = s_create_searchdata( query, 1 );
 
         // query data
         ck_assert_int_eq( 1, sdp->q_count );
@@ -313,10 +309,10 @@ START_TEST (test_init_search_data5)
 
 void addSearcherTC( Suite *s ) {
     TCase *tc_core = tcase_create( "searcher" );
-    tcase_add_test( tc_core, test_searcher_simple_sw );
-    tcase_add_test( tc_core, test_searcher_more_sequences_sw );
-    tcase_add_test( tc_core, test_searcher_simple_nw );
-    tcase_add_test( tc_core, test_searcher_more_sequences_nw );
+    tcase_add_test( tc_core, test_searcher_simple_sw_64 );
+    tcase_add_test( tc_core, test_searcher_simple_nw_64 );
+    tcase_add_test( tc_core, test_searcher_simple_sw_16 );
+    tcase_add_test( tc_core, test_searcher_simple_nw_16 );
     tcase_add_test( tc_core, test_init_search_data );
     tcase_add_test( tc_core, test_init_search_data2 );
     tcase_add_test( tc_core, test_init_search_data3 );

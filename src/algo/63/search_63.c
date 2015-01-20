@@ -17,7 +17,7 @@
 
 static int64_t (*search_algo)(sequence*, sequence*, int64_t*);
 
-void init_algo_63( int search_type ) {
+void search63_init_algo( int search_type ) {
     if( search_type == SMITH_WATERMAN ) {
         search_algo = &full_sw;
     }

@@ -298,63 +298,6 @@ static void aligncolumns_rest( __m128i * Sm, __m128i * hep, __m128i ** qp, __m12
     Sm[3] = h8;
 }
 
-p_s16info search16_init( int16_t penalty_gap_open, int16_t penalty_gap_extension ) {
-    /* prepare alloc of qtable, dprofile, hearray, dir */
-    p_s16info s = (p_s16info) xmalloc( sizeof(struct s16info) );
-
-    s->maxdlen = 4 * ((ssa_db_get_longest_sequence() + 3) / 4);
-    s->dprofile = (__m128i *) xmalloc( 2 * 4 * 8 * 16 );
-    s->qlen = 0;
-    s->maxqlen = 0;
-    s->hearray = 0;
-    s->qtable = 0;
-
-    for( int i = 0; i < 16; i++ ) {
-        for( int j = 0; j < 16; j++ ) {
-            ((int16_t*) (&s->matrix))[16 * i + j] = SCORE_MATRIX_16( i, j );
-        }
-    }
-
-    s->penalty_gap_open = penalty_gap_open;
-    s->penalty_gap_extension = penalty_gap_extension;
-
-    return s;
-}
-
-void search16_exit( p_s16info s ) {
-    /* free mem for dprofile, hearray, dir, qtable */
-    if( s->hearray )
-        free( s->hearray );
-    if( s->dprofile )
-        free( s->dprofile );
-    if( s->qtable )
-        free( s->qtable );
-    free( s );
-}
-
-void search16_init_query( p_s16info s, char * qseq, int qlen ) {
-    s->qlen = qlen;
-
-    if( s->qlen > s->maxqlen ) {
-        if( s->maxqlen == 0 )
-            s->maxqlen = 256;
-        while( s->qlen > s->maxqlen )
-            s->maxqlen <<= 1;
-
-        if( s->hearray )
-            free( s->hearray );
-        s->hearray = (__m128i *) xmalloc( 2 * s->maxqlen * sizeof(__m128i ) );
-        memset( s->hearray, 0, 2 * s->maxqlen * sizeof(__m128i ) );
-
-        if( s->qtable )
-            free( s->qtable );
-        s->qtable = (__m128i **) xmalloc( s->maxqlen * sizeof(__m128i *) );
-    }
-
-    for( int i = 0; i < qlen; i++ )
-        s->qtable[i] = s->dprofile + 4 * (int) (qseq[i]);
-}
-
 static inline void fill_channel( int c, uint8_t* d_begin[CHANNELS], uint8_t* d_end[CHANNELS], uint8_t* dseq ) {
     /* fill channel */
     for( int j = 0; j < CDEPTH; j++ ) {
@@ -367,9 +310,9 @@ static inline void fill_channel( int c, uint8_t* d_begin[CHANNELS], uint8_t* d_e
     }
 }
 
-void search16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, int query_id ) {
+void search_16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, int q_id ) {
     int16_t * dprofile = (int16_t*) s->dprofile;
-    unsigned long qlen = s->qlen;
+    unsigned long qlen = s->queries[q_id]->q_len;
 
     __m128i T, M, T0, E0;
 
@@ -439,7 +382,7 @@ void search16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, int query_id ) 
 
             dprofile_fill16( dprofile, (int16_t*) s->matrix, dseq );
 
-            aligncolumns_rest( S, hep.v, s->qtable, gap_open_extend, gap_extend, H0, H1, H2, H3, qlen );
+            aligncolumns_rest( S, hep.v, s->queries[q_id]->q_table, gap_open_extend, gap_extend, H0, H1, H2, H3, qlen );
         }
         else {
             /* One or more sequences ended in the previous block.
@@ -473,7 +416,7 @@ void search16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, int query_id ) 
                         if( (score > INT16_MIN) && (score < INT16_MAX) ) {
                             /* Alignments, with a score equal to the current lowest score in the
                              heap are ignored! */
-                            add_to_minheap( heap, query_id, chunk->seq[next_id - 1], score );
+                            add_to_minheap( heap, q_id, chunk->seq[next_id - 1], score );
                         }
                         else {
                             // TODO else report recalculation
@@ -527,7 +470,7 @@ void search16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, int query_id ) 
                 T = _mm_slli_si128( T, 2 );
             }
 
-            if( done == chunk->size )
+            if( done == chunk->fill_pointer )
                 break;
 
             /* make masked versions of QR, R and E0 */
@@ -537,7 +480,7 @@ void search16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, int query_id ) 
 
             dprofile_fill16( dprofile, (int16_t *) s->matrix, dseq );
 
-            aligncolumns_first( S, hep.v, s->qtable, gap_open_extend, gap_extend, H0, H1, H2, H3, E0, M,
+            aligncolumns_first( S, hep.v, s->queries[q_id]->q_table, gap_open_extend, gap_extend, H0, H1, H2, H3, E0, M,
                     M_QR_target_left, M_R_target_left, qlen );
         }
 

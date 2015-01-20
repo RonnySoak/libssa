@@ -19,7 +19,7 @@
 #include "63/search_63.h"
 #include "16/search_16.h"
 
-p_search_data sdp;
+static p_search_data sdp;
 static void (*search_func)( p_db_chunk, p_search_data, p_search_result );
 
 static void add_to_buffer( seq_buffer* buf, sequence seq, int strand, int frame ) {
@@ -28,8 +28,8 @@ static void add_to_buffer( seq_buffer* buf, sequence seq, int strand, int frame 
     buf->strand = strand;
 }
 
-static void init_searchdata( p_query query, int hit_count ) {
-    sdp = xmalloc( sizeof(struct search_data) );
+p_search_data s_create_searchdata( p_query query, int hit_count ) {
+    p_search_data sdp = xmalloc( sizeof(struct search_data) );
 
     sdp->hit_count = hit_count;
 
@@ -76,6 +76,8 @@ static void init_searchdata( p_query query, int hit_count ) {
     }
 
     sdp->hearraylen = hearraylen;
+
+    return sdp;
 }
 
 int s_get_query_count() {
@@ -88,12 +90,12 @@ seq_buffer s_get_query( int idx ) {
 
 void s_init( int search_type, int bit_width, p_query query, int hit_count ) {
     if( bit_width == BIT_WIDTH_64 ) {
-        init_algo_63( search_type );
+        search63_init_algo( search_type );
 
         search_func = &search_63;
     }
     else if( bit_width == BIT_WIDTH_16 ) {
-        init_algo_16( search_type );
+        search16_init_algo( search_type );
 
         search_func = &search_16;
     }
@@ -104,7 +106,16 @@ void s_init( int search_type, int bit_width, p_query query, int hit_count ) {
         ffatal( "\nunknown bit width provided: %d\n\n", bit_width );
     }
 
-    init_searchdata( query, hit_count );
+    sdp = s_create_searchdata( query, hit_count );
+}
+
+void s_free_search_data( p_search_data sdp ) {
+    if( sdp ) {
+        sdp->q_count = 0;
+        sdp->hit_count = 0;
+
+        free( sdp );
+    }
 }
 
 void s_free( p_search_result res ) {
@@ -112,14 +123,8 @@ void s_free( p_search_result res ) {
         return;
     }
 
-    if( sdp ) {
-        sdp->q_count = 0;
-        sdp->hit_count = 0;
-
-        free( sdp );
-
-        sdp = 0;
-    }
+    s_free_search_data( sdp );
+    sdp = 0;
 
     minheap_exit( res->heap );
 

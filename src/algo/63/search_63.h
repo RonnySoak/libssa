@@ -12,7 +12,7 @@
 
 #include "../../libssa_datatypes.h"
 
-void init_algo_63( int search_type );
+void search63_init_algo( int search_type );
 
 int64_t full_sw(sequence * dseq, sequence * qseq, int64_t * hearray );
 

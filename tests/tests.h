@@ -24,12 +24,12 @@ void addDBIteratorTC(Suite *s);
 void addCigarTC(Suite *s);
 void addAlignTC(Suite *s);
 void addSmithWaterman63TC(Suite *s);
+void addSmithWaterman16TC(Suite *s);
+void addNeedlemanWunsch16TC( Suite *s );
 void addSearcherTC(Suite *s);
 void addManagerTC(Suite *s);
 void addAlignerTC(Suite *s);
 void addLibssaTC(Suite *s);
-void addSmithWatermanSIMD16TC(Suite *s);
-void addNeedlemanWunschSIMD16TC( Suite *s );
 
 // some utility functions
 void dbg_print(int n, void* param);
