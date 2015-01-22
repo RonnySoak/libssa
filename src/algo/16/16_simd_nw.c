@@ -331,7 +331,11 @@ void search_16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, int q_id ) {
     p_sdb_sequence d_seq_ptr[CHANNELS];
 
     __m128i dseqalloc[CDEPTH];
-    __m128i S[4];
+
+    union {
+        __m128i v[4];
+        int16_t a[4 * sizeof(__m128i )];
+    } S;
 
     uint8_t * dseq = (uint8_t*) &dseqalloc;
 
@@ -354,7 +358,7 @@ void search_16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, int q_id ) {
     }
 
     for( int i = 0; i < 4; i++ ) {
-        S[i] = _mm_setzero_si128();
+        S.v[i] = _mm_setzero_si128();
         dseqalloc[i] = _mm_setzero_si128();
     }
 
@@ -379,7 +383,7 @@ void search_16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, int q_id ) {
 
             dprofile_fill16( dprofile, (int16_t*) s->matrix, dseq );
 
-            aligncolumns_rest( S, hep, s->queries[q_id]->q_table, gap_open_extend, gap_extend, H0, H1, H2, H3, qlen );
+            aligncolumns_rest( S.v, hep, s->queries[q_id]->q_table, gap_open_extend, gap_extend, H0, H1, H2, H3, qlen );
         }
         else {
             /* One or more sequences ended in the previous block.
@@ -390,7 +394,7 @@ void search_16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, int q_id ) {
             T = T0;
             for( int c = 0; c < CHANNELS; c++ ) {
                 if( d_begin[c] < d_end[c] ) {
-                    /* the sequence in this channel is not finished */
+                    /* the sequence in this channel is not finished yet */
 
                     no_sequences_ended = fill_channel( c, d_begin, d_end, dseq );
                 }
@@ -405,7 +409,7 @@ void search_16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, int q_id ) {
                         /* save score */
 
                         long z = (d_length[c] + 3) % 4;
-                        long score = ((int16_t*) S)[z * CHANNELS + c];
+                        long score = S.a[z * CHANNELS + c];
 
                         if( (score > INT16_MIN) && (score < INT16_MAX) ) {
                             /* Alignments, with a score equal to the current lowest score in the
@@ -422,11 +426,11 @@ void search_16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, int q_id ) {
 
                     if( next_id < chunk->fill_pointer ) {
                         char* address;
-                        long length = 0;
+                        long length = 0; // TODO do we need this check for length > 0 ? Without it, the speed drops drastically ...
 
                         /* get next sequence with length>0 */
 
-                        while( (length == 0) && (next_id < chunk->fill_pointer) ) { // TODO do we need this check for length > 0 ?
+                        while( (length == 0) && (next_id < chunk->fill_pointer) ) {
                             d_seq_id[c] = next_id;
                             d_seq_ptr[c] = chunk->seq[next_id];
 
@@ -472,7 +476,7 @@ void search_16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, int q_id ) {
 
             dprofile_fill16( dprofile, (int16_t *) s->matrix, dseq );
 
-            aligncolumns_first( S, hep, s->queries[q_id]->q_table, gap_open_extend, gap_extend, H0, H1, H2, H3, E0, M,
+            aligncolumns_first( S.v, hep, s->queries[q_id]->q_table, gap_open_extend, gap_extend, H0, H1, H2, H3, E0, M,
                     M_QR_target_left, M_R_target_left, qlen );
         }
 

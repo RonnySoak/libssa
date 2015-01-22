@@ -101,7 +101,7 @@ static p_search_result do_translate_test( int bit_width, int search_type, char *
 START_TEST (test_searcher_translate_nw_64)
     {
         p_search_result res = do_translate_test( BIT_WIDTH_64, NEEDLEMAN_WUNSCH, "short_nuc_db.fas", 8, NUCLEOTIDE,
-                FORWARD_STRAND );
+        FORWARD_STRAND );
 
         p_minheap heap = res->heap;
 
@@ -129,38 +129,13 @@ START_TEST (test_searcher_translate_nw_64)
         ck_assert_int_eq( -6, heap->array[7].score ); // -4
         ck_assert_int_eq( 1, heap->array[7].db_id );
 
-//        (0) Score: -1
-//        D: ATGCCCA--A
-//        (3) Score: -3
-//        D: TGTGTAAA--G
-//        Q: -ATGCAAATTT
-//        Q: ATGCAAATTT
-//        (4) Score: -4
-//        D: GGAGGGA-TT
-//        Q: ATGCAAATTT
-//        (6) Score: -4
-//        D: ATCGCTGACCCC
-//        Q: AT-GC-AAATTT
-//        (7) Score: -4
-//        D: AAAGGGCCCTT
-//        Q: -ATGCAAATTT
-//        (2) Score: -5
-//        D: ATTC-CCGCG
-//        Q: ATGCAAATTT
-//        (1) Score: -6
-//        D: ATTTTGGGCC
-//        Q: ATGCAAATTT
-//        (5) Score: -6
-//        D: CCGCGCTTCAA
-//        Q: ATGCAAAT-TT
-
         exit_searcher_test( res );
     }END_TEST
 
 START_TEST (test_searcher_translate_nw_16)
     {
         p_search_result res = do_translate_test( BIT_WIDTH_16, NEEDLEMAN_WUNSCH, "short_nuc_db.fas", 8, NUCLEOTIDE,
-                FORWARD_STRAND );
+        FORWARD_STRAND );
 
         p_minheap heap = res->heap;
 
@@ -187,6 +162,74 @@ START_TEST (test_searcher_translate_nw_16)
 
         ck_assert_int_eq( -6, heap->array[7].score );
         ck_assert_int_eq( 1, heap->array[7].db_id );
+
+        exit_searcher_test( res );
+    }END_TEST
+
+START_TEST (test_searcher_translate_sw_64)
+    {
+        p_search_result res = do_translate_test( BIT_WIDTH_64, SMITH_WATERMAN, "short_nuc_db.fas", 8, NUCLEOTIDE,
+        FORWARD_STRAND );
+
+        p_minheap heap = res->heap;
+
+        ck_assert_int_eq( 4, heap->array[0].score ); //  1
+        ck_assert_int_eq( 3, heap->array[0].db_id );
+
+        ck_assert_int_eq( 4, heap->array[1].score ); // -1
+        ck_assert_int_eq( 1, heap->array[1].db_id );
+
+        ck_assert_int_eq( 4, heap->array[2].score ); // -3
+        ck_assert_int_eq( 0, heap->array[2].db_id );
+
+        ck_assert_int_eq( 3, heap->array[3].score ); // -2
+        ck_assert_int_eq( 7, heap->array[3].db_id );
+
+        ck_assert_int_eq( 3, heap->array[4].score ); // -2
+        ck_assert_int_eq( 5, heap->array[4].db_id );
+
+        ck_assert_int_eq( 3, heap->array[5].score ); // -4
+        ck_assert_int_eq( 4, heap->array[5].db_id );
+
+        ck_assert_int_eq( 3, heap->array[6].score ); // -5
+        ck_assert_int_eq( 2, heap->array[6].db_id );
+
+        ck_assert_int_eq( 2, heap->array[7].score ); // -4
+        ck_assert_int_eq( 6, heap->array[7].db_id );
+
+        exit_searcher_test( res );
+    }END_TEST
+
+START_TEST (test_searcher_translate_sw_16)
+    {
+        p_search_result res = do_translate_test( BIT_WIDTH_16, SMITH_WATERMAN, "short_nuc_db.fas", 8, NUCLEOTIDE,
+        FORWARD_STRAND );
+
+        p_minheap heap = res->heap;
+
+        ck_assert_int_eq( 4, heap->array[0].score );
+        ck_assert_int_eq( 3, heap->array[0].db_id );
+
+        ck_assert_int_eq( 4, heap->array[1].score );
+        ck_assert_int_eq( 1, heap->array[1].db_id );
+
+        ck_assert_int_eq( 4, heap->array[2].score );
+        ck_assert_int_eq( 0, heap->array[2].db_id );
+
+        ck_assert_int_eq( 3, heap->array[3].score );
+        ck_assert_int_eq( 7, heap->array[3].db_id );
+
+        ck_assert_int_eq( 3, heap->array[4].score );
+        ck_assert_int_eq( 5, heap->array[4].db_id );
+
+        ck_assert_int_eq( 3, heap->array[5].score );
+        ck_assert_int_eq( 4, heap->array[5].db_id );
+
+        ck_assert_int_eq( 3, heap->array[6].score );
+        ck_assert_int_eq( 2, heap->array[6].db_id );
+
+        ck_assert_int_eq( 2, heap->array[7].score );
+        ck_assert_int_eq( 6, heap->array[7].db_id );
 
         exit_searcher_test( res );
     }END_TEST
@@ -380,6 +423,8 @@ void addSearcherTC( Suite *s ) {
     tcase_add_test( tc_core, test_searcher_simple_nw_16 );
     tcase_add_test( tc_core, test_searcher_translate_nw_64 );
     tcase_add_test( tc_core, test_searcher_translate_nw_16 );
+    tcase_add_test( tc_core, test_searcher_translate_sw_64 );
+    tcase_add_test( tc_core, test_searcher_translate_sw_16 );
     tcase_add_test( tc_core, test_init_search_data );
     tcase_add_test( tc_core, test_init_search_data2 );
     tcase_add_test( tc_core, test_init_search_data3 );
