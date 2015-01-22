@@ -58,36 +58,43 @@ START_TEST (test_nw_simd_simple)
         exit_searcher_16_test( res );
     }END_TEST
 
-START_TEST (test_nw_simd_blosum62)
+START_TEST (test_nw_simd_BLOSUM62)
     {
-        ck_abort_msg( "TODO not yet implemented" );
-//        mat_init_buildin( BLOSUM62 );
-//        init_symbol_translation( AMINOACID, FORWARD_STRAND, 3, 3 );
-//
-//        p_query query = query_read_from_file( "./tests/testdata/NP_009305.1.fas" );
-//
-//        ssa_db_init_fasta( "./tests/testdata/short_db.fas" );
-//
-//        s_init( NEEDLEMAN_WUNSCH, BIT_WIDTH_16, query, 1403 );
-//
-//        gapO = 1;
-//        gapE = 1;
-//
-//        it_init( 1403 );
-//
-//        p_search_result res = s_search( NULL );
-//
-//        minheap_sort( res->heap );
-//
-//        query_free( query );
-//
-//        p_minheap heap = res->heap;
-//
-//        ck_assert_int_eq( 0, heap->array[0].score ); // TODO check if correct!!
-//        ck_assert_int_eq( 258, heap->array[1].score );
-//        ck_assert_int_eq( 258, heap->array[2].score );
-//
-//        exit_searcher_16_test( res );
+        ck_abort_msg( "TODO implement this" );
+    }END_TEST
+
+START_TEST (test_nw_simd_translated_AA_sequence)
+    {
+        mat_init_buildin( BLOSUM62 );
+        init_symbol_translation( TRANS_QUERY, BOTH_STRANDS, 3, 3 );
+
+        p_query query = query_read_from_file( "./tests/testdata/one_seq.fas" );
+
+        ssa_db_init_fasta( "./tests/testdata/NP_009305.1.fas" );
+
+        s_init( NEEDLEMAN_WUNSCH, BIT_WIDTH_16, query, 6 );
+
+        gapO = 1;
+        gapE = 1;
+
+        it_init( 6 );
+
+        p_search_result res = s_search( NULL );
+
+        minheap_sort( res->heap );
+
+        query_free( query );
+
+        p_minheap heap = res->heap;
+
+        ck_assert_int_eq( 0, heap->array[0].score );
+        ck_assert_int_eq( 0, heap->array[1].score );
+        ck_assert_int_eq( 0, heap->array[2].score );
+        ck_assert_int_eq( 0, heap->array[3].score );
+        ck_assert_int_eq( 0, heap->array[4].score );
+        ck_assert_int_eq( 0, heap->array[5].score );
+
+        exit_searcher_16_test( res );
     }END_TEST
 
 START_TEST (test_nw_simd_more_sequences)
@@ -109,7 +116,8 @@ START_TEST (test_nw_simd_more_sequences)
 void addNeedlemanWunsch16TC( Suite *s ) {
     TCase *tc_core = tcase_create( "NeedlemanWunsch16" );
     tcase_add_test( tc_core, test_nw_simd_simple );
-    tcase_add_test( tc_core, test_nw_simd_blosum62 );
+    tcase_add_test( tc_core, test_nw_simd_BLOSUM62 );
+    tcase_add_test( tc_core, test_nw_simd_translated_AA_sequence );
     tcase_add_test( tc_core, test_nw_simd_more_sequences );
 
     suite_add_tcase( s, tc_core );

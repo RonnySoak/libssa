@@ -10,10 +10,6 @@
 #include <stdio.h>
 
 int main( int argc, char**argv ) {
-    init_score_matrix( BLOSUM62 );
-    init_gap_penalties( 4, 2 );
-    init_symbol_translation( NUCLEOTIDE, FORWARD_STRAND, 3, 3 );
-
     /*
      * TODO
      *
@@ -23,8 +19,11 @@ int main( int argc, char**argv ) {
      * - with the bias we have to check for MAX_INT - bias
      * - or use signed operations and treat -MAX_INT as 0 and add the bias later on, to get the real score
      *
-     * meeting next Tuesday??
      */
+
+    init_score_matrix( BLOSUM62 );
+    init_gap_penalties( 4, 2 );
+    init_symbol_translation( NUCLEOTIDE, FORWARD_STRAND, 3, 3 );
 
     set_threads( 4 );
 

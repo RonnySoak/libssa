@@ -19,7 +19,7 @@
 #include "63/search_63.h"
 #include "16/search_16.h"
 
-static p_search_data sdp;
+static p_search_data sdp = 0;
 static void (*search_func)( p_db_chunk, p_search_data, p_search_result );
 
 static void add_to_buffer( seq_buffer* buf, sequence seq, int strand, int frame ) {
@@ -135,8 +135,8 @@ void s_free( p_search_result res ) {
 }
 
 void * s_search( void * not_used ) {
-    if( (search_func == NULL) || (sdp == NULL) ) {
-        ffatal( "\n not initialized!!\n\n" );
+    if( !search_func || !sdp ) {
+        ffatal( "\n Search module not initialized!!\n\n" );
     }
 
     p_search_result res = xmalloc( sizeof(struct search_result) );

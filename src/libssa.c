@@ -32,6 +32,9 @@ int _use_simd = SIMD_ON;
 
 // defined in and include from libssa_datatypes.h
 
+uint8_t gapO = 0;
+uint8_t gapE = 0;
+
 // #############################################################################
 // Technical initialisation
 // ########################
@@ -122,7 +125,7 @@ void init_gap_penalties( const uint8_t gap_open, const uint8_t gap_extend ) {
  * @param  p    penalty for a mismatch
  * @param  m    reward for a match
  */
-void init_scoring( const uint8_t p, const uint8_t m ) {
+void init_scoring( const int8_t p, const int8_t m ) {
     mat_init_constant_scoring( p, m );
 }
 
@@ -195,6 +198,24 @@ void free_sequence( p_query p ) {
 // #############################################################################
 // Alignment
 // #########
+static void test_configuration() {
+    if( !gapO || !gapE ) {
+        ffatal( "Gap opening and/or gap extension cost set to zero. Possible error." );
+    }
+    if( !score_matrix_63 ) {
+        ffatal( "Scoring not initialized." );
+    }
+
+    // TODO extend these checks
+}
+
+static void prepare_alignment() {
+    test_configuration();
+
+    ssa_db_reset_sequence_counter();
+    it_reset_chunk_counter();
+}
+
 /**
  * Aligns the query sequence against all sequences in the database using the
  * Smith-Waterman Algorithm.
@@ -204,8 +225,7 @@ void free_sequence( p_query p ) {
  * @return pointer to the alignment structure
  */
 p_alignment_list sw_align( p_query p, int hitcount, int bit_width /* TODO ...*/) {
-    ssa_db_reset_sequence_counter();
-    it_reset_chunk_counter();
+    prepare_alignment();
 
     init_for_sw( p, hitcount, bit_width );
 
@@ -221,8 +241,7 @@ p_alignment_list sw_align( p_query p, int hitcount, int bit_width /* TODO ...*/)
  * @return pointer to the alignment structure
  */
 p_alignment_list nw_align( p_query p, int hitcount, int bit_width /* TODO ...*/) {
-    ssa_db_reset_sequence_counter();
-    it_reset_chunk_counter();
+    prepare_alignment();
 
     init_for_nw( p, hitcount, bit_width );
 
@@ -240,8 +259,7 @@ p_alignment_list nw_align( p_query p, int hitcount, int bit_width /* TODO ...*/)
  * @return pointer to the alignment structure
  */
 p_alignment_list nw_sellers_align( p_query p, int hitcount, int bit_width /* TODO ...*/) {
-    ssa_db_reset_sequence_counter();
-    it_reset_chunk_counter();
+    prepare_alignment();
 
     init_for_nw_sellers( p, hitcount, bit_width );
 
@@ -257,8 +275,7 @@ p_alignment_list nw_sellers_align( p_query p, int hitcount, int bit_width /* TOD
  * @return pointer to the alignment structure
  */
 p_alignment_list nw_ignore_gaps_align( p_query p, int hitcount, int bit_width /* TODO ... ignored gaps...*/) {
-    ssa_db_reset_sequence_counter();
-    it_reset_chunk_counter();
+    prepare_alignment();
 
     return NULL; // TODO
 }

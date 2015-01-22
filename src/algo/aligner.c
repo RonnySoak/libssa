@@ -16,7 +16,7 @@
 #include "align.h"
 #include "../util/util.h"
 
-static p_alignment_data adp;
+static p_alignment_data adp = 0;
 static unsigned long chunk_counter = 0;
 
 static pthread_mutex_t chunk_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -158,6 +158,10 @@ static elem_t * get_chunk() {
 }
 
 void * a_align( void * unused ) {
+    if( !adp ) {
+        ffatal( "\n Alignment module not initialized!!\n\n" );
+    }
+
     p_alignment_list alignment_list = xmalloc( sizeof(struct alignment_list) );
     alignment_list->alignments = xmalloc( adp->pair_count * sizeof(alignment_t) );
     alignment_list->len = 0;

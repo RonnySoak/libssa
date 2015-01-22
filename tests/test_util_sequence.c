@@ -83,6 +83,7 @@ START_TEST (test_translate_query_RNA)
         us_translate_sequence( 0, conv_dna, 0, 0, &protp );
 
         ck_assert_int_eq( 18, protp.len );
+
         ck_converted_prot_eq( "MPKTNSVEGFSSFEDDV*", protp );
         free( protp.seq );
         free( conv_dna.seq );

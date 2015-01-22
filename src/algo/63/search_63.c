@@ -15,7 +15,7 @@
 #include "../../util/util.h"
 #include "../../db_iterator.h"
 
-static int64_t (*search_algo)(sequence*, sequence*, int64_t*);
+static int64_t (*search_algo)( sequence*, sequence*, int64_t* );
 
 void search63_init_algo( int search_type ) {
     if( search_type == SMITH_WATERMAN ) {
@@ -28,7 +28,7 @@ void search63_init_algo( int search_type ) {
         search_algo = &full_nw_sellers;
     }
     else {
-        ffatal("\nunknown search type: %d\n\n", search_type );
+        ffatal( "\nunknown search type: %d\n\n", search_type );
     }
 }
 
@@ -53,6 +53,10 @@ static unsigned long search_chunk( p_minheap heap, p_db_chunk chunk, p_search_da
 }
 
 void search_63( p_db_chunk chunk, p_search_data sdp, p_search_result res ) {
+    if( !search_algo ) {
+        ffatal( "\n 64 bit search not initialized!!\n\n" );
+    }
+
     int64_t* hearray = xmalloc( sdp->hearraylen * 32 );
 
     it_next_chunk( chunk );

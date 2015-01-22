@@ -13,7 +13,7 @@
 #include "../libssa_datatypes.h"
 
 // both are filled from libssa.c
-uint8_t gapO;
-uint8_t gapE;
+extern uint8_t gapO;
+extern uint8_t gapE;
 
 #endif /* SEARCH_H_ */

@@ -215,7 +215,7 @@ void init_gap_penalties(const uint8_t gapO, const uint8_t gapE);
  * @param  p    penalty for a mismatch
  * @param  m    reward for a match
  */
-void init_scoring(const uint8_t p, const uint8_t m);
+void init_scoring(const int8_t p, const int8_t m);
 
 /**
  * Initialises the symbol type translation for the alignment. Depending on the

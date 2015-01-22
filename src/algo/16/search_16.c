@@ -30,7 +30,7 @@ void search16_init_algo( int search_type ) {
         ffatal( "\nnot yet implemented\n\n" );
     }
     else {
-        ffatal("\nunknown search type: %d\n\n", search_type );
+        ffatal( "\nunknown search type: %d\n\n", search_type );
     }
 }
 
@@ -86,11 +86,11 @@ void search16_init_query( p_s16info s, int q_count, seq_buffer * queries ) {
 
     uint64_t maxqlen = 0;
 
-    for( int i = 0; i < q_count; ++i) {
+    for( int i = 0; i < q_count; ++i ) {
         if( s->queries[i] )
             free_query( s->queries[i] );
 
-        p_s16query query = (p_s16query ) xmalloc( sizeof( struct s16query ) );
+        p_s16query query = (p_s16query) xmalloc( sizeof(struct s16query) );
 
         query->q_len = queries[i].seq.len;
 
@@ -129,6 +129,10 @@ static unsigned long search_chunk( p_s16info s16info, p_minheap heap, p_db_chunk
 }
 
 void search_16( p_db_chunk chunk, p_search_data sdp, p_search_result res ) {
+    if( !search_algo ) {
+        ffatal( "\n 16 bit search not initialized!!\n\n" );
+    }
+
     p_s16info s16info = search16_init( gapO, gapE );
 
     search16_init_query( s16info, sdp->q_count, sdp->queries );

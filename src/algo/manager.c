@@ -21,7 +21,7 @@
 #include "aligner.h"
 #include "searcher.h"
 
-static int alignment_hit_count;
+static int alignment_hit_count = 0;
 
 unsigned long max_chunk_size = 1000; // TODO change and/or make it configurable
 
@@ -36,7 +36,7 @@ static void init( p_query query, int hit_count, int search_type, int bit_width )
 }
 
 void init_for_sw( p_query query, int hit_count, int bit_width ) {
-    init( query, hit_count, SMITH_WATERMAN,bit_width );
+    init( query, hit_count, SMITH_WATERMAN, bit_width );
 }
 
 void init_for_nw( p_query query, int hit_count, int bit_width ) {
@@ -68,6 +68,10 @@ static void sort_alignment_list( p_alignment_list alist ) {
  * configured through set bits in 'flags'.
  */
 p_alignment_list m_run() {
+    if( !alignment_hit_count ) {
+        ffatal( "\n Manager module not initialized!!\n\n" );
+    }
+
     init_thread_pool();
 
     start_threads( s_search );
