@@ -26,6 +26,7 @@ void addAlignTC(Suite *s);
 void addSmithWaterman63TC(Suite *s);
 void addSmithWaterman16TC(Suite *s);
 void addNeedlemanWunsch16TC( Suite *s );
+void addSearcher63TC( Suite *s );
 void addSearcherTC(Suite *s);
 void addManagerTC(Suite *s);
 void addAlignerTC(Suite *s);

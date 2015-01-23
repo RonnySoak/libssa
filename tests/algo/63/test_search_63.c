@@ -5,16 +5,16 @@
  *      Author: kaos
  */
 
-#include "../tests.h"
+#include "../../tests.h"
 
-#include "../../src/util/util.h"
-#include "../../src/libssa.h"
-#include "../../src/util/minheap.h"
-#include "../../src/matrices.h"
-#include "../../src/db_iterator.h"
-#include "../../src/query.h"
-#include "../../src/algo/searcher.h"
-#include "../../src/algo/search.h"
+#include "../../../src/util/util.h"
+#include "../../../src/libssa.h"
+#include "../../../src/util/minheap.h"
+#include "../../../src/matrices.h"
+#include "../../../src/db_iterator.h"
+#include "../../../src/query.h"
+#include "../../../src/algo/searcher.h"
+#include "../../../src/algo/search.h"
 
 static p_query setup_searcher_test_init( int bit_width, int search_type, char * query_string, int hit_count,
         int symtype, int strands ) {
@@ -66,13 +66,11 @@ START_TEST (test_searcher_more_sequences_sw)
         ck_assert_int_eq( 5, res->heap->alloc );
         ck_assert_int_eq( 5, res->heap->count );
 
-        elem_t e = res->heap->array[0];
+        ck_assert_int_eq( 4, res->heap->array[0].db_id );
+        ck_assert_int_eq( 0, res->heap->array[0].query_id );
+        ck_assert_int_eq( 8, res->heap->array[0].score );
 
-        ck_assert_int_eq( 0, e.db_id );
-        ck_assert_int_eq( 0, e.query_id );
-        ck_assert_int_eq( 8, e.score );
-
-        ck_assert_int_eq( 0, res->heap->array[1].score ); // TODO check if correct!!
+        ck_assert_int_eq( 8, res->heap->array[1].score ); // TODO check if correct!!
         ck_assert_int_eq( 8, res->heap->array[2].score );
         ck_assert_int_eq( 8, res->heap->array[3].score );
         ck_assert_int_eq( 8, res->heap->array[4].score );
@@ -100,8 +98,8 @@ START_TEST (test_searcher_more_sequences_nw)
         exit_searcher_test( res );
     }END_TEST
 
-void addSearcherTC( Suite *s ) {
-    TCase *tc_core = tcase_create( "searcher" );
+void addSearcher63TC( Suite *s ) {
+    TCase *tc_core = tcase_create( "searcher 63" );
     tcase_add_test( tc_core, test_searcher_more_sequences_sw );
     tcase_add_test( tc_core, test_searcher_more_sequences_nw );
 

@@ -86,10 +86,9 @@ START_TEST (test_searcher_simple_nw_16)
         do_searcher_test_simple( BIT_WIDTH_16, NEEDLEMAN_WUNSCH, -2 );
     }END_TEST
 
-static p_search_result do_translate_test( int bit_width, int search_type, char * db_file, int hit_count, int symtype,
-        int strands ) {
-    p_search_result res = setup_searcher_test( bit_width, search_type, "ATGCAAATTT", db_file, hit_count, symtype,
-            strands );
+static p_search_result init_translate_test( int bit_width, int search_type, char * query, char * db_file, int hit_count,
+        int symtype, int strands ) {
+    p_search_result res = setup_searcher_test( bit_width, search_type, query, db_file, hit_count, symtype, strands );
 
     minheap_sort( res->heap );
 
@@ -98,140 +97,115 @@ static p_search_result do_translate_test( int bit_width, int search_type, char *
     return res;
 }
 
+static void do_multiple_sequence_test( int bit_width, int search_type, int result[16] ) {
+    p_search_result res = init_translate_test( bit_width, search_type, "ATGCAAATTT", "short_nuc_db.fas", 8, NUCLEOTIDE,
+    FORWARD_STRAND );
+
+    p_minheap heap = res->heap;
+
+    /*
+     * Result contains tuple of the score and the database ID
+     */
+    for( int i = 0; i < 16; i += 2 ) {
+        ck_assert_int_eq( result[i], heap->array[i / 2].score );
+        ck_assert_int_eq( result[i + 1], heap->array[i / 2].db_id );
+    }
+
+    exit_searcher_test( res );
+}
+
+START_TEST (test_searcher_multiple_sequences_nw_64)
+    {
+        int result[16] = { -1, 0, -3, 3, -4, 7, -4, 6, -4, 4, -5, 2, -6, 5, -6, 1 };
+
+        do_multiple_sequence_test( BIT_WIDTH_64, NEEDLEMAN_WUNSCH, result );
+    }END_TEST
+
+START_TEST (test_searcher_multiple_sequences_nw_16)
+    {
+        int result[16] = { -1, 0, -3, 3, -4, 7, -4, 6, -4, 4, -5, 2, -6, 5, -6, 1 };
+
+        do_multiple_sequence_test( BIT_WIDTH_16, NEEDLEMAN_WUNSCH, result );
+    }END_TEST
+
+START_TEST (test_searcher_multiple_sequences_sw_64)
+    {
+        int result[16] = { 4, 3, 4, 1, 4, 0, 3, 7, 3, 5, 3, 4, 3, 2, 2, 6 };
+
+        do_multiple_sequence_test( BIT_WIDTH_64, SMITH_WATERMAN, result );
+    }END_TEST
+
+START_TEST (test_searcher_multiple_sequences_sw_16)
+    {
+        int result[16] = { 4, 3, 4, 1, 4, 0, 3, 7, 3, 5, 3, 4, 3, 2, 2, 6 };
+
+        do_multiple_sequence_test( BIT_WIDTH_64, SMITH_WATERMAN, result );
+    }END_TEST
+
+static void test_translate_result( p_search_result res, int * result, int result_len ) {
+    minheap_sort( res->heap );
+
+    ck_assert_int_eq( result_len / 2, res->heap->count );
+
+    p_minheap heap = res->heap;
+
+    /*
+     * Result contains tuple of the score and the database ID
+     */
+    for( int i = 0; i < result_len; i += 2 ) { // TODO test query ID as well!!
+        ck_assert_int_eq( result[i], heap->array[i / 2].score );
+        ck_assert_int_eq( result[i + 1], heap->array[i / 2].db_id );
+    }
+
+    exit_searcher_test( res );
+}
+
 START_TEST (test_searcher_translate_nw_64)
     {
-        p_search_result res = do_translate_test( BIT_WIDTH_64, NEEDLEMAN_WUNSCH, "short_nuc_db.fas", 8, NUCLEOTIDE,
-        FORWARD_STRAND );
+        int result[12] = { -507, 0, -508, 0, -509, 0, -509, 0, -510, 0, -511, 0 };
 
-        p_minheap heap = res->heap;
+        p_search_result res = init_translate_test( BIT_WIDTH_64, NEEDLEMAN_WUNSCH,
+                "ATGCCCAAAATTGACTTGAATAGGGGCGTGAGGAGGGGTTTTCAATACTATTTTTTGAGGACGATGTATAA", "NP_009305.1.fas", 6,
+                TRANS_QUERY,
+                BOTH_STRANDS );
 
-        ck_assert_int_eq( -1, heap->array[0].score ); //  1
-        ck_assert_int_eq( 0, heap->array[0].db_id );
-
-        ck_assert_int_eq( -3, heap->array[1].score ); // -1
-        ck_assert_int_eq( 3, heap->array[1].db_id );
-
-        ck_assert_int_eq( -4, heap->array[2].score ); // -3
-        ck_assert_int_eq( 7, heap->array[2].db_id );
-
-        ck_assert_int_eq( -4, heap->array[3].score ); // -2
-        ck_assert_int_eq( 6, heap->array[3].db_id );
-
-        ck_assert_int_eq( -4, heap->array[4].score ); // -2
-        ck_assert_int_eq( 4, heap->array[4].db_id );
-
-        ck_assert_int_eq( -5, heap->array[5].score ); // -4
-        ck_assert_int_eq( 2, heap->array[5].db_id );
-
-        ck_assert_int_eq( -6, heap->array[6].score ); // -5
-        ck_assert_int_eq( 5, heap->array[6].db_id );
-
-        ck_assert_int_eq( -6, heap->array[7].score ); // -4
-        ck_assert_int_eq( 1, heap->array[7].db_id );
-
-        exit_searcher_test( res );
+        test_translate_result( res, result, 12 );
     }END_TEST
 
 START_TEST (test_searcher_translate_nw_16)
     {
-        p_search_result res = do_translate_test( BIT_WIDTH_16, NEEDLEMAN_WUNSCH, "short_nuc_db.fas", 8, NUCLEOTIDE,
-        FORWARD_STRAND );
+        int result[12] = { -507, 0, -508, 0, -509, 0, -509, 0, -510, 0, -511, 0 };
 
-        p_minheap heap = res->heap;
+        p_search_result res = init_translate_test( BIT_WIDTH_16, NEEDLEMAN_WUNSCH,
+                "ATGCCCAAAATTGACTTGAATAGGGGCGTGAGGAGGGGTTTTCAATACTATTTTTTGAGGACGATGTATAA", "NP_009305.1.fas", 6,
+                TRANS_QUERY,
+                BOTH_STRANDS );
 
-        ck_assert_int_eq( -1, heap->array[0].score );
-        ck_assert_int_eq( 0, heap->array[0].db_id );
-
-        ck_assert_int_eq( -3, heap->array[1].score );
-        ck_assert_int_eq( 3, heap->array[1].db_id );
-
-        ck_assert_int_eq( -4, heap->array[2].score );
-        ck_assert_int_eq( 7, heap->array[2].db_id );
-
-        ck_assert_int_eq( -4, heap->array[3].score );
-        ck_assert_int_eq( 6, heap->array[3].db_id );
-
-        ck_assert_int_eq( -4, heap->array[4].score );
-        ck_assert_int_eq( 4, heap->array[4].db_id );
-
-        ck_assert_int_eq( -5, heap->array[5].score );
-        ck_assert_int_eq( 2, heap->array[5].db_id );
-
-        ck_assert_int_eq( -6, heap->array[6].score );
-        ck_assert_int_eq( 5, heap->array[6].db_id );
-
-        ck_assert_int_eq( -6, heap->array[7].score );
-        ck_assert_int_eq( 1, heap->array[7].db_id );
-
-        exit_searcher_test( res );
+        test_translate_result( res, result, 12 );
     }END_TEST
 
 START_TEST (test_searcher_translate_sw_64)
     {
-        p_search_result res = do_translate_test( BIT_WIDTH_64, SMITH_WATERMAN, "short_nuc_db.fas", 8, NUCLEOTIDE,
-        FORWARD_STRAND );
+        int result[12] = { 4, 0, 3, 0, 3, 0, 3, 0, 3, 0, 3, 0 };
 
-        p_minheap heap = res->heap;
+        p_search_result res = init_translate_test( BIT_WIDTH_64, SMITH_WATERMAN,
+                "ATGCCCAAAATTGACTTGAATAGGGGCGTGAGGAGGGGTTTTCAATACTATTTTTTGAGGACGATGTATAA", "NP_009305.1.fas", 6,
+                TRANS_QUERY,
+                BOTH_STRANDS );
 
-        ck_assert_int_eq( 4, heap->array[0].score ); //  1
-        ck_assert_int_eq( 3, heap->array[0].db_id );
-
-        ck_assert_int_eq( 4, heap->array[1].score ); // -1
-        ck_assert_int_eq( 1, heap->array[1].db_id );
-
-        ck_assert_int_eq( 4, heap->array[2].score ); // -3
-        ck_assert_int_eq( 0, heap->array[2].db_id );
-
-        ck_assert_int_eq( 3, heap->array[3].score ); // -2
-        ck_assert_int_eq( 7, heap->array[3].db_id );
-
-        ck_assert_int_eq( 3, heap->array[4].score ); // -2
-        ck_assert_int_eq( 5, heap->array[4].db_id );
-
-        ck_assert_int_eq( 3, heap->array[5].score ); // -4
-        ck_assert_int_eq( 4, heap->array[5].db_id );
-
-        ck_assert_int_eq( 3, heap->array[6].score ); // -5
-        ck_assert_int_eq( 2, heap->array[6].db_id );
-
-        ck_assert_int_eq( 2, heap->array[7].score ); // -4
-        ck_assert_int_eq( 6, heap->array[7].db_id );
-
-        exit_searcher_test( res );
+        test_translate_result( res, result, 12 );
     }END_TEST
 
 START_TEST (test_searcher_translate_sw_16)
     {
-        p_search_result res = do_translate_test( BIT_WIDTH_16, SMITH_WATERMAN, "short_nuc_db.fas", 8, NUCLEOTIDE,
-        FORWARD_STRAND );
+        int result[12] = { 4, 0, 3, 0, 3, 0, 3, 0, 3, 0, 3, 0 };
 
-        p_minheap heap = res->heap;
+        p_search_result res = init_translate_test( BIT_WIDTH_16, SMITH_WATERMAN,
+                "ATGCCCAAAATTGACTTGAATAGGGGCGTGAGGAGGGGTTTTCAATACTATTTTTTGAGGACGATGTATAA", "NP_009305.1.fas", 6,
+                TRANS_QUERY,
+                BOTH_STRANDS );
 
-        ck_assert_int_eq( 4, heap->array[0].score );
-        ck_assert_int_eq( 3, heap->array[0].db_id );
-
-        ck_assert_int_eq( 4, heap->array[1].score );
-        ck_assert_int_eq( 1, heap->array[1].db_id );
-
-        ck_assert_int_eq( 4, heap->array[2].score );
-        ck_assert_int_eq( 0, heap->array[2].db_id );
-
-        ck_assert_int_eq( 3, heap->array[3].score );
-        ck_assert_int_eq( 7, heap->array[3].db_id );
-
-        ck_assert_int_eq( 3, heap->array[4].score );
-        ck_assert_int_eq( 5, heap->array[4].db_id );
-
-        ck_assert_int_eq( 3, heap->array[5].score );
-        ck_assert_int_eq( 4, heap->array[5].db_id );
-
-        ck_assert_int_eq( 3, heap->array[6].score );
-        ck_assert_int_eq( 2, heap->array[6].db_id );
-
-        ck_assert_int_eq( 2, heap->array[7].score );
-        ck_assert_int_eq( 6, heap->array[7].db_id );
-
-        exit_searcher_test( res );
+        test_translate_result( res, result, 12 );
     }END_TEST
 
 START_TEST (test_init_search_data)
@@ -421,6 +395,10 @@ void addSearcherTC( Suite *s ) {
     tcase_add_test( tc_core, test_searcher_simple_nw_64 );
     tcase_add_test( tc_core, test_searcher_simple_sw_16 );
     tcase_add_test( tc_core, test_searcher_simple_nw_16 );
+    tcase_add_test( tc_core, test_searcher_multiple_sequences_nw_64 );
+    tcase_add_test( tc_core, test_searcher_multiple_sequences_nw_16 );
+    tcase_add_test( tc_core, test_searcher_multiple_sequences_sw_64 );
+    tcase_add_test( tc_core, test_searcher_multiple_sequences_sw_16 );
     tcase_add_test( tc_core, test_searcher_translate_nw_64 );
     tcase_add_test( tc_core, test_searcher_translate_nw_16 );
     tcase_add_test( tc_core, test_searcher_translate_sw_64 );

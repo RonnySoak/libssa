@@ -38,16 +38,10 @@ p_s16info search16_init( int16_t penalty_gap_open, int16_t penalty_gap_extension
     /* prepare alloc of qtable, dprofile, hearray, dir */
     p_s16info s = (p_s16info) xmalloc( sizeof(struct s16info) );
 
-    s->maxdlen = 4 * ((ssa_db_get_longest_sequence() + 3) / 4);
-    s->dprofile = (__m128i *) xmalloc( 2 * 4 * 8 * 16 );
+    s->maxdlen = CDEPTH * ((ssa_db_get_longest_sequence() + (CDEPTH - 1)) / CDEPTH); // round up to next multiple of CDEPTH
+    s->dprofile = (__m128i *) xmalloc( sizeof( int16_t ) * CDEPTH * CHANNELS * 32 ); // TODO define constant for 32
     s->q_count = 0;
     s->hearray = 0;
-
-    for( int i = 0; i < 16; i++ ) {
-        for( int j = 0; j < 16; j++ ) {
-            ((int16_t*) (&s->matrix))[16 * i + j] = SCORE_MATRIX_16( i, j );
-        }
-    }
 
     for( int i = 0; i < 6; i++ ) {
         s->queries[i] = 0;
@@ -98,6 +92,11 @@ void search16_init_query( p_s16info s, int q_count, seq_buffer * queries ) {
             maxqlen = query->q_len;
         }
 
+        /*
+         * TODO research, why aminoacid sequences are not supported out of the box?
+         *
+         * NUC sequences have 16 different symbols, AA sequences have 25 different symbols ... 16 * 8 = 128 -> __m128i vector ...
+         */
         query->q_table = (__m128i **) xmalloc( query->q_len * sizeof(__m128i *) );
 
         for( int i = 0; i < query->q_len; i++ )
@@ -105,7 +104,7 @@ void search16_init_query( p_s16info s, int q_count, seq_buffer * queries ) {
              * q_table holds pointers to dprofile, which holds the actual query data.
              * The dprofile is filled during the search for every four columns, that are searched.
              */
-            query->q_table[i] = s->dprofile + 4 * (int) (queries->seq.seq[i]);
+            query->q_table[i] = s->dprofile + CDEPTH * (int) (queries->seq.seq[i]);
 
         s->queries[i] = query;
     }
@@ -114,6 +113,83 @@ void search16_init_query( p_s16info s, int q_count, seq_buffer * queries ) {
         free( s->hearray );
     s->hearray = (__m128i *) xmalloc( 2 * maxqlen * sizeof(__m128i ) );
     memset( s->hearray, 0, 2 * maxqlen * sizeof(__m128i ) );
+}
+
+void dprofile_fill16( int16_t * dprofile, uint8_t * dseq ) {
+    __m128i xmm0, xmm1, xmm2, xmm3, xmm4, xmm5, xmm6, xmm7;
+    __m128i xmm8, xmm9, xmm10, xmm11, xmm12, xmm13, xmm14, xmm15;
+    __m128i xmm16, xmm17, xmm18, xmm19, xmm20, xmm21, xmm22, xmm23;
+    __m128i xmm24, xmm25, xmm26, xmm27, xmm28, xmm29, xmm30, xmm31;
+
+    /* does not require ssse3 */
+    /* approx 4*(5*8+2*40)=480 instructions */
+
+#if 0
+    dumpscorematrix(score_matrix_16);
+
+    for (int j=0; j<CDEPTH; j++)
+    {
+        for(int z=0; z<CHANNELS; z++)
+        fprintf(stderr, " [%c]", sym_ncbi_nt16u[dseq[j*CHANNELS+z]]);
+        fprintf(stderr, "\n");
+    }
+#endif
+
+    for( int j = 0; j < CDEPTH; j++ ) {
+        int d[CHANNELS];
+        for( int z = 0; z < CHANNELS; z++ )
+            d[z] = dseq[j * CHANNELS + z] << 5;
+
+        for( int i = 0; i < 32; i += 8 ) {
+            xmm0 = _mm_load_si128( (__m128i *) (score_matrix_16 + d[0] + i) );
+            xmm1 = _mm_load_si128( (__m128i *) (score_matrix_16 + d[1] + i) );
+            xmm2 = _mm_load_si128( (__m128i *) (score_matrix_16 + d[2] + i) );
+            xmm3 = _mm_load_si128( (__m128i *) (score_matrix_16 + d[3] + i) );
+            xmm4 = _mm_load_si128( (__m128i *) (score_matrix_16 + d[4] + i) );
+            xmm5 = _mm_load_si128( (__m128i *) (score_matrix_16 + d[5] + i) );
+            xmm6 = _mm_load_si128( (__m128i *) (score_matrix_16 + d[6] + i) );
+            xmm7 = _mm_load_si128( (__m128i *) (score_matrix_16 + d[7] + i) );
+
+            xmm8 = _mm_unpacklo_epi16( xmm0, xmm1 );
+            xmm9 = _mm_unpackhi_epi16( xmm0, xmm1 );
+            xmm10 = _mm_unpacklo_epi16( xmm2, xmm3 );
+            xmm11 = _mm_unpackhi_epi16( xmm2, xmm3 );
+            xmm12 = _mm_unpacklo_epi16( xmm4, xmm5 );
+            xmm13 = _mm_unpackhi_epi16( xmm4, xmm5 );
+            xmm14 = _mm_unpacklo_epi16( xmm6, xmm7 );
+            xmm15 = _mm_unpackhi_epi16( xmm6, xmm7 );
+
+            xmm16 = _mm_unpacklo_epi32( xmm8, xmm10 );
+            xmm17 = _mm_unpackhi_epi32( xmm8, xmm10 );
+            xmm18 = _mm_unpacklo_epi32( xmm12, xmm14 );
+            xmm19 = _mm_unpackhi_epi32( xmm12, xmm14 );
+            xmm20 = _mm_unpacklo_epi32( xmm9, xmm11 );
+            xmm21 = _mm_unpackhi_epi32( xmm9, xmm11 );
+            xmm22 = _mm_unpacklo_epi32( xmm13, xmm15 );
+            xmm23 = _mm_unpackhi_epi32( xmm13, xmm15 );
+
+            xmm24 = _mm_unpacklo_epi64( xmm16, xmm18 );
+            xmm25 = _mm_unpackhi_epi64( xmm16, xmm18 );
+            xmm26 = _mm_unpacklo_epi64( xmm17, xmm19 );
+            xmm27 = _mm_unpackhi_epi64( xmm17, xmm19 );
+            xmm28 = _mm_unpacklo_epi64( xmm20, xmm22 );
+            xmm29 = _mm_unpackhi_epi64( xmm20, xmm22 );
+            xmm30 = _mm_unpacklo_epi64( xmm21, xmm23 );
+            xmm31 = _mm_unpackhi_epi64( xmm21, xmm23 );
+
+            _mm_store_si128( (__m128i *) (dprofile + CDEPTH * CHANNELS * (i + 0) + CHANNELS * j), xmm24 );
+            _mm_store_si128( (__m128i *) (dprofile + CDEPTH * CHANNELS * (i + 1) + CHANNELS * j), xmm25 );
+            _mm_store_si128( (__m128i *) (dprofile + CDEPTH * CHANNELS * (i + 2) + CHANNELS * j), xmm26 );
+            _mm_store_si128( (__m128i *) (dprofile + CDEPTH * CHANNELS * (i + 3) + CHANNELS * j), xmm27 );
+            _mm_store_si128( (__m128i *) (dprofile + CDEPTH * CHANNELS * (i + 4) + CHANNELS * j), xmm28 );
+            _mm_store_si128( (__m128i *) (dprofile + CDEPTH * CHANNELS * (i + 5) + CHANNELS * j), xmm29 );
+            _mm_store_si128( (__m128i *) (dprofile + CDEPTH * CHANNELS * (i + 6) + CHANNELS * j), xmm30 );
+            _mm_store_si128( (__m128i *) (dprofile + CDEPTH * CHANNELS * (i + 7) + CHANNELS * j), xmm31 );
+        }
+    }
+#if 0
+    dprofile_dump16(dprofile);
+#endif
 }
 
 static unsigned long search_chunk( p_s16info s16info, p_minheap heap, p_db_chunk chunk, p_search_data sdp ) {

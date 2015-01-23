@@ -22,12 +22,8 @@
 #include "search_16.h"
 
 #include <limits.h>
-#include <stdio.h>
-#include <string.h>
 
-#include "../../util/util_sequence.h"
 #include "../../util/util.h"
-#include "../../matrices.h"
 
 /*
  * TODO
@@ -53,7 +49,6 @@
 //        printf( "%s%6d", (i > 0 ? " " : ""), y[7 - i] );
 //    printf( "\n" );
 //}
-
 //static void _mm_print2( char * desc, __m128i x ) {
 //    signed short * y = (signed short*) &x;
 //
@@ -63,7 +58,6 @@
 //        printf( "%s%2d", (i > 0 ? " " : ""), y[7 - i] );
 //    printf( "\n" );
 //}
-
 //static void dprofile_dump16( int16_t * dprofile ) {
 //    const char * s = sym_ncbi_nt16u;
 //    printf( "\ndprofile:\n" );
@@ -78,7 +72,6 @@
 //        printf( "\n" );
 //    }
 //}
-
 //static void dumpscorematrix( int16_t * m ) {
 //    for( int i = 0; i < 16; i++ ) {
 //        printf( "%2d %c", i, sym_ncbi_nt16u[i] );
@@ -87,90 +80,6 @@
 //        printf( "\n" );
 //    }
 //}
-static void dprofile_fill16( int16_t * dprofile_word, int16_t * score_matrix_word, uint8_t * dseq ) {
-    __m128i xmm0, xmm1, xmm2, xmm3, xmm4, xmm5, xmm6, xmm7;
-    __m128i xmm8, xmm9, xmm10, xmm11, xmm12, xmm13, xmm14, xmm15;
-    __m128i xmm16, xmm17, xmm18, xmm19, xmm20, xmm21, xmm22, xmm23;
-    __m128i xmm24, xmm25, xmm26, xmm27, xmm28, xmm29, xmm30, xmm31;
-
-    /* does not require ssse3 */
-    /* approx 4*(5*8+2*40)=480 instructions */
-
-#if 0
-    dumpscorematrix(score_matrix_word);
-
-    for (int j=0; j<CDEPTH; j++)
-    {
-        for(int z=0; z<CHANNELS; z++)
-        fprintf(stderr, " [%c]", sym_ncbi_nt16u[dseq[j*CHANNELS+z]]);
-        fprintf(stderr, "\n");
-    }
-#endif
-
-    for( int j = 0; j < CDEPTH; j++ ) {
-        int d[CHANNELS];
-        for( int z = 0; z < CHANNELS; z++ )
-            d[z] = dseq[j * CHANNELS + z] << 4;
-
-        for( int i = 0; i < 16; i += 8 ) {
-            xmm0 = _mm_load_si128( (__m128i *) (score_matrix_word + d[0] + i) );
-            xmm1 = _mm_load_si128( (__m128i *) (score_matrix_word + d[1] + i) );
-            xmm2 = _mm_load_si128( (__m128i *) (score_matrix_word + d[2] + i) );
-            xmm3 = _mm_load_si128( (__m128i *) (score_matrix_word + d[3] + i) );
-            xmm4 = _mm_load_si128( (__m128i *) (score_matrix_word + d[4] + i) );
-            xmm5 = _mm_load_si128( (__m128i *) (score_matrix_word + d[5] + i) );
-            xmm6 = _mm_load_si128( (__m128i *) (score_matrix_word + d[6] + i) );
-            xmm7 = _mm_load_si128( (__m128i *) (score_matrix_word + d[7] + i) );
-
-            xmm8 = _mm_unpacklo_epi16( xmm0, xmm1 );
-            xmm9 = _mm_unpackhi_epi16( xmm0, xmm1 );
-            xmm10 = _mm_unpacklo_epi16( xmm2, xmm3 );
-            xmm11 = _mm_unpackhi_epi16( xmm2, xmm3 );
-            xmm12 = _mm_unpacklo_epi16( xmm4, xmm5 );
-            xmm13 = _mm_unpackhi_epi16( xmm4, xmm5 );
-            xmm14 = _mm_unpacklo_epi16( xmm6, xmm7 );
-            xmm15 = _mm_unpackhi_epi16( xmm6, xmm7 );
-
-            xmm16 = _mm_unpacklo_epi32( xmm8, xmm10 );
-            xmm17 = _mm_unpackhi_epi32( xmm8, xmm10 );
-            xmm18 = _mm_unpacklo_epi32( xmm12, xmm14 );
-            xmm19 = _mm_unpackhi_epi32( xmm12, xmm14 );
-            xmm20 = _mm_unpacklo_epi32( xmm9, xmm11 );
-            xmm21 = _mm_unpackhi_epi32( xmm9, xmm11 );
-            xmm22 = _mm_unpacklo_epi32( xmm13, xmm15 );
-            xmm23 = _mm_unpackhi_epi32( xmm13, xmm15 );
-
-            xmm24 = _mm_unpacklo_epi64( xmm16, xmm18 );
-            xmm25 = _mm_unpackhi_epi64( xmm16, xmm18 );
-            xmm26 = _mm_unpacklo_epi64( xmm17, xmm19 );
-            xmm27 = _mm_unpackhi_epi64( xmm17, xmm19 );
-            xmm28 = _mm_unpacklo_epi64( xmm20, xmm22 );
-            xmm29 = _mm_unpackhi_epi64( xmm20, xmm22 );
-            xmm30 = _mm_unpacklo_epi64( xmm21, xmm23 );
-            xmm31 = _mm_unpackhi_epi64( xmm21, xmm23 );
-
-            _mm_store_si128( (__m128i *) (dprofile_word +
-            CDEPTH * CHANNELS * (i + 0) + CHANNELS * j), xmm24 );
-            _mm_store_si128( (__m128i *) (dprofile_word +
-            CDEPTH * CHANNELS * (i + 1) + CHANNELS * j), xmm25 );
-            _mm_store_si128( (__m128i *) (dprofile_word +
-            CDEPTH * CHANNELS * (i + 2) + CHANNELS * j), xmm26 );
-            _mm_store_si128( (__m128i *) (dprofile_word +
-            CDEPTH * CHANNELS * (i + 3) + CHANNELS * j), xmm27 );
-            _mm_store_si128( (__m128i *) (dprofile_word +
-            CDEPTH * CHANNELS * (i + 4) + CHANNELS * j), xmm28 );
-            _mm_store_si128( (__m128i *) (dprofile_word +
-            CDEPTH * CHANNELS * (i + 5) + CHANNELS * j), xmm29 );
-            _mm_store_si128( (__m128i *) (dprofile_word +
-            CDEPTH * CHANNELS * (i + 6) + CHANNELS * j), xmm30 );
-            _mm_store_si128( (__m128i *) (dprofile_word +
-            CDEPTH * CHANNELS * (i + 7) + CHANNELS * j), xmm31 );
-        }
-    }
-#if 0
-    dprofile_dump16(dprofile_word);
-#endif
-}
 
 /*
  * TODO detect, if the score goes below INT16_MIN or above INT16_MAX in between the calculation
@@ -333,8 +242,8 @@ void search_16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, int q_id ) {
     __m128i dseqalloc[CDEPTH];
 
     union {
-        __m128i v[4];
-        int16_t a[4 * sizeof(__m128i )];
+        __m128i v[CDEPTH];
+        int16_t a[CDEPTH * sizeof(__m128i )];
     } S;
 
     uint8_t * dseq = (uint8_t*) &dseqalloc;
@@ -357,7 +266,7 @@ void search_16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, int q_id ) {
         d_seq_ptr[c] = 0;
     }
 
-    for( int i = 0; i < 4; i++ ) {
+    for( int i = 0; i < CDEPTH; i++ ) {
         S.v[i] = _mm_setzero_si128();
         dseqalloc[i] = _mm_setzero_si128();
     }
@@ -381,7 +290,7 @@ void search_16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, int q_id ) {
                 no_sequences_ended = fill_channel( c, d_begin, d_end, dseq );
             }
 
-            dprofile_fill16( dprofile, (int16_t*) s->matrix, dseq );
+            dprofile_fill16( dprofile, dseq );
 
             aligncolumns_rest( S.v, hep, s->queries[q_id]->q_table, gap_open_extend, gap_extend, H0, H1, H2, H3, qlen );
         }
@@ -418,7 +327,7 @@ void search_16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, int q_id ) {
                         }
                         else {
                             // TODO else report recalculation
-                            printf("\n\nscore out of range: %ld\n\n", score);
+                            printf( "\n\nscore out of range: %ld\n\n", score );
                         }
 
                         done++;
@@ -474,7 +383,7 @@ void search_16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, int q_id ) {
             M_R_target_left = _mm_and_si128( M, gap_extend );
             E0 = _mm_and_si128( M, VECTOR_INT16_MIN );
 
-            dprofile_fill16( dprofile, (int16_t *) s->matrix, dseq );
+            dprofile_fill16( dprofile, dseq );
 
             aligncolumns_first( S.v, hep, s->queries[q_id]->q_table, gap_open_extend, gap_extend, H0, H1, H2, H3, E0, M,
                     M_QR_target_left, M_R_target_left, qlen );
