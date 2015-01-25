@@ -20,7 +20,6 @@ static p_search_result setup_searcher_test( int bit_width, int search_type, char
         int hit_count, int symtype, int strands ) {
     init_symbol_translation( symtype, strands, 3, 3 );
     mat_init_constant_scoring( 1, -1 );
-
     p_query query = query_read_from_string( "short query", query_string );
 
     s_init( search_type, bit_width, query, hit_count );
@@ -206,6 +205,58 @@ START_TEST (test_searcher_translate_sw_16)
                 BOTH_STRANDS );
 
         test_translate_result( res, result, 12 );
+    }END_TEST
+
+START_TEST (test_searcher_AA_nw_64)
+    {
+        int result[12] = { -376, 0 };
+
+        p_search_result res = init_translate_test( BIT_WIDTH_64, NEEDLEMAN_WUNSCH,
+                "HPEVYILIIPGFGIISHVVSTYSKKPVFGEISMVYAMASIGLLGFLVWSHHMYIVGLDADTRAYFTSATMIIAIPTGIKI", "NP_009305.1.fas",
+                1,
+                AMINOACID,
+                FORWARD_STRAND );
+
+        test_translate_result( res, result, 2 );
+    }END_TEST
+
+START_TEST (test_searcher_AA_nw_16)
+    {
+        int result[12] = { -376, 0 };
+
+        p_search_result res = init_translate_test( BIT_WIDTH_16, NEEDLEMAN_WUNSCH,
+                "HPEVYILIIPGFGIISHVVSTYSKKPVFGEISMVYAMASIGLLGFLVWSHHMYIVGLDADTRAYFTSATMIIAIPTGIKI", "NP_009305.1.fas",
+                1,
+                AMINOACID,
+                FORWARD_STRAND );
+
+        test_translate_result( res, result, 2 );
+    }END_TEST
+
+START_TEST (test_searcher_AA_sw_64)
+    {
+        int result[12] = { 80, 0 };
+
+        p_search_result res = init_translate_test( BIT_WIDTH_64, SMITH_WATERMAN,
+                "HPEVYILIIPGFGIISHVVSTYSKKPVFGEISMVYAMASIGLLGFLVWSHHMYIVGLDADTRAYFTSATMIIAIPTGIKI", "NP_009305.1.fas",
+                1,
+                AMINOACID,
+                FORWARD_STRAND );
+
+        test_translate_result( res, result, 2 );
+    }END_TEST
+
+START_TEST (test_searcher_AA_sw_16)
+    {
+        int result[12] = { 80, 0 };
+
+        p_search_result res = init_translate_test( BIT_WIDTH_16, SMITH_WATERMAN,
+                "HPEVYILIIPGFGIISHVVSTYSKKPVFGEISMVYAMASIGLLGFLVWSHHMYIVGLDADTRAYFTSATMIIAIPTGIKI", "NP_009305.1.fas",
+                1,
+                AMINOACID,
+                FORWARD_STRAND );
+
+        test_translate_result( res, result, 2 );
     }END_TEST
 
 START_TEST (test_init_search_data)
@@ -403,6 +454,10 @@ void addSearcherTC( Suite *s ) {
     tcase_add_test( tc_core, test_searcher_translate_nw_16 );
     tcase_add_test( tc_core, test_searcher_translate_sw_64 );
     tcase_add_test( tc_core, test_searcher_translate_sw_16 );
+    tcase_add_test( tc_core, test_searcher_AA_nw_64 );
+    tcase_add_test( tc_core, test_searcher_AA_nw_16 );
+    tcase_add_test( tc_core, test_searcher_AA_sw_64 );
+    tcase_add_test( tc_core, test_searcher_AA_sw_16 );
     tcase_add_test( tc_core, test_init_search_data );
     tcase_add_test( tc_core, test_init_search_data2 );
     tcase_add_test( tc_core, test_init_search_data3 );

@@ -86,32 +86,33 @@ START_TEST (test_sw_simd_simple_2)
 
 START_TEST (test_sw_simd_BLOSUM62)
     {
-        ck_abort_msg( "TODO not yet implemented" );
-//        p_query query = query_read_from_file( "./tests/testdata/NP_009305.1.fas" );
-//
-//        ssa_db_init_fasta( "./tests/testdata/short_db.fas" );
-//
-//        setup_searcher_16_test_init( query, 1403, NUCLEOTIDE, FORWARD_STRAND );
-//        mat_init_buildin( BLOSUM62 );
-//
-//        gapO = 1;
-//        gapE = 1;
-//
-//        it_init( 1403 );
-//
-//        p_search_result res = s_search( NULL );
-//
-//        minheap_sort( res->heap );
-//
-//        query_free( query );
-//
-//        p_minheap heap = res->heap;
-//
-//        ck_assert_int_eq( 0, heap->array[0].score ); // TODO check if correct!!
-//        ck_assert_int_eq( 258, heap->array[1].score );
-//        ck_assert_int_eq( 258, heap->array[2].score );
-//
-//        exit_searcher_16_test( res );
+        init_symbol_translation( TRANS_DB, FORWARD_STRAND, 3, 3 );
+        mat_init_buildin( BLOSUM62 );
+
+        p_query query = query_read_from_file( "./tests/testdata/NP_009305.1.fas" );
+
+        ssa_db_init_fasta( "./tests/testdata/AF091148.fas" );
+
+        s_init( SMITH_WATERMAN, BIT_WIDTH_16, query, 3 );
+
+        gapO = 1;
+        gapE = 1;
+
+        it_init( 1403 );
+
+        p_search_result res = s_search( NULL );
+
+        minheap_sort( res->heap );
+
+        query_free( query );
+
+        p_minheap heap = res->heap;
+
+        ck_assert_int_eq( 69, heap->array[0].score );
+        ck_assert_int_eq( 68, heap->array[1].score );
+        ck_assert_int_eq( 68, heap->array[2].score );
+
+        exit_searcher_16_test( res );
     }END_TEST
 
 START_TEST (test_sw_simd_more_sequences)
@@ -123,7 +124,7 @@ START_TEST (test_sw_simd_more_sequences)
         ck_assert_int_eq( 0, res->heap->array[0].query_id );
         ck_assert_int_eq( 8, res->heap->array[0].score );
 
-        ck_assert_int_eq( 8, res->heap->array[1].score ); // TODO check if correct!!
+        ck_assert_int_eq( 8, res->heap->array[1].score );
         ck_assert_int_eq( 8, res->heap->array[2].score );
         ck_assert_int_eq( 8, res->heap->array[3].score );
         ck_assert_int_eq( 8, res->heap->array[4].score );

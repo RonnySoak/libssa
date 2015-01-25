@@ -70,7 +70,7 @@ START_TEST (test_searcher_more_sequences_sw)
         ck_assert_int_eq( 0, res->heap->array[0].query_id );
         ck_assert_int_eq( 8, res->heap->array[0].score );
 
-        ck_assert_int_eq( 8, res->heap->array[1].score ); // TODO check if correct!!
+        ck_assert_int_eq( 8, res->heap->array[1].score );
         ck_assert_int_eq( 8, res->heap->array[2].score );
         ck_assert_int_eq( 8, res->heap->array[3].score );
         ck_assert_int_eq( 8, res->heap->array[4].score );
@@ -81,19 +81,24 @@ START_TEST (test_searcher_more_sequences_sw)
 START_TEST (test_searcher_more_sequences_nw)
     {
         p_search_result res = setup_searcher_test( BIT_WIDTH_64, NEEDLEMAN_WUNSCH,
-                "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA", "test.fas", 3 );
+                "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA", "test.fas", 5 );
 
-        ck_assert_int_eq( 2, res->chunk_count );
+        ck_assert_int_eq( 1, res->chunk_count );
         ck_assert_int_eq( 5, res->seq_count );
 
-        ck_assert_int_eq( 3, res->heap->alloc );
-        ck_assert_int_eq( 3, res->heap->count );
+        ck_assert_int_eq( 5, res->heap->alloc );
+        ck_assert_int_eq( 5, res->heap->count );
 
         elem_t e = res->heap->array[0];
 
         ck_assert_int_eq( 4, e.db_id );
         ck_assert_int_eq( 0, e.query_id );
         ck_assert_int_eq( -43, e.score );
+
+        ck_assert_int_eq( -50, res->heap->array[1].score );
+        ck_assert_int_eq( -52, res->heap->array[2].score );
+        ck_assert_int_eq( -52, res->heap->array[3].score );
+        ck_assert_int_eq( -147, res->heap->array[4].score );
 
         exit_searcher_test( res );
     }END_TEST

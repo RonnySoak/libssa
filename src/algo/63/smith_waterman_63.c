@@ -34,7 +34,7 @@
  * TODO why is called 63, instead of 64? we use an int64_t and not a 63bit type ...
  */
 
-int64_t full_sw(sequence * dseq, sequence * qseq, int64_t * hearray ) {
+int64_t full_sw( sequence * dseq, sequence * qseq, int64_t * hearray ) {
     int64_t h; // current value
     int64_t n; // diagonally previous value
     int64_t e; // value in left cell
@@ -44,25 +44,25 @@ int64_t full_sw(sequence * dseq, sequence * qseq, int64_t * hearray ) {
     int64_t *hep;
 
     s = 0;
-    memset(hearray, 0, 2 * sizeof(int64_t) * (qseq->len));
+    memset( hearray, 0, 2 * sizeof(int64_t) * (qseq->len) );
 
-    for (uint64_t j = 0; j < dseq->len; j++) {
+    for( uint64_t j = 0; j < dseq->len; j++ ) {
         hep = hearray;
         f = 0;
         h = 0;
 
-        for (uint64_t i = 0; i < qseq->len; i++) {
+        for( uint64_t i = 0; i < qseq->len; i++ ) {
             n = *hep;
             e = *(hep + 1);
-            h += SCORE_MATRIX_63(dseq->seq[j], qseq->seq[i]);
+            h += SCORE_MATRIX_63( dseq->seq[j], qseq->seq[i] );
 
-            if (e > h)
+            if( e > h )
                 h = e;
-            if (f > h)
+            if( f > h )
                 h = f;
-            if (h < 0)
+            if( h < 0 )
                 h = 0;
-            if (h > s)
+            if( h > s )
                 s = h;
 
             *hep = h;
@@ -70,9 +70,9 @@ int64_t full_sw(sequence * dseq, sequence * qseq, int64_t * hearray ) {
             f -= gapE;
             h += -gapO + -gapE;
 
-            if (h > e)
+            if( h > e )
                 e = h;
-            if (h > f)
+            if( h > f )
                 f = h;
 
             *(hep + 1) = e;

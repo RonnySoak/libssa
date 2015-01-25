@@ -273,18 +273,35 @@ void us_translate_sequence( int db_sequence, sequence dna, int strand, int frame
             c |= dna.seq[pos++];
             c <<= 4;
             c |= dna.seq[pos++];
+
+            if( c > (16 * 16 * 16) ) {
+                ffatal( "Wrong data in sequence. Codon position out of range: %ld, at position %d, for protein sequence position: %d\n", c, pos, ppos );
+            }
+
             prot_seq->seq[ppos++] = ttable[c];
         }
     }
     // complement strand, done in reverse complement
     else {
         pos = dna.len - 1 - frame;
+
+//        printf("DNA sequence: ");
+//        for( int i = 0; i < dna.len; i++ ) {
+//            printf("%d  ", (int)dna.seq[i]);
+//        }
+//        printf("\n");
+
         while( ppos < prot_seq->len ) {
             c = ntcompl[(int) (dna.seq[pos--])];
             c <<= 4;
             c |= ntcompl[(int) (dna.seq[pos--])];
             c <<= 4;
             c |= ntcompl[(int) (dna.seq[pos--])];
+
+            if( c > (16 * 16 * 16) ) {
+                ffatal( "Wrong data in sequence. Codon position out of range: %ld, at position %d, for protein sequence position: %d\n", c, pos, ppos );
+            }
+
             prot_seq->seq[ppos++] = ttable[c];
         }
     }

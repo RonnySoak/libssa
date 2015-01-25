@@ -26,45 +26,25 @@
 #include "../../util/util.h"
 #include "../../matrices.h"
 
-/*
- * TODO
- * - change interface, to be the same, than the naive implementations
- * - integrate in the library
- */
+static void _mm_print( char * desc, __m128i x ) {
+    unsigned short * y = (unsigned short*) &x;
 
-/*
- Using 16-bit signed values, from 0 to +65535.
- match: positive
- mismatch: negative
- gap penalties: positive (open, extend)
- optimal local alignment (SW)
- maximize score
- */
+    printf( "%s: ", desc );
 
-//static void _mm_print( char * desc, __m128i x ) {
-//    unsigned short * y = (unsigned short*) &x;
-//
-//    printf( "%s: ", desc );
-//
-//    for( int i = 0; i < 8; i++ )
-//        printf( "%s%6d", (i > 0 ? " " : ""), y[7 - i] );
-//    printf( "\n" );
-//}
-//static void _mm_print2( char * desc, __m128i x ) {
-//    signed short * y = (signed short*) &x;
-//
-//    printf( "%s: ", desc );
-//
-//    for( int i = 0; i < 8; i++ ) {
-//        if( i == 3 ) {
-//            printf( "%s _%2d_", (i > 0 ? " " : ""), y[7 - i] );
-//        }
-//        else {
-//            printf( "%s%2d", (i > 0 ? " " : ""), y[7 - i] );
-//        }
-//    }
-//    printf( "\n" );
-//}
+    for( int i = 0; i < 8; i++ )
+        printf( "%s%6d", (i > 0 ? " " : ""), y[7 - i] );
+    printf( "\n" );
+}
+static void _mm_print2( char * desc, __m128i x ) {
+    signed short * y = (signed short*) &x;
+
+    printf( "%s: ", desc );
+
+    for( int i = 0; i < 8; i++ ) {
+        printf( "%s%2d", (i > 0 ? " " : ""), y[7 - i] );
+    }
+    printf( "\n" );
+}
 //static void dprofile_dump16( int16_t * dprofile ) {
 //    const char * s = sym_ncbi_nt16u;
 //    printf( "\ndprofile:\n" );
@@ -88,7 +68,7 @@
 //    }
 //}
 
-#define ALIGNCORE(H, N, F, V, QR, R, S, idx, d_add )                         \
+#define ALIGNCORE(H, N, F, V, QR, R, S )                                       \
  H = _mm_adds_epi16(H, V);            /* add value of scoring matrix */        \
  H = _mm_max_epi16(H, F);             /* max(H, F) */                          \
  H = _mm_max_epi16(H, E);             /* max(H, E) */                          \
@@ -110,19 +90,21 @@ static void aligncolumns_first( __m128i * Sm, __m128i * hep, __m128i ** qp, __m1
 
     f0 = f1 = f2 = f3 = _mm_setzero_si128();
 
-    for( i = 0; i < ql - 1; i++ ) {
+    for( i = 0; i < ql; i++ ) {
         vp = qp[i + 0];
 
         h4 = hep[2 * i + 0];
-        h4 = _mm_subs_epu16( h4, Mm );
+        h4 = _mm_subs_epu16( h4, Mm ); // sets h4 to zero if a sequence starts new
+        // h4 is zero, since it is at the beginning of a database sequence
 
         E = hep[2 * i + 1];
-        E = _mm_subs_epu16( E, Mm );
+        E = _mm_subs_epu16( E, Mm ); // sets E to zero if a sequence starts new
+        // Mm is initialized with 0xffff for all database sequences, that start new
 
-        ALIGNCORE( h0, h5, f0, vp[0], gap_open_extend, gap_extend, *Sm, i,  0 );
-        ALIGNCORE( h1, h6, f1, vp[1], gap_open_extend, gap_extend, *Sm, i,  1 );
-        ALIGNCORE( h2, h7, f2, vp[2], gap_open_extend, gap_extend, *Sm, i,  2 );
-        ALIGNCORE( h3, h8, f3, vp[3], gap_open_extend, gap_extend, *Sm, i,  3 );
+        ALIGNCORE( h0, h5, f0, vp[0], gap_open_extend, gap_extend, *Sm );
+        ALIGNCORE( h1, h6, f1, vp[1], gap_open_extend, gap_extend, *Sm );
+        ALIGNCORE( h2, h7, f2, vp[2], gap_open_extend, gap_extend, *Sm );
+        ALIGNCORE( h3, h8, f3, vp[3], gap_open_extend, gap_extend, *Sm );
 
         hep[2 * i + 0] = h8;
         hep[2 * i + 1] = E;
@@ -132,21 +114,6 @@ static void aligncolumns_first( __m128i * Sm, __m128i * hep, __m128i ** qp, __m1
         h2 = h6;
         h3 = h7;
     }
-
-    /* the final round - using alternative query gap penalties */
-
-    vp = qp[i + 0];
-
-    E = hep[2 * i + 1];
-    E = _mm_subs_epu16( E, Mm );
-
-    ALIGNCORE( h0, h5, f0, vp[0], gap_open_extend, gap_extend, *Sm, i,  0 );
-    ALIGNCORE( h1, h6, f1, vp[1], gap_open_extend, gap_extend, *Sm, i,  1 );
-    ALIGNCORE( h2, h7, f2, vp[2], gap_open_extend, gap_extend, *Sm, i,  2 );
-    ALIGNCORE( h3, h8, f3, vp[3], gap_open_extend, gap_extend, *Sm, i,  3 );
-
-    hep[2 * i + 0] = h8;
-    hep[2 * i + 1] = E;
 }
 
 static void aligncolumns_rest( __m128i * Sm, __m128i * hep, __m128i ** qp, __m128i gap_open_extend, __m128i gap_extend,
@@ -157,17 +124,17 @@ static void aligncolumns_rest( __m128i * Sm, __m128i * hep, __m128i ** qp, __m12
 
     f0 = f1 = f2 = f3 = _mm_setzero_si128();
 
-    for( i = 0; i < ql - 1; i++ ) {
+    for( i = 0; i < ql; i++ ) {
         vp = qp[i + 0];
 
         h4 = hep[2 * i + 0];
 
         E = hep[2 * i + 1];
 
-        ALIGNCORE( h0, h5, f0, vp[0], gap_open_extend, gap_extend, *Sm, i,  0 );
-        ALIGNCORE( h1, h6, f1, vp[1], gap_open_extend, gap_extend, *Sm, i,  1 );
-        ALIGNCORE( h2, h7, f2, vp[2], gap_open_extend, gap_extend, *Sm, i,  2 );
-        ALIGNCORE( h3, h8, f3, vp[3], gap_open_extend, gap_extend, *Sm, i,  3 );
+        ALIGNCORE( h0, h5, f0, vp[0], gap_open_extend, gap_extend, *Sm );
+        ALIGNCORE( h1, h6, f1, vp[1], gap_open_extend, gap_extend, *Sm );
+        ALIGNCORE( h2, h7, f2, vp[2], gap_open_extend, gap_extend, *Sm );
+        ALIGNCORE( h3, h8, f3, vp[3], gap_open_extend, gap_extend, *Sm );
 
         hep[2 * i + 0] = h8;
         hep[2 * i + 1] = E;
@@ -177,20 +144,6 @@ static void aligncolumns_rest( __m128i * Sm, __m128i * hep, __m128i ** qp, __m12
         h2 = h6;
         h3 = h7;
     }
-
-    /* the final round - using alternative query gap penalties */
-
-    vp = qp[i + 0];
-
-    E = hep[2 * i + 1];
-
-    ALIGNCORE( h0, h5, f0, vp[0], gap_open_extend, gap_extend, *Sm, i,  0 );
-    ALIGNCORE( h1, h6, f1, vp[1], gap_open_extend, gap_extend, *Sm, i,  1 );
-    ALIGNCORE( h2, h7, f2, vp[2], gap_open_extend, gap_extend, *Sm, i,  2 );
-    ALIGNCORE( h3, h8, f3, vp[3], gap_open_extend, gap_extend, *Sm, i,  3 );
-
-    hep[2 * i + 0] = h8;
-    hep[2 * i + 1] = E;
 }
 
 /*

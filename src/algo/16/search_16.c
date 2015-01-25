@@ -34,12 +34,11 @@ void search16_init_algo( int search_type ) {
     }
 }
 
-p_s16info search16_init( int16_t penalty_gap_open, int16_t penalty_gap_extension ) {
+static p_s16info search16_init() {
     /* prepare alloc of qtable, dprofile, hearray, dir */
     p_s16info s = (p_s16info) xmalloc( sizeof(struct s16info) );
 
-    s->maxdlen = CDEPTH * ((ssa_db_get_longest_sequence() + (CDEPTH - 1)) / CDEPTH); // round up to next multiple of CDEPTH
-    s->dprofile = (__m128i *) xmalloc( sizeof( int16_t ) * CDEPTH * CHANNELS * 32 ); // TODO define constant for 32
+    s->dprofile = (__m128i *) xmalloc( sizeof( int16_t ) * CDEPTH * CHANNELS * SCORE_MATRIX_DIM );
     s->q_count = 0;
     s->hearray = 0;
 
@@ -47,8 +46,8 @@ p_s16info search16_init( int16_t penalty_gap_open, int16_t penalty_gap_extension
         s->queries[i] = 0;
     }
 
-    s->penalty_gap_open = penalty_gap_open;
-    s->penalty_gap_extension = penalty_gap_extension;
+    s->penalty_gap_open = gapO;
+    s->penalty_gap_extension = gapE;
 
     return s;
 }
@@ -61,7 +60,7 @@ static void free_query( p_s16query query ) {
     }
 }
 
-void search16_exit( p_s16info s ) {
+static void search16_exit( p_s16info s ) {
     /* free mem for dprofile, hearray, dir, qtable */
     if( s->hearray )
         free( s->hearray );
@@ -75,7 +74,7 @@ void search16_exit( p_s16info s ) {
     free( s );
 }
 
-void search16_init_query( p_s16info s, int q_count, seq_buffer * queries ) {
+static void search16_init_query( p_s16info s, int q_count, seq_buffer * queries ) {
     s->q_count = q_count;
 
     uint64_t maxqlen = 0;
@@ -92,11 +91,6 @@ void search16_init_query( p_s16info s, int q_count, seq_buffer * queries ) {
             maxqlen = query->q_len;
         }
 
-        /*
-         * TODO research, why aminoacid sequences are not supported out of the box?
-         *
-         * NUC sequences have 16 different symbols, AA sequences have 25 different symbols ... 16 * 8 = 128 -> __m128i vector ...
-         */
         query->q_table = (__m128i **) xmalloc( query->q_len * sizeof(__m128i *) );
 
         for( int i = 0; i < query->q_len; i++ )
@@ -140,7 +134,7 @@ void dprofile_fill16( int16_t * dprofile, uint8_t * dseq ) {
         for( int z = 0; z < CHANNELS; z++ )
             d[z] = dseq[j * CHANNELS + z] << 5;
 
-        for( int i = 0; i < 32; i += 8 ) {
+        for( int i = 0; i < SCORE_MATRIX_DIM; i += 8 ) {
             xmm0 = _mm_load_si128( (__m128i *) (score_matrix_16 + d[0] + i) );
             xmm1 = _mm_load_si128( (__m128i *) (score_matrix_16 + d[1] + i) );
             xmm2 = _mm_load_si128( (__m128i *) (score_matrix_16 + d[2] + i) );
@@ -209,7 +203,7 @@ void search_16( p_db_chunk chunk, p_search_data sdp, p_search_result res ) {
         ffatal( "\n 16 bit search not initialized!!\n\n" );
     }
 
-    p_s16info s16info = search16_init( gapO, gapE );
+    p_s16info s16info = search16_init();
 
     search16_init_query( s16info, sdp->q_count, sdp->queries );
 

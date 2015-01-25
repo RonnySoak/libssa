@@ -50,8 +50,8 @@ static uint8_t * compute_directions_for_nw( sequence a_seq, sequence b_seq ) {
 
     for( uint64_t j = 0; j < b_seq.len; j++ ) {
         hep = hearray;
-        f = -gapO + (j + 1) * -gapE;          // value in first upper cell
-        h = (j == 0) ? 0 : (-gapO + (j + 1) * -gapE);   // value in first cell of line
+        f = -gapO + (j + 1) * -gapE;          	// value in first upper cell
+        h = (j == 0) ? 0 : (-gapO + j * -gapE); // value in first cell of line
 
         for( uint64_t i = 0; i < a_seq.len; i++ ) {
             long index = a_seq.len * j + i;

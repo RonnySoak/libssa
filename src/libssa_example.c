@@ -9,6 +9,22 @@
 
 #include <stdio.h>
 
+static void do_alignment( char * desc, p_alignment_list (* align_func)( p_query, int, int ),
+        p_query query, int hit_count, int bit_width ) {
+
+    printf( "%s: \n", desc );
+    p_alignment_list alist = align_func( query, hit_count, bit_width );
+
+    printf( "Nr of alignments: %ld\n", alist->len );
+
+    for( int i = 0; i < alist->len; i++ ) {
+        alignment_p a = alist->alignments[i];
+
+        printf( "DB-ID %ld, score: %ld, cigar: %s\n", a->db_seq.ID, a->score, a->alignment );
+    }
+    free_alignment( alist );
+}
+
 int main( int argc, char**argv ) {
     /*
      * TODO
@@ -33,53 +49,10 @@ int main( int argc, char**argv ) {
 
     p_query query = init_sequence_fasta( "tests/testdata/one_seq.fas" );
 
-    printf( "Do local alignment using 64 bit Smith-Waterman:\n" );
-    p_alignment_list alist = sw_align( query, 5, BIT_WIDTH_64 );
-
-    printf( "Nr of alignments: %ld\n", alist->len );
-
-    for( int i = 0; i < alist->len; i++ ) {
-        alignment_p a = alist->alignments[i];
-
-        printf( "DB-ID %ld, score: %ld, cigar: %s\n", a->db_seq.ID, a->score, a->alignment );
-    }
-    free_alignment( alist );
-
-    printf( "Do global alignment using 64 bit Needleman-Wunsch:\n" );
-    alist = nw_align( query, 5, BIT_WIDTH_64 );
-
-    printf( "Nr of alignments: %ld\n", alist->len );
-
-    for( int i = 0; i < alist->len; i++ ) {
-        alignment_p a = alist->alignments[i];
-
-        printf( "DB-ID %ld, score: %ld, cigar: %s\n", a->db_seq.ID, a->score, a->alignment );
-    }
-    free_alignment( alist );
-
-    printf( "Do local alignment using 16 bit Smith-Waterman:\n" );
-    alist = sw_align( query, 5, BIT_WIDTH_16 );
-
-    printf( "Nr of alignments: %ld\n", alist->len );
-
-    for( int i = 0; i < alist->len; i++ ) {
-        alignment_p a = alist->alignments[i];
-
-        printf( "DB-ID %ld, score: %ld, cigar: %s\n", a->db_seq.ID, a->score, a->alignment );
-    }
-    free_alignment( alist );
-
-    printf( "Do global alignment using 16 bit Needleman-Wunsch:\n" );
-    alist = nw_align( query, 5, BIT_WIDTH_16 );
-
-    printf( "Nr of alignments: %ld\n", alist->len );
-
-    for( int i = 0; i < alist->len; i++ ) {
-        alignment_p a = alist->alignments[i];
-
-        printf( "DB-ID %ld, score: %ld, cigar: %s\n", a->db_seq.ID, a->score, a->alignment );
-    }
-    free_alignment( alist );
+    do_alignment( "Do local alignment using 64 bit Smith-Waterman", &sw_align, query, 5, BIT_WIDTH_64 );
+    do_alignment( "Do global alignment using 64 bit Needleman-Wunsch", &nw_align, query, 5, BIT_WIDTH_64 );
+    do_alignment( "Do local alignment using 16 bit Smith-Waterman", &sw_align, query, 5, BIT_WIDTH_16 );
+    do_alignment( "Do global alignment using 16 bit Needleman-Wunsch", &nw_align, query, 5, BIT_WIDTH_16 );
 
     free_db();
     free_sequence( query );

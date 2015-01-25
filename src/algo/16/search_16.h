@@ -24,27 +24,19 @@ struct s16query {
 };
 typedef struct s16query * p_s16query;
 
-struct s16info { // TODO rename
+struct s16info {
     __m128i * hearray;
     __m128i * dprofile;
 
     int q_count;
     p_s16query queries[6];
 
-    unsigned long maxdlen;
-
-    int16_t penalty_gap_open; // TODO rename
+    int16_t penalty_gap_open;
     int16_t penalty_gap_extension;
 };
 typedef struct s16info * p_s16info;
 
 void search16_init_algo( int search_type );
-
-p_s16info search16_init( int16_t penalty_gap_open, int16_t penalty_gap_extension );
-
-void search16_exit( p_s16info s );
-
-void search16_init_query( p_s16info s, int q_count, seq_buffer * queries );
 
 void dprofile_fill16( int16_t * dprofile, uint8_t * dseq );
 

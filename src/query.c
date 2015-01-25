@@ -88,11 +88,11 @@ static void fill_query( p_query query, char * query_sequence, unsigned long quer
         query->nt[0] = (sequence ) { query_sequence, query_length };
 
         if( query_strands & 2 ) {
-            //      outf("Reverse complement.\n");
             query->nt[1] = (sequence ) { xmalloc( query_length + 1 ), query_length };
 
             us_revcompl( query->nt[0], query->nt[1] );
         }
+
 
         if( (symtype == TRANS_QUERY) || (symtype == TRANS_BOTH) ) {
             for( int s = 0; s < 2; s++ ) {

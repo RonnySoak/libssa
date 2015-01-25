@@ -11,6 +11,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#define SCORE_MATRIX_DIM 32
+
 #define SCORE_MATRIX_7(x, y) (score_matrix_7[(x << 5) + y])
 #define SCORE_MATRIX_8(x, y) (score_matrix_8[(x << 5) + y])
 #define SCORE_MATRIX_16(x, y) (score_matrix_16[(x << 5) + y])
