@@ -8,7 +8,6 @@
 #include "../search.h"
 
 #include "../../matrices.h"
-#include "../../util/util_sequence.h" // TODO remove
 
 
 int64_t full_nw( sequence * dseq, sequence * qseq, int64_t * hearray ) {

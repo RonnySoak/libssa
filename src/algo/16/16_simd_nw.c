@@ -26,12 +26,6 @@
 #include "../../util/util.h"
 
 /*
- * TODO
- * - change interface, to be the same, than the naive implementations
- * - integrate in the library
- */
-
-/*
  Using 16-bit signed values, from -32768 to +32767.
  match: positive
  mismatch: negative

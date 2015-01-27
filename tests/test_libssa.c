@@ -11,6 +11,7 @@
 #include "../src/query.h"
 #include "../src/matrices.h"
 #include "../src/algo/searcher.h"
+#include "../src/query.h" // TODO remove
 
 extern unsigned long max_chunk_size; // TODO make it better configurable
 
@@ -260,6 +261,32 @@ START_TEST (test_init_functions)
         ssa_exit();
     }END_TEST
 
+START_TEST (test_test) // TODO remove
+    {
+//        init_score_matrix_file( "tests/testdata/nuc_scoring_matrix.txt" );
+        init_scoring( 1, 200 );
+        init_gap_penalties( 1, 1 );
+
+        init_symbol_translation( NUCLEOTIDE, FORWARD_STRAND, 3, 3 );
+
+        init_db_fasta( "tests/testdata/test_tmp.fas" );
+
+        p_query query = query_read_from_string( "", "CTGGATC" );
+
+        p_alignment_list alist = nw_align( query, 1, BIT_WIDTH_64 );
+        ck_assert_int_eq( 1, alist->len );
+
+        printf( "Score: %ld\n", alist->alignments[0]->score );
+        printf( "Cigar: %s\n", alist->alignments[0]->alignment );
+
+        free_alignment( alist );
+
+        free_db();
+        free_sequence( query );
+
+        ssa_exit();
+    }END_TEST
+
 void addLibssaTC( Suite *s ) {
     TCase *tc_core = tcase_create( "libssa" );
     tcase_add_test( tc_core, test_simple_one_thread );
@@ -267,6 +294,7 @@ void addLibssaTC( Suite *s ) {
     tcase_add_test( tc_core, test_nw_multiple_threads );
     tcase_add_test( tc_core, test_1000_threads );
     tcase_add_test( tc_core, test_init_functions );
+    tcase_add_test( tc_core, test_test );
 
     suite_add_tcase( s, tc_core );
 }
