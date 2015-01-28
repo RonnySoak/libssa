@@ -37,8 +37,8 @@ int main( int argc, char**argv ) {
      *
      */
 
-    init_score_matrix( BLOSUM62 );
-    init_gap_penalties( 4, 2 );
+    init_scoring( 2, -2 );
+    init_gap_penalties( 1, 1 );
     init_symbol_translation( NUCLEOTIDE, FORWARD_STRAND, 3, 3 );
 
     set_threads( 4 );
@@ -49,10 +49,12 @@ int main( int argc, char**argv ) {
 
     p_query query = init_sequence_fasta( "tests/testdata/one_seq.fas" );
 
-    do_alignment( "Do local alignment using 64 bit Smith-Waterman", &sw_align, query, 5, BIT_WIDTH_64 );
-    do_alignment( "Do global alignment using 64 bit Needleman-Wunsch", &nw_align, query, 5, BIT_WIDTH_64 );
-    do_alignment( "Do local alignment using 16 bit Smith-Waterman", &sw_align, query, 5, BIT_WIDTH_16 );
-    do_alignment( "Do global alignment using 16 bit Needleman-Wunsch", &nw_align, query, 5, BIT_WIDTH_16 );
+    int hit_count = 5;
+
+    do_alignment( "Do local alignment using 64 bit Smith-Waterman", &sw_align, query, hit_count, BIT_WIDTH_64 );
+    do_alignment( "Do global alignment using 64 bit Needleman-Wunsch", &nw_align, query, hit_count, BIT_WIDTH_64 );
+    do_alignment( "Do local alignment using 16 bit Smith-Waterman", &sw_align, query, hit_count, BIT_WIDTH_16 );
+    do_alignment( "Do global alignment using 16 bit Needleman-Wunsch", &nw_align, query, hit_count, BIT_WIDTH_16 );
 
     free_db();
     free_sequence( query );

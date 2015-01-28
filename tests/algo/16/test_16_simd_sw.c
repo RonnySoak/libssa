@@ -108,9 +108,20 @@ START_TEST (test_sw_simd_BLOSUM62)
 
         p_minheap heap = res->heap;
 
+//        ck_assert_int_eq( 69, heap->array[0].score );
+//        ck_assert_int_eq( 276, heap->array[0].db_id );
+//        ck_assert_int_eq( 69, heap->array[1].score );
+//        ck_assert_int_eq( 274, heap->array[1].db_id);
+//        ck_assert_int_eq( 69, heap->array[2].score );
+//        ck_assert_int_eq( 271, heap->array[2].db_id );
+
+
         ck_assert_int_eq( 69, heap->array[0].score );
+        ck_assert_int_eq( 271, heap->array[0].db_id );
         ck_assert_int_eq( 68, heap->array[1].score );
+        ck_assert_int_eq( 1074, heap->array[1].db_id);
         ck_assert_int_eq( 68, heap->array[2].score );
+        ck_assert_int_eq( 921, heap->array[2].db_id );
 
         exit_searcher_16_test( res );
     }END_TEST

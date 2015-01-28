@@ -50,12 +50,12 @@ void close_out() {
 }
 
 void outf( const char* format, ... ) {
-    if( !out_file ) { // TODO test it, is broken
-        init_out( NULL );
-    }
+//    if( !out_file ) { // TODO test it, is broken
+//        init_out( NULL );
+//    }
 
     va_list arg;
-    fprintf( out_file, format, arg );
+    printf( format, arg );
 }
 
 void * xmalloc( size_t size ) {

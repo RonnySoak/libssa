@@ -138,6 +138,8 @@ void init_scoring( const int8_t p, const int8_t m ) {
  */
 void init_db_fasta( const char* fasta_db_file ) {
     ssa_db_init_fasta( fasta_db_file );
+
+    printf( "DB read %lu sequences\n", ssa_db_get_sequence_count() );
 }
 
 /**

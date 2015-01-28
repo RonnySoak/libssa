@@ -10,9 +10,13 @@
 
 #include <stddef.h>
 
+#include <stdio.h> // TODO remove in production
+
 #include "../libssa.h"
 #include "../libssa_datatypes.h"
 #include "minheap.h"
+
+#include "debug_tools.h" // TODO remove or let it stay?!
 
 #define CMP_ASC(a,b) (a > b ? -1 : (a < b) ? +1 : 0) // TODO is this really ascending
 //#define CMP_DESC(a,b) (a > b ? +1 : (a < b) ? -1 : 0)
