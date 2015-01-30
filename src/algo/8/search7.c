@@ -31,8 +31,8 @@
 
 // #define DEBUG
 
-#define CHANNELS 16
-#define CDEPTH 4
+#define CHANNELS_16_BIT 16
+#define CDEPTH_16_BIT 4
 #define MATRIXWIDTH 32
 
 #ifdef SWIPE_SSSE3
@@ -189,11 +189,11 @@ inline void dprofile_fill7(uint8_t * dprofile,
     // 4 x 16 db symbols
     // ca (60x2+68x2)x4 = 976 instructions
 
-    for (int j = 0; j < CDEPTH; j++)
+    for (int j = 0; j < CDEPTH_16_BIT; j++)
             {
-        unsigned d[CHANNELS];
-        for (int i = 0; i < CHANNELS; i++)
-            d[i] = dseq[j * CHANNELS + i] << 5;
+        unsigned d[CHANNELS_16_BIT];
+        for (int i = 0; i < CHANNELS_16_BIT; i++)
+            d[i] = dseq[j * CHANNELS_16_BIT + i] << 5;
 
         xmm0 = _mm_loadl_epi64((__m128i *) (score_matrix + d[0]));
         xmm2 = _mm_loadl_epi64((__m128i *) (score_matrix + d[2]));
@@ -515,12 +515,12 @@ void dseq_dump7(uint8_t * dseq)
 
     if (dumpcounter < 21)
             {
-        for (int i = 0; i < CHANNELS; i++)
+        for (int i = 0; i < CHANNELS_16_BIT; i++)
                 {
-            for (int j = 0; j < CDEPTH; j++)
+            for (int j = 0; j < CDEPTH_16_BIT; j++)
                     {
                 lines[4000 * i + 4 * dumpcounter + j] =
-                        s[dseq[j * CHANNELS + i]];
+                        s[dseq[j * CHANNELS_16_BIT + i]];
             }
         }
         dumpcounter++;
@@ -775,15 +775,15 @@ search7
 {
     __m128i S, Q, R, T, M, Z, T0;
     __m128i *hep, **qp;
-    uint8_t * d_begin[CHANNELS];
-    uint8_t * d_end[CHANNELS];
+    uint8_t * d_begin[CHANNELS_16_BIT];
+    uint8_t * d_end[CHANNELS_16_BIT];
 
-    __m128i dseqalloc[CDEPTH];
+    __m128i dseqalloc[CDEPTH_16_BIT];
 
     uint8_t * dseq = (uint8_t*) &dseqalloc;
     uint8_t zero;
 
-    long seq_id[CHANNELS];
+    long seq_id[CHANNELS_16_BIT];
     long next_id = 0;
     unsigned done;
 
@@ -821,7 +821,7 @@ search7
     //  outf("Searching %ld sequences...\n", sequences);
 #endif
 
-    for (int c = 0; c < CHANNELS; c++)
+    for (int c = 0; c < CHANNELS_16_BIT; c++)
             {
         d_begin[c] = &zero;
         d_end[c] = d_begin[c];
@@ -836,14 +836,14 @@ search7
         {
             // fill all channels
 
-            for (int c = 0; c < CHANNELS; c++)
+            for (int c = 0; c < CHANNELS_16_BIT; c++)
                     {
-                for (int j = 0; j < CDEPTH; j++)
+                for (int j = 0; j < CDEPTH_16_BIT; j++)
                         {
                     if (d_begin[c] < d_end[c])
-                        dseq[CHANNELS * j + c] = *(d_begin[c]++);
+                        dseq[CHANNELS_16_BIT * j + c] = *(d_begin[c]++);
                     else
-                        dseq[CHANNELS * j + c] = 0;
+                        dseq[CHANNELS_16_BIT * j + c] = 0;
                 }
                 if (d_begin[c] == d_end[c])
                     easy = 0;
@@ -866,18 +866,18 @@ search7
 
             M = _mm_setzero_si128();
             T = T0;
-            for (int c = 0; c < CHANNELS; c++)
+            for (int c = 0; c < CHANNELS_16_BIT; c++)
                     {
                 if (d_begin[c] < d_end[c])
                         {
                     // this channel has more sequence
 
-                    for (int j = 0; j < CDEPTH; j++)
+                    for (int j = 0; j < CDEPTH_16_BIT; j++)
                             {
                         if (d_begin[c] < d_end[c])
-                            dseq[CHANNELS * j + c] = *(d_begin[c]++);
+                            dseq[CHANNELS_16_BIT * j + c] = *(d_begin[c]++);
                         else
-                            dseq[CHANNELS * j + c] = 0;
+                            dseq[CHANNELS_16_BIT * j + c] = 0;
                     }
                     if (d_begin[c] == d_end[c])
                         easy = 0;
@@ -920,12 +920,12 @@ search7
                         next_id++;
 
                         // fill channel
-                        for (int j = 0; j < CDEPTH; j++)
+                        for (int j = 0; j < CDEPTH_16_BIT; j++)
                                 {
                             if (d_begin[c] < d_end[c])
-                                dseq[CHANNELS * j + c] = *(d_begin[c]++);
+                                dseq[CHANNELS_16_BIT * j + c] = *(d_begin[c]++);
                             else
-                                dseq[CHANNELS * j + c] = 0;
+                                dseq[CHANNELS_16_BIT * j + c] = 0;
                         }
                         if (d_begin[c] == d_end[c])
                             easy = 0;
@@ -936,8 +936,8 @@ search7
                         seq_id[c] = -1;
                         d_begin[c] = &zero;
                         d_end[c] = d_begin[c];
-                        for (int j = 0; j < CDEPTH; j++)
-                            dseq[CHANNELS * j + c] = 0;
+                        for (int j = 0; j < CDEPTH_16_BIT; j++)
+                            dseq[CHANNELS_16_BIT * j + c] = 0;
                     }
 
                 }

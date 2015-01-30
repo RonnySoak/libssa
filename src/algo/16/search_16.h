@@ -14,19 +14,24 @@
 #include "../../libssa_datatypes.h"
 #include "../../util/minheap.h"
 
-#define CHANNELS 8
-#define CDEPTH 4
+#define CHANNELS_16_BIT 8
+#define CDEPTH_16_BIT 4
 
 struct s16query {
     unsigned long q_len;
 
     __m128i ** q_table;
+
+    char * seq;
 };
 typedef struct s16query * p_s16query;
 
 struct s16info {
     __m128i * hearray;
     __m128i * dprofile;
+
+    unsigned long maxdlen;
+    unsigned long maxqlen;
 
     int q_count;
     p_s16query queries[6];
@@ -40,7 +45,7 @@ void search16_init_algo( int search_type );
 
 void dprofile_fill16( int16_t * dprofile, uint8_t * dseq );
 
-int fill_channel( int c, uint8_t* d_begin[CHANNELS], uint8_t* d_end[CHANNELS], uint8_t* dseq );
+int fill_channel_16( int c, uint8_t* d_begin[CHANNELS_16_BIT], uint8_t* d_end[CHANNELS_16_BIT], uint8_t* dseq );
 
 void search_16_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, int query_id );
 

@@ -38,9 +38,10 @@ static p_s16info search16_init() {
     /* prepare alloc of qtable, dprofile, hearray, dir */
     p_s16info s = (p_s16info) xmalloc( sizeof(struct s16info) );
 
-    s->dprofile = (__m128i *) xmalloc( sizeof( int16_t ) * CDEPTH * CHANNELS * SCORE_MATRIX_DIM );
+    s->dprofile = (__m128i *) xmalloc( sizeof( int16_t ) * CDEPTH_16_BIT * CHANNELS_16_BIT * SCORE_MATRIX_DIM );
     s->q_count = 0;
     s->hearray = 0;
+    s->maxdlen = ssa_db_get_longest_sequence();
 
     for( int i = 0; i < 6; i++ ) {
         s->queries[i] = 0;
@@ -77,7 +78,7 @@ static void search16_exit( p_s16info s ) {
 static void search16_init_query( p_s16info s, int q_count, seq_buffer * queries ) {
     s->q_count = q_count;
 
-    uint64_t maxqlen = 0;
+    s->maxqlen = 0;
 
     for( int i = 0; i < q_count; ++i ) {
         if( s->queries[i] )
@@ -86,27 +87,28 @@ static void search16_init_query( p_s16info s, int q_count, seq_buffer * queries 
         p_s16query query = (p_s16query) xmalloc( sizeof(struct s16query) );
 
         query->q_len = queries[i].seq.len;
+        query->seq = queries[i].seq.seq;
 
-        if( query->q_len > maxqlen ) {
-            maxqlen = query->q_len;
+        if( query->q_len > s->maxqlen ) {
+            s->maxqlen = query->q_len;
         }
 
         query->q_table = (__m128i **) xmalloc( query->q_len * sizeof(__m128i *) );
 
-        for( int i = 0; i < query->q_len; i++ )
+        for( int j = 0; j < query->q_len; j++ )
             /*
              * q_table holds pointers to dprofile, which holds the actual query data.
              * The dprofile is filled during the search for every four columns, that are searched.
              */
-            query->q_table[i] = s->dprofile + CDEPTH * (int) (queries->seq.seq[i]);
+            query->q_table[j] = s->dprofile + CDEPTH_16_BIT * (int) (queries[i].seq.seq[j]);
 
         s->queries[i] = query;
     }
 
     if( s->hearray )
         free( s->hearray );
-    s->hearray = (__m128i *) xmalloc( 2 * maxqlen * sizeof(__m128i ) );
-    memset( s->hearray, 0, 2 * maxqlen * sizeof(__m128i ) );
+    s->hearray = (__m128i *) xmalloc( 2 * s->maxqlen * sizeof(__m128i ) );
+    memset( s->hearray, 0, 2 * s->maxqlen * sizeof(__m128i ) );
 }
 
 void dprofile_fill16( int16_t * dprofile, uint8_t * dseq ) {
@@ -121,18 +123,18 @@ void dprofile_fill16( int16_t * dprofile, uint8_t * dseq ) {
 #if 0
     dumpscorematrix(score_matrix_16);
 
-    for (int j=0; j<CDEPTH; j++)
+    for (int j=0; j<CDEPTH_16_BIT; j++)
     {
-        for(int z=0; z<CHANNELS; z++)
-        fprintf(stderr, " [%c]", sym_ncbi_nt16u[dseq[j*CHANNELS+z]]);
+        for(int z=0; z<CHANNELS_16_BIT; z++)
+        fprintf(stderr, " [%c]", sym_ncbi_nt16u[dseq[j*CHANNELS_16_BIT+z]]);
         fprintf(stderr, "\n");
     }
 #endif
 
-    for( int j = 0; j < CDEPTH; j++ ) {
-        int d[CHANNELS];
-        for( int z = 0; z < CHANNELS; z++ )
-            d[z] = dseq[j * CHANNELS + z] << 5;
+    for( int j = 0; j < CDEPTH_16_BIT; j++ ) {
+        int d[CHANNELS_16_BIT];
+        for( int z = 0; z < CHANNELS_16_BIT; z++ )
+            d[z] = dseq[j * CHANNELS_16_BIT + z] << 5;
 
         for( int i = 0; i < SCORE_MATRIX_DIM; i += 8 ) {
             xmm0 = _mm_load_si128( (__m128i *) (score_matrix_16 + d[0] + i) );
@@ -171,14 +173,14 @@ void dprofile_fill16( int16_t * dprofile, uint8_t * dseq ) {
             xmm30 = _mm_unpacklo_epi64( xmm21, xmm23 );
             xmm31 = _mm_unpackhi_epi64( xmm21, xmm23 );
 
-            _mm_store_si128( (__m128i *) (dprofile + CDEPTH * CHANNELS * (i + 0) + CHANNELS * j), xmm24 );
-            _mm_store_si128( (__m128i *) (dprofile + CDEPTH * CHANNELS * (i + 1) + CHANNELS * j), xmm25 );
-            _mm_store_si128( (__m128i *) (dprofile + CDEPTH * CHANNELS * (i + 2) + CHANNELS * j), xmm26 );
-            _mm_store_si128( (__m128i *) (dprofile + CDEPTH * CHANNELS * (i + 3) + CHANNELS * j), xmm27 );
-            _mm_store_si128( (__m128i *) (dprofile + CDEPTH * CHANNELS * (i + 4) + CHANNELS * j), xmm28 );
-            _mm_store_si128( (__m128i *) (dprofile + CDEPTH * CHANNELS * (i + 5) + CHANNELS * j), xmm29 );
-            _mm_store_si128( (__m128i *) (dprofile + CDEPTH * CHANNELS * (i + 6) + CHANNELS * j), xmm30 );
-            _mm_store_si128( (__m128i *) (dprofile + CDEPTH * CHANNELS * (i + 7) + CHANNELS * j), xmm31 );
+            _mm_store_si128( (__m128i *) (dprofile + CDEPTH_16_BIT * CHANNELS_16_BIT * (i + 0) + CHANNELS_16_BIT * j), xmm24 );
+            _mm_store_si128( (__m128i *) (dprofile + CDEPTH_16_BIT * CHANNELS_16_BIT * (i + 1) + CHANNELS_16_BIT * j), xmm25 );
+            _mm_store_si128( (__m128i *) (dprofile + CDEPTH_16_BIT * CHANNELS_16_BIT * (i + 2) + CHANNELS_16_BIT * j), xmm26 );
+            _mm_store_si128( (__m128i *) (dprofile + CDEPTH_16_BIT * CHANNELS_16_BIT * (i + 3) + CHANNELS_16_BIT * j), xmm27 );
+            _mm_store_si128( (__m128i *) (dprofile + CDEPTH_16_BIT * CHANNELS_16_BIT * (i + 4) + CHANNELS_16_BIT * j), xmm28 );
+            _mm_store_si128( (__m128i *) (dprofile + CDEPTH_16_BIT * CHANNELS_16_BIT * (i + 5) + CHANNELS_16_BIT * j), xmm29 );
+            _mm_store_si128( (__m128i *) (dprofile + CDEPTH_16_BIT * CHANNELS_16_BIT * (i + 6) + CHANNELS_16_BIT * j), xmm30 );
+            _mm_store_si128( (__m128i *) (dprofile + CDEPTH_16_BIT * CHANNELS_16_BIT * (i + 7) + CHANNELS_16_BIT * j), xmm31 );
         }
     }
 #if 0

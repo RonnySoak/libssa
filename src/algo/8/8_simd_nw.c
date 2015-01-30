@@ -19,200 +19,90 @@
  PO Box 1080 Blindern, NO-0316 Oslo, Norway
  */
 
-#include "align_simd.h"
-
 #include <limits.h>
-#include <stdio.h>
-#include <string.h>
 
-#include "../util/util_sequence.h"
-#include "../util/util.h"
-#include "../matrices.h"
-
-#define CHANNELS 16
-#define CDEPTH 4
+#include "../../util/util.h"
+#include "search_8.h"
 
 /*
- * TODO
- * - change interface, to be the same, than the naive implementations
- * - integrate in the library
- */
-
-/*
- Using 8-bit signed values, from -256 to +255
+ Using 8-bit signed values, from -32768 to +32767.
  match: positive
  mismatch: negative
- gap penalties: positive (open, extend, query/target, left/interior/right)
+ gap penalties: positive (open, extend)
  optimal global alignment (NW)
  maximize score
  */
 
-//static void _mm_print( __m128i x ) {
-//    unsigned short * y = (unsigned short*) &x;
-//    for( int i = 0; i < 8; i++ )
-//        printf( "%s%6d", (i > 0 ? " " : ""), y[7 - i] );
-//}
-//static void _mm_print2( __m128i x ) {
-//    signed short * y = (signed short*) &x;
-//    for( int i = 0; i < 8; i++ )
-//        printf( "%s%2d", (i > 0 ? " " : ""), y[7 - i] );
-//}
-//static void dprofile_dump16( int8_t * dprofile ) {
-//    const char * s = sym_ncbi_nt16u;
-//    printf( "\ndprofile:\n" );
-//    for( int i = 0; i < 16; i++ ) {
-//        printf( "%c: ", s[i] );
-//        for( int k = 0; k < CDEPTH; k++ ) {
-//            printf( "[" );
-//            for( int j = 0; j < CHANNELS; j++ )
-//                printf( " %3d", dprofile[CHANNELS * CDEPTH * i + CHANNELS * k + j] );
-//            printf( "]" );
-//        }
-//        printf( "\n" );
-//    }
-//}
-//static void dumpscorematrix( int8_t * m ) {
-//    for( int i = 0; i < 16; i++ ) {
-//        printf( "%2d %c", i, sym_ncbi_nt16u[i] );
-//        for( int j = 0; j < 16; j++ )
-//            printf( " %2d", m[16 * i + j] );
-//        printf( "\n" );
-//    }
-//}
-static void dprofile_fill8( int8_t * dprofile_word, int8_t * score_matrix_word, uint8_t * dseq ) {
-    __m128i xmm0, xmm1, xmm2, xmm3, xmm4, xmm5, xmm6, xmm7;
-    __m128i xmm8, xmm9, xmm10, xmm11, xmm12, xmm13, xmm14, xmm15;
-    __m128i xmm16, xmm17, xmm18, xmm19, xmm20, xmm21, xmm22, xmm23;
-    __m128i xmm24, xmm25, xmm26, xmm27, xmm28, xmm29, xmm30, xmm31;
-
-    /* does not require ssse3 */
-    /* approx 4*(5*8+2*40)=480 instructions */
-
-#if 0
-    dumpscorematrix(score_matrix_word);
-
-    for (int j=0; j<CDEPTH; j++)
-    {
-        for(int z=0; z<CHANNELS; z++)
-        fprintf(stderr, " [%c]", sym_ncbi_nt16u[dseq[j*CHANNELS+z]]);
-        fprintf(stderr, "\n");
-    }
+#ifdef DBG_COLLECT_MATRIX
+    static int d_idx = 0;
 #endif
 
-    for( int j = 0; j < CDEPTH; j++ ) {
-        int d[CHANNELS];
-        for( int z = 0; z < CHANNELS; z++ )
-            d[z] = dseq[j * CHANNELS + z] << 4;
-// TODO change to 8 bit
-        for( int i = 0; i < 16; i += 8 ) {
-            xmm0 = _mm_load_si128( (__m128i *) (score_matrix_word + d[0] + i) );
-            xmm1 = _mm_load_si128( (__m128i *) (score_matrix_word + d[1] + i) );
-            xmm2 = _mm_load_si128( (__m128i *) (score_matrix_word + d[2] + i) );
-            xmm3 = _mm_load_si128( (__m128i *) (score_matrix_word + d[3] + i) );
-            xmm4 = _mm_load_si128( (__m128i *) (score_matrix_word + d[4] + i) );
-            xmm5 = _mm_load_si128( (__m128i *) (score_matrix_word + d[5] + i) );
-            xmm6 = _mm_load_si128( (__m128i *) (score_matrix_word + d[6] + i) );
-            xmm7 = _mm_load_si128( (__m128i *) (score_matrix_word + d[7] + i) );
-
-            xmm8 = _mm_unpacklo_epi8( xmm0, xmm1 );
-            xmm9 = _mm_unpackhi_epi8( xmm0, xmm1 );
-            xmm10 = _mm_unpacklo_epi8( xmm2, xmm3 );
-            xmm11 = _mm_unpackhi_epi8( xmm2, xmm3 );
-            xmm12 = _mm_unpacklo_epi8( xmm4, xmm5 );
-            xmm13 = _mm_unpackhi_epi8( xmm4, xmm5 );
-            xmm14 = _mm_unpacklo_epi8( xmm6, xmm7 );
-            xmm15 = _mm_unpackhi_epi8( xmm6, xmm7 );
-
-            xmm16 = _mm_unpacklo_epi32( xmm8, xmm10 );
-            xmm17 = _mm_unpackhi_epi32( xmm8, xmm10 );
-            xmm18 = _mm_unpacklo_epi32( xmm12, xmm14 );
-            xmm19 = _mm_unpackhi_epi32( xmm12, xmm14 );
-            xmm20 = _mm_unpacklo_epi32( xmm9, xmm11 );
-            xmm21 = _mm_unpackhi_epi32( xmm9, xmm11 );
-            xmm22 = _mm_unpacklo_epi32( xmm13, xmm15 );
-            xmm23 = _mm_unpackhi_epi32( xmm13, xmm15 );
-
-            xmm24 = _mm_unpacklo_epi64( xmm16, xmm18 );
-            xmm25 = _mm_unpackhi_epi64( xmm16, xmm18 );
-            xmm26 = _mm_unpacklo_epi64( xmm17, xmm19 );
-            xmm27 = _mm_unpackhi_epi64( xmm17, xmm19 );
-            xmm28 = _mm_unpacklo_epi64( xmm20, xmm22 );
-            xmm29 = _mm_unpackhi_epi64( xmm20, xmm22 );
-            xmm30 = _mm_unpacklo_epi64( xmm21, xmm23 );
-            xmm31 = _mm_unpackhi_epi64( xmm21, xmm23 );
-
-            _mm_store_si128( (__m128i *) (dprofile_word +
-            CDEPTH * CHANNELS * (i + 0) + CHANNELS * j), xmm24 );
-            _mm_store_si128( (__m128i *) (dprofile_word +
-            CDEPTH * CHANNELS * (i + 1) + CHANNELS * j), xmm25 );
-            _mm_store_si128( (__m128i *) (dprofile_word +
-            CDEPTH * CHANNELS * (i + 2) + CHANNELS * j), xmm26 );
-            _mm_store_si128( (__m128i *) (dprofile_word +
-            CDEPTH * CHANNELS * (i + 3) + CHANNELS * j), xmm27 );
-            _mm_store_si128( (__m128i *) (dprofile_word +
-            CDEPTH * CHANNELS * (i + 4) + CHANNELS * j), xmm28 );
-            _mm_store_si128( (__m128i *) (dprofile_word +
-            CDEPTH * CHANNELS * (i + 5) + CHANNELS * j), xmm29 );
-            _mm_store_si128( (__m128i *) (dprofile_word +
-            CDEPTH * CHANNELS * (i + 6) + CHANNELS * j), xmm30 );
-            _mm_store_si128( (__m128i *) (dprofile_word +
-            CDEPTH * CHANNELS * (i + 7) + CHANNELS * j), xmm31 );
-        }
-    }
-#if 0
-    dprofile_dump16(dprofile_word);
-#endif
-}
-
-/*
- The direction bits are set as follows:
- in DIR[0..1] if F>H initially (must go up) (4th pri)
- in DIR[2..3] if E>max(H,F) (must go left) (3rd pri)
- in DIR[4..5] if new F>H (must extend up) (2nd pri)
- in DIR[6..7] if new E>H (must extend left) (1st pri)
- no bits set: go diagonally
- */
-
-#define ALIGNCORE(H, N, F, V, QR, R)                           \
-  H = _mm_adds_epi8(H, V);                                     \
-  H = _mm_max_epi8(H, F);                                      \
-  H = _mm_max_epi8(H, E);                                      \
-  N = H;                                                       \
-  HF = _mm_subs_epi8(H, QR);                                   \
-  F = _mm_subs_epi8(F, R);                                     \
-  F = _mm_max_epi8(F, HF);                                     \
-  HE = _mm_subs_epi8(H, QR);                                   \
-  E = _mm_subs_epi8(E, R);                                     \
-  E = _mm_max_epi8(E, HE);
+#define ALIGNCORE(H, N, F, V, QR, R, H_MIN, H_MAX)                            \
+ H = _mm_adds_epi8(H, V);            /* add value of scoring matrix */        \
+ H = _mm_max_epi8(H, F);             /* max(H, F) */                          \
+ H = _mm_max_epi8(H, E);             /* max(H, E) */                          \
+ H_MIN = _mm_min_epi8(H_MIN, H);                                              \
+ H_MAX = _mm_max_epi8(H_MAX, H);                                              \
+ N = H;                               /* save H in HE-array */                \
+ HF = _mm_subs_epi8(H, QR);          /* subtract gap open-extend */           \
+ F = _mm_subs_epi8(F, R);            /* subtract gap extend */                \
+ F = _mm_max_epi8(F, HF);            /* test for gap extension, or opening */ \
+ HE = _mm_subs_epi8(H, QR);          /* subtract gap open-extend */           \
+ E = _mm_subs_epi8(E, R);            /* subtract gap extend */                \
+ E = _mm_max_epi8(E, HE);            /* test for gap extension, or opening */
 
 static void aligncolumns_first( __m128i * Sm, __m128i * hep, __m128i ** qp, __m128i gap_open_extend, __m128i gap_extend,
-        __m128i h0, __m128i h1, __m128i h2, __m128i h3, __m128i E0, __m128i Mm, __m128i M_QR_t_left, __m128i M_R_t_left,
-        long ql ) {
-    __m128i h4, h5, h6, h7, h8, f0, f1, f2, f3, E, HE, HF;
+        __m128i h0, __m128i h1, __m128i h2, __m128i h3, __m128i f0, __m128i f1, __m128i f2, __m128i f3,
+        __m128i * _h_min, __m128i * _h_max, __m128i Mm, __m128i M_gap_open_extend, __m128i M_gap_extend, long ql ) {
+    __m128i h4, h5, h6, h7, h8, E, HE, HF;
     __m128i * vp;
+    __m128i h_min = _mm_setzero_si128();
+    __m128i h_max = _mm_setzero_si128();
+    __m128i M_gap_extension = M_gap_open_extend;
     long i;
 
-    f0 = _mm_set1_epi8( CHAR_MIN );
-    f1 = f0;
-    f2 = f0;
-    f3 = f0;
+    f0 = _mm_subs_epi8( f0, gap_open_extend );
+    f1 = _mm_subs_epi8( f1, gap_open_extend );
+    f2 = _mm_subs_epi8( f2, gap_open_extend );
+    f3 = _mm_subs_epi8( f3, gap_open_extend );
 
-    for( i = 0; i < ql - 1; i++ ) {
+    for( i = 0; i < ql; i++ ) {
         vp = qp[i + 0];
 
         h4 = hep[2 * i + 0];
-        h4 = _mm_subs_epu16( h4, Mm );
-        h4 = _mm_subs_epi8( h4, M_QR_t_left );
-        M_QR_t_left = _mm_adds_epi8( M_QR_t_left, M_R_t_left );
 
         E = hep[2 * i + 1];
-        E = _mm_subs_epu16( E, Mm );
-        E = _mm_adds_epi8( E, E0 );
 
-        ALIGNCORE( h0, h5, f0, vp[0], gap_open_extend, gap_extend );
-        ALIGNCORE( h1, h6, f1, vp[1], gap_open_extend, gap_extend );
-        ALIGNCORE( h2, h7, f2, vp[2], gap_open_extend, gap_extend );
-        ALIGNCORE( h3, h8, f3, vp[3], gap_open_extend, gap_extend );
+        /*
+         * Initialize selected h and e values for next/this round.
+         * First zero those cells where a new sequence starts
+         * by using an unsigned saturated subtraction of a huge value to
+         * set it to zero.
+         * Then use signed subtraction to obtain the correct value.
+         *
+         * M_gap_open_extend is initialized with the gap open extend costs and
+         * each round the extend costs are subtracted.
+         */
+        h4 = _mm_subs_epu8( h4, Mm );
+        h4 = _mm_subs_epi8( h4, M_gap_extension );
+
+        E = _mm_subs_epu8( E, Mm );
+        E = _mm_subs_epi8( E, M_gap_extension );
+        E = _mm_subs_epi8( E, M_gap_open_extend );
+
+        M_gap_extension = _mm_adds_epi8( M_gap_extension, M_gap_extend );
+
+        ALIGNCORE( h0, h5, f0, vp[0], gap_open_extend, gap_extend, h_min, h_max );
+        ALIGNCORE( h1, h6, f1, vp[1], gap_open_extend, gap_extend, h_min, h_max );
+        ALIGNCORE( h2, h7, f2, vp[2], gap_open_extend, gap_extend, h_min, h_max );
+        ALIGNCORE( h3, h8, f3, vp[3], gap_open_extend, gap_extend, h_min, h_max );
+
+#ifdef DBG_COLLECT_MATRIX
+        dbg_add_matrix_data_128_8( i, d_idx + 0, h5 );
+        dbg_add_matrix_data_128_8( i, d_idx + 1, h6 );
+        dbg_add_matrix_data_128_8( i, d_idx + 2, h7 );
+        dbg_add_matrix_data_128_8( i, d_idx + 3, h8 );
+#endif
 
         hep[2 * i + 0] = h8;
         hep[2 * i + 1] = E;
@@ -223,50 +113,47 @@ static void aligncolumns_first( __m128i * Sm, __m128i * hep, __m128i ** qp, __m1
         h3 = h7;
     }
 
-    /* the final round - using alternative query gap penalties */
+    Sm[0] = h1;
+    Sm[1] = h2;
+    Sm[2] = h3;
+    Sm[3] = hep[2 * (i - 1) + 0];
 
-    vp = qp[i + 0];
-
-    E = hep[2 * i + 1];
-    E = _mm_subs_epu16( E, Mm );
-    E = _mm_adds_epi8( E, E0 );
-
-    ALIGNCORE( h0, h5, f0, vp[0], gap_open_extend, gap_extend );
-    ALIGNCORE( h1, h6, f1, vp[1], gap_open_extend, gap_extend );
-    ALIGNCORE( h2, h7, f2, vp[2], gap_open_extend, gap_extend );
-    ALIGNCORE( h3, h8, f3, vp[3], gap_open_extend, gap_extend );
-
-    hep[2 * i + 0] = h8;
-    hep[2 * i + 1] = E;
-
-    Sm[0] = h5;
-    Sm[1] = h6;
-    Sm[2] = h7;
-    Sm[3] = h8;
+    *_h_min = h_min;
+    *_h_max = h_max;
 }
 
 static void aligncolumns_rest( __m128i * Sm, __m128i * hep, __m128i ** qp, __m128i gap_open_extend, __m128i gap_extend,
-        __m128i h0, __m128i h1, __m128i h2, __m128i h3, long ql ) {
-    __m128i h4, h5, h6, h7, h8, f0, f1, f2, f3, E, HE, HF;
+        __m128i h0, __m128i h1, __m128i h2, __m128i h3, __m128i f0, __m128i f1, __m128i f2, __m128i f3,
+        __m128i * _h_min, __m128i * _h_max, long ql ) {
+    __m128i h4, h5, h6, h7, h8, E, HE, HF;
     __m128i * vp;
+    __m128i h_min = _mm_setzero_si128();
+    __m128i h_max = _mm_setzero_si128();
     long i;
 
-    f0 = _mm_set1_epi8( CHAR_MIN );
-    f1 = f0;
-    f2 = f0;
-    f3 = f0;
+    f0 = _mm_subs_epi8( f0, gap_open_extend );
+    f1 = _mm_subs_epi8( f1, gap_open_extend );
+    f2 = _mm_subs_epi8( f2, gap_open_extend );
+    f3 = _mm_subs_epi8( f3, gap_open_extend );
 
-    for( i = 0; i < ql - 1; i++ ) {
+    for( i = 0; i < ql; i++ ) {
         vp = qp[i + 0];
 
         h4 = hep[2 * i + 0];
 
         E = hep[2 * i + 1];
 
-        ALIGNCORE( h0, h5, f0, vp[0], gap_open_extend, gap_extend );
-        ALIGNCORE( h1, h6, f1, vp[1], gap_open_extend, gap_extend );
-        ALIGNCORE( h2, h7, f2, vp[2], gap_open_extend, gap_extend );
-        ALIGNCORE( h3, h8, f3, vp[3], gap_open_extend, gap_extend );
+        ALIGNCORE( h0, h5, f0, vp[0], gap_open_extend, gap_extend, h_min, h_max );
+        ALIGNCORE( h1, h6, f1, vp[1], gap_open_extend, gap_extend, h_min, h_max );
+        ALIGNCORE( h2, h7, f2, vp[2], gap_open_extend, gap_extend, h_min, h_max );
+        ALIGNCORE( h3, h8, f3, vp[3], gap_open_extend, gap_extend, h_min, h_max );
+
+#ifdef DBG_COLLECT_MATRIX
+        dbg_add_matrix_data_128_8( i, d_idx + 0, h5 );
+        dbg_add_matrix_data_128_8( i, d_idx + 1, h6 );
+        dbg_add_matrix_data_128_8( i, d_idx + 2, h7 );
+        dbg_add_matrix_data_128_8( i, d_idx + 3, h8 );
+#endif
 
         hep[2 * i + 0] = h8;
         hep[2 * i + 1] = E;
@@ -277,165 +164,139 @@ static void aligncolumns_rest( __m128i * Sm, __m128i * hep, __m128i ** qp, __m12
         h3 = h7;
     }
 
-    /* the final round - using alternative query gap penalties */
+    Sm[0] = h1;
+    Sm[1] = h2;
+    Sm[2] = h3;
+    Sm[3] = hep[2 * (i - 1) + 0];
 
-    vp = qp[i + 0];
-
-    E = hep[2 * i + 1];
-
-    ALIGNCORE( h0, h5, f0, vp[0], gap_open_extend, gap_extend );
-    ALIGNCORE( h1, h6, f1, vp[1], gap_open_extend, gap_extend );
-    ALIGNCORE( h2, h7, f2, vp[2], gap_open_extend, gap_extend );
-    ALIGNCORE( h3, h8, f3, vp[3], gap_open_extend, gap_extend );
-
-    hep[2 * i + 0] = h8;
-    hep[2 * i + 1] = E;
-
-    Sm[0] = h5;
-    Sm[1] = h6;
-    Sm[2] = h7;
-    Sm[3] = h8;
+    *_h_min = h_min;
+    *_h_max = h_max;
 }
 
-p_s8info search8_init( int8_t penalty_gap_open, int8_t penalty_gap_extension ) {
-    /* prepare alloc of qtable, dprofile, hearray, dir */
-    p_s8info s = (p_s8info) xmalloc( sizeof(struct s16info) );
-
-    s->maxdlen = 4 * ((ssa_db_get_longest_sequence() + 3) / 4);
-    s->dprofile = (__m128i *) xmalloc( 2 * 4 * 8 * 16 );
-    s->qlen = 0;
-    s->maxqlen = 0;
-    s->hearray = 0;
-    s->qtable = 0;
-
-    for( int i = 0; i < 16; i++ ) {
-        for( int j = 0; j < 16; j++ ) {
-            ((int8_t*) (&s->matrix))[16 * i + j] = SCORE_MATRIX_16( i, j );
-        }
-    }
-
-    s->penalty_gap_open = penalty_gap_open;
-    s->penalty_gap_extension = penalty_gap_extension;
-
-    return s;
-}
-
-void search8_exit( p_s8info s ) {
-    /* free mem for dprofile, hearray, dir, qtable */
-    if( s->hearray )
-        free( s->hearray );
-    if( s->dprofile )
-        free( s->dprofile );
-    if( s->qtable )
-        free( s->qtable );
-    free( s );
-}
-
-void search8_init_query( p_s8info s, char * qseq, int qlen ) {
-    s->qlen = qlen;
-
-    if( s->qlen > s->maxqlen ) {
-        if( s->maxqlen == 0 )
-            s->maxqlen = 256;
-        while( s->qlen > s->maxqlen )
-            s->maxqlen <<= 1;
-
-        if( s->hearray )
-            free( s->hearray );
-        s->hearray = (__m128i *) xmalloc( 2 * s->maxqlen * sizeof(__m128i ) );
-        memset( s->hearray, 0, 2 * s->maxqlen * sizeof(__m128i ) );
-
-        if( s->qtable )
-            free( s->qtable );
-        s->qtable = (__m128i **) xmalloc( s->maxqlen * sizeof(__m128i *) );
-    }
-
-    for( int i = 0; i < qlen; i++ )
-        s->qtable[i] = s->dprofile + 4 * (int) (qseq[i]);
-}
-
-static inline void fill_channel( int c, uint8_t* d_begin[CHANNELS], uint8_t* d_end[CHANNELS], uint8_t* dseq ) {
+// TODO inline function?!
+int fill_channel_8( int c, uint8_t* d_begin[CHANNELS_8_BIT], uint8_t* d_end[CHANNELS_8_BIT], uint8_t* dseq ) {
     /* fill channel */
-    for( int j = 0; j < CDEPTH; j++ ) {
+    for( int j = 0; j < CDEPTH_8_BIT; j++ ) {
         if( d_begin[c] < d_end[c] ) {
-            dseq[CHANNELS * j + c] = *(d_begin[c]++);
+            dseq[CHANNELS_8_BIT * j + c] = *(d_begin[c]++);
         }
         else {
-            dseq[CHANNELS * j + c] = 0;
+            dseq[CHANNELS_8_BIT * j + c] = 0;
+        }
+    }
+
+    if( d_begin[c] == d_end[c] )
+        return 0;
+    return 1;
+}
+
+static void check_min_max( uint8_t overflow[CHANNELS_8_BIT], __m128i h_min, __m128i h_max, int8_t score_min, int8_t score_max ) {
+    for( int c = 0; c < CHANNELS_8_BIT; c++ ) {
+        if( !overflow[c] ) {
+            int8_t h_min_array[CHANNELS_8_BIT];
+            int8_t h_max_array[CHANNELS_8_BIT];
+            _mm_storeu_si128( (__m128i *) h_min_array, h_min );
+            _mm_storeu_si128( (__m128i *) h_max_array, h_max );
+            int8_t h_min_c = h_min_array[c];
+            int8_t h_max_c = h_max_array[c];
+            if( (h_min_c <= score_min) || (h_max_c >= score_max) ) {
+                overflow[c] = 1;
+            }
         }
     }
 }
 
-void search8( p_s8info s, p_db_chunk chunk, p_minheap heap, int query_id ) {
-    int8_t ** q_start = (int8_t**) s->qtable;
+void search_8_nw( p_s8info s, p_db_chunk chunk, p_minheap heap, int q_id ) {
+
+#ifdef DBG_COLLECT_MATRIX
+        dbg_init_matrix_data_collection( BIT_WIDTH_16, s->maxdlen + CDEPTH_8_BIT, s->maxqlen );
+
+        d_idx = 0;
+#endif
+
     int8_t * dprofile = (int8_t*) s->dprofile;
-    int8_t * hearray = (int8_t*) s->hearray;
-    unsigned long qlen = s->qlen;
+    unsigned long qlen = s->queries[q_id]->q_len;
 
-    __m128i T, M, T0, E0;
+    __m128i T, M, T0;
 
-    __m128i M_QR_target_left, M_R_target_left;
+    __m128i M_gap_open_extend, M_gap_extend;
 
     __m128i gap_open_extend, gap_extend;
 
-    __m128i *hep, **qp;
+    __m128i * hep;
 
-    uint8_t * d_begin[CHANNELS];
-    uint8_t * d_end[CHANNELS];
-    unsigned long d_length[CHANNELS];
-    long seq_id[CHANNELS];
+    uint8_t * d_begin[CHANNELS_8_BIT];
+    uint8_t * d_end[CHANNELS_8_BIT];
+    unsigned long d_length[CHANNELS_8_BIT];
+    p_sdb_sequence d_seq_ptr[CHANNELS_8_BIT];
+    uint8_t overflow[CHANNELS_8_BIT];
 
-    __m128i dseqalloc[CDEPTH];
-    __m128i S[4];
+    __m128i dseqalloc[CDEPTH_8_BIT];
+
+    union {
+        __m128i v[CDEPTH_8_BIT];
+        int8_t a[CDEPTH_8_BIT * sizeof(__m128i )];
+    } S;
 
     uint8_t * dseq = (uint8_t*) &dseqalloc;
-    uint8_t zero = 0;
 
-    unsigned long next_id = 0;
-    unsigned long done = 0;
+    long next_id = 0;
+    long done = 0;
 
     T0 = _mm_set_epi8( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff );
 
     gap_open_extend = _mm_set1_epi8( s->penalty_gap_open + s->penalty_gap_extension );
     gap_extend = _mm_set1_epi8( s->penalty_gap_extension );
 
-    hep = (__m128i *) hearray;
-    qp = (__m128i **) q_start;
+    hep = s->hearray;
 
-    for( int c = 0; c < CHANNELS; c++ ) {
-        d_begin[c] = &zero;
+    for( int c = 0; c < CHANNELS_8_BIT; c++ ) {
+        d_begin[c] = 0;
         d_end[c] = d_begin[c];
         d_length[c] = 0;
-        seq_id[c] = -1;
+        d_seq_ptr[c] = 0;
+        overflow[c] = 0;
     }
 
-    for( int i = 0; i < 4; i++ ) {
-        S[i] = _mm_setzero_si128();
+    for( int i = 0; i < CDEPTH_8_BIT; i++ ) {
+        S.v[i] = _mm_setzero_si128();
         dseqalloc[i] = _mm_setzero_si128();
     }
 
-    __m128i VECTOR_CHAR_MIN = _mm_set1_epi8( CHAR_MIN );
+    int8_t score_min = INT8_MIN + s->penalty_gap_open + s->penalty_gap_extension;
+    int8_t score_max = INT8_MAX;
+
     __m128i H0 = _mm_setzero_si128();
     __m128i H1 = _mm_setzero_si128();
     __m128i H2 = _mm_setzero_si128();
     __m128i H3 = _mm_setzero_si128();
 
+    __m128i F0 = _mm_setzero_si128();
+    __m128i F1 = _mm_setzero_si128();
+    __m128i F2 = _mm_setzero_si128();
+    __m128i F3 = _mm_setzero_si128();
+
     int no_sequences_ended = 0;
 
+    /*
+     * TODO convert infinite loop into a loop with a condition
+     */
     while( 1 ) {
         if( no_sequences_ended ) {
             /* fill all channels with symbols from the database sequences */
 
-            for( int c = 0; c < CHANNELS; c++ ) {
-                fill_channel( c, d_begin, d_end, dseq );
-
-                if( d_begin[c] == d_end[c] )
-                    no_sequences_ended = 0;
+            for( int c = 0; c < CHANNELS_8_BIT; c++ ) {
+                no_sequences_ended = fill_channel_8( c, d_begin, d_end, dseq );
             }
 
-            dprofile_fill8( dprofile, (int8_t*) s->matrix, dseq );
+            dprofile_fill8( dprofile, dseq );
 
-            aligncolumns_rest( S, hep, qp, gap_open_extend, gap_extend, H0, H1, H2, H3, qlen );
+            __m128i h_min, h_max;
+
+            aligncolumns_rest( S.v, hep, s->queries[q_id]->q_table, gap_open_extend, gap_extend, H0, H1, H2, H3, F0, F1,
+                    F2, F3, &h_min, &h_max, qlen );
+
+            check_min_max( overflow, h_min, h_max, score_min, score_max );
         }
         else {
             /* One or more sequences ended in the previous block.
@@ -444,51 +305,55 @@ void search8( p_s8info s, p_db_chunk chunk, p_minheap heap, int query_id ) {
 
             M = _mm_setzero_si128();
             T = T0;
-            for( int c = 0; c < CHANNELS; c++ ) {
+            for( int c = 0; c < CHANNELS_8_BIT; c++ ) {
                 if( d_begin[c] < d_end[c] ) {
-                    /* this channel has more sequence */
+                    /* the sequence in this channel is not finished yet */
 
-                    fill_channel( c, d_begin, d_end, dseq );
-
-                    if( d_begin[c] == d_end[c] )
-                        no_sequences_ended = 0;
+                    no_sequences_ended = fill_channel_8( c, d_begin, d_end, dseq );
                 }
                 else {
                     /* sequence in channel c ended. change of sequence */
 
                     M = _mm_xor_si128( M, T );
 
-                    long cand_id = seq_id[c];
 
-                    if( cand_id >= 0 ) {
+                    if( d_seq_ptr[c] ) {
                         /* save score */
 
                         long z = (d_length[c] + 3) % 4;
-                        long score = ((int8_t*) S)[z * CHANNELS + c];
+                        long score = S.a[z * CHANNELS_8_BIT + c];
 
-                        if( (score > CHAR_MIN) && (score < CHAR_MAX) ) {
+                        if( overflow[c] ) {
+                            printf( "\nWARNING! Global alignment overflow! Seqid: %lu, length: %lu, score: %ld\n",
+                                    d_seq_ptr[c]->ID, d_length[c], score );
+
+                            overflow[c] = 0;
+                        }
+
+                        if( (score > INT8_MIN) && (score < INT8_MAX) ) {
                             /* Alignments, with a score equal to the current lowest score in the
-                               heap are ignored! */
-                            add_to_minheap( heap, query_id, chunk->seq[next_id - 1], score );
+                             heap are ignored! */
+                            add_to_minheap( heap, q_id, d_seq_ptr[c], score );
                         }
                         else {
                             // TODO else report recalculation
+                            printf( "\n\nscore out of range: %ld\n\n", score );
                         }
 
                         done++;
                     }
 
-                    if( next_id < chunk->size ) {
+                    if( next_id < chunk->fill_pointer ) {
                         char* address;
-                        long length = 0;
+                        long length = 0; // TODO do we need this check for length > 0 ? Without it, the speed drops drastically ...
 
                         /* get next sequence with length>0 */
 
-                        while( (length == 0) && (next_id < chunk->size) ) {
-                            seq_id[c] = next_id;
+                        while( (length == 0) && (next_id < chunk->fill_pointer) ) {
+                            d_seq_ptr[c] = chunk->seq[next_id];
 
-                            address = chunk->seq[next_id]->seq.seq;
-                            length = chunk->seq[next_id]->seq.len;
+                            address = d_seq_ptr[c]->seq.seq;
+                            length = d_seq_ptr[c]->seq.len;
 
                             next_id++;
                         }
@@ -502,43 +367,70 @@ void search8( p_s8info s, p_db_chunk chunk, p_minheap heap, int query_id ) {
                         ((int8_t*) &H2)[c] = -s->penalty_gap_open - 2 * s->penalty_gap_extension;
                         ((int8_t*) &H3)[c] = -s->penalty_gap_open - 3 * s->penalty_gap_extension;
 
-                        fill_channel( c, d_begin, d_end, dseq );
+                        ((int8_t*) &F0)[c] = -s->penalty_gap_open - 1 * s->penalty_gap_extension;
+                        ((int8_t*) &F1)[c] = -s->penalty_gap_open - 2 * s->penalty_gap_extension;
+                        ((int8_t*) &F2)[c] = -s->penalty_gap_open - 3 * s->penalty_gap_extension;
+                        ((int8_t*) &F3)[c] = -s->penalty_gap_open - 4 * s->penalty_gap_extension;
 
-                        if( d_begin[c] == d_end[c] )
-                            no_sequences_ended = 0;
+                        no_sequences_ended = fill_channel_8( c, d_begin, d_end, dseq );
                     }
                     else {
                         /* no more sequences, empty channel */
 
-                        seq_id[c] = -1;
-                        d_begin[c] = &zero;
+                        d_seq_ptr[c] = 0;
+                        d_begin[c] = 0;
                         d_end[c] = d_begin[c];
                         d_length[c] = 0;
-                        for( int j = 0; j < CDEPTH; j++ )
-                            dseq[CHANNELS * j + c] = 0;
+                        for( int j = 0; j < CDEPTH_8_BIT; j++ )
+                            dseq[CHANNELS_8_BIT * j + c] = 0;
                     }
                 }
 
-                T = _mm_slli_si128( T, 2 );
+                T = _mm_slli_si128( T, 1 );
             }
 
-            if( done == chunk->size )
+            if( done == chunk->fill_pointer )
                 break;
 
             /* make masked versions of QR, R and E0 */
-            M_QR_target_left = _mm_and_si128( M, gap_open_extend );
-            M_R_target_left = _mm_and_si128( M, gap_extend );
-            E0 = _mm_and_si128( M, VECTOR_CHAR_MIN );
+            M_gap_open_extend = _mm_and_si128( M, gap_open_extend );
+            M_gap_extend = _mm_and_si128( M, gap_extend );
 
-            dprofile_fill8( dprofile, (int8_t*) s->matrix, dseq );
+            dprofile_fill8( dprofile, dseq );
 
-            aligncolumns_first( S, hep, qp, gap_open_extend, gap_extend, H0, H1, H2, H3, E0, M, M_QR_target_left,
-                    M_R_target_left, qlen );
+            __m128i h_min, h_max;
+
+            aligncolumns_first( S.v, hep, s->queries[q_id]->q_table, gap_open_extend, gap_extend, H0, H1, H2, H3, F0,
+                    F1, F2, F3, &h_min, &h_max, M, M_gap_open_extend, M_gap_extend, qlen );
+
+            check_min_max( overflow, h_min, h_max, score_min, score_max );
         }
+
+#ifdef DBG_COLLECT_MATRIX
+        d_idx += 4;
+#endif
+
+        /*
+         * Before calling it again, we need to add CDEPTH * gap_extend to f0, to move it to the new column.
+         */
+        F0 = _mm_subs_epi8( F3, gap_extend );
+        F1 = _mm_subs_epi8( F0, gap_extend );
+        F2 = _mm_subs_epi8( F1, gap_extend );
+        F3 = _mm_subs_epi8( F2, gap_extend );
 
         H0 = _mm_subs_epi8( H3, gap_extend );
         H1 = _mm_subs_epi8( H0, gap_extend );
         H2 = _mm_subs_epi8( H1, gap_extend );
         H3 = _mm_subs_epi8( H2, gap_extend );
     }
+
+#ifdef DBG_COLLECT_MATRIX
+        sequence * db_sequences = xmalloc( sizeof( sequence ) * done );
+
+        for (int i = 0; i < done; ++i) {
+            db_sequences[i] = chunk->seq[i]->seq;
+        }
+
+        dbg_print_matrices_to_file( BIT_WIDTH_8, "NW", s->queries[q_id]->seq, db_sequences, done );
+#endif
 }

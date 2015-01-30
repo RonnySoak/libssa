@@ -34,9 +34,9 @@
  maximize score
  */
 
-/*
- * TODO detect, if the score goes below INT16_MIN or above INT16_MAX in between the calculation
- */
+#ifdef DBG_COLLECT_MATRIX
+    static int d_idx = 0;
+#endif
 
 #define ALIGNCORE(H, N, F, V, QR, R, H_MIN, H_MAX)                             \
  H = _mm_adds_epi16(H, V);            /* add value of scoring matrix */        \
@@ -98,6 +98,13 @@ static void aligncolumns_first( __m128i * Sm, __m128i * hep, __m128i ** qp, __m1
         ALIGNCORE( h2, h7, f2, vp[2], gap_open_extend, gap_extend, h_min, h_max );
         ALIGNCORE( h3, h8, f3, vp[3], gap_open_extend, gap_extend, h_min, h_max );
 
+#ifdef DBG_COLLECT_MATRIX
+        dbg_add_matrix_data_128_16( i, d_idx + 0, h5 );
+        dbg_add_matrix_data_128_16( i, d_idx + 1, h6 );
+        dbg_add_matrix_data_128_16( i, d_idx + 2, h7 );
+        dbg_add_matrix_data_128_16( i, d_idx + 3, h8 );
+#endif
+
         hep[2 * i + 0] = h8;
         hep[2 * i + 1] = E;
 
@@ -142,6 +149,13 @@ static void aligncolumns_rest( __m128i * Sm, __m128i * hep, __m128i ** qp, __m12
         ALIGNCORE( h2, h7, f2, vp[2], gap_open_extend, gap_extend, h_min, h_max );
         ALIGNCORE( h3, h8, f3, vp[3], gap_open_extend, gap_extend, h_min, h_max );
 
+#ifdef DBG_COLLECT_MATRIX
+        dbg_add_matrix_data_128_16( i, d_idx + 0, h5 );
+        dbg_add_matrix_data_128_16( i, d_idx + 1, h6 );
+        dbg_add_matrix_data_128_16( i, d_idx + 2, h7 );
+        dbg_add_matrix_data_128_16( i, d_idx + 3, h8 );
+#endif
+
         hep[2 * i + 0] = h8;
         hep[2 * i + 1] = E;
 
@@ -155,17 +169,20 @@ static void aligncolumns_rest( __m128i * Sm, __m128i * hep, __m128i ** qp, __m12
     Sm[1] = h2;
     Sm[2] = h3;
     Sm[3] = hep[2 * (i - 1) + 0];
+
+    *_h_min = h_min;
+    *_h_max = h_max;
 }
 
 // TODO inline function?!
-int fill_channel( int c, uint8_t* d_begin[CHANNELS], uint8_t* d_end[CHANNELS], uint8_t* dseq ) {
+int fill_channel_16( int c, uint8_t* d_begin[CHANNELS_16_BIT], uint8_t* d_end[CHANNELS_16_BIT], uint8_t* dseq ) {
     /* fill channel */
-    for( int j = 0; j < CDEPTH; j++ ) {
+    for( int j = 0; j < CDEPTH_16_BIT; j++ ) {
         if( d_begin[c] < d_end[c] ) {
-            dseq[CHANNELS * j + c] = *(d_begin[c]++);
+            dseq[CHANNELS_16_BIT * j + c] = *(d_begin[c]++);
         }
         else {
-            dseq[CHANNELS * j + c] = 0;
+            dseq[CHANNELS_16_BIT * j + c] = 0;
         }
     }
 
@@ -174,15 +191,15 @@ int fill_channel( int c, uint8_t* d_begin[CHANNELS], uint8_t* d_end[CHANNELS], u
     return 1;
 }
 
-static void check_min_max( uint8_t overflow[CHANNELS], __m128i h_min, __m128i h_max, int16_t score_min, int16_t score_max ) {
-    for( int c = 0; c < CHANNELS; c++ ) {
+static void check_min_max( uint8_t overflow[CHANNELS_16_BIT], __m128i h_min, __m128i h_max, int16_t score_min, int16_t score_max ) {
+    for( int c = 0; c < CHANNELS_16_BIT; c++ ) {
         if( !overflow[c] ) {
-            signed short h_min_array[8];
-            signed short h_max_array[8];
+            int16_t h_min_array[CHANNELS_16_BIT];
+            int16_t h_max_array[CHANNELS_16_BIT];
             _mm_storeu_si128( (__m128i *) h_min_array, h_min );
             _mm_storeu_si128( (__m128i *) h_max_array, h_max );
-            signed short h_min_c = h_min_array[c];
-            signed short h_max_c = h_max_array[c];
+            int16_t h_min_c = h_min_array[c];
+            int16_t h_max_c = h_max_array[c];
             if( (h_min_c <= score_min) || (h_max_c >= score_max) ) {
                 overflow[c] = 1;
             }
@@ -191,6 +208,13 @@ static void check_min_max( uint8_t overflow[CHANNELS], __m128i h_min, __m128i h_
 }
 
 void search_16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, int q_id ) {
+
+#ifdef DBG_COLLECT_MATRIX
+        dbg_init_matrix_data_collection( BIT_WIDTH_16, s->maxdlen + CDEPTH_16_BIT, s->maxqlen );
+
+        d_idx = 0;
+#endif
+
     int16_t * dprofile = (int16_t*) s->dprofile;
     unsigned long qlen = s->queries[q_id]->q_len;
 
@@ -202,17 +226,17 @@ void search_16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, int q_id ) {
 
     __m128i * hep;
 
-    uint8_t * d_begin[CHANNELS];
-    uint8_t * d_end[CHANNELS];
-    unsigned long d_length[CHANNELS];
-    p_sdb_sequence d_seq_ptr[CHANNELS];
-    uint8_t overflow[CHANNELS];
+    uint8_t * d_begin[CHANNELS_16_BIT];
+    uint8_t * d_end[CHANNELS_16_BIT];
+    unsigned long d_length[CHANNELS_16_BIT];
+    p_sdb_sequence d_seq_ptr[CHANNELS_16_BIT];
+    uint8_t overflow[CHANNELS_16_BIT];
 
-    __m128i dseqalloc[CDEPTH];
+    __m128i dseqalloc[CDEPTH_16_BIT];
 
     union {
-        __m128i v[CDEPTH];
-        int16_t a[CDEPTH * sizeof(__m128i )];
+        __m128i v[CDEPTH_16_BIT];
+        int16_t a[CDEPTH_16_BIT * sizeof(__m128i )];
     } S;
 
     uint8_t * dseq = (uint8_t*) &dseqalloc;
@@ -227,7 +251,7 @@ void search_16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, int q_id ) {
 
     hep = s->hearray;
 
-    for( int c = 0; c < CHANNELS; c++ ) {
+    for( int c = 0; c < CHANNELS_16_BIT; c++ ) {
         d_begin[c] = 0;
         d_end[c] = d_begin[c];
         d_length[c] = 0;
@@ -235,13 +259,13 @@ void search_16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, int q_id ) {
         overflow[c] = 0;
     }
 
-    for( int i = 0; i < CDEPTH; i++ ) {
+    for( int i = 0; i < CDEPTH_16_BIT; i++ ) {
         S.v[i] = _mm_setzero_si128();
         dseqalloc[i] = _mm_setzero_si128();
     }
 
-    int16_t score_min = SHRT_MIN + s->penalty_gap_open + s->penalty_gap_extension;
-    int16_t score_max = SHRT_MAX;
+    int16_t score_min = INT16_MIN + s->penalty_gap_open + s->penalty_gap_extension;
+    int16_t score_max = INT16_MAX;
 
     __m128i H0 = _mm_setzero_si128();
     __m128i H1 = _mm_setzero_si128();
@@ -262,8 +286,8 @@ void search_16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, int q_id ) {
         if( no_sequences_ended ) {
             /* fill all channels with symbols from the database sequences */
 
-            for( int c = 0; c < CHANNELS; c++ ) {
-                no_sequences_ended = fill_channel( c, d_begin, d_end, dseq );
+            for( int c = 0; c < CHANNELS_16_BIT; c++ ) {
+                no_sequences_ended = fill_channel_16( c, d_begin, d_end, dseq );
             }
 
             dprofile_fill16( dprofile, dseq );
@@ -282,11 +306,11 @@ void search_16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, int q_id ) {
 
             M = _mm_setzero_si128();
             T = T0;
-            for( int c = 0; c < CHANNELS; c++ ) {
+            for( int c = 0; c < CHANNELS_16_BIT; c++ ) {
                 if( d_begin[c] < d_end[c] ) {
                     /* the sequence in this channel is not finished yet */
 
-                    no_sequences_ended = fill_channel( c, d_begin, d_end, dseq );
+                    no_sequences_ended = fill_channel_16( c, d_begin, d_end, dseq );
                 }
                 else {
                     /* sequence in channel c ended. change of sequence */
@@ -298,7 +322,7 @@ void search_16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, int q_id ) {
                         /* save score */
 
                         long z = (d_length[c] + 3) % 4;
-                        long score = S.a[z * CHANNELS + c];
+                        long score = S.a[z * CHANNELS_16_BIT + c];
 
                         if( overflow[c] ) {
                             printf( "\nWARNING! Alignment overflow!\n" );
@@ -350,7 +374,7 @@ void search_16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, int q_id ) {
                         ((int16_t*) &F2)[c] = -s->penalty_gap_open - 3 * s->penalty_gap_extension;
                         ((int16_t*) &F3)[c] = -s->penalty_gap_open - 4 * s->penalty_gap_extension;
 
-                        no_sequences_ended = fill_channel( c, d_begin, d_end, dseq );
+                        no_sequences_ended = fill_channel_16( c, d_begin, d_end, dseq );
                     }
                     else {
                         /* no more sequences, empty channel */
@@ -359,8 +383,8 @@ void search_16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, int q_id ) {
                         d_begin[c] = 0;
                         d_end[c] = d_begin[c];
                         d_length[c] = 0;
-                        for( int j = 0; j < CDEPTH; j++ )
-                            dseq[CHANNELS * j + c] = 0;
+                        for( int j = 0; j < CDEPTH_16_BIT; j++ )
+                            dseq[CHANNELS_16_BIT * j + c] = 0;
                     }
                 }
 
@@ -384,6 +408,10 @@ void search_16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, int q_id ) {
             check_min_max( overflow, h_min, h_max, score_min, score_max );
         }
 
+#ifdef DBG_COLLECT_MATRIX
+        d_idx += 4;
+#endif
+
         /*
          * Before calling it again, we need to add CDEPTH * gap_extend to f0, to move it to the new column.
          */
@@ -397,4 +425,14 @@ void search_16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, int q_id ) {
         H2 = _mm_subs_epi16( H1, gap_extend );
         H3 = _mm_subs_epi16( H2, gap_extend );
     }
+
+#ifdef DBG_COLLECT_MATRIX
+        sequence * db_sequences = xmalloc( sizeof( sequence ) * done );
+
+        for (int i = 0; i < done; ++i) {
+            db_sequences[i] = chunk->seq[i]->seq;
+        }
+
+        dbg_print_matrices_to_file( BIT_WIDTH_16, "NW", s->queries[q_id]->seq, db_sequences, done );
+#endif
 }

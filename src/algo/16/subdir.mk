@@ -4,6 +4,6 @@ OBJS += \
 ./src/algo/16/16_simd_sw.o
 
 USER_OBJS += \
-./src/algo/16/align_simd.h
+./src/algo/16/search_16.h
 
 TO_CLEAN +=
