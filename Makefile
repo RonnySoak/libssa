@@ -18,11 +18,13 @@ COVERAGE_DIR = coverage_data
 # All of the sources participating in the build are defined here
 -include tests/subdir.mk
 -include tests/algo/subdir.mk
+-include tests/algo/8/subdir.mk
 -include tests/algo/16/subdir.mk
 -include tests/algo/63/subdir.mk
 -include tests/util/subdir.mk
 -include src/subdir.mk
 -include src/algo/subdir.mk
+-include src/algo/8/subdir.mk
 -include src/algo/16/subdir.mk
 -include src/algo/63/subdir.mk
 -include src/util/subdir.mk
@@ -41,7 +43,7 @@ TEST_LIBS := -lcheck -lrt
 
 # GNU options
 CXX := gcc
-CXXFLAGS := -Wall -O3 -std=c99 -march=native --coverage -g
+CXXFLAGS := -Wall -O0 -std=c99 -march=native --coverage -g
 
 PROG := libssa libssa_check libssa_example
 
@@ -83,6 +85,7 @@ libssa_example : init libssa ./src/libssa_example.o
 clean:
 	rm -f $(OBJS) $(TESTS) $(TO_CLEAN) $(PROG) libsdb.a gmon.out
 	rm -rf $(COVERAGE_DIR)
+	rm -f matrix/matrix_*.txt
 	find . -type f -name '*.gcda' -print | xargs /bin/rm -f
 	find . -type f -name '*.gcno' -print | xargs /bin/rm -f
 	find . -type f -name '*.gcov' -print | xargs /bin/rm -f

@@ -8,6 +8,7 @@
 #include "../search.h"
 
 #include "../../matrices.h"
+#include "../../util/util.h"
 
 
 int64_t full_nw( sequence * dseq, sequence * qseq, int64_t * hearray ) {
@@ -21,6 +22,10 @@ int64_t full_nw( sequence * dseq, sequence * qseq, int64_t * hearray ) {
         hearray[2 * i] = -gapO + (i + 1) * -gapE;           // H (N) scores in previous column
         hearray[2 * i + 1] = 2 * -gapO + (i + 2) * -gapE;   // E     gap values in previous column
     }
+
+#ifdef DBG_COLLECT_MATRIX
+        dbg_init_matrix_data_collection( BIT_WIDTH_64, dseq->len, qseq->len );
+#endif
 
     for( uint64_t j = 0; j < dseq->len; j++ ) {
         hep = hearray;
@@ -38,6 +43,10 @@ int64_t full_nw( sequence * dseq, sequence * qseq, int64_t * hearray ) {
                 h = f;
             if( e > h )
                 h = e;
+
+#ifdef DBG_COLLECT_MATRIX
+        dbg_add_matrix_data_64( i, j, h);
+#endif
 
             *hep = h;
 
@@ -57,6 +66,13 @@ int64_t full_nw( sequence * dseq, sequence * qseq, int64_t * hearray ) {
             hep += 2;
         }
     }
+
+#ifdef DBG_COLLECT_MATRIX
+        sequence * db_sequences = xmalloc( sizeof( sequence ) );
+        db_sequences[0] = *dseq;
+
+        dbg_print_matrices_to_file( BIT_WIDTH_64, "NW", qseq->seq, db_sequences, 1 );
+#endif
 
     return hearray[2 * qseq->len - 2];;
 }

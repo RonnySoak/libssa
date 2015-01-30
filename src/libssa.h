@@ -129,7 +129,7 @@ typedef struct {
     long align_d_start;
     long align_d_end;
 } alignment_t;
-typedef alignment_t * alignment_p;
+typedef alignment_t * alignment_p; // TODO rename in p_alignment
 
 struct alignment_list {
     alignment_p* alignments;

@@ -18,6 +18,7 @@
 
 #include "63/search_63.h"
 #include "16/search_16.h"
+#include "8/search_8.h"
 
 static p_search_data sdp = 0;
 static void (*search_func)( p_db_chunk, p_search_data, p_search_result );
@@ -100,7 +101,9 @@ void s_init( int search_type, int bit_width, p_query query, int hit_count ) {
         search_func = &search_16;
     }
     else if( bit_width == BIT_WIDTH_8 ) {
-        ffatal( "\nnot implemented yet!\n\n" );
+        search8_init_algo( search_type );
+
+        search_func = &search_8;
     }
     else {
         ffatal( "\nunknown bit width provided: %d\n\n", bit_width );

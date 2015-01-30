@@ -48,6 +48,10 @@ int64_t full_sw( sequence * dseq, sequence * qseq, int64_t * hearray ) {
     s = 0;
     memset( hearray, 0, 2 * sizeof(int64_t) * (qseq->len) );
 
+#ifdef DBG_COLLECT_MATRIX
+        dbg_init_matrix_data_collection( BIT_WIDTH_64, dseq->len, qseq->len );
+#endif
+
     for( uint64_t j = 0; j < dseq->len; j++ ) {
         hep = hearray;
         f = 0;
@@ -67,6 +71,10 @@ int64_t full_sw( sequence * dseq, sequence * qseq, int64_t * hearray ) {
             if( h > s )
                 s = h;
 
+#ifdef DBG_COLLECT_MATRIX
+        dbg_add_matrix_data_64( i, j, h);
+#endif
+
             *hep = h;
             e -= gapE;
             f -= gapE;
@@ -82,6 +90,13 @@ int64_t full_sw( sequence * dseq, sequence * qseq, int64_t * hearray ) {
             hep += 2;
         }
     }
+
+#ifdef DBG_COLLECT_MATRIX
+        sequence * db_sequences = xmalloc( sizeof( sequence ) );
+        db_sequences[0] = *dseq;
+
+        dbg_print_matrices_to_file( BIT_WIDTH_64, "SW", qseq->seq, db_sequences, 1 );
+#endif
 
     return s;
 }

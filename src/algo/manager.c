@@ -23,7 +23,7 @@
 
 static int alignment_hit_count = 0;
 
-unsigned long max_chunk_size = 1000; // TODO change and/or make it configurable
+unsigned long max_chunk_size = 11; // TODO change and/or make it configurable
 
 static void init( p_query query, int hit_count, int search_type, int bit_width ) {
     alignment_hit_count = hit_count;
@@ -81,8 +81,10 @@ p_alignment_list m_run() {
     unsigned long chunks_processed = 0;
     unsigned long db_sequences_processed = 0;
 
+    printf("start search \n" );
     wait_for_threads( (void **) &search_result_list );
 
+    printf("end search \n" );
     p_minheap search_results = minheap_init( alignment_hit_count );
     for( int i = 0; i < get_current_thread_count(); i++ ) {
         for( int j = 0; j < search_result_list[i]->heap->count; j++ ) {

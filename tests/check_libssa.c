@@ -27,6 +27,8 @@ Suite* libssa_suite(void) {
     addSmithWaterman63TC(s);
     addSmithWaterman16TC(s);
     addNeedlemanWunsch16TC(s);
+    addSmithWaterman8TC(s);
+    addNeedlemanWunsch8TC(s);
     addSearcher63TC(s);
     addSearcherTC(s);
     addAlignerTC(s);

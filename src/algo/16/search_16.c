@@ -100,7 +100,10 @@ static void search16_init_query( p_s16info s, int q_count, seq_buffer * queries 
              * q_table holds pointers to dprofile, which holds the actual query data.
              * The dprofile is filled during the search for every four columns, that are searched.
              */
-            query->q_table[j] = s->dprofile + CDEPTH_16_BIT * (int) (queries[i].seq.seq[j]);
+
+//            s->qtable[i] = s->dprofile + 4 * chrmap_4bit[(int) (qseq[i])];
+
+            query->q_table[j] = &s->dprofile[ CDEPTH_16_BIT * (int) (queries[i].seq.seq[j])];
 
         s->queries[i] = query;
     }

@@ -31,7 +31,7 @@
 static inline int elem_smaller( elem_t * a, elem_t * b ) {
     if( a->score < b->score )
         return 1;
-    return 0;
+    return a->db_id < b->db_id; // TODO we might not need this in production, just for testing purposes it might be easier having this distinction here
 }
 
 p_minheap minheap_init( int size ) {
@@ -74,6 +74,8 @@ static void minheap_replaceroot( p_minheap m, elem_t tmp ) {
 
 void minheap_add( p_minheap m, elem_t * n ) {
     if( m->count < m->alloc ) {
+//        printf( "add element: %ld, %ld, %ld\n", n->db_id, n->query_id, n->score );
+
         /* space for another item at end; swap upwards */
         int i = m->count++;
         int p = (i - 1) / 2;
@@ -85,6 +87,8 @@ void minheap_add( p_minheap m, elem_t * n ) {
         m->array[i] = *n;
     }
     else if( elem_smaller( m->array, n ) ) {
+//        printf( "add element: %ld, %ld, %ld\n", n->db_id, n->query_id, n->score );
+
         /* replace the root if new element is larger than root */
         minheap_replaceroot( m, *n );
     }

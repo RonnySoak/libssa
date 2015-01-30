@@ -58,11 +58,6 @@ START_TEST (test_nw_simd_simple)
         exit_searcher_16_test( res );
     }END_TEST
 
-START_TEST (test_nw_simd_BLOSUM62)
-    {
-        ck_abort_msg( "TODO implement this" );
-    }END_TEST
-
 START_TEST (test_nw_simd_more_sequences)
     {
         p_search_result res = setup_searcher_16_test( "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA",
@@ -82,7 +77,6 @@ START_TEST (test_nw_simd_more_sequences)
 void addNeedlemanWunsch16TC( Suite *s ) {
     TCase *tc_core = tcase_create( "NeedlemanWunsch16" );
     tcase_add_test( tc_core, test_nw_simd_simple );
-    tcase_add_test( tc_core, test_nw_simd_BLOSUM62 );
     tcase_add_test( tc_core, test_nw_simd_more_sequences );
 
     suite_add_tcase( s, tc_core );
