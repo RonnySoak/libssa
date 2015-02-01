@@ -24,11 +24,8 @@
 #include <limits.h>
 
 #include "../../util/util.h"
-#include "../../matrices.h"
 
 /*
- * is done!!
- *
  * use the range from -32768 - 0 - to 32767
  *
  * init with int16_min and add int16_max to max score
@@ -41,19 +38,13 @@
 #ifdef DBG_COLLECT_MATRIX
     static int d_idx;
 #endif
-//if(d_idx == 0 ) { \
-//    dbg_mm_print_sw_16s( "F", E );\
-//    dbg_mm_print_sw_16s( "E", F );\
-//    dbg_mm_print_16s( "V", V );\
-//    dbg_mm_print_16s( "H", H );\
-//}\
 
-#define ALIGNCORE(H, N, F, V, QR, R, S, H_MAX )                         \
+#define ALIGNCORE(H, N, F, V, QR, R, S, H_MAX )                         	   \
  H = _mm_adds_epi16(H, V);            /* add value of scoring matrix */        \
  H = _mm_max_epi16(H, F);             /* max(H, F) */                          \
  H = _mm_max_epi16(H, E);             /* max(H, E) */                          \
  S = _mm_max_epi16(H, S);             /* save max score */                     \
- H = _mm_max_epi16(H, _mm_set1_epi16( INT16_MIN ));          /* TODO do not call _mm_setzero_si128 every time*/ \
+ H = _mm_max_epi16(H, _mm_set1_epi16( INT16_MIN ));          /* TODO do not call _mm_set1_epi16( INT16_MIN ) every time*/ \
  H_MAX = _mm_max_epi16(H_MAX, H);                                              \
  N = H;                               /* save H in HE-array */                 \
  HF = _mm_subs_epi16(H, QR);          /* subtract gap open-extend */           \
@@ -68,13 +59,11 @@ static void aligncolumns_first( __m128i * Sm, __m128i * hep, __m128i ** qp, __m1
     __m128i h4, h5, h6, h7, h8, f0, f1, f2, f3, E, HE, HF;
     __m128i * vp;
 
-    __m128i VECTOR_INT16MIN = _mm_set1_epi16( INT16_MIN );
-    __m128i h_max = VECTOR_INT16MIN;
-    long i;
+    __m128i h_max = _mm_set1_epi16( INT16_MIN );
 
-    f0 = f1 = f2 = f3 = VECTOR_INT16MIN;
+    f0 = f1 = f2 = f3 = _mm_set1_epi16( INT16_MIN );
 
-    for( i = 0; i < ql; i++ ) {
+    for( long i = 0; i < ql; i++ ) {
         vp = qp[i + 0];
 
         h4 = hep[2 * i + 0];
@@ -124,13 +113,11 @@ static void aligncolumns_rest( __m128i * Sm, __m128i * hep, __m128i ** qp, __m12
     __m128i h4, h5, h6, h7, h8, f0, f1, f2, f3, E, HE, HF;
     __m128i * vp;
 
-    __m128i VECTOR_INT16MIN = _mm_set1_epi16( INT16_MIN );
-    __m128i h_max = VECTOR_INT16MIN;
-    long i;
+    __m128i h_max = _mm_set1_epi16( INT16_MIN );
 
-    f0 = f1 = f2 = f3 = VECTOR_INT16MIN;
+    f0 = f1 = f2 = f3 = _mm_set1_epi16( INT16_MIN );
 
-    for( i = 0; i < ql; i++ ) {
+    for( long i = 0; i < ql; i++ ) {
         vp = qp[i + 0];
 
         h4 = hep[2 * i + 0];
@@ -168,14 +155,13 @@ static void check_min_max( uint8_t overflow[CHANNELS_16_BIT], __m128i h_max, int
             _mm_storeu_si128( (__m128i *) h_max_array, h_max );
             int16_t h_max_c = h_max_array[c];
             if( h_max_c >= score_max ) {
-                printf("h_max: %d\n", h_max_c);
                 overflow[c] = 1;
             }
         }
     }
 }
 
-void search_16_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, int q_id ) {
+void search_16_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * overflow_list, int q_id ) {
 
 #ifdef DBG_COLLECT_MATRIX
         dbg_init_matrix_data_collection( BIT_WIDTH_16, s->maxdlen + CDEPTH_16_BIT, s->maxqlen );
@@ -211,13 +197,19 @@ void search_16_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, int q_id ) {
 
     __m128i VECTOR_INT16MIN = _mm_set1_epi16( INT16_MIN );
 
+    /*
+     * TODO if we compile with optimization -O3 this instruction gets optimized in a way,
+     * such that it cannot be processed by valgrind. The more optimal instruction is not
+     * yet implemented in valgrind.
+     */
     T0 = _mm_set_epi16( 0, 0, 0, 0, 0, 0, 0, INT16_MAX );
-    S.v = VECTOR_INT16MIN;
 
-    hep = s->hearray;
+    S.v = VECTOR_INT16MIN;
 
     gap_open_extend = _mm_set1_epi16( s->penalty_gap_open + s->penalty_gap_extension );
     gap_extend = _mm_set1_epi16( s->penalty_gap_extension );
+
+    hep = s->hearray;
 
     for( int c = 0; c < CHANNELS_16_BIT; c++ ) {
         d_begin[c] = 0;
@@ -239,11 +231,7 @@ void search_16_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, int q_id ) {
 
     int no_sequences_ended = 0;
 
-    /*
-     * TODO convert infinite loop into a loop with a condition
-     */
     while( 1 ) {
-
         /*
          * TODO If there are less sequences, as channels, this loop switches constantly between
          * the states "sequences ended" and "no sequences ended". Check if it is possible, to "disable"
@@ -291,44 +279,32 @@ void search_16_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, int q_id ) {
 
                         long score = S.a[c] + -INT16_MIN; // convert score back to range from 0 - 65535
 
-                        if( overflow[c] ) {
-                            printf( "\nWARNING! Alignment overflow!\n" );
-                            printf( "Seqid: %lu, score: %ld\n", d_seq_ptr[c]->ID, score );
-
-                            printf("overflow[c]: %d\n", overflow[c]);
-                            overflow[c] = 0;
-                        }
-
-                        if( (score >= 0) && (score < UINT16_MAX) ) {
+                        if( !overflow[c] && (score >= 0) && (score < UINT16_MAX) ) {
                             /* Alignments, with a score equal to the current lowest score in the
                              heap are ignored! */
                             add_to_minheap( heap, q_id, d_seq_ptr[c], score );
                         }
                         else {
-                            // TODO else report recalculation
-                            printf( "\n\nscore out of range: %ld\n\n", score );
+                            if( *overflow_list ) {
+                                ll_push( overflow_list, d_seq_ptr[c] );
+                            }
+                            else {
+                                *overflow_list = ll_init( d_seq_ptr[c] );
+                            }
+
+                            overflow[c] = 0;
                         }
 
                         done++;
                     }
 
                     if( next_id < chunk->fill_pointer ) {
-                        char* address;
-                        long length = 0; // TODO do we need this check for length > 0 ? Without it, the speed drops drastically ...
-
                         /* get next sequence with length>0 */
 
-                        while( (length == 0) && (next_id < chunk->fill_pointer) ) {
-                            d_seq_ptr[c] = chunk->seq[next_id];
+                        d_seq_ptr[c] = chunk->seq[next_id++];
 
-                            address = d_seq_ptr[c]->seq.seq;
-                            length = d_seq_ptr[c]->seq.len;
-
-                            next_id++;
-                        }
-
-                        d_begin[c] = (unsigned char*) address;
-                        d_end[c] = (unsigned char*) address + length;
+                        d_begin[c] = (unsigned char*) d_seq_ptr[c]->seq.seq;
+                        d_end[c] = (unsigned char*) d_seq_ptr[c]->seq.seq + d_seq_ptr[c]->seq.len;
 
                         no_sequences_ended = fill_channel_16( c, d_begin, d_end, dseq );
                     }

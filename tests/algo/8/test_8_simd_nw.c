@@ -66,17 +66,15 @@ START_TEST (test_nw_simd_more_sequences)
         p_minheap heap = res->heap;
 
         ck_assert_int_eq( -43, heap->array[0].score );
-        ck_assert_int_eq( -50, heap->array[1].score );
-        ck_assert_int_eq( -52, heap->array[2].score );
-        ck_assert_int_eq( -52, heap->array[3].score );
         /*
          * The 8 bit NW implementation has an underflow here, that effects the overall score.
          *
-         * The other alignments also have underflows, but without any effect on the overall score.
-         *
          * TODO test correct reporting of over-/underflows
          */
-        ck_assert_int_eq( -126, heap->array[4].score );
+        ck_assert_int_eq( -50, heap->array[1].score );
+        ck_assert_int_eq( -52, heap->array[2].score );
+        ck_assert_int_eq( -52, heap->array[3].score );
+        ck_assert_int_eq( -147, heap->array[4].score );
 
         exit_searcher_8_test( res );
     }END_TEST

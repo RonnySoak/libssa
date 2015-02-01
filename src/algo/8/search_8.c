@@ -5,18 +5,20 @@
  *      Author: Jakob Frielingsdorf
  */
 
+#include "search_8.h"
+
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
 
 #include "../searcher.h"
-#include "../../util/minheap.h"
 #include "../../util/util.h"
+#include "../../util/linked_list.h"
 #include "../../db_iterator.h"
 #include "../../matrices.h"
-#include "search_8.h"
+#include "../16/search_16.h"
 
-static void (*search_algo)( p_s8info, p_db_chunk, p_minheap, int );
+static void (*search_algo)( p_s8info, p_db_chunk, p_minheap, p_node *, int );
 
 void search8_init_algo( int search_type ) {
     if( search_type == SMITH_WATERMAN ) {
@@ -50,6 +52,8 @@ static p_s8info search8_init() {
     s->penalty_gap_open = gapO;
     s->penalty_gap_extension = gapE;
 
+    s->s16info = 0;
+
     return s;
 }
 
@@ -57,7 +61,8 @@ static void free_query( p_s8query query ) {
     if( query ) {
         free( query->q_table );
         query->q_len = 0;
-        query = 0;
+
+        free( query );
     }
 }
 
@@ -70,6 +75,11 @@ static void search8_exit( p_s8info s ) {
 
     for( int i = 0; i < s->q_count; i++ ) {
         free_query( s->queries[i] );
+    }
+    s->q_count = 0;
+
+    if( s->s16info ) {
+        search16_exit( s->s16info );
     }
 
     free( s );
@@ -117,6 +127,10 @@ void dprofile_fill8( int8_t * dprofile, uint8_t * dseq ) {
 
     // 4 x 16 db symbols
     // ca (60x2+68x2)x4 = 976 instructions
+
+    /*
+     * TODO try to optimize, this is only the old code from SWIPE/SWARM
+     */
 
     for( int j = 0; j < CDEPTH_8_BIT; j++ ) {
         unsigned d[CHANNELS_8_BIT];
@@ -413,10 +427,33 @@ void dprofile_fill8( int8_t * dprofile, uint8_t * dseq ) {
 static unsigned long search_chunk( p_s8info s8info, p_minheap heap, p_db_chunk chunk, p_search_data sdp ) {
     unsigned long searches_done = 0;
 
+    p_node overflow_list = 0;
+
     for( int q_id = 0; q_id < sdp->q_count; q_id++ ) {
-        search_algo( s8info, chunk, heap, q_id );
+        search_algo( s8info, chunk, heap, &overflow_list, q_id );
 
         searches_done += chunk->fill_pointer;
+    }
+
+    if( overflow_list ) {
+        printf( "Overflow detected: re-aligning %ld sequences with 16 bit\n", ll_size( overflow_list ) );
+
+        if( !s8info->s16info ) {
+            s8info->s16info = search_16_init( sdp );
+        }
+
+        p_search_result res = xmalloc( sizeof( struct search_result ) );
+        res->heap = heap;
+        res->chunk_count = 0;
+        res->seq_count = 0;
+
+        p_db_chunk overflow_chunk = convert_to_chunk( overflow_list );
+
+        search_16_chunk( s8info->s16info, heap, overflow_chunk, sdp );
+
+        free( overflow_chunk->seq );
+        free( overflow_chunk );
+        free( res );
     }
 
     return searches_done;

@@ -15,6 +15,7 @@
 #include <string.h>
 
 #include "util.h"
+#include "../db_iterator.h"
 
 FILE* out_file;
 
@@ -94,6 +95,10 @@ void add_to_minheap( p_minheap heap, int query_id, p_sdb_sequence db_seq, long s
     e->dstrand = db_seq->strand;
     e->score = score;
 
+#ifdef DBG_COLLECT_ALIGNED_DB_SEQUENCES
+    dbg_add_aligned_sequence( db_seq->ID, query_id, score );
+#endif
+
     /* Alignments, with a score equal to the current lowest score in the
      heap are ignored! */
     minheap_add( heap, e );
@@ -105,6 +110,20 @@ void add_to_minheap( p_minheap heap, int query_id, p_sdb_sequence db_seq, long s
      * This means, we can and should free e here!
      */
     free( e );
+}
+
+p_db_chunk convert_to_chunk( p_node linked_list ) {
+    p_node node = linked_list;
+
+    unsigned long size = ll_size( node );
+
+    p_db_chunk chunk = it_alloc_chunk( size );
+
+    while( node ) {
+        chunk->seq[chunk->fill_pointer++] = ll_pop( &node );
+    }
+
+    return chunk;
 }
 
 #endif /* DATA_H_ */

@@ -34,7 +34,7 @@
  */
 
 #ifdef DBG_COLLECT_MATRIX
-    static int d_idx = 0;
+    static int d_idx;
 #endif
 
 #define ALIGNCORE(H, N, F, V, QR, R, H_MIN, H_MAX)                            \
@@ -206,7 +206,7 @@ static void check_min_max( uint8_t overflow[CHANNELS_8_BIT], __m128i h_min, __m1
     }
 }
 
-void search_8_nw( p_s8info s, p_db_chunk chunk, p_minheap heap, int q_id ) {
+void search_8_nw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * overflow_list, int q_id ) {
 
 #ifdef DBG_COLLECT_MATRIX
         dbg_init_matrix_data_collection( BIT_WIDTH_16, s->maxdlen + CDEPTH_8_BIT, s->maxqlen );
@@ -240,8 +240,8 @@ void search_8_nw( p_s8info s, p_db_chunk chunk, p_minheap heap, int q_id ) {
 
     uint8_t * dseq = (uint8_t*) &dseqalloc;
 
-    long next_id = 0;
-    long done = 0;
+    unsigned long next_id = 0;
+    unsigned long done = 0;
 
     T0 = _mm_set_epi8( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff );
 
@@ -278,9 +278,6 @@ void search_8_nw( p_s8info s, p_db_chunk chunk, p_minheap heap, int q_id ) {
 
     int no_sequences_ended = 0;
 
-    /*
-     * TODO convert infinite loop into a loop with a condition
-     */
     while( 1 ) {
         if( no_sequences_ended ) {
             /* fill all channels with symbols from the database sequences */
@@ -323,44 +320,36 @@ void search_8_nw( p_s8info s, p_db_chunk chunk, p_minheap heap, int q_id ) {
                         long z = (d_length[c] + 3) % 4;
                         long score = S.a[z * CHANNELS_8_BIT + c];
 
-                        if( overflow[c] ) {
-                            printf( "\nWARNING! Global alignment overflow! Seqid: %lu, length: %lu, score: %ld\n",
-                                    d_seq_ptr[c]->ID, d_length[c], score );
-
-                            overflow[c] = 0;
-                        }
-
-                        if( (score > INT8_MIN) && (score < INT8_MAX) ) {
+                        if( !overflow[c] && (score > INT8_MIN) && (score < INT8_MAX) ) {
                             /* Alignments, with a score equal to the current lowest score in the
                              heap are ignored! */
                             add_to_minheap( heap, q_id, d_seq_ptr[c], score );
                         }
                         else {
-                            // TODO else report recalculation
-                            printf( "\n\nscore out of range: %ld\n\n", score );
+//                            printf( "\nWARNING: overflow in 8 bit global alignment!\n" );
+
+                            if( *overflow_list ) {
+                                ll_push( overflow_list, d_seq_ptr[c] );
+                            }
+                            else {
+                                *overflow_list = ll_init( d_seq_ptr[c] );
+                            }
+
+                            overflow[c] = 0;
                         }
 
                         done++;
                     }
 
                     if( next_id < chunk->fill_pointer ) {
-                        char* address;
-                        long length = 0; // TODO do we need this check for length > 0 ? Without it, the speed drops drastically ...
-
                         /* get next sequence with length>0 */
 
-                        while( (length == 0) && (next_id < chunk->fill_pointer) ) {
-                            d_seq_ptr[c] = chunk->seq[next_id];
+                        d_seq_ptr[c] = chunk->seq[next_id++];
 
-                            address = d_seq_ptr[c]->seq.seq;
-                            length = d_seq_ptr[c]->seq.len;
+                        d_length[c] = d_seq_ptr[c]->seq.len;
+                        d_begin[c] = (unsigned char*) d_seq_ptr[c]->seq.seq;
+                        d_end[c] = (unsigned char*) d_seq_ptr[c]->seq.seq + d_seq_ptr[c]->seq.len;
 
-                            next_id++;
-                        }
-
-                        d_length[c] = length;
-                        d_begin[c] = (unsigned char*) address;
-                        d_end[c] = (unsigned char*) address + length;
 
                         ((int8_t*) &H0)[c] = 0;
                         ((int8_t*) &H1)[c] = -s->penalty_gap_open - 1 * s->penalty_gap_extension;

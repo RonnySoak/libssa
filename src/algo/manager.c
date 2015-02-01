@@ -23,7 +23,7 @@
 
 static int alignment_hit_count = 0;
 
-unsigned long max_chunk_size = 11; // TODO change and/or make it configurable
+unsigned long max_chunk_size = 1000; // TODO change and/or make it configurable
 
 static void init( p_query query, int hit_count, int search_type, int bit_width ) {
     alignment_hit_count = hit_count;
@@ -33,6 +33,14 @@ static void init( p_query query, int hit_count, int search_type, int bit_width )
     a_init_data( search_type );
 
     it_init( max_chunk_size );
+
+#ifdef DBG_COLLECT_ALIGNED_DB_SEQUENCES
+    char * desc = xmalloc( 14 );
+    sprintf( desc,"%d_bit_type_%d", bit_width, search_type );
+
+    // TODO works only for non translated sequences
+    dbg_init_aligned_sequence_collecting( desc, ssa_db_get_sequence_count() );
+#endif
 }
 
 void init_for_sw( p_query query, int hit_count, int bit_width ) {
@@ -81,10 +89,12 @@ p_alignment_list m_run() {
     unsigned long chunks_processed = 0;
     unsigned long db_sequences_processed = 0;
 
-    printf("start search \n" );
     wait_for_threads( (void **) &search_result_list );
 
-    printf("end search \n" );
+#ifdef DBG_COLLECT_ALIGNED_DB_SEQUENCES
+    dbg_print_aligned_sequences();
+#endif
+
     p_minheap search_results = minheap_init( alignment_hit_count );
     for( int i = 0; i < get_current_thread_count(); i++ ) {
         for( int j = 0; j < search_result_list[i]->heap->count; j++ ) {

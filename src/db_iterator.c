@@ -190,11 +190,17 @@ void it_free_chunk( p_db_chunk chunk ) {
     }
 }
 
-p_db_chunk it_new_chunk() {
+p_db_chunk it_alloc_chunk( unsigned long size ) {
     p_db_chunk chunk = xmalloc( sizeof(struct db_chunk) );
     chunk->fill_pointer = 0;
-    chunk->size = chunk_db_seq_count * buffer_max;
+    chunk->size = size;
     chunk->seq = xmalloc( chunk->size * sizeof(p_sdb_sequence) );
+
+    return chunk;
+}
+
+p_db_chunk it_init_new_chunk() {
+    p_db_chunk chunk = it_alloc_chunk( chunk_db_seq_count * buffer_max );
 
     for( int i = 0; i < chunk->size; ++i ) {
         chunk->seq[i] = xmalloc( sizeof(sdb_sequence) );
@@ -231,6 +237,10 @@ void it_next_chunk( p_db_chunk chunk ) {
 
         if( !db_seq ) {
             break;
+        }
+
+        if( db_seq->seqlen == 0 ) {
+            continue;
         }
 
         set_translated_sequences( db_seq, chunk->seq + chunk->fill_pointer );

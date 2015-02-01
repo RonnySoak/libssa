@@ -81,7 +81,7 @@ START_TEST (test_next_empty)
 
         it_init( 1 );
 
-        p_db_chunk chunk = it_new_chunk();
+        p_db_chunk chunk = it_init_new_chunk();
         it_next_chunk( chunk );
         ck_assert_int_eq( 0, chunk->fill_pointer );
 
@@ -97,7 +97,7 @@ START_TEST (test_next_one_nuc_forward)
 
         it_init( 1 );
 
-        p_db_chunk chunk = it_new_chunk();
+        p_db_chunk chunk = it_init_new_chunk();
         it_next_chunk( chunk );
         ck_assert_int_eq( 1, chunk->fill_pointer );
 
@@ -127,7 +127,7 @@ START_TEST (test_next_one_nuc_both)
         query_strands = BOTH_STRANDS;
         it_init( 1 );
 
-        p_db_chunk chunk = it_new_chunk();
+        p_db_chunk chunk = it_init_new_chunk();
         it_next_chunk( chunk );
 
         ck_assert_int_eq( 2, chunk->fill_pointer );
@@ -171,7 +171,7 @@ START_TEST (test_next_one_db_translate_forward)
 
         it_init( 3 );
 
-        p_db_chunk chunk = it_new_chunk();
+        p_db_chunk chunk = it_init_new_chunk();
         it_next_chunk( chunk );
 
         ck_assert_int_eq( 3, chunk->fill_pointer );
@@ -221,7 +221,7 @@ START_TEST (test_next_one_db_translate_both)
 
         it_init( 6 );
 
-        p_db_chunk chunk = it_new_chunk();
+        p_db_chunk chunk = it_init_new_chunk();
         it_next_chunk( chunk );
 
         ck_assert_int_eq( 6, chunk->fill_pointer );
@@ -295,7 +295,7 @@ START_TEST (test_next_chunk)
 
         it_init( chunk_size );
 
-        p_db_chunk chunk = it_new_chunk();
+        p_db_chunk chunk = it_init_new_chunk();
 
         it_next_chunk( chunk );
 

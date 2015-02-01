@@ -38,7 +38,7 @@
  */
 
 #ifdef DBG_COLLECT_MATRIX
-    static int d_idx = 0;
+    static int d_idx;
 #endif
 
 #define ALIGNCORE(H, N, F, V, QR, R, S, H_MAX )                         \
@@ -167,8 +167,7 @@ static void check_min_max( uint8_t overflow[CHANNELS_8_BIT], __m128i h_max, int8
     }
 }
 
-void search_8_sw( p_s8info s, p_db_chunk chunk, p_minheap heap, int q_id ) {
-
+void search_8_sw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * overflow_list, int q_id ) {
 #ifdef DBG_COLLECT_MATRIX
         dbg_init_matrix_data_collection( BIT_WIDTH_16, s->maxdlen + CDEPTH_8_BIT, s->maxqlen );
 
@@ -206,10 +205,10 @@ void search_8_sw( p_s8info s, p_db_chunk chunk, p_minheap heap, int q_id ) {
     T0 = _mm_set_epi8( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, INT8_MAX );
     S.v = VECTOR_INT8MIN;
 
-    hep = s->hearray;
-
     gap_open_extend = _mm_set1_epi8( s->penalty_gap_open + s->penalty_gap_extension );
     gap_extend = _mm_set1_epi8( s->penalty_gap_extension );
+
+    hep = s->hearray;
 
     for( int c = 0; c < CHANNELS_8_BIT; c++ ) {
         d_begin[c] = 0;
@@ -231,19 +230,7 @@ void search_8_sw( p_s8info s, p_db_chunk chunk, p_minheap heap, int q_id ) {
 
     int no_sequences_ended = 0;
 
-    /*
-     * TODO convert infinite loop into a loop with a condition
-     */
     while( 1 ) {
-
-        /*
-         * TODO If there are less sequences, as channels, this loop switches constantly between
-         * the states "sequences ended" and "no sequences ended". Check if it is possible, to "disable"
-         * the "sequence ended" checks, for these unused channels.
-         *
-         * TODO same for NW implementation! Check if it is possible, to merge NW and SW implementations.
-         */
-
         if( no_sequences_ended ) {
             /* fill all channels with symbols from the database sequences */
 
@@ -283,43 +270,32 @@ void search_8_sw( p_s8info s, p_db_chunk chunk, p_minheap heap, int q_id ) {
 
                         long score = S.a[c] + -INT8_MIN; // convert score back to range from 0 - 65535
 
-                        if( overflow[c] ) {
-                            printf( "WARNING! Local alignment overflow! Seqid: %lu, length: %lu, score: %ld\n",
-                                    d_seq_ptr[c]->ID, score );
-
-                            overflow[c] = 0;
-                        }
-
-                        if( (score >= 0) && (score < UINT8_MAX) ) {
+                        if( !overflow[c] && (score >= 0) && (score < UINT8_MAX) ) {
                             /* Alignments, with a score equal to the current lowest score in the
                              heap are ignored! */
                             add_to_minheap( heap, q_id, d_seq_ptr[c], score );
                         }
                         else {
-                            // TODO else report recalculation
-                            printf( "\n\nscore out of range: %ld\n\n", score );
+                            if( *overflow_list ) {
+                                ll_push( overflow_list, d_seq_ptr[c] );
+                            }
+                            else {
+                                *overflow_list = ll_init( d_seq_ptr[c] );
+                            }
+
+                            overflow[c] = 0;
                         }
 
                         done++;
                     }
 
                     if( next_id < chunk->fill_pointer ) {
-                        char* address;
-                        long length = 0; // TODO do we need this check for length > 0 ? Without it, the speed drops drastically ...
-
                         /* get next sequence with length>0 */
 
-                        while( (length == 0) && (next_id < chunk->fill_pointer) ) {
-                            d_seq_ptr[c] = chunk->seq[next_id];
+                        d_seq_ptr[c] = chunk->seq[next_id++];
 
-                            address = d_seq_ptr[c]->seq.seq;
-                            length = d_seq_ptr[c]->seq.len;
-
-                            next_id++;
-                        }
-
-                        d_begin[c] = (unsigned char*) address;
-                        d_end[c] = (unsigned char*) address + length;
+                        d_begin[c] = (unsigned char*) d_seq_ptr[c]->seq.seq;
+                        d_end[c] = (unsigned char*) d_seq_ptr[c]->seq.seq + d_seq_ptr[c]->seq.len;
 
                         no_sequences_ended = fill_channel_8( c, d_begin, d_end, dseq );
                     }

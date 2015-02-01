@@ -13,6 +13,7 @@
 
 #include "../../libssa_datatypes.h"
 #include "../../util/minheap.h"
+#include "../../util/linked_list.h"
 
 #define CHANNELS_16_BIT 8
 #define CDEPTH_16_BIT 4
@@ -42,17 +43,21 @@ struct s16info {
 typedef struct s16info * p_s16info;
 
 void search16_init_algo( int search_type );
+p_s16info search_16_init( p_search_data sdp );
+
+void search16_exit( p_s16info s );
 
 void dprofile_fill16( int16_t * dprofile, uint8_t * dseq );
 
 int fill_channel_16( int c, uint8_t* d_begin[CHANNELS_16_BIT], uint8_t* d_end[CHANNELS_16_BIT], uint8_t* dseq );
 
-void search_16_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, int query_id );
+void search_16_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * overflow_list, int query_id );
 
-void search_16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, int query_id );
+void search_16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * overflow_list, int query_id );
 
 void search16_nw_sellers( p_s16info s, p_db_chunk chunk, p_minheap heap, int query_id );
 
+unsigned long search_16_chunk( p_s16info s16info, p_minheap heap, p_db_chunk chunk, p_search_data sdp );
 void search_16( p_db_chunk chunk, p_search_data sdp, p_search_result res );
 
 #endif /* SEARCH_16_H_ */

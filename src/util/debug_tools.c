@@ -13,6 +13,7 @@
 
 #include "util_sequence.h"
 #include "util.h"
+#include "linked_list.h"
 #include "../matrices.h"
 
 static int16_t ** matrix = 0;
@@ -78,7 +79,7 @@ void dbg_add_matrix_data_128_8_sw( int q_idx, int d_idx, __m128i value ) {
     _mm_storeu_si128( (__m128i *) data, value );
 
     for( int x = 0; x < matrix_count; ++x ) {
-        matrix[x][q_idx * matrix_width + d_idx] = (int16_t )data[x] + -INT8_MIN;
+        matrix[x][q_idx * matrix_width + d_idx] = (int16_t) data[x] + -INT8_MIN;
     }
 }
 
@@ -113,14 +114,13 @@ void dbg_print_matrices_to_file( int bit_width, char * algorithm, char * qseq, s
 
     for( int x = 0; x < dseq_count; ++x ) {
         char * file_name = xmalloc( 40 );
-        sprintf( file_name, "matrix/matrix_%s_%s.txt", bit_string, algorithm );
+        sprintf( file_name, "debug_output/matrix_%s_%s.txt", bit_string, algorithm );
 
         FILE *f = fopen( file_name, "a" );
         if( f == NULL ) {
             printf( "Error opening file!\n" );
             exit( 1 );
         }
-
 
         free( file_name );
         // first line seq1
@@ -149,6 +149,56 @@ void dbg_print_matrices_to_file( int bit_width, char * algorithm, char * qseq, s
         free( matrix[x] );
     }
     free( matrix );
+}
+
+static char * aligned_sequence_collection_desc = 0;
+static p_minheap aligned_sequences = 0;
+
+void dbg_init_aligned_sequence_collecting( char * desc, int size ) {
+    aligned_sequence_collection_desc = desc;
+
+    aligned_sequences = minheap_init( size );
+}
+
+void dbg_add_aligned_sequence( unsigned long db_id, int query_id, long score ) {
+    if( aligned_sequence_collection_desc ) {
+        elem_t * e = xmalloc( sizeof(elem_t) );
+        e->query_id = query_id;
+        e->db_id = db_id;
+        e->score = score;
+
+        minheap_add( aligned_sequences, e );
+    }
+}
+
+void dbg_print_aligned_sequences() {
+    if( aligned_sequences ) {
+        char * file_name = calloc( 50, 1 );
+        sprintf( file_name, "debug_output/aligned_sequences_%s.txt", aligned_sequence_collection_desc );
+
+        FILE * f = fopen( file_name, "a" );
+        if( f == NULL ) {
+            printf( "Error opening file!\n" );
+            exit( 1 );
+        }
+        free( file_name );
+
+        minheap_sort( aligned_sequences );
+
+        for (int i = 0; i < aligned_sequences->count; ++i) {
+            elem_t data = aligned_sequences->array[i];
+
+            fprintf( f, "DB-ID %ld, query-ID: %d, score: %ld\n", data.db_id, data.query_id, data.score );
+        }
+        fclose( f );
+    }
+
+    minheap_exit( aligned_sequences );
+    aligned_sequences = 0;
+
+    if( aligned_sequence_collection_desc )
+        free( aligned_sequence_collection_desc );
+    aligned_sequence_collection_desc = 0;
 }
 
 void dbg_mm_print_8u( char * desc, __m128i x ) {

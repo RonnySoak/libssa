@@ -45,22 +45,22 @@ int main( int argc, char**argv ) {
 
 //    init_db_fasta("tests/testdata/test.fas");
 //    init_db_fasta("tests/testdata/test_16_seq.fas");
-//    init_db_fasta( "tests/testdata/AF091148.fas" );
-    init_db_fasta( "tests/testdata/AF091148_selection.fas" );
+    init_db_fasta( "tests/testdata/AF091148.fas" );
+//    init_db_fasta( "tests/testdata/AF091148_selection.fas" );
 //    init_db_fasta("tests/testdata/Rfam_11_0.fasta");
 
     p_query query = init_sequence_fasta( "tests/testdata/one_seq.fas" );
 
-    int hit_count = 5;
+    int hit_count = 10;
 
     do_alignment( "Do local alignment using 64 bit Smith-Waterman", &sw_align, query, hit_count, BIT_WIDTH_64 );
-//    do_alignment( "Do global alignment using 64 bit Needleman-Wunsch", &nw_align, query, hit_count, BIT_WIDTH_64 );
+    do_alignment( "Do global alignment using 64 bit Needleman-Wunsch", &nw_align, query, hit_count, BIT_WIDTH_64 );
 
     do_alignment( "Do local alignment using 16 bit Smith-Waterman", &sw_align, query, hit_count, BIT_WIDTH_16 );
-//    do_alignment( "Do global alignment using 16 bit Needleman-Wunsch", &nw_align, query, hit_count, BIT_WIDTH_16 );
+    do_alignment( "Do global alignment using 16 bit Needleman-Wunsch", &nw_align, query, hit_count, BIT_WIDTH_16 );
 
-//    do_alignment( "Do local alignment using 8 bit Smith-Waterman", &sw_align, query, hit_count, BIT_WIDTH_8 );
-//    do_alignment( "Do global alignment using 8 bit Needleman-Wunsch", &nw_align, query, hit_count, BIT_WIDTH_8 );
+    do_alignment( "Do local alignment using 8 bit Smith-Waterman", &sw_align, query, hit_count, BIT_WIDTH_8 );
+    do_alignment( "Do global alignment using 8 bit Needleman-Wunsch", &nw_align, query, hit_count, BIT_WIDTH_8 );
 
     free_db();
     free_sequence( query );

@@ -49,9 +49,9 @@
 #define COMPLEMENTARY_STRAND 2 // uses both strands, but translates only the complementary one
 #define BOTH_STRANDS 3 // uses both strands and translates both to amino acids
 
-#define BIT_WIDTH_8 0
-#define BIT_WIDTH_16 1
-#define BIT_WIDTH_64 2
+#define BIT_WIDTH_8 8
+#define BIT_WIDTH_16 16
+#define BIT_WIDTH_64 64
 
 // #############################################################################
 // Data types

@@ -90,24 +90,27 @@ seq_buffer s_get_query( int idx ) {
 }
 
 void s_init( int search_type, int bit_width, p_query query, int hit_count ) {
+    /*
+     * Here we initialize all algorithms, to use them as fallbacks if one overflows.
+     *
+     * Although all are initialized, the main algorithm is the one specified.
+     */
     if( bit_width == BIT_WIDTH_64 ) {
-        search63_init_algo( search_type );
-
         search_func = &search_63;
     }
     else if( bit_width == BIT_WIDTH_16 ) {
-        search16_init_algo( search_type );
-
         search_func = &search_16;
     }
     else if( bit_width == BIT_WIDTH_8 ) {
-        search8_init_algo( search_type );
-
         search_func = &search_8;
     }
     else {
         ffatal( "\nunknown bit width provided: %d\n\n", bit_width );
     }
+
+    search63_init_algo( search_type );
+    search16_init_algo( search_type );
+    search8_init_algo( search_type );
 
     sdp = s_create_searchdata( query, hit_count );
 }
@@ -147,7 +150,7 @@ void * s_search( void * not_used ) {
     res->chunk_count = 0;
     res->seq_count = 0;
 
-    p_db_chunk chunk = it_new_chunk();
+    p_db_chunk chunk = it_init_new_chunk();
 
     search_func( chunk, sdp, res );
 

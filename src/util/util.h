@@ -15,6 +15,7 @@
 #include "../libssa.h"
 #include "../libssa_datatypes.h"
 #include "minheap.h"
+#include "linked_list.h"
 
 #include "debug_tools.h" // TODO remove or let it stay?!
 
@@ -53,5 +54,7 @@ void outf( const char* format, ... );
 char *strdup( const char *str );
 
 void add_to_minheap( p_minheap heap, int query_id, p_sdb_sequence db_seq, long score );
+
+p_db_chunk convert_to_chunk( p_node linked_list );
 
 #endif /* UTIL_H_ */
