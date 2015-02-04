@@ -97,7 +97,16 @@ static void search16_init_query( p_s16info s, int q_count, seq_buffer * queries 
     memset( s->hearray, 0, 2 * s->maxqlen * sizeof(__m128i ) );
 }
 
-void dprofile_fill16( int16_t * dprofile, uint8_t * dseq ) {
+/*
+ * dseq_search_window: CDEPTH_16_BIT x 128 bit
+ *  - contains CDEPTH_16_BIT symbols of each DB sequence in all channels
+ *
+ * dprofile: sizeof(int16_t) * CDEPTH_16_BIT * CHANNELS_16_BIT * SCORE_MATRIX_DIM
+ *  - contains the values accessed by the pointers in s16info->qtable
+ *  - for each symbol of the CDEPTH_16_BIT symbols of each DB sequence, it contains the
+ *      corresponding score matrix line
+ */
+void dprofile_fill16( int16_t * dprofile, uint8_t * dseq_search_window ) {
     __m128i xmm0, xmm1, xmm2, xmm3, xmm4, xmm5, xmm6, xmm7;
     __m128i xmm8, xmm9, xmm10, xmm11, xmm12, xmm13, xmm14, xmm15;
 
@@ -116,8 +125,9 @@ void dprofile_fill16( int16_t * dprofile, uint8_t * dseq ) {
 
     for( int j = 0; j < CDEPTH_16_BIT; j++ ) {
         int d[CHANNELS_16_BIT];
+
         for( int z = 0; z < CHANNELS_16_BIT; z++ )
-            d[z] = dseq[j * CHANNELS_16_BIT + z] << 5;
+            d[z] = dseq_search_window[j * CHANNELS_16_BIT + z] << 5;
 
         for( int i = 0; i < SCORE_MATRIX_DIM; i += 8 ) {
             xmm0 = _mm_load_si128( (__m128i *) (score_matrix_16 + d[0] + i) );

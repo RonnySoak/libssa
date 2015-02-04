@@ -49,7 +49,7 @@ void search16_exit( p_s16info s );
 
 void dprofile_fill16( int16_t * dprofile, uint8_t * dseq );
 
-int fill_channel_16( int c, uint8_t* d_begin[CHANNELS_16_BIT], uint8_t* d_end[CHANNELS_16_BIT], uint8_t* dseq );
+int move_db_sequence_window_16( int c, uint8_t* d_begin[CHANNELS_16_BIT], uint8_t* d_end[CHANNELS_16_BIT], uint8_t* dseq_search_window );
 
 void search_16_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * overflow_list, int query_id );
 

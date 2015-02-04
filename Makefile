@@ -14,6 +14,7 @@ TESTS :=
 TO_CLEAN := libssa.a src/libssa_example.o
 
 COVERAGE_DIR = coverage_data
+DEBUG_OUTPUT_DIR = debug_output
 
 # All of the sources participating in the build are defined here
 -include tests/subdir.mk
@@ -43,7 +44,7 @@ TEST_LIBS := -lcheck -lrt
 
 # GNU options
 CXX := gcc
-CXXFLAGS := -Wall -O0 -std=c99 -march=native --coverage -g
+CXXFLAGS := -Wall -O3 -std=c99 -msse4 --coverage -g
 
 PROG := libssa libssa_check libssa_example
 
@@ -60,6 +61,7 @@ all : init $(PROG)
 init:
 	@echo 'Copying file libsdb.a'
 	cp ../libsdb/libsdb.a .
+	mkdir -p $(DEBUG_OUTPUT_DIR)
 
 libssa : init $(OBJS) $(USR_OBJS) $(DEPS)
 	@echo 'Building target: $@'
@@ -85,7 +87,7 @@ libssa_example : init libssa ./src/libssa_example.o
 clean:
 	rm -f $(OBJS) $(TESTS) $(TO_CLEAN) $(PROG) libsdb.a gmon.out
 	rm -rf $(COVERAGE_DIR)
-	rm -f matrix/matrix_*.txt
+	rm -rf $(DEBUG_OUTPUT_DIR)
 	find . -type f -name '*.gcda' -print | xargs /bin/rm -f
 	find . -type f -name '*.gcno' -print | xargs /bin/rm -f
 	find . -type f -name '*.gcov' -print | xargs /bin/rm -f

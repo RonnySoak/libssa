@@ -9,7 +9,7 @@
 
 #include <stdio.h>
 
-static void do_alignment( char * desc, p_alignment_list (* align_func)( p_query, int, int ),
+static p_alignment_list do_alignment( char * desc, p_alignment_list (* align_func)( p_query, int, int ),
         p_query query, int hit_count, int bit_width ) {
 
     printf( "%s: \n", desc );
@@ -22,21 +22,24 @@ static void do_alignment( char * desc, p_alignment_list (* align_func)( p_query,
 
         printf( "DB-ID %ld, score: %ld, cigar: %s\n", a->db_seq.ID, a->score, a->alignment );
     }
-    free_alignment( alist );
+    return alist;
+}
+
+static void cmp_alignment_lists( p_alignment_list a, p_alignment_list b, int hit_count, char * desc ) {
+    int difference = 0;
+
+    for( int i = 0; i < hit_count; ++i ) {
+        if( a->alignments[i]->score != b->alignments[i]->score
+                || a->alignments[i]->db_seq.ID != b->alignments[i]->db_seq.ID ) {
+            difference = 1;
+        }
+    }
+
+    if( difference )
+        printf( "%s differ\n", desc );
 }
 
 int main( int argc, char**argv ) {
-    /*
-     * TODO
-     *
-     * - find a saturated add for adding signed values
-     * - or add a bias to have the matrix positive and deduct that bias after adding the matrix value
-     * - check if score == MAX_INT, than we went out of bounds of our saturated operation
-     * - with the bias we have to check for MAX_INT - bias
-     * - or use signed operations and treat -MAX_INT as 0 and add the bias later on, to get the real score
-     *
-     */
-
     init_scoring( 2, -2 );
     init_gap_penalties( 1, 1 );
     init_symbol_translation( NUCLEOTIDE, FORWARD_STRAND, 3, 3 );
@@ -53,14 +56,29 @@ int main( int argc, char**argv ) {
 
     int hit_count = 10;
 
-    do_alignment( "Do local alignment using 64 bit Smith-Waterman", &sw_align, query, hit_count, BIT_WIDTH_64 );
-    do_alignment( "Do global alignment using 64 bit Needleman-Wunsch", &nw_align, query, hit_count, BIT_WIDTH_64 );
+    p_alignment_list alist_sw_64 = do_alignment( "Do local alignment using 64 bit Smith-Waterman", &sw_align, query, hit_count, BIT_WIDTH_64 );
+    p_alignment_list alist_nw_64 = do_alignment( "Do global alignment using 64 bit Needleman-Wunsch", &nw_align, query, hit_count, BIT_WIDTH_64 );
 
-    do_alignment( "Do local alignment using 16 bit Smith-Waterman", &sw_align, query, hit_count, BIT_WIDTH_16 );
-    do_alignment( "Do global alignment using 16 bit Needleman-Wunsch", &nw_align, query, hit_count, BIT_WIDTH_16 );
+    p_alignment_list alist_sw_16 = do_alignment( "Do local alignment using 16 bit Smith-Waterman", &sw_align, query, hit_count, BIT_WIDTH_16 );
+    p_alignment_list alist_nw_16 = do_alignment( "Do global alignment using 16 bit Needleman-Wunsch", &nw_align, query, hit_count, BIT_WIDTH_16 );
 
-    do_alignment( "Do local alignment using 8 bit Smith-Waterman", &sw_align, query, hit_count, BIT_WIDTH_8 );
-    do_alignment( "Do global alignment using 8 bit Needleman-Wunsch", &nw_align, query, hit_count, BIT_WIDTH_8 );
+    p_alignment_list alist_sw_8 = do_alignment( "Do local alignment using 8 bit Smith-Waterman", &sw_align, query, hit_count, BIT_WIDTH_8 );
+    p_alignment_list alist_nw_8 = do_alignment( "Do global alignment using 8 bit Needleman-Wunsch", &nw_align, query, hit_count, BIT_WIDTH_8 );
+
+    cmp_alignment_lists( alist_nw_64, alist_nw_16, hit_count, "NW_64_16" );
+    cmp_alignment_lists( alist_nw_64, alist_nw_8, hit_count, "NW_64_8" );
+    cmp_alignment_lists( alist_nw_16, alist_nw_8, hit_count, "NW_16_8" );
+    cmp_alignment_lists( alist_sw_64, alist_sw_16, hit_count, "SW_64_16" );
+    cmp_alignment_lists( alist_sw_64, alist_sw_8, hit_count, "SW_64_8" );
+    cmp_alignment_lists( alist_sw_16, alist_sw_8, hit_count, "SW_16_8" );
+
+    free_alignment( alist_nw_64 );
+    free_alignment( alist_sw_64 );
+    free_alignment( alist_nw_16 );
+    free_alignment( alist_sw_16 );
+    free_alignment( alist_nw_8 );
+    free_alignment( alist_sw_8 );
+
 
     free_db();
     free_sequence( query );

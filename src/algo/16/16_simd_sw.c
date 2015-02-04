@@ -22,6 +22,7 @@
 #include "search_16.h"
 
 #include <limits.h>
+#include <string.h>
 
 #include "../../util/util.h"
 
@@ -55,13 +56,20 @@
  E = _mm_max_epi16(E, HE);            /* test for gap extension, or opening */
 
 static void aligncolumns_first( __m128i * Sm, __m128i * hep, __m128i ** qp, __m128i gap_open_extend, __m128i gap_extend,
-        __m128i h0, __m128i h1, __m128i h2, __m128i h3, __m128i Mm, __m128i * _h_max, long ql ) {
+        __m128i Mm, __m128i * _h_max, long ql ) {
     __m128i h4, h5, h6, h7, h8, f0, f1, f2, f3, E, HE, HF;
     __m128i * vp;
 
-    __m128i h_max = _mm_set1_epi16( INT16_MIN );
+    __m128i VECTOR_INT16MIN = _mm_set1_epi16( INT16_MIN );
 
-    f0 = f1 = f2 = f3 = _mm_set1_epi16( INT16_MIN );
+    __m128i h0 = VECTOR_INT16MIN;
+    __m128i h1 = VECTOR_INT16MIN;
+    __m128i h2 = VECTOR_INT16MIN;
+    __m128i h3 = VECTOR_INT16MIN;
+
+    __m128i h_max = VECTOR_INT16MIN;
+
+    f0 = f1 = f2 = f3 = VECTOR_INT16MIN;
 
     for( long i = 0; i < ql; i++ ) {
         vp = qp[i + 0];
@@ -109,13 +117,20 @@ static void aligncolumns_first( __m128i * Sm, __m128i * hep, __m128i ** qp, __m1
 }
 
 static void aligncolumns_rest( __m128i * Sm, __m128i * hep, __m128i ** qp, __m128i gap_open_extend, __m128i gap_extend,
-        __m128i h0, __m128i h1, __m128i h2, __m128i h3,  __m128i * _h_max, long ql ) {
+        __m128i * _h_max, long ql ) {
     __m128i h4, h5, h6, h7, h8, f0, f1, f2, f3, E, HE, HF;
     __m128i * vp;
 
-    __m128i h_max = _mm_set1_epi16( INT16_MIN );
+    __m128i VECTOR_INT16MIN = _mm_set1_epi16( INT16_MIN );
 
-    f0 = f1 = f2 = f3 = _mm_set1_epi16( INT16_MIN );
+    __m128i h0 = VECTOR_INT16MIN;
+    __m128i h1 = VECTOR_INT16MIN;
+    __m128i h2 = VECTOR_INT16MIN;
+    __m128i h3 = VECTOR_INT16MIN;
+
+    __m128i h_max = VECTOR_INT16MIN;
+
+    f0 = f1 = f2 = f3 = VECTOR_INT16MIN;
 
     for( long i = 0; i < ql; i++ ) {
         vp = qp[i + 0];
@@ -183,19 +198,16 @@ void search_16_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * overf
     p_sdb_sequence d_seq_ptr[CHANNELS_16_BIT];
     uint8_t overflow[CHANNELS_16_BIT];
 
-    __m128i dseqalloc[CDEPTH_16_BIT]; // TODO remove that intermediate step
-
     union {
         __m128i v;
-        int16_t a[sizeof(__m128i )];
+        int16_t a[CHANNELS_16_BIT];
     } S;
 
-    uint8_t * dseq = (uint8_t*) &dseqalloc;
+    uint8_t dseq_search_window[CDEPTH_16_BIT * CHANNELS_16_BIT];
+    memset( dseq_search_window, 0, CDEPTH_16_BIT * CHANNELS_16_BIT );
 
     unsigned long next_id = 0;
     unsigned long done = 0;
-
-    __m128i VECTOR_INT16MIN = _mm_set1_epi16( INT16_MIN );
 
     /*
      * TODO if we compile with optimization -O3 this instruction gets optimized in a way,
@@ -203,8 +215,6 @@ void search_16_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * overf
      * yet implemented in valgrind.
      */
     T0 = _mm_set_epi16( 0, 0, 0, 0, 0, 0, 0, INT16_MAX );
-
-    S.v = VECTOR_INT16MIN;
 
     gap_open_extend = _mm_set1_epi16( s->penalty_gap_open + s->penalty_gap_extension );
     gap_extend = _mm_set1_epi16( s->penalty_gap_extension );
@@ -218,16 +228,7 @@ void search_16_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * overf
         overflow[c] = 0;
     }
 
-    for( int i = 0; i < CDEPTH_16_BIT; i++ ) {
-        dseqalloc[i] = _mm_setzero_si128();
-    }
-
     int16_t score_max = INT16_MAX;
-
-    __m128i H0 = VECTOR_INT16MIN;
-    __m128i H1 = VECTOR_INT16MIN;
-    __m128i H2 = VECTOR_INT16MIN;
-    __m128i H3 = VECTOR_INT16MIN;
 
     int no_sequences_ended = 0;
 
@@ -244,15 +245,14 @@ void search_16_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * overf
             /* fill all channels with symbols from the database sequences */
 
             for( int c = 0; c < CHANNELS_16_BIT; c++ ) {
-                no_sequences_ended = fill_channel_16( c, d_begin, d_end, dseq );
+                no_sequences_ended = move_db_sequence_window_16( c, d_begin, d_end, dseq_search_window );
             }
 
-            dprofile_fill16( dprofile, dseq );
+            dprofile_fill16( dprofile, dseq_search_window );
 
             __m128i h_max;
 
-            aligncolumns_rest( &S.v, hep, s->queries[q_id]->q_table, gap_open_extend, gap_extend, H0, H1, H2, H3,
-                    &h_max, qlen );
+            aligncolumns_rest( &S.v, hep, s->queries[q_id]->q_table, gap_open_extend, gap_extend, &h_max, qlen );
 
             check_min_max( overflow, h_max, score_max );
         }
@@ -267,7 +267,7 @@ void search_16_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * overf
                 if( d_begin[c] < d_end[c] ) {
                     /* the sequence in this channel is not finished yet */
 
-                    no_sequences_ended = fill_channel_16( c, d_begin, d_end, dseq );
+                    no_sequences_ended = move_db_sequence_window_16( c, d_begin, d_end, dseq_search_window );
                 }
                 else {
                     /* sequence in channel c ended. change of sequence */
@@ -298,6 +298,9 @@ void search_16_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * overf
                         done++;
                     }
 
+                    // reset max score
+                    S.a[c] = INT16_MIN;
+
                     if( next_id < chunk->fill_pointer ) {
                         /* get next sequence with length>0 */
 
@@ -306,7 +309,7 @@ void search_16_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * overf
                         d_begin[c] = (unsigned char*) d_seq_ptr[c]->seq.seq;
                         d_end[c] = (unsigned char*) d_seq_ptr[c]->seq.seq + d_seq_ptr[c]->seq.len;
 
-                        no_sequences_ended = fill_channel_16( c, d_begin, d_end, dseq );
+                        no_sequences_ended = move_db_sequence_window_16( c, d_begin, d_end, dseq_search_window );
                     }
                     else {
                         /* no more sequences, empty channel */
@@ -316,7 +319,7 @@ void search_16_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * overf
                         d_end[c] = d_begin[c];
 
                         for( int j = 0; j < CDEPTH_16_BIT; j++ )
-                            dseq[CHANNELS_16_BIT * j + c] = 0;
+                            dseq_search_window[CHANNELS_16_BIT * j + c] = 0;
                     }
                 }
 
@@ -326,12 +329,11 @@ void search_16_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * overf
             if( done == chunk->fill_pointer )
                 break;
 
-            dprofile_fill16( dprofile, dseq );
+            dprofile_fill16( dprofile, dseq_search_window );
 
             __m128i h_max;
 
-            aligncolumns_first( &S.v, hep, s->queries[q_id]->q_table, gap_open_extend, gap_extend, H0, H1, H2, H3, M,
-                    &h_max, qlen );
+            aligncolumns_first( &S.v, hep, s->queries[q_id]->q_table, gap_open_extend, gap_extend, M, &h_max, qlen );
 
             check_min_max( overflow, h_max, score_max );
         }

@@ -45,6 +45,12 @@ Optimization:
 http://www.fefe.de/source-code-optimization.pdf
 https://gcc.gnu.org/gcc-5/changes.html
 
+https://software.intel.com/sites/default/files/m/d/4/1/d/8/11MC12_Avoiding_2BAVX-SSE_2BTransition_2BPenalties_2Brh_2Bfinal.pdf
+
+zeroing registers:
+------------------
+https://stackoverflow.com/questions/26807285/are-static-static-local-sse-avx-variables-blocking-a-xmm-ymm-register
+https://randomascii.wordpress.com/2012/12/29/the-surprising-subtleties-of-zeroing-a-register/
 
 thesis:
 -------

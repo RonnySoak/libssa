@@ -121,7 +121,7 @@ static void search8_init_query( p_s8info s, int q_count, seq_buffer * queries ) 
     memset( s->hearray, 0, 2 * s->maxqlen * sizeof(__m128i ) );
 }
 
-void dprofile_fill8( int8_t * dprofile, uint8_t * dseq ) {
+void dprofile_fill8( int8_t * dprofile, uint8_t * dseq_search_window ) {
     __m128i xmm0, xmm1, xmm2, xmm3, xmm4, xmm5, xmm6, xmm7;
     __m128i xmm8, xmm9, xmm10, xmm11, xmm12, xmm13, xmm14, xmm15;
 
@@ -133,10 +133,10 @@ void dprofile_fill8( int8_t * dprofile, uint8_t * dseq ) {
      */
 
     for( int j = 0; j < CDEPTH_8_BIT; j++ ) {
-        unsigned d[CHANNELS_8_BIT];
+        int d[CHANNELS_8_BIT];
 
         for( int i = 0; i < CHANNELS_8_BIT; i++ )
-            d[i] = dseq[j * CHANNELS_8_BIT + i] << 5;
+            d[i] = dseq_search_window[j * CHANNELS_8_BIT + i] << 5;
 
         xmm0 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + d[0]) );
         xmm2 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + d[2]) );
@@ -436,8 +436,18 @@ static unsigned long search_chunk( p_s8info s8info, p_minheap heap, p_db_chunk c
     }
 
     if( overflow_list ) {
-        printf( "Overflow detected: re-aligning %ld sequences with 16 bit\n", ll_size( overflow_list ) );
+        printf( "Overflow detected: re-aligning %ld sequences with 16 bit\n", ll_size( overflow_list ) ); // TODO show info or not?
 
+        /*
+         * XXX
+         * Re-aligning sequences with 16 bit might result in a different order of the sequences in the heap.
+         * If a new element to the heap has a score equal to the score of the lowest element, in the heap,
+         * the new element is omitted.
+         * This behavior of the heap might result in slightly different result for the 16 bit search and the
+         * 8 bit search with re-aligned sequences. Although the different results mean only, that another
+         * DB sequence, with the same score, is show, when comparing the results for the different bit-widths
+         * for searches.
+         */
         if( !s8info->s16info ) {
             s8info->s16info = search_16_init( sdp );
         }

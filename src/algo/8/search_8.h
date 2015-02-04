@@ -49,7 +49,7 @@ void search8_init_algo( int search_type );
 
 void dprofile_fill8( int8_t * dprofile, uint8_t * dseq );
 
-int fill_channel_8( int c, uint8_t* d_begin[CHANNELS_8_BIT], uint8_t* d_end[CHANNELS_8_BIT], uint8_t* dseq );
+int move_db_sequence_window_8( int c, uint8_t* d_begin[CHANNELS_8_BIT], uint8_t* d_end[CHANNELS_8_BIT], uint8_t* dseq );
 
 void search_8_sw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * overflow_list, int query_id );
 

@@ -22,6 +22,7 @@
 #include "search_16.h"
 
 #include <limits.h>
+#include <string.h>
 
 #include "../../util/util.h"
 
@@ -175,14 +176,13 @@ static void aligncolumns_rest( __m128i * Sm, __m128i * hep, __m128i ** qp, __m12
 }
 
 // TODO inline function?!
-int fill_channel_16( int c, uint8_t* d_begin[CHANNELS_16_BIT], uint8_t* d_end[CHANNELS_16_BIT], uint8_t* dseq ) {
-    /* fill channel */
+int move_db_sequence_window_16( int c, uint8_t* d_begin[CHANNELS_16_BIT], uint8_t* d_end[CHANNELS_16_BIT], uint8_t* dseq_search_window ) {
     for( int j = 0; j < CDEPTH_16_BIT; j++ ) {
         if( d_begin[c] < d_end[c] ) {
-            dseq[CHANNELS_16_BIT * j + c] = *(d_begin[c]++);
+            dseq_search_window[CHANNELS_16_BIT * j + c] = *(d_begin[c]++);
         }
         else {
-            dseq[CHANNELS_16_BIT * j + c] = 0;
+            dseq_search_window[CHANNELS_16_BIT * j + c] = 0;
         }
     }
 
@@ -232,23 +232,18 @@ void search_16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * overf
     p_sdb_sequence d_seq_ptr[CHANNELS_16_BIT];
     uint8_t overflow[CHANNELS_16_BIT];
 
-    __m128i dseqalloc[CDEPTH_16_BIT];
-
     union {
         __m128i v[CDEPTH_16_BIT];
-        int16_t a[CDEPTH_16_BIT * sizeof(__m128i )];
+        int16_t a[CDEPTH_16_BIT * CHANNELS_16_BIT];
     } S;
+    memset( S.a, 0, CDEPTH_16_BIT * CHANNELS_16_BIT ); // TODO INT16_MIN instead of zero
 
-    uint8_t * dseq = (uint8_t*) &dseqalloc;
+    uint8_t dseq_search_window[CDEPTH_16_BIT * CHANNELS_16_BIT];
+    memset( dseq_search_window, 0, CDEPTH_16_BIT * CHANNELS_16_BIT );
 
     unsigned long next_id = 0;
     unsigned long done = 0;
 
-    /*
-     * TODO if we compile with optimization -O3 this instruction gets optimized in a way,
-     * such that it cannot be processed by valgrind. The more optimal instruction is not
-     * yet implemented in valgrind.
-     */
     T0 = _mm_set_epi16( 0, 0, 0, 0, 0, 0, 0, 0xffff );
 
     gap_open_extend = _mm_set1_epi16( s->penalty_gap_open + s->penalty_gap_extension );
@@ -262,11 +257,6 @@ void search_16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * overf
         d_length[c] = 0;
         d_seq_ptr[c] = 0;
         overflow[c] = 0;
-    }
-
-    for( int i = 0; i < CDEPTH_16_BIT; i++ ) {
-        S.v[i] = _mm_setzero_si128();
-        dseqalloc[i] = _mm_setzero_si128();
     }
 
     int16_t score_min = INT16_MIN + s->penalty_gap_open + s->penalty_gap_extension;
@@ -289,10 +279,10 @@ void search_16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * overf
             /* fill all channels with symbols from the database sequences */
 
             for( int c = 0; c < CHANNELS_16_BIT; c++ ) {
-                no_sequences_ended = fill_channel_16( c, d_begin, d_end, dseq );
+                no_sequences_ended &= move_db_sequence_window_16( c, d_begin, d_end, dseq_search_window );
             }
 
-            dprofile_fill16( dprofile, dseq );
+            dprofile_fill16( dprofile, dseq_search_window );
 
             __m128i h_min, h_max;
 
@@ -312,7 +302,7 @@ void search_16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * overf
                 if( d_begin[c] < d_end[c] ) {
                     /* the sequence in this channel is not finished yet */
 
-                    no_sequences_ended = fill_channel_16( c, d_begin, d_end, dseq );
+                    no_sequences_ended &= move_db_sequence_window_16( c, d_begin, d_end, dseq_search_window );
                 }
                 else {
                     /* sequence in channel c ended. change of sequence */
@@ -364,7 +354,7 @@ void search_16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * overf
                         ((int16_t*) &F2)[c] = -s->penalty_gap_open - 3 * s->penalty_gap_extension;
                         ((int16_t*) &F3)[c] = -s->penalty_gap_open - 4 * s->penalty_gap_extension;
 
-                        no_sequences_ended = fill_channel_16( c, d_begin, d_end, dseq );
+                        no_sequences_ended &= move_db_sequence_window_16( c, d_begin, d_end, dseq_search_window );
                     }
                     else {
                         /* no more sequences, empty channel */
@@ -374,7 +364,7 @@ void search_16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * overf
                         d_end[c] = d_begin[c];
                         d_length[c] = 0;
                         for( int j = 0; j < CDEPTH_16_BIT; j++ )
-                            dseq[CHANNELS_16_BIT * j + c] = 0;
+                            dseq_search_window[CHANNELS_16_BIT * j + c] = 0;
                     }
                 }
 
@@ -388,7 +378,7 @@ void search_16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * overf
             M_gap_open_extend = _mm_and_si128( M, gap_open_extend );
             M_gap_extend = _mm_and_si128( M, gap_extend );
 
-            dprofile_fill16( dprofile, dseq );
+            dprofile_fill16( dprofile, dseq_search_window );
 
             __m128i h_min, h_max;
 

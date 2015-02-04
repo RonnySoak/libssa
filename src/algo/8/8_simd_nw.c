@@ -19,10 +19,12 @@
  PO Box 1080 Blindern, NO-0316 Oslo, Norway
  */
 
+#include "search_8.h"
+
 #include <limits.h>
+#include <string.h>
 
 #include "../../util/util.h"
-#include "search_8.h"
 
 /*
  Using 8-bit signed values, from -32768 to +32767.
@@ -174,14 +176,13 @@ static void aligncolumns_rest( __m128i * Sm, __m128i * hep, __m128i ** qp, __m12
 }
 
 // TODO inline function?!
-int fill_channel_8( int c, uint8_t* d_begin[CHANNELS_8_BIT], uint8_t* d_end[CHANNELS_8_BIT], uint8_t* dseq ) {
-    /* fill channel */
+int move_db_sequence_window_8( int c, uint8_t* d_begin[CHANNELS_8_BIT], uint8_t* d_end[CHANNELS_8_BIT], uint8_t* dseq_search_window ) {
     for( int j = 0; j < CDEPTH_8_BIT; j++ ) {
         if( d_begin[c] < d_end[c] ) {
-            dseq[CHANNELS_8_BIT * j + c] = *(d_begin[c]++);
+            dseq_search_window[CHANNELS_8_BIT * j + c] = *(d_begin[c]++);
         }
         else {
-            dseq[CHANNELS_8_BIT * j + c] = 0;
+            dseq_search_window[CHANNELS_8_BIT * j + c] = 0;
         }
     }
 
@@ -209,7 +210,7 @@ static void check_min_max( uint8_t overflow[CHANNELS_8_BIT], __m128i h_min, __m1
 void search_8_nw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * overflow_list, int q_id ) {
 
 #ifdef DBG_COLLECT_MATRIX
-        dbg_init_matrix_data_collection( BIT_WIDTH_16, s->maxdlen + CDEPTH_8_BIT, s->maxqlen );
+        dbg_init_matrix_data_collection( BIT_WIDTH_8, s->maxdlen + CDEPTH_8_BIT, s->maxqlen );
 
         d_idx = 0;
 #endif
@@ -231,14 +232,14 @@ void search_8_nw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * overflo
     p_sdb_sequence d_seq_ptr[CHANNELS_8_BIT];
     uint8_t overflow[CHANNELS_8_BIT];
 
-    __m128i dseqalloc[CDEPTH_8_BIT];
-
     union {
         __m128i v[CDEPTH_8_BIT];
-        int8_t a[CDEPTH_8_BIT * sizeof(__m128i )];
+        int8_t a[CDEPTH_8_BIT * CHANNELS_8_BIT];
     } S;
+    memset( S.a, 0, CDEPTH_8_BIT * CHANNELS_8_BIT ); // TODO INT16_MIN instead of zero
 
-    uint8_t * dseq = (uint8_t*) &dseqalloc;
+    uint8_t dseq_search_window[CDEPTH_8_BIT * CHANNELS_8_BIT];
+    memset( dseq_search_window, 0, CDEPTH_8_BIT * CHANNELS_8_BIT );
 
     unsigned long next_id = 0;
     unsigned long done = 0;
@@ -256,11 +257,6 @@ void search_8_nw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * overflo
         d_length[c] = 0;
         d_seq_ptr[c] = 0;
         overflow[c] = 0;
-    }
-
-    for( int i = 0; i < CDEPTH_8_BIT; i++ ) {
-        S.v[i] = _mm_setzero_si128();
-        dseqalloc[i] = _mm_setzero_si128();
     }
 
     int8_t score_min = INT8_MIN + s->penalty_gap_open + s->penalty_gap_extension;
@@ -283,10 +279,10 @@ void search_8_nw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * overflo
             /* fill all channels with symbols from the database sequences */
 
             for( int c = 0; c < CHANNELS_8_BIT; c++ ) {
-                no_sequences_ended = fill_channel_8( c, d_begin, d_end, dseq );
+                no_sequences_ended &= move_db_sequence_window_8( c, d_begin, d_end, dseq_search_window );
             }
 
-            dprofile_fill8( dprofile, dseq );
+            dprofile_fill8( dprofile, dseq_search_window );
 
             __m128i h_min, h_max;
 
@@ -306,7 +302,7 @@ void search_8_nw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * overflo
                 if( d_begin[c] < d_end[c] ) {
                     /* the sequence in this channel is not finished yet */
 
-                    no_sequences_ended = fill_channel_8( c, d_begin, d_end, dseq );
+                    no_sequences_ended &= move_db_sequence_window_8( c, d_begin, d_end, dseq_search_window );
                 }
                 else {
                     /* sequence in channel c ended. change of sequence */
@@ -326,8 +322,6 @@ void search_8_nw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * overflo
                             add_to_minheap( heap, q_id, d_seq_ptr[c], score );
                         }
                         else {
-//                            printf( "\nWARNING: overflow in 8 bit global alignment!\n" );
-
                             if( *overflow_list ) {
                                 ll_push( overflow_list, d_seq_ptr[c] );
                             }
@@ -361,7 +355,7 @@ void search_8_nw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * overflo
                         ((int8_t*) &F2)[c] = -s->penalty_gap_open - 3 * s->penalty_gap_extension;
                         ((int8_t*) &F3)[c] = -s->penalty_gap_open - 4 * s->penalty_gap_extension;
 
-                        no_sequences_ended = fill_channel_8( c, d_begin, d_end, dseq );
+                        no_sequences_ended &= move_db_sequence_window_8( c, d_begin, d_end, dseq_search_window );
                     }
                     else {
                         /* no more sequences, empty channel */
@@ -371,7 +365,7 @@ void search_8_nw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * overflo
                         d_end[c] = d_begin[c];
                         d_length[c] = 0;
                         for( int j = 0; j < CDEPTH_8_BIT; j++ )
-                            dseq[CHANNELS_8_BIT * j + c] = 0;
+                            dseq_search_window[CHANNELS_8_BIT * j + c] = 0;
                     }
                 }
 
@@ -385,7 +379,7 @@ void search_8_nw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * overflo
             M_gap_open_extend = _mm_and_si128( M, gap_open_extend );
             M_gap_extend = _mm_and_si128( M, gap_extend );
 
-            dprofile_fill8( dprofile, dseq );
+            dprofile_fill8( dprofile, dseq_search_window );
 
             __m128i h_min, h_max;
 

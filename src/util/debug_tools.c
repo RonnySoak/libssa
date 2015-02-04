@@ -168,7 +168,24 @@ void dbg_add_aligned_sequence( unsigned long db_id, int query_id, long score ) {
         e->score = score;
 
         minheap_add( aligned_sequences, e );
+
+        free( e );
     }
+}
+
+static int dbg_minheap_compare( const void * a, const void * b ) {
+    elem_t * x = (elem_t*) a;
+    elem_t * y = (elem_t*) b;
+
+//    int cmp = CMP_ASC( x->score, y->score );
+//    if( !cmp ) {
+//        cmp = CMP_ASC( x->db_id, y->db_id );
+//    }
+    return CMP_ASC( x->db_id, y->db_id ); //cmp;
+}
+
+static void dbg_minheap_sort( p_minheap m ) {
+    qsort( m->array, m->count, sizeof(elem_t), dbg_minheap_compare );
 }
 
 void dbg_print_aligned_sequences() {
@@ -183,7 +200,7 @@ void dbg_print_aligned_sequences() {
         }
         free( file_name );
 
-        minheap_sort( aligned_sequences );
+        dbg_minheap_sort( aligned_sequences );
 
         for (int i = 0; i < aligned_sequences->count; ++i) {
             elem_t data = aligned_sequences->array[i];
@@ -207,7 +224,7 @@ void dbg_mm_print_8u( char * desc, __m128i x ) {
     printf( "%s: ", desc );
 
     for( int i = 0; i < 16; i++ )
-        printf( "%s%6d", (i > 0 ? " " : ""), y[15 - i] );
+        printf( "%s%3d", (i > 0 ? " " : ""), y[15 - i] );
     printf( "\n" );
 }
 
@@ -217,7 +234,7 @@ void dbg_mm_print_8s( char * desc, __m128i x ) {
     printf( "%s: ", desc );
 
     for( int i = 0; i < 16; i++ ) {
-        printf( "%s%2d", (i > 0 ? " " : ""), y[15 - i] );
+        printf( "%s%3d", (i > 0 ? " " : ""), y[15 - i] );
     }
     printf( "\n" );
 }
