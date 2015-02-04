@@ -236,7 +236,6 @@ void search_16_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * overf
         __m128i v[CDEPTH_16_BIT];
         int16_t a[CDEPTH_16_BIT * CHANNELS_16_BIT];
     } S;
-    memset( S.a, 0, CDEPTH_16_BIT * CHANNELS_16_BIT ); // TODO INT16_MIN instead of zero
 
     uint8_t dseq_search_window[CDEPTH_16_BIT * CHANNELS_16_BIT];
     memset( dseq_search_window, 0, CDEPTH_16_BIT * CHANNELS_16_BIT );

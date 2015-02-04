@@ -245,7 +245,7 @@ void search_16_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * overf
             /* fill all channels with symbols from the database sequences */
 
             for( int c = 0; c < CHANNELS_16_BIT; c++ ) {
-                no_sequences_ended = move_db_sequence_window_16( c, d_begin, d_end, dseq_search_window );
+                no_sequences_ended &= move_db_sequence_window_16( c, d_begin, d_end, dseq_search_window );
             }
 
             dprofile_fill16( dprofile, dseq_search_window );
@@ -267,7 +267,7 @@ void search_16_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * overf
                 if( d_begin[c] < d_end[c] ) {
                     /* the sequence in this channel is not finished yet */
 
-                    no_sequences_ended = move_db_sequence_window_16( c, d_begin, d_end, dseq_search_window );
+                    no_sequences_ended &= move_db_sequence_window_16( c, d_begin, d_end, dseq_search_window );
                 }
                 else {
                     /* sequence in channel c ended. change of sequence */
@@ -309,7 +309,7 @@ void search_16_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * overf
                         d_begin[c] = (unsigned char*) d_seq_ptr[c]->seq.seq;
                         d_end[c] = (unsigned char*) d_seq_ptr[c]->seq.seq + d_seq_ptr[c]->seq.len;
 
-                        no_sequences_ended = move_db_sequence_window_16( c, d_begin, d_end, dseq_search_window );
+                        no_sequences_ended &= move_db_sequence_window_16( c, d_begin, d_end, dseq_search_window );
                     }
                     else {
                         /* no more sequences, empty channel */

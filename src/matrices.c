@@ -277,6 +277,9 @@ long SCORELIMIT_32;
 long SCORELIMIT_63;
 char BIAS;
 
+/*
+ * TODO evaluate, which ones I need
+ */
 int8_t* score_matrix_7 = NULL; // char
 uint8_t * score_matrix_8 = NULL; // unsigned char
 int16_t * score_matrix_16 = NULL; // short

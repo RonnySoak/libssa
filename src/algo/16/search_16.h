@@ -29,6 +29,8 @@ typedef struct s16query * p_s16query;
 
 struct s16info {
     __m128i * hearray;
+    int64_t * hearray_64;
+
     __m128i * dprofile;
 
     unsigned long maxdlen;

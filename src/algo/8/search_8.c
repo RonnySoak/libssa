@@ -80,6 +80,7 @@ static void search8_exit( p_s8info s ) {
 
     if( s->s16info ) {
         search16_exit( s->s16info );
+        s->s16info = 0;
     }
 
     free( s );
@@ -126,11 +127,7 @@ void dprofile_fill8( int8_t * dprofile, uint8_t * dseq_search_window ) {
     __m128i xmm8, xmm9, xmm10, xmm11, xmm12, xmm13, xmm14, xmm15;
 
     // 4 x 16 db symbols
-    // ca (60x2+68x2)x4 = 976 instructions
-
-    /*
-     * TODO try to optimize, this is only the old code from SWIPE/SWARM
-     */
+    // ca (60x2+68x2)x4 = 976 instructions TODO verify these numbers
 
     for( int j = 0; j < CDEPTH_8_BIT; j++ ) {
         int d[CHANNELS_8_BIT];
@@ -138,293 +135,85 @@ void dprofile_fill8( int8_t * dprofile, uint8_t * dseq_search_window ) {
         for( int i = 0; i < CHANNELS_8_BIT; i++ )
             d[i] = dseq_search_window[j * CHANNELS_8_BIT + i] << 5;
 
-        xmm0 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + d[0]) );
-        xmm2 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + d[2]) );
-        xmm4 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + d[4]) );
-        xmm6 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + d[6]) );
-        xmm8 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + d[8]) );
-        xmm10 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + d[10]) );
-        xmm12 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + d[12]) );
-        xmm14 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + d[14]) );
+        for( int i = 0; i < SCORE_MATRIX_DIM; i += 8 ) {
+            xmm0 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + i + d[0]) );
+            xmm1 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + i + d[1]) );
+            xmm2 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + i + d[2]) );
+            xmm3 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + i + d[3]) );
+            xmm4 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + i + d[4]) );
+            xmm5 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + i + d[5]) );
+            xmm6 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + i + d[6]) );
+            xmm7 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + i + d[7]) );
+            xmm8 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + i + d[8]) );
+            xmm9 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + i + d[9]) );
+            xmm10 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + i + d[10]) );
+            xmm11 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + i + d[11]) );
+            xmm12 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + i + d[12]) );
+            xmm13 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + i + d[13]) );
+            xmm14 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + i + d[14]) );
+            xmm15 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + i + d[15]) );
 
-        xmm0 = _mm_unpacklo_epi8( xmm0, *(__m128i *) (score_matrix_7 + d[1]) );
-        xmm2 = _mm_unpacklo_epi8( xmm2, *(__m128i *) (score_matrix_7 + d[3]) );
-        xmm4 = _mm_unpacklo_epi8( xmm4, *(__m128i *) (score_matrix_7 + d[5]) );
-        xmm6 = _mm_unpacklo_epi8( xmm6, *(__m128i *) (score_matrix_7 + d[7]) );
-        xmm8 = _mm_unpacklo_epi8( xmm8, *(__m128i *) (score_matrix_7 + d[9]) );
-        xmm10 = _mm_unpacklo_epi8( xmm10, *(__m128i *) (score_matrix_7 + d[11]) );
-        xmm12 = _mm_unpacklo_epi8( xmm12, *(__m128i *) (score_matrix_7 + d[13]) );
-        xmm14 = _mm_unpacklo_epi8( xmm14, *(__m128i *) (score_matrix_7 + d[15]) );
+            xmm0 = _mm_unpacklo_epi8( xmm0, xmm1 );
+            xmm2 = _mm_unpacklo_epi8( xmm2, xmm3 );
+            xmm4 = _mm_unpacklo_epi8( xmm4, xmm5 );
+            xmm6 = _mm_unpacklo_epi8( xmm6, xmm7 );
+            xmm8 = _mm_unpacklo_epi8( xmm8, xmm9 );
+            xmm10 = _mm_unpacklo_epi8( xmm10, xmm11 );
+            xmm12 = _mm_unpacklo_epi8( xmm12, xmm13 );
+            xmm14 = _mm_unpacklo_epi8( xmm14, xmm15 );
 
-        xmm1 = xmm0;
-        xmm0 = _mm_unpacklo_epi16( xmm0, xmm2 );
-        xmm1 = _mm_unpackhi_epi16( xmm1, xmm2 );
-        xmm5 = xmm4;
-        xmm4 = _mm_unpacklo_epi16( xmm4, xmm6 );
-        xmm5 = _mm_unpackhi_epi16( xmm5, xmm6 );
-        xmm9 = xmm8;
-        xmm8 = _mm_unpacklo_epi16( xmm8, xmm10 );
-        xmm9 = _mm_unpackhi_epi16( xmm9, xmm10 );
-        xmm13 = xmm12;
-        xmm12 = _mm_unpacklo_epi16( xmm12, xmm14 );
-        xmm13 = _mm_unpackhi_epi16( xmm13, xmm14 );
+            xmm1 = xmm0;
+            xmm0 = _mm_unpacklo_epi16( xmm0, xmm2 );
+            xmm1 = _mm_unpackhi_epi16( xmm1, xmm2 );
+            xmm5 = xmm4;
+            xmm4 = _mm_unpacklo_epi16( xmm4, xmm6 );
+            xmm5 = _mm_unpackhi_epi16( xmm5, xmm6 );
+            xmm9 = xmm8;
+            xmm8 = _mm_unpacklo_epi16( xmm8, xmm10 );
+            xmm9 = _mm_unpackhi_epi16( xmm9, xmm10 );
+            xmm13 = xmm12;
+            xmm12 = _mm_unpacklo_epi16( xmm12, xmm14 );
+            xmm13 = _mm_unpackhi_epi16( xmm13, xmm14 );
 
-        xmm2 = xmm0;
-        xmm0 = _mm_unpacklo_epi32( xmm0, xmm4 );
-        xmm2 = _mm_unpackhi_epi32( xmm2, xmm4 );
-        xmm6 = xmm1;
-        xmm1 = _mm_unpacklo_epi32( xmm1, xmm5 );
-        xmm6 = _mm_unpackhi_epi32( xmm6, xmm5 );
-        xmm10 = xmm8;
-        xmm8 = _mm_unpacklo_epi32( xmm8, xmm12 );
-        xmm10 = _mm_unpackhi_epi32( xmm10, xmm12 );
-        xmm14 = xmm9;
-        xmm9 = _mm_unpacklo_epi32( xmm9, xmm13 );
-        xmm14 = _mm_unpackhi_epi32( xmm14, xmm13 );
+            xmm2 = xmm0;
+            xmm0 = _mm_unpacklo_epi32( xmm0, xmm4 );
+            xmm2 = _mm_unpackhi_epi32( xmm2, xmm4 );
+            xmm6 = xmm1;
+            xmm1 = _mm_unpacklo_epi32( xmm1, xmm5 );
+            xmm6 = _mm_unpackhi_epi32( xmm6, xmm5 );
+            xmm10 = xmm8;
+            xmm8 = _mm_unpacklo_epi32( xmm8, xmm12 );
+            xmm10 = _mm_unpackhi_epi32( xmm10, xmm12 );
+            xmm14 = xmm9;
+            xmm9 = _mm_unpacklo_epi32( xmm9, xmm13 );
+            xmm14 = _mm_unpackhi_epi32( xmm14, xmm13 );
 
-        xmm3 = xmm0;
-        xmm0 = _mm_unpacklo_epi64( xmm0, xmm8 );
-        xmm3 = _mm_unpackhi_epi64( xmm3, xmm8 );
-        xmm7 = xmm2;
-        xmm2 = _mm_unpacklo_epi64( xmm2, xmm10 );
-        xmm7 = _mm_unpackhi_epi64( xmm7, xmm10 );
-        xmm11 = xmm1;
-        xmm1 = _mm_unpacklo_epi64( xmm1, xmm9 );
-        xmm11 = _mm_unpackhi_epi64( xmm11, xmm9 );
-        xmm15 = xmm6;
-        xmm6 = _mm_unpacklo_epi64( xmm6, xmm14 );
-        xmm15 = _mm_unpackhi_epi64( xmm15, xmm14 );
+            xmm3 = xmm0;
+            xmm0 = _mm_unpacklo_epi64( xmm0, xmm8 );
+            xmm3 = _mm_unpackhi_epi64( xmm3, xmm8 );
+            xmm7 = xmm2;
+            xmm2 = _mm_unpacklo_epi64( xmm2, xmm10 );
+            xmm7 = _mm_unpackhi_epi64( xmm7, xmm10 );
+            xmm11 = xmm1;
+            xmm1 = _mm_unpacklo_epi64( xmm1, xmm9 );
+            xmm11 = _mm_unpackhi_epi64( xmm11, xmm9 );
+            xmm15 = xmm6;
+            xmm6 = _mm_unpacklo_epi64( xmm6, xmm14 );
+            xmm15 = _mm_unpackhi_epi64( xmm15, xmm14 );
 
-        _mm_store_si128( (__m128i *) (dprofile + 16 * j + 0), xmm0 );
-        _mm_store_si128( (__m128i *) (dprofile + 16 * j + 64), xmm3 );
-        _mm_store_si128( (__m128i *) (dprofile + 16 * j + 128), xmm2 );
-        _mm_store_si128( (__m128i *) (dprofile + 16 * j + 192), xmm7 );
-        _mm_store_si128( (__m128i *) (dprofile + 16 * j + 256), xmm1 );
-        _mm_store_si128( (__m128i *) (dprofile + 16 * j + 320), xmm11 );
-        _mm_store_si128( (__m128i *) (dprofile + 16 * j + 384), xmm6 );
-        _mm_store_si128( (__m128i *) (dprofile + 16 * j + 448), xmm15 );
-
-        // loads not aligned on 16 byte boundary, cannot load and unpack in one instr.
-
-        xmm0 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + 8 + d[0]) );
-        xmm1 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + 8 + d[1]) );
-        xmm2 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + 8 + d[2]) );
-        xmm3 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + 8 + d[3]) );
-        xmm4 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + 8 + d[4]) );
-        xmm5 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + 8 + d[5]) );
-        xmm6 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + 8 + d[6]) );
-        xmm7 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + 8 + d[7]) );
-        xmm8 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + 8 + d[8]) );
-        xmm9 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + 8 + d[9]) );
-        xmm10 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + 8 + d[10]) );
-        xmm11 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + 8 + d[11]) );
-        xmm12 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + 8 + d[12]) );
-        xmm13 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + 8 + d[13]) );
-        xmm14 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + 8 + d[14]) );
-        xmm15 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + 8 + d[15]) );
-
-        xmm0 = _mm_unpacklo_epi8( xmm0, xmm1 );
-        xmm2 = _mm_unpacklo_epi8( xmm2, xmm3 );
-        xmm4 = _mm_unpacklo_epi8( xmm4, xmm5 );
-        xmm6 = _mm_unpacklo_epi8( xmm6, xmm7 );
-        xmm8 = _mm_unpacklo_epi8( xmm8, xmm9 );
-        xmm10 = _mm_unpacklo_epi8( xmm10, xmm11 );
-        xmm12 = _mm_unpacklo_epi8( xmm12, xmm13 );
-        xmm14 = _mm_unpacklo_epi8( xmm14, xmm15 );
-
-        xmm1 = xmm0;
-        xmm0 = _mm_unpacklo_epi16( xmm0, xmm2 );
-        xmm1 = _mm_unpackhi_epi16( xmm1, xmm2 );
-        xmm5 = xmm4;
-        xmm4 = _mm_unpacklo_epi16( xmm4, xmm6 );
-        xmm5 = _mm_unpackhi_epi16( xmm5, xmm6 );
-        xmm9 = xmm8;
-        xmm8 = _mm_unpacklo_epi16( xmm8, xmm10 );
-        xmm9 = _mm_unpackhi_epi16( xmm9, xmm10 );
-        xmm13 = xmm12;
-        xmm12 = _mm_unpacklo_epi16( xmm12, xmm14 );
-        xmm13 = _mm_unpackhi_epi16( xmm13, xmm14 );
-
-        xmm2 = xmm0;
-        xmm0 = _mm_unpacklo_epi32( xmm0, xmm4 );
-        xmm2 = _mm_unpackhi_epi32( xmm2, xmm4 );
-        xmm6 = xmm1;
-        xmm1 = _mm_unpacklo_epi32( xmm1, xmm5 );
-        xmm6 = _mm_unpackhi_epi32( xmm6, xmm5 );
-        xmm10 = xmm8;
-        xmm8 = _mm_unpacklo_epi32( xmm8, xmm12 );
-        xmm10 = _mm_unpackhi_epi32( xmm10, xmm12 );
-        xmm14 = xmm9;
-        xmm9 = _mm_unpacklo_epi32( xmm9, xmm13 );
-        xmm14 = _mm_unpackhi_epi32( xmm14, xmm13 );
-
-        xmm3 = xmm0;
-        xmm0 = _mm_unpacklo_epi64( xmm0, xmm8 );
-        xmm3 = _mm_unpackhi_epi64( xmm3, xmm8 );
-        xmm7 = xmm2;
-        xmm2 = _mm_unpacklo_epi64( xmm2, xmm10 );
-        xmm7 = _mm_unpackhi_epi64( xmm7, xmm10 );
-        xmm11 = xmm1;
-        xmm1 = _mm_unpacklo_epi64( xmm1, xmm9 );
-        xmm11 = _mm_unpackhi_epi64( xmm11, xmm9 );
-        xmm15 = xmm6;
-        xmm6 = _mm_unpacklo_epi64( xmm6, xmm14 );
-        xmm15 = _mm_unpackhi_epi64( xmm15, xmm14 );
-
-        _mm_store_si128( (__m128i *) (dprofile + 16 * j + 512 + 0), xmm0 );
-        _mm_store_si128( (__m128i *) (dprofile + 16 * j + 512 + 64), xmm3 );
-        _mm_store_si128( (__m128i *) (dprofile + 16 * j + 512 + 128), xmm2 );
-        _mm_store_si128( (__m128i *) (dprofile + 16 * j + 512 + 192), xmm7 );
-        _mm_store_si128( (__m128i *) (dprofile + 16 * j + 512 + 256), xmm1 );
-        _mm_store_si128( (__m128i *) (dprofile + 16 * j + 512 + 320), xmm11 );
-        _mm_store_si128( (__m128i *) (dprofile + 16 * j + 512 + 384), xmm6 );
-        _mm_store_si128( (__m128i *) (dprofile + 16 * j + 512 + 448), xmm15 );
-
-        xmm0 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + 16 + d[0]) );
-        xmm2 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + 16 + d[2]) );
-        xmm4 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + 16 + d[4]) );
-        xmm6 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + 16 + d[6]) );
-        xmm8 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + 16 + d[8]) );
-        xmm10 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + 16 + d[10]) );
-        xmm12 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + 16 + d[12]) );
-        xmm14 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + 16 + d[14]) );
-
-        xmm0 = _mm_unpacklo_epi8( xmm0, *(__m128i *) (score_matrix_7 + 16 + d[1]) );
-        xmm2 = _mm_unpacklo_epi8( xmm2, *(__m128i *) (score_matrix_7 + 16 + d[3]) );
-        xmm4 = _mm_unpacklo_epi8( xmm4, *(__m128i *) (score_matrix_7 + 16 + d[5]) );
-        xmm6 = _mm_unpacklo_epi8( xmm6, *(__m128i *) (score_matrix_7 + 16 + d[7]) );
-        xmm8 = _mm_unpacklo_epi8( xmm8, *(__m128i *) (score_matrix_7 + 16 + d[9]) );
-        xmm10 = _mm_unpacklo_epi8( xmm10, *(__m128i *) (score_matrix_7 + 16 + d[11]) );
-        xmm12 = _mm_unpacklo_epi8( xmm12, *(__m128i *) (score_matrix_7 + 16 + d[13]) );
-        xmm14 = _mm_unpacklo_epi8( xmm14, *(__m128i *) (score_matrix_7 + 16 + d[15]) );
-
-        xmm1 = xmm0;
-        xmm0 = _mm_unpacklo_epi16( xmm0, xmm2 );
-        xmm1 = _mm_unpackhi_epi16( xmm1, xmm2 );
-        xmm5 = xmm4;
-        xmm4 = _mm_unpacklo_epi16( xmm4, xmm6 );
-        xmm5 = _mm_unpackhi_epi16( xmm5, xmm6 );
-        xmm9 = xmm8;
-        xmm8 = _mm_unpacklo_epi16( xmm8, xmm10 );
-        xmm9 = _mm_unpackhi_epi16( xmm9, xmm10 );
-        xmm13 = xmm12;
-        xmm12 = _mm_unpacklo_epi16( xmm12, xmm14 );
-        xmm13 = _mm_unpackhi_epi16( xmm13, xmm14 );
-
-        xmm2 = xmm0;
-        xmm0 = _mm_unpacklo_epi32( xmm0, xmm4 );
-        xmm2 = _mm_unpackhi_epi32( xmm2, xmm4 );
-        xmm6 = xmm1;
-        xmm1 = _mm_unpacklo_epi32( xmm1, xmm5 );
-        xmm6 = _mm_unpackhi_epi32( xmm6, xmm5 );
-        xmm10 = xmm8;
-        xmm8 = _mm_unpacklo_epi32( xmm8, xmm12 );
-        xmm10 = _mm_unpackhi_epi32( xmm10, xmm12 );
-        xmm14 = xmm9;
-        xmm9 = _mm_unpacklo_epi32( xmm9, xmm13 );
-        xmm14 = _mm_unpackhi_epi32( xmm14, xmm13 );
-
-        xmm3 = xmm0;
-        xmm0 = _mm_unpacklo_epi64( xmm0, xmm8 );
-        xmm3 = _mm_unpackhi_epi64( xmm3, xmm8 );
-        xmm7 = xmm2;
-        xmm2 = _mm_unpacklo_epi64( xmm2, xmm10 );
-        xmm7 = _mm_unpackhi_epi64( xmm7, xmm10 );
-        xmm11 = xmm1;
-        xmm1 = _mm_unpacklo_epi64( xmm1, xmm9 );
-        xmm11 = _mm_unpackhi_epi64( xmm11, xmm9 );
-        xmm15 = xmm6;
-        xmm6 = _mm_unpacklo_epi64( xmm6, xmm14 );
-        xmm15 = _mm_unpackhi_epi64( xmm15, xmm14 );
-
-        _mm_store_si128( (__m128i *) (dprofile + 16 * j + 1024 + 0), xmm0 );
-        _mm_store_si128( (__m128i *) (dprofile + 16 * j + 1024 + 64), xmm3 );
-        _mm_store_si128( (__m128i *) (dprofile + 16 * j + 1024 + 128), xmm2 );
-        _mm_store_si128( (__m128i *) (dprofile + 16 * j + 1024 + 192), xmm7 );
-        _mm_store_si128( (__m128i *) (dprofile + 16 * j + 1024 + 256), xmm1 );
-        _mm_store_si128( (__m128i *) (dprofile + 16 * j + 1024 + 320), xmm11 );
-        _mm_store_si128( (__m128i *) (dprofile + 16 * j + 1024 + 384), xmm6 );
-        _mm_store_si128( (__m128i *) (dprofile + 16 * j + 1024 + 448), xmm15 );
-
-        // loads not aligned on 16 byte boundary, cannot load and unpack in one instr.
-
-        xmm0 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + 24 + d[0]) );
-        xmm1 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + 24 + d[1]) );
-        xmm2 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + 24 + d[2]) );
-        xmm3 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + 24 + d[3]) );
-        xmm4 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + 24 + d[4]) );
-        xmm5 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + 24 + d[5]) );
-        xmm6 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + 24 + d[6]) );
-        xmm7 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + 24 + d[7]) );
-        xmm8 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + 24 + d[8]) );
-        xmm9 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + 24 + d[9]) );
-        xmm10 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + 24 + d[10]) );
-        xmm11 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + 24 + d[11]) );
-        xmm12 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + 24 + d[12]) );
-        xmm13 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + 24 + d[13]) );
-        xmm14 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + 24 + d[14]) );
-        xmm15 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + 24 + d[15]) );
-
-        xmm0 = _mm_unpacklo_epi8( xmm0, xmm1 );
-        xmm2 = _mm_unpacklo_epi8( xmm2, xmm3 );
-        xmm4 = _mm_unpacklo_epi8( xmm4, xmm5 );
-        xmm6 = _mm_unpacklo_epi8( xmm6, xmm7 );
-        xmm8 = _mm_unpacklo_epi8( xmm8, xmm9 );
-        xmm10 = _mm_unpacklo_epi8( xmm10, xmm11 );
-        xmm12 = _mm_unpacklo_epi8( xmm12, xmm13 );
-        xmm14 = _mm_unpacklo_epi8( xmm14, xmm15 );
-
-        xmm1 = xmm0;
-        xmm0 = _mm_unpacklo_epi16( xmm0, xmm2 );
-        xmm1 = _mm_unpackhi_epi16( xmm1, xmm2 );
-        xmm5 = xmm4;
-        xmm4 = _mm_unpacklo_epi16( xmm4, xmm6 );
-        xmm5 = _mm_unpackhi_epi16( xmm5, xmm6 );
-        xmm9 = xmm8;
-        xmm8 = _mm_unpacklo_epi16( xmm8, xmm10 );
-        xmm9 = _mm_unpackhi_epi16( xmm9, xmm10 );
-        xmm13 = xmm12;
-        xmm12 = _mm_unpacklo_epi16( xmm12, xmm14 );
-        xmm13 = _mm_unpackhi_epi16( xmm13, xmm14 );
-
-        xmm2 = xmm0;
-        xmm0 = _mm_unpacklo_epi32( xmm0, xmm4 );
-        xmm2 = _mm_unpackhi_epi32( xmm2, xmm4 );
-        xmm6 = xmm1;
-        xmm1 = _mm_unpacklo_epi32( xmm1, xmm5 );
-        xmm6 = _mm_unpackhi_epi32( xmm6, xmm5 );
-        xmm10 = xmm8;
-        xmm8 = _mm_unpacklo_epi32( xmm8, xmm12 );
-        xmm10 = _mm_unpackhi_epi32( xmm10, xmm12 );
-        xmm14 = xmm9;
-        xmm9 = _mm_unpacklo_epi32( xmm9, xmm13 );
-        xmm14 = _mm_unpackhi_epi32( xmm14, xmm13 );
-
-        xmm3 = xmm0;
-        xmm0 = _mm_unpacklo_epi64( xmm0, xmm8 );
-        xmm3 = _mm_unpackhi_epi64( xmm3, xmm8 );
-        xmm7 = xmm2;
-        xmm2 = _mm_unpacklo_epi64( xmm2, xmm10 );
-        xmm7 = _mm_unpackhi_epi64( xmm7, xmm10 );
-        xmm11 = xmm1;
-        xmm1 = _mm_unpacklo_epi64( xmm1, xmm9 );
-        xmm11 = _mm_unpackhi_epi64( xmm11, xmm9 );
-        xmm15 = xmm6;
-        xmm6 = _mm_unpacklo_epi64( xmm6, xmm14 );
-        xmm15 = _mm_unpackhi_epi64( xmm15, xmm14 );
-
-        _mm_store_si128( (__m128i *) (dprofile + 16 * j + 1536 + 0), xmm0 );
-        _mm_store_si128( (__m128i *) (dprofile + 16 * j + 1536 + 64), xmm3 );
-        _mm_store_si128( (__m128i *) (dprofile + 16 * j + 1536 + 128), xmm2 );
-        _mm_store_si128( (__m128i *) (dprofile + 16 * j + 1536 + 192), xmm7 );
-        _mm_store_si128( (__m128i *) (dprofile + 16 * j + 1536 + 256), xmm1 );
-        _mm_store_si128( (__m128i *) (dprofile + 16 * j + 1536 + 320), xmm11 );
-        _mm_store_si128( (__m128i *) (dprofile + 16 * j + 1536 + 384), xmm6 );
-        _mm_store_si128( (__m128i *) (dprofile + 16 * j + 1536 + 448), xmm15 );
+            _mm_store_si128( (__m128i *) (dprofile + 16 * j + 64 * i + 0), xmm0 );
+            _mm_store_si128( (__m128i *) (dprofile + 16 * j + 64 * i + 64), xmm3 );
+            _mm_store_si128( (__m128i *) (dprofile + 16 * j + 64 * i + 128), xmm2 );
+            _mm_store_si128( (__m128i *) (dprofile + 16 * j + 64 * i + 192), xmm7 );
+            _mm_store_si128( (__m128i *) (dprofile + 16 * j + 64 * i + 256), xmm1 );
+            _mm_store_si128( (__m128i *) (dprofile + 16 * j + 64 * i + 320), xmm11 );
+            _mm_store_si128( (__m128i *) (dprofile + 16 * j + 64 * i + 384), xmm6 );
+            _mm_store_si128( (__m128i *) (dprofile + 16 * j + 64 * i + 448), xmm15 );
+        }
     }
 }
 
-static unsigned long search_chunk( p_s8info s8info, p_minheap heap, p_db_chunk chunk, p_search_data sdp ) {
+static unsigned long search_8_chunk( p_s8info s8info, p_minheap heap, p_db_chunk chunk, p_search_data sdp ) {
     unsigned long searches_done = 0;
 
     p_node overflow_list = 0;
@@ -447,15 +236,12 @@ static unsigned long search_chunk( p_s8info s8info, p_minheap heap, p_db_chunk c
          * 8 bit search with re-aligned sequences. Although the different results mean only, that another
          * DB sequence, with the same score, is show, when comparing the results for the different bit-widths
          * for searches.
+         *
+         * TODO decide to keep or remove this non-deterministic behavior
          */
         if( !s8info->s16info ) {
             s8info->s16info = search_16_init( sdp );
         }
-
-        p_search_result res = xmalloc( sizeof( struct search_result ) );
-        res->heap = heap;
-        res->chunk_count = 0;
-        res->seq_count = 0;
 
         p_db_chunk overflow_chunk = convert_to_chunk( overflow_list );
 
@@ -463,7 +249,6 @@ static unsigned long search_chunk( p_s8info s8info, p_minheap heap, p_db_chunk c
 
         free( overflow_chunk->seq );
         free( overflow_chunk );
-        free( res );
     }
 
     return searches_done;
@@ -481,7 +266,7 @@ void search_8( p_db_chunk chunk, p_search_data sdp, p_search_result res ) {
     it_next_chunk( chunk );
 
     while( chunk->fill_pointer ) {
-        int searched_sequences = search_chunk( s8info, res->heap, chunk, sdp );
+        int searched_sequences = search_8_chunk( s8info, res->heap, chunk, sdp );
 
         assert( searched_sequences == chunk->fill_pointer * sdp->q_count );
 

@@ -186,7 +186,7 @@ int move_db_sequence_window_8( int c, uint8_t* d_begin[CHANNELS_8_BIT], uint8_t*
         }
     }
 
-    if( d_begin[c] == d_end[c] )
+    if( d_begin[c] == d_end[c] ) // TODO vectorize this check
         return 0;
     return 1;
 }
@@ -236,7 +236,6 @@ void search_8_nw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * overflo
         __m128i v[CDEPTH_8_BIT];
         int8_t a[CDEPTH_8_BIT * CHANNELS_8_BIT];
     } S;
-    memset( S.a, 0, CDEPTH_8_BIT * CHANNELS_8_BIT ); // TODO INT16_MIN instead of zero
 
     uint8_t dseq_search_window[CDEPTH_8_BIT * CHANNELS_8_BIT];
     memset( dseq_search_window, 0, CDEPTH_8_BIT * CHANNELS_8_BIT );

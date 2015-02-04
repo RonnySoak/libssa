@@ -150,7 +150,7 @@ p_query query_read_from_string( char * header, char * sequence ) {
  * @return              a pointer to the read query
  */
 p_query query_read_from_file( const char * filename ) {
-    FILE * query_fp;
+    FILE * query_fp = 0;
 
     if( strcmp( filename, "-" ) == 0 )
         ffatal( "Query not specified" ); // TODO
@@ -223,7 +223,7 @@ p_query query_read_from_file( const char * filename ) {
     fill_query( query, query_sequence, query_length );
 
     // close the file pointer
-    if( query_fp != stdin )
+    if( query_fp && (query_fp != stdin) )
         fclose( query_fp );
 
     return query;

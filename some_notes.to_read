@@ -58,6 +58,10 @@ write about how to implement an API (UnitTest, header file, etc)
 
 write about the steps of optimisations
 
+write about tests, and that it is sometimes difficult to design these tests: with a small subset the code might work, but not on a larger scale
+ - like the bug with not resetting S, which was not present, if the file did not contain more than nr of channels sequences
+ - add bar graph created using the gcov plugin (one for executed and instrumented line, one for coverage in %)
+
 compare different optimisations of this library
 compare my code to SSW on the same data
 

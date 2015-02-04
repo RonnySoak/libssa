@@ -49,6 +49,8 @@ void search16_exit( p_s16info s ) {
     /* free mem for dprofile, hearray, dir, qtable */
     if( s->hearray )
         free( s->hearray );
+    if( s->hearray_64 )
+        free( s->hearray_64 );
     if( s->dprofile )
         free( s->dprofile );
 
@@ -111,7 +113,7 @@ void dprofile_fill16( int16_t * dprofile, uint8_t * dseq_search_window ) {
     __m128i xmm8, xmm9, xmm10, xmm11, xmm12, xmm13, xmm14, xmm15;
 
     /* does not require ssse3 */
-    /* approx 4*(5*8+2*40)=480 instructions */
+    /* approx 4*(5*8+2*40)=480 instructions TODO verify these numbers */
 
 #if 0
     dumpscorematrix( score_matrix_16 );
@@ -201,12 +203,18 @@ unsigned long search_16_chunk( p_s16info s16info, p_minheap heap, p_db_chunk chu
     }
 
     if( overflow_list ) {
-        p_search_result res = xmalloc( sizeof(struct search_result) );
-        res->heap = heap;
-        res->chunk_count = 0;
-        res->seq_count = 0;
+        printf( "Overflow detected: re-aligning %ld sequences with 64 bit\n", ll_size( overflow_list ) ); // TODO show info or not?
 
-        search_63( convert_to_chunk( overflow_list ), sdp, res );
+        if( !s16info->hearray_64 ) {
+            s16info->hearray_64 = search_63_init( sdp );
+        }
+
+        p_db_chunk overflow_chunk = convert_to_chunk( overflow_list );
+
+        search_63_chunk( heap, overflow_chunk, sdp, s16info->hearray_64 );
+
+        free( overflow_chunk->seq );
+        free( overflow_chunk );
     }
 
     return searches_done;
@@ -220,6 +228,7 @@ p_s16info search_16_init( p_search_data sdp ) {
     s->q_count = 0;
     s->hearray = 0;
     s->maxdlen = ssa_db_get_longest_sequence();
+    s->hearray_64 = 0;
 
     for( int i = 0; i < 6; i++ ) {
         s->queries[i] = 0;

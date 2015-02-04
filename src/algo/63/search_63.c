@@ -32,7 +32,7 @@ void search63_init_algo( int search_type ) {
     }
 }
 
-static unsigned long search_chunk( p_minheap heap, p_db_chunk chunk, p_search_data sdp, int64_t* hearray ) {
+unsigned long search_63_chunk( p_minheap heap, p_db_chunk chunk, p_search_data sdp, int64_t* hearray ) {
     unsigned long searches_done = 0;
 
     for( int q_id = 0; q_id < sdp->q_count; q_id++ ) {
@@ -52,17 +52,21 @@ static unsigned long search_chunk( p_minheap heap, p_db_chunk chunk, p_search_da
     return searches_done;
 }
 
+int64_t* search_63_init( p_search_data sdp ) {
+    return xmalloc( sdp->hearraylen * 32 );
+}
+
 void search_63( p_db_chunk chunk, p_search_data sdp, p_search_result res ) {
     if( !search_algo ) {
         ffatal( "\n 64 bit search not initialized!!\n\n" );
     }
 
-    int64_t* hearray = xmalloc( sdp->hearraylen * 32 );
+    int64_t* hearray = search_63_init( sdp );
 
     it_next_chunk( chunk );
 
     while( chunk->fill_pointer ) {
-        int searched_sequences = search_chunk( res->heap, chunk, sdp, hearray );
+        int searched_sequences = search_63_chunk( res->heap, chunk, sdp, hearray );
 
         assert( searched_sequences == chunk->fill_pointer * sdp->q_count );
 
