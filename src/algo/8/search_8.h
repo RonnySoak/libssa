@@ -22,40 +22,56 @@
 struct s8query {
     unsigned long q_len;
 
-    __m128i ** q_table;
+    __m128i ** q_table_sse;
+    __m256i ** q_table_avx;
 
     char * seq;
 };
 typedef struct s8query * p_s8query;
 
 struct s8info {
-    __m128i * hearray;
-    __m128i * dprofile;
+    __m128i * hearray_sse;
+    __m128i * dprofile_sse;
+
+    __m256i * hearray_avx;
+    __m256i * dprofile_avx;
 
     unsigned long maxdlen;
     unsigned long maxqlen;
 
-    int q_count;
-    p_s8query queries[6];
+    uint8_t channels;
+    uint8_t cdepth;
 
-    int8_t penalty_gap_open;
-    int8_t penalty_gap_extension;
+    uint8_t penalty_gap_open;
+    uint8_t penalty_gap_extension;
+
+    uint8_t q_count;
+    p_s8query queries[6];
 
     p_s16info s16info;
 };
 typedef struct s8info * p_s8info;
 
-void search8_init_algo( int search_type );
+void search_8_init( int search_type );
 
-void dprofile_fill8( int8_t * dprofile, uint8_t * dseq );
+p_s8info search_8_sse41_init( p_search_data sdp );
+void search_8_sse41_exit( p_s8info s );
 
-int move_db_sequence_window_8( int c, uint8_t* d_begin[CHANNELS_8_BIT], uint8_t* d_end[CHANNELS_8_BIT], uint8_t* dseq );
+p_s8info search_8_avx2_init( p_search_data sdp );
+void search_8_avx2_exit( p_s8info s );
 
-void search_8_sw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * overflow_list, int query_id );
+void dprofile_fill_8_sse41( int8_t * dprofile, uint8_t * dseq_search_window );
+void dprofile_fill_8_avx( int8_t * dprofile, uint8_t * dseq_search_window );
 
-void search_8_nw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * overflow_list, int query_id );
+int move_db_sequence_window_8( int c, uint8_t ** d_begin, uint8_t ** d_end, uint8_t * dseq_search_window );
 
-void search8_nw_sellers( p_s8info s, p_db_chunk chunk, p_minheap heap, int query_id );
+void search_8_sse41_sw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * overflow_list, int query_id );
+void search_8_sse41_nw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * overflow_list, int query_id );
+void search_8_sse41_nw_sellers( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * overflow_list, int query_id );
+
+void search_8_avx2_sw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * overflow_list, int query_id );
+void search_8_avx2_nw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * overflow_list, int query_id );
+void search_8_avx2_nw_sellers( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * overflow_list, int query_id );
 
 void search_8( p_db_chunk chunk, p_search_data sdp, p_search_result res );
 

@@ -18,6 +18,7 @@
 #include "query.h"
 #include "util/thread_pool.h"
 #include "db_iterator.h"
+#include "cpu_config.h"
 
 // #############################################################################
 // Configuration data
@@ -201,6 +202,8 @@ void free_sequence( p_query p ) {
 // Alignment
 // #########
 static void test_configuration() {
+    test_cpu_features();
+
     if( !gapO || !gapE ) {
         ffatal( "Gap opening and/or gap extension cost set to zero. Possible error." );
     }

@@ -14,6 +14,7 @@
 
 #include "../src/libssa_datatypes.h"
 
+void addCPUConfigTC( Suite *s );
 void addUtilTC( Suite *s );
 void addMinHeapTC( Suite *s );
 void addLinkedListTC( Suite *s );

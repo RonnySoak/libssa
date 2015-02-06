@@ -6,6 +6,7 @@
  */
 
 #include "libssa.h"
+#include "cpu_config.h"
 
 #include <stdio.h>
 
@@ -40,6 +41,8 @@ static void cmp_alignment_lists( p_alignment_list a, p_alignment_list b, int hit
 }
 
 int main( int argc, char**argv ) {
+    set_max_compute_capability( COMPUTE_ON_SSE41 ); // TODO make configurable via API
+
     init_scoring( 2, -2 );
     init_gap_penalties( 1, 1 );
     init_symbol_translation( NUCLEOTIDE, FORWARD_STRAND, 3, 3 );

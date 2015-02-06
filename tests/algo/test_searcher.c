@@ -11,6 +11,7 @@
 #include "../../src/libssa.h"
 #include "../../src/util/minheap.h"
 #include "../../src/matrices.h"
+#include "../../src/cpu_config.h"
 #include "../../src/db_iterator.h"
 #include "../../src/query.h"
 #include "../../src/algo/searcher.h"
@@ -44,6 +45,8 @@ static void exit_searcher_test( p_search_result res ) {
     s_free( res );
     it_free();
     mat_free();
+
+    reset_compute_capability();
 }
 
 static void do_searcher_test_simple( int bit_width, int search_type, long score ) {
@@ -77,21 +80,29 @@ START_TEST (test_searcher_simple_nw_64)
 
 START_TEST (test_searcher_simple_sw_16)
     {
+        set_max_compute_capability( COMPUTE_ON_SSE2 );
+
         do_searcher_test_simple( BIT_WIDTH_16, SMITH_WATERMAN, 2 );
     }END_TEST
 
 START_TEST (test_searcher_simple_nw_16)
     {
+        set_max_compute_capability( COMPUTE_ON_SSE2 );
+
         do_searcher_test_simple( BIT_WIDTH_16, NEEDLEMAN_WUNSCH, -2 );
     }END_TEST
 
 START_TEST (test_searcher_simple_sw_8)
     {
+        set_max_compute_capability( COMPUTE_ON_SSE41 );
+
         do_searcher_test_simple( BIT_WIDTH_8, SMITH_WATERMAN, 2 );
     }END_TEST
 
 START_TEST (test_searcher_simple_nw_8)
     {
+        set_max_compute_capability( COMPUTE_ON_SSE41 );
+
         do_searcher_test_simple( BIT_WIDTH_8, NEEDLEMAN_WUNSCH, -2 );
     }END_TEST
 
@@ -137,6 +148,8 @@ START_TEST (test_searcher_multiple_sequences_sw_64)
 
 START_TEST (test_searcher_multiple_sequences_nw_16)
     {
+        set_max_compute_capability( COMPUTE_ON_SSE2 );
+
         int result[16] = { -1, 0, -3, 3, -4, 7, -4, 6, -4, 4, -5, 2, -6, 5, -6, 1 };
 
         do_multiple_sequence_test( BIT_WIDTH_16, NEEDLEMAN_WUNSCH, result );
@@ -144,6 +157,8 @@ START_TEST (test_searcher_multiple_sequences_nw_16)
 
 START_TEST (test_searcher_multiple_sequences_sw_16)
     {
+        set_max_compute_capability( COMPUTE_ON_SSE2 );
+
         int result[16] = { 4, 3, 4, 1, 4, 0, 3, 7, 3, 5, 3, 4, 3, 2, 2, 6 };
 
         do_multiple_sequence_test( BIT_WIDTH_16, SMITH_WATERMAN, result );
@@ -151,6 +166,8 @@ START_TEST (test_searcher_multiple_sequences_sw_16)
 
 START_TEST (test_searcher_multiple_sequences_nw_8)
     {
+        set_max_compute_capability( COMPUTE_ON_SSE41 );
+
         int result[16] = { -1, 0, -3, 3, -4, 7, -4, 6, -4, 4, -5, 2, -6, 5, -6, 1 };
 
         do_multiple_sequence_test( BIT_WIDTH_8, NEEDLEMAN_WUNSCH, result );
@@ -158,6 +175,8 @@ START_TEST (test_searcher_multiple_sequences_nw_8)
 
 START_TEST (test_searcher_multiple_sequences_sw_8)
     {
+        set_max_compute_capability( COMPUTE_ON_SSE41 );
+
         int result[16] = { 4, 3, 4, 1, 4, 0, 3, 7, 3, 5, 3, 4, 3, 2, 2, 6 };
 
         do_multiple_sequence_test( BIT_WIDTH_8, SMITH_WATERMAN, result );
@@ -207,6 +226,8 @@ START_TEST (test_searcher_translate_sw_64)
 
 START_TEST (test_searcher_translate_nw_16)
     {
+        set_max_compute_capability( COMPUTE_ON_SSE2 );
+
         int result[12] = { -109, 0, -109, 0, -110, 0, -110, 0, -110, 0, -113, 0 };
 
         p_search_result res = init_translate_test( BIT_WIDTH_16, NEEDLEMAN_WUNSCH,
@@ -219,6 +240,8 @@ START_TEST (test_searcher_translate_nw_16)
 
 START_TEST (test_searcher_translate_sw_16)
     {
+        set_max_compute_capability( COMPUTE_ON_SSE2 );
+
         int result[12] = { 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 1, 0 };
 
         p_search_result res = init_translate_test( BIT_WIDTH_16, SMITH_WATERMAN,
@@ -231,6 +254,8 @@ START_TEST (test_searcher_translate_sw_16)
 
 START_TEST (test_searcher_translate_nw_8)
     {
+        set_max_compute_capability( COMPUTE_ON_SSE41 );
+
         int result[12] = { -109, 0, -109, 0, -110, 0, -110, 0, -110, 0, -113, 0 };
 
         p_search_result res = init_translate_test( BIT_WIDTH_8, NEEDLEMAN_WUNSCH,
@@ -243,6 +268,8 @@ START_TEST (test_searcher_translate_nw_8)
 
 START_TEST (test_searcher_translate_sw_8)
     {
+        set_max_compute_capability( COMPUTE_ON_SSE41 );
+
         int result[12] = { 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 1, 0 };
 
         p_search_result res = init_translate_test( BIT_WIDTH_8, SMITH_WATERMAN,
@@ -281,6 +308,8 @@ START_TEST (test_searcher_AA_sw_64)
 
 START_TEST (test_searcher_AA_nw_16)
     {
+        set_max_compute_capability( COMPUTE_ON_SSE2 );
+
         int result[12] = { -87, 0 };
 
         p_search_result res = init_translate_test( BIT_WIDTH_16, NEEDLEMAN_WUNSCH,
@@ -294,6 +323,8 @@ START_TEST (test_searcher_AA_nw_16)
 
 START_TEST (test_searcher_AA_sw_16)
     {
+        set_max_compute_capability( COMPUTE_ON_SSE2 );
+
         int result[12] = { 3, 0 };
 
         p_search_result res = init_translate_test( BIT_WIDTH_16, SMITH_WATERMAN,
@@ -307,6 +338,8 @@ START_TEST (test_searcher_AA_sw_16)
 
 START_TEST (test_searcher_AA_nw_8)
     {
+        set_max_compute_capability( COMPUTE_ON_SSE41 );
+
         int result[12] = { -87, 0 };
 
         p_search_result res = init_translate_test( BIT_WIDTH_8, NEEDLEMAN_WUNSCH,
@@ -320,6 +353,8 @@ START_TEST (test_searcher_AA_nw_8)
 
 START_TEST (test_searcher_AA_sw_8)
     {
+        set_max_compute_capability( COMPUTE_ON_SSE41 );
+
         int result[12] = { 3, 0 };
 
         p_search_result res = init_translate_test( BIT_WIDTH_8, SMITH_WATERMAN,
@@ -378,6 +413,8 @@ START_TEST (test_searcher_AA_BLOSUM_nw_64)
 
 START_TEST (test_searcher_AA_BLOSUM_sw_16)
     {
+        set_max_compute_capability( COMPUTE_ON_SSE2 );
+
         int result[12] = { 103, 0 };
 
         p_search_result res = setup_BLOSUM62_test( BIT_WIDTH_16, SMITH_WATERMAN, 1 );
@@ -387,6 +424,8 @@ START_TEST (test_searcher_AA_BLOSUM_sw_16)
 
 START_TEST (test_searcher_AA_BLOSUM_nw_16)
     {
+        set_max_compute_capability( COMPUTE_ON_SSE2 );
+
         int result[12] = { 82, 0 };
 
         p_search_result res = setup_BLOSUM62_test( BIT_WIDTH_16, NEEDLEMAN_WUNSCH, 1 );
@@ -396,6 +435,8 @@ START_TEST (test_searcher_AA_BLOSUM_nw_16)
 
 START_TEST (test_searcher_AA_BLOSUM_sw_8)
     {
+        set_max_compute_capability( COMPUTE_ON_SSE41 );
+
         int result[12] = { 103, 0 };
 
         p_search_result res = setup_BLOSUM62_test( BIT_WIDTH_8, SMITH_WATERMAN, 1 );
@@ -405,6 +446,8 @@ START_TEST (test_searcher_AA_BLOSUM_sw_8)
 
 START_TEST (test_searcher_AA_BLOSUM_nw_8)
     {
+        set_max_compute_capability( COMPUTE_ON_SSE41 );
+
         int result[12] = { 82, 0 };
 
         p_search_result res = setup_BLOSUM62_test( BIT_WIDTH_8, NEEDLEMAN_WUNSCH, 1 );

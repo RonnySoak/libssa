@@ -13,11 +13,14 @@
 
 #include "../../src/util/util.h"
 #include "../../src/libssa.h"
+#include "../../src/cpu_config.h"
 #include "../../src/matrices.h"
 #include "../../src/query.h"
 #include "../../src/db_iterator.h"
 
 static p_query setup_manager_test() {
+    set_max_compute_capability( COMPUTE_ON_SSE41 );
+
     init_symbol_translation( NUCLEOTIDE, FORWARD_STRAND, 3, 3 );
     mat_init_constant_scoring( 1, -1 );
 
@@ -30,8 +33,9 @@ static p_query setup_manager_test() {
 
 static void exit_manager_test( p_alignment_list alist ) {
     a_free( alist );
-
     mat_free();
+
+    reset_compute_capability();
 }
 
 static void do_manager_test_std( p_query query ) {

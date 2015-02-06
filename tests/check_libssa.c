@@ -15,6 +15,7 @@ Suite* libssa_suite( void ) {
     _max_thread_count = 1;
 
     /* Core test case */
+    addCPUConfigTC( s );
     addUtilTC( s );
     addMinHeapTC( s );
     addLinkedListTC( s );

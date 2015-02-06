@@ -40,7 +40,7 @@ unsigned long search_63_chunk( p_minheap heap, p_db_chunk chunk, p_search_data s
 
         for( unsigned long i = 0; i < chunk->fill_pointer; i++ ) {
             p_sdb_sequence dseq = chunk->seq[i];
-// TODO filter out sequences with zero length
+
             long score = search_algo( &dseq->seq, &query.seq, hearray );
 
             add_to_minheap( heap, q_id, dseq, score );

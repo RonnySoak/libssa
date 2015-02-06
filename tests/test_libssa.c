@@ -268,5 +268,8 @@ void addLibssaTC( Suite *s ) {
     tcase_add_test( tc_core, test_1000_threads );
     tcase_add_test( tc_core, test_init_functions );
 
+    // TODO add 8/16 bit SSE/AVX test
+    // TODO add test using AF091148.fas DB file
+
     suite_add_tcase( s, tc_core );
 }

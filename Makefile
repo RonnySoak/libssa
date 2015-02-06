@@ -44,7 +44,7 @@ TEST_LIBS := -lcheck -lrt
 
 # GNU options
 CXX := gcc
-CXXFLAGS := -Wall -O3 -std=c99 -msse4 --coverage -g
+CXXFLAGS := -Wall -O3 -std=c99 -msse4.1 --coverage -g
 
 PROG := libssa libssa_check libssa_example
 
