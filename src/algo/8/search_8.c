@@ -6,6 +6,7 @@
  */
 
 #include "search_8.h"
+#include "search_8_util.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -21,15 +22,26 @@
 
 static void (*search_algo)( p_s8info, p_db_chunk, p_minheap, p_node *, int );
 
-static p_s8info (*init_search_env)( p_search_data );
-static void (*exit_search_env)( p_s8info );
+void search_8_init_algo( int search_type ) {
+    if( !is_sse2_enabled() ) {
+        ffatal( "\nAVX2 and SSE4.1 not enabled. No 8 bit search possible\n\n", search_type );
+    }
 
-void search_8_init( int search_type ) {
     if( search_type == SMITH_WATERMAN ) {
-        search_algo = &search_8_sse41_sw;
+        if( is_avx2_enabled() ) {
+//            search_algo = &search_8_avx2_sw;
+        }
+        else if( is_sse41_enabled() ) {
+            search_algo = &search_8_sse41_sw;
+        }
     }
     else if( search_type == NEEDLEMAN_WUNSCH ) {
-        search_algo = &search_8_sse41_nw;
+        if( is_avx2_enabled() ) {
+//            search_algo = &search_8_avx2_nw;
+        }
+        else if( is_sse41_enabled() ) {
+            search_algo = &search_8_sse41_nw;
+        }
     }
     else if( search_type == NEEDLEMAN_WUNSCH_SELLERS ) {
 //        search_algo = &search8_nw_sellers; TODO not yet implemented
@@ -39,14 +51,68 @@ void search_8_init( int search_type ) {
         ffatal( "\nunknown search type: %d\n\n", search_type );
     }
 
+}
+
+static p_s8info search_8_init( p_search_data sdp ) {
+    p_s8info s = (p_s8info) xmalloc( sizeof(struct s8info) );
+
+    s->dprofile_avx = 0;
+    s->dprofile_sse = 0;
+    s->hearray_avx = 0;
+    s->hearray_sse = 0;
+
+    s->maxdlen = ssa_db_get_longest_sequence();
+
+    s->q_count = 0;
+    for( int i = 0; i < 6; i++ ) {
+        s->queries[i] = 0;
+    }
+
+    s->penalty_gap_open = gapO;
+    s->penalty_gap_extension = gapE;
+
+    s->s16info = 0;
+
     if( is_avx2_enabled() ) {
-        init_search_env = &search_8_avx2_init;
-        exit_search_env = &search_8_avx2_exit;
+        search_8_avx2_init( sdp, s );
     }
-    else if( is_sse41_enabled() ) {
-        init_search_env = &search_8_sse41_init;
-        exit_search_env = &search_8_sse41_exit;
+    else {
+        search_8_sse41_init( sdp, s );
     }
+
+    return s;
+}
+
+void search_8_exit( p_s8info s ) {
+    /* free mem for dprofile, hearray, dir, qtable */
+    if( s->hearray_avx )
+        free( s->hearray_avx );
+    if( s->hearray_sse )
+        free( s->hearray_sse );
+    if( s->dprofile_sse )
+        free( s->dprofile_sse );
+    if( s->dprofile_avx )
+        free( s->dprofile_avx );
+
+    for( int i = 0; i < s->q_count; i++ ) {
+        if( s->queries[i]->q_table_sse )
+            free( s->queries[i]->q_table_sse );
+        if( s->queries[i]->q_table_avx )
+            free( s->queries[i]->q_table_avx );
+
+        s->queries[i]->q_len = 0;
+
+        free( s->queries[i] );
+        s->queries[i] = 0;
+    }
+    s->q_count = 0;
+
+    if( s->s16info ) {
+        search_16_exit( s->s16info );
+        s->s16info = 0;
+    }
+
+    free( s );
 }
 
 static unsigned long search_8_chunk( p_s8info s8info, p_minheap heap, p_db_chunk chunk, p_search_data sdp ) {
@@ -76,7 +142,7 @@ static unsigned long search_8_chunk( p_s8info s8info, p_minheap heap, p_db_chunk
          * TODO decide to keep or remove this non-deterministic behavior
          */
         if( !s8info->s16info ) {
-            s8info->s16info = search_16_sse2_init( sdp );
+            s8info->s16info = search_16_init( sdp );
         }
 
         p_db_chunk overflow_chunk = convert_to_chunk( overflow_list );
@@ -91,11 +157,11 @@ static unsigned long search_8_chunk( p_s8info s8info, p_minheap heap, p_db_chunk
 }
 
 void search_8( p_db_chunk chunk, p_search_data sdp, p_search_result res ) {
-    if( !search_algo || !init_search_env || !exit_search_env ) {
-        ffatal( "\n 8 bit search not initialized. Compute capability must be at least SSE4.1!!\n" );
+    if( !search_algo) {
+        ffatal( "\n 8 bit search not initialized.\n" );
     }
 
-    p_s8info s8info = init_search_env( sdp );
+    p_s8info s8info = search_8_init( sdp );
 
     it_next_chunk( chunk );
 
@@ -110,5 +176,5 @@ void search_8( p_db_chunk chunk, p_search_data sdp, p_search_result res ) {
         it_next_chunk( chunk );
     }
 
-    exit_search_env( s8info );
+    search_8_exit( s8info );
 }

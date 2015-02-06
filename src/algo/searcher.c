@@ -110,7 +110,7 @@ void s_init( int search_type, int bit_width, p_query query, int hit_count ) {
 
     search63_init_algo( search_type );
     search_16_init_algo( search_type );
-    search_8_init( search_type );
+    search_8_init_algo( search_type );
 
     sdp = s_create_searchdata( query, hit_count );
 }

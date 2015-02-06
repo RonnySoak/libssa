@@ -52,7 +52,7 @@ unsigned long search_63_chunk( p_minheap heap, p_db_chunk chunk, p_search_data s
     return searches_done;
 }
 
-int64_t* search_63_init( p_search_data sdp ) {
+int64_t* search_63_init_hearray( p_search_data sdp ) {
     return xmalloc( sdp->hearraylen * 32 );
 }
 
@@ -61,7 +61,7 @@ void search_63( p_db_chunk chunk, p_search_data sdp, p_search_result res ) {
         ffatal( "\n 64 bit search not initialized!!\n\n" );
     }
 
-    int64_t* hearray = search_63_init( sdp );
+    int64_t* hearray = search_63_init_hearray( sdp );
 
     it_next_chunk( chunk );
 

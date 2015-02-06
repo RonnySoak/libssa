@@ -20,6 +20,7 @@
  */
 
 #include "search_8.h"
+#include "search_8_util.h"
 
 #include <limits.h>
 #include <string.h>
@@ -173,23 +174,6 @@ static void aligncolumns_rest( __m128i * Sm, __m128i * hep, __m128i ** qp, __m12
 
     *_h_min = h_min;
     *_h_max = h_max;
-}
-
-// TODO inline function?!
-int move_db_sequence_window_8( int c, uint8_t* d_begin[CHANNELS_8_BIT], uint8_t* d_end[CHANNELS_8_BIT],
-        uint8_t dseq_search_window[CDEPTH_8_BIT * CHANNELS_8_BIT] ) {
-    for( int j = 0; j < CDEPTH_8_BIT; j++ ) {
-        if( d_begin[c] < d_end[c] ) {
-            dseq_search_window[CHANNELS_8_BIT * j + c] = *(d_begin[c]++);
-        }
-        else {
-            dseq_search_window[CHANNELS_8_BIT * j + c] = 0;
-        }
-    }
-
-    if( d_begin[c] == d_end[c] ) // TODO vectorize this check
-        return 0;
-    return 1;
 }
 
 static void check_min_max( uint8_t overflow[CHANNELS_8_BIT], __m128i h_min, __m128i h_max, int8_t score_min, int8_t score_max ) {

@@ -6,6 +6,7 @@
  */
 
 #include "search_8.h"
+#include "search_8_util.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -18,24 +19,12 @@
 #include "../../matrices.h"
 #include "../16/search_16.h"
 
-static void free_query( p_s8query query ) {
-    if( query ) {
-        free( query->q_table_sse );
-        query->q_len = 0;
-
-        free( query );
-    }
-}
-
 static void search_8_sse41_init_query( p_s8info s, int q_count, seq_buffer * queries ) {
     s->q_count = q_count;
 
     s->maxqlen = 0;
 
     for( int i = 0; i < q_count; ++i ) {
-        if( s->queries[i] )
-            free_query( s->queries[i] );
-
         p_s8query query = (p_s8query) xmalloc( sizeof(struct s8query) );
 
         query->q_len = queries[i].seq.len;
@@ -45,6 +34,7 @@ static void search_8_sse41_init_query( p_s8info s, int q_count, seq_buffer * que
             s->maxqlen = query->q_len;
         }
 
+        query->q_table_avx = 0;
         query->q_table_sse = (__m128i **) xmalloc( query->q_len * sizeof(__m128i *) );
 
         for( int j = 0; j < query->q_len; j++ )
@@ -63,47 +53,10 @@ static void search_8_sse41_init_query( p_s8info s, int q_count, seq_buffer * que
     memset( s->hearray_sse, 0, 2 * s->maxqlen * sizeof(__m128i ) );
 }
 
-p_s8info search_8_sse41_init( p_search_data sdp ) {
-    /* prepare alloc of qtable, dprofile, hearray, dir */
-    p_s8info s = (p_s8info) xmalloc( sizeof(struct s8info) );
-
+void search_8_sse41_init( p_search_data sdp, p_s8info s ) {
     s->dprofile_sse = (__m128i *) xmalloc( sizeof(int8_t) * CDEPTH_8_BIT * CHANNELS_8_BIT * SCORE_MATRIX_DIM );
-    s->q_count = 0;
-    s->hearray_sse = 0;
-    s->maxdlen = ssa_db_get_longest_sequence();
-
-    for( int i = 0; i < 6; i++ ) {
-        s->queries[i] = 0;
-    }
-
-    s->penalty_gap_open = gapO;
-    s->penalty_gap_extension = gapE;
-
-    s->s16info = 0;
 
     search_8_sse41_init_query( s, sdp->q_count, sdp->queries );
-
-    return s;
-}
-
-void search_8_sse41_exit( p_s8info s ) {
-    /* free mem for dprofile, hearray, dir, qtable */
-    if( s->hearray_sse )
-        free( s->hearray_sse );
-    if( s->dprofile_sse )
-        free( s->dprofile_sse );
-
-    for( int i = 0; i < s->q_count; i++ ) {
-        free_query( s->queries[i] );
-    }
-    s->q_count = 0;
-
-    if( s->s16info ) {
-        search_16_sse2_exit( s->s16info );
-        s->s16info = 0;
-    }
-
-    free( s );
 }
 
 void dprofile_fill_8_sse41( int8_t * dprofile, uint8_t * dseq_search_window ) {

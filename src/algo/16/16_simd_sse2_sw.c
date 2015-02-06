@@ -20,6 +20,7 @@
  */
 
 #include "search_16.h"
+#include "search_16_util.h"
 
 #include <limits.h>
 #include <string.h>
@@ -163,7 +164,7 @@ static void aligncolumns_rest( __m128i * Sm, __m128i * hep, __m128i ** qp, __m12
     *_h_max = h_max;
 }
 
-static void check_min_max( uint8_t overflow[CHANNELS_16_BIT], __m128i h_max, int16_t score_max ) {
+static void check_max( uint8_t overflow[CHANNELS_16_BIT], __m128i h_max, int16_t score_max ) {
     for( int c = 0; c < CHANNELS_16_BIT; c++ ) {
         if( !overflow[c] ) {
             int16_t h_max_array[CHANNELS_16_BIT];
@@ -254,7 +255,7 @@ void search_16_sse2_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * 
 
             aligncolumns_rest( &S.v, hep, s->queries[q_id]->q_table_sse, gap_open_extend, gap_extend, &h_max, qlen );
 
-            check_min_max( overflow, h_max, score_max );
+            check_max( overflow, h_max, score_max );
         }
         else {
             /* One or more sequences ended in the previous block.
@@ -335,7 +336,7 @@ void search_16_sse2_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * 
 
             aligncolumns_first( &S.v, hep, s->queries[q_id]->q_table_sse, gap_open_extend, gap_extend, M, &h_max, qlen );
 
-            check_min_max( overflow, h_max, score_max );
+            check_max( overflow, h_max, score_max );
         }
 
 #ifdef DBG_COLLECT_MATRIX

@@ -6,6 +6,7 @@ OBJS += \
 ./src/algo/16/search_16_avx2_util.o
 
 USER_OBJS += \
-./src/algo/16/search_16.h
+./src/algo/16/search_16.h \
+./src/algo/16/search_16_util.h
 
 TO_CLEAN +=

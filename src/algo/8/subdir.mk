@@ -6,6 +6,7 @@ OBJS += \
 ./src/algo/8/search_8_sse41_util.o
 
 USER_OBJS += \
-./src/algo/8/search_8.h
+./src/algo/8/search_8.h \
+./src/algo/8/search_8_util.h
 
 TO_CLEAN +=
