@@ -15,8 +15,9 @@
 #include "../../util/minheap.h"
 #include "../../util/linked_list.h"
 
-#define CHANNELS_16_BIT 8
 #define CDEPTH_16_BIT 4
+#define CHANNELS_16_BIT_SSE (128 / 16)
+#define CHANNELS_16_BIT_AVX (256 / 16)
 
 struct s16query {
     unsigned long q_len;
@@ -39,9 +40,6 @@ struct s16info {
 
     unsigned long maxdlen;
     unsigned long maxqlen;
-
-    uint8_t channels;
-    uint8_t cdepth;
 
     uint8_t q_count;
     p_s16query queries[6];

@@ -176,11 +176,11 @@ static void aligncolumns_rest( __m128i * Sm, __m128i * hep, __m128i ** qp, __m12
     *_h_max = h_max;
 }
 
-static void check_min_max( uint8_t overflow[CHANNELS_8_BIT], __m128i h_min, __m128i h_max, int8_t score_min, int8_t score_max ) {
-    for( int c = 0; c < CHANNELS_8_BIT; c++ ) {
+static void check_min_max( uint8_t overflow[CHANNELS_8_BIT_SSE], __m128i h_min, __m128i h_max, int8_t score_min, int8_t score_max ) {
+    for( int c = 0; c < CHANNELS_8_BIT_SSE; c++ ) {
         if( !overflow[c] ) {
-            int8_t h_min_array[CHANNELS_8_BIT];
-            int8_t h_max_array[CHANNELS_8_BIT];
+            int8_t h_min_array[CHANNELS_8_BIT_SSE];
+            int8_t h_max_array[CHANNELS_8_BIT_SSE];
             _mm_storeu_si128( (__m128i *) h_min_array, h_min );
             _mm_storeu_si128( (__m128i *) h_max_array, h_max );
             int8_t h_min_c = h_min_array[c];
@@ -211,19 +211,19 @@ void search_8_sse41_nw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * o
 
     __m128i * hep;
 
-    uint8_t * d_begin[CHANNELS_8_BIT];
-    uint8_t * d_end[CHANNELS_8_BIT];
-    unsigned long d_length[CHANNELS_8_BIT];
-    p_sdb_sequence d_seq_ptr[CHANNELS_8_BIT];
-    uint8_t overflow[CHANNELS_8_BIT];
+    uint8_t * d_begin[CHANNELS_8_BIT_SSE];
+    uint8_t * d_end[CHANNELS_8_BIT_SSE];
+    unsigned long d_length[CHANNELS_8_BIT_SSE];
+    p_sdb_sequence d_seq_ptr[CHANNELS_8_BIT_SSE];
+    uint8_t overflow[CHANNELS_8_BIT_SSE];
 
     union {
         __m128i v[CDEPTH_8_BIT];
-        int8_t a[CDEPTH_8_BIT * CHANNELS_8_BIT];
+        int8_t a[CDEPTH_8_BIT * CHANNELS_8_BIT_SSE];
     } S;
 
-    uint8_t dseq_search_window[CDEPTH_8_BIT * CHANNELS_8_BIT];
-    memset( dseq_search_window, 0, CDEPTH_8_BIT * CHANNELS_8_BIT );
+    uint8_t dseq_search_window[CDEPTH_8_BIT * CHANNELS_8_BIT_SSE];
+    memset( dseq_search_window, 0, CDEPTH_8_BIT * CHANNELS_8_BIT_SSE );
 
     unsigned long next_id = 0;
     unsigned long done = 0;
@@ -235,7 +235,7 @@ void search_8_sse41_nw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * o
 
     hep = s->hearray_sse;
 
-    for( int c = 0; c < CHANNELS_8_BIT; c++ ) {
+    for( int c = 0; c < CHANNELS_8_BIT_SSE; c++ ) {
         d_begin[c] = 0;
         d_end[c] = d_begin[c];
         d_length[c] = 0;
@@ -262,7 +262,7 @@ void search_8_sse41_nw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * o
         if( no_sequences_ended ) {
             /* fill all channels with symbols from the database sequences */
 
-            for( int c = 0; c < CHANNELS_8_BIT; c++ ) {
+            for( int c = 0; c < CHANNELS_8_BIT_SSE; c++ ) {
                 no_sequences_ended &= move_db_sequence_window_8( c, d_begin, d_end, dseq_search_window );
             }
 
@@ -282,7 +282,7 @@ void search_8_sse41_nw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * o
 
             M = _mm_setzero_si128();
             T = T0;
-            for( int c = 0; c < CHANNELS_8_BIT; c++ ) {
+            for( int c = 0; c < CHANNELS_8_BIT_SSE; c++ ) {
                 if( d_begin[c] < d_end[c] ) {
                     /* the sequence in this channel is not finished yet */
 
@@ -298,7 +298,7 @@ void search_8_sse41_nw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * o
                         /* save score */
 
                         long z = (d_length[c] + 3) % 4;
-                        long score = S.a[z * CHANNELS_8_BIT + c];
+                        long score = S.a[z * CHANNELS_8_BIT_SSE + c];
 
                         if( !overflow[c] && (score > INT8_MIN) && (score < INT8_MAX) ) {
                             /* Alignments, with a score equal to the current lowest score in the
@@ -349,7 +349,7 @@ void search_8_sse41_nw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * o
                         d_end[c] = d_begin[c];
                         d_length[c] = 0;
                         for( int j = 0; j < CDEPTH_8_BIT; j++ )
-                            dseq_search_window[CHANNELS_8_BIT * j + c] = 0;
+                            dseq_search_window[CHANNELS_8_BIT_SSE * j + c] = 0;
                     }
                 }
 

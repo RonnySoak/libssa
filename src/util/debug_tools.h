@@ -37,8 +37,10 @@ void dbg_mm_print_16u( char * desc, __m128i x );
 void dbg_mm_print_16s( char * desc, __m128i x );
 void dbg_mm_print_sw_16s( char * desc, __m128i x );
 
-void dbg_dprofile_dump16( int16_t * dprofile, int cdepth, int channels );
+void dbg_dprofile_dump_16( int16_t * dprofile, int cdepth, int channels );
+void dbg_dprofile_dump_8( int8_t * dprofile, int cdepth, int channels );
 
-void dbg_dumpscorematrix( int16_t * m );
+void dbg_dumpscorematrix_16( int16_t * m );
+void dbg_dumpscorematrix_8( int8_t * m );
 
 #endif /* SRC_UTIL_DEBUG_TOOLS_H_ */

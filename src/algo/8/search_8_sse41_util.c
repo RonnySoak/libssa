@@ -15,6 +15,7 @@
 #include "../searcher.h"
 #include "../../util/util.h"
 #include "../../util/linked_list.h"
+#include "../../util/util_sequence.h"
 #include "../../db_iterator.h"
 #include "../../matrices.h"
 #include "../16/search_16.h"
@@ -42,7 +43,7 @@ static void search_8_sse41_init_query( p_s8info s, int q_count, seq_buffer * que
              * q_table holds pointers to dprofile, which holds the actual query data.
              * The dprofile is filled during the search for every four columns, that are searched.
              */
-            query->q_table_sse[j] = s->dprofile_sse + CDEPTH_8_BIT * (int) (queries[i].seq.seq[j]);
+            query->q_table_sse[j] = &s->dprofile_sse[ CDEPTH_8_BIT * (int) (queries[i].seq.seq[j])];
 
         s->queries[i] = query;
     }
@@ -54,7 +55,7 @@ static void search_8_sse41_init_query( p_s8info s, int q_count, seq_buffer * que
 }
 
 void search_8_sse41_init( p_search_data sdp, p_s8info s ) {
-    s->dprofile_sse = (__m128i *) xmalloc( sizeof(int8_t) * CDEPTH_8_BIT * CHANNELS_8_BIT * SCORE_MATRIX_DIM );
+    s->dprofile_sse = (__m128i *) xmalloc( sizeof(int8_t) * CDEPTH_8_BIT * CHANNELS_8_BIT_SSE * SCORE_MATRIX_DIM );
 
     search_8_sse41_init_query( s, sdp->q_count, sdp->queries );
 }
@@ -66,11 +67,21 @@ void dprofile_fill_8_sse41( int8_t * dprofile, uint8_t * dseq_search_window ) {
     // 4 x 16 db symbols
     // ca (60x2+68x2)x4 = 976 instructions TODO verify these numbers
 
-    for( int j = 0; j < CDEPTH_8_BIT; j++ ) {
-        int d[CHANNELS_8_BIT];
+#if 1
+    dbg_dumpscorematrix_8( score_matrix_7 );
 
-        for( int i = 0; i < CHANNELS_8_BIT; i++ )
-            d[i] = dseq_search_window[j * CHANNELS_8_BIT + i] << 5;
+    for( int j = 0; j < CDEPTH_8_BIT; j++ ) {
+        for( int z = 0; z < CHANNELS_8_BIT_SSE; z++ )
+            fprintf( stderr, " [%c]", sym_ncbi_nt16u[dseq_search_window[j * CHANNELS_8_BIT_SSE + z]] );
+        fprintf( stderr, "\n" );
+    }
+#endif
+
+    for( int j = 0; j < CDEPTH_8_BIT; j++ ) {
+        int d[CHANNELS_8_BIT_SSE];
+
+        for( int i = 0; i < CHANNELS_8_BIT_SSE; i++ )
+            d[i] = dseq_search_window[j * CHANNELS_8_BIT_SSE + i] << 5;
 
         for( int i = 0; i < SCORE_MATRIX_DIM; i += 8 ) {
             xmm0 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + i + d[0]) );
@@ -138,14 +149,17 @@ void dprofile_fill_8_sse41( int8_t * dprofile, uint8_t * dseq_search_window ) {
             xmm6 = _mm_unpacklo_epi64( xmm6, xmm14 );
             xmm15 = _mm_unpackhi_epi64( xmm15, xmm14 );
 
-            _mm_store_si128( (__m128i *) (dprofile + 16 * j + 64 * i + 0), xmm0 );
-            _mm_store_si128( (__m128i *) (dprofile + 16 * j + 64 * i + 64), xmm3 );
-            _mm_store_si128( (__m128i *) (dprofile + 16 * j + 64 * i + 128), xmm2 );
-            _mm_store_si128( (__m128i *) (dprofile + 16 * j + 64 * i + 192), xmm7 );
-            _mm_store_si128( (__m128i *) (dprofile + 16 * j + 64 * i + 256), xmm1 );
-            _mm_store_si128( (__m128i *) (dprofile + 16 * j + 64 * i + 320), xmm11 );
-            _mm_store_si128( (__m128i *) (dprofile + 16 * j + 64 * i + 384), xmm6 );
-            _mm_store_si128( (__m128i *) (dprofile + 16 * j + 64 * i + 448), xmm15 );
+            _mm_store_si128( (__m128i *) (dprofile + CHANNELS_8_BIT_SSE * j + 64 * i + 0), xmm0 );
+            _mm_store_si128( (__m128i *) (dprofile + CHANNELS_8_BIT_SSE * j + 64 * i + 64), xmm3 );
+            _mm_store_si128( (__m128i *) (dprofile + CHANNELS_8_BIT_SSE * j + 64 * i + 128), xmm2 );
+            _mm_store_si128( (__m128i *) (dprofile + CHANNELS_8_BIT_SSE * j + 64 * i + 192), xmm7 );
+            _mm_store_si128( (__m128i *) (dprofile + CHANNELS_8_BIT_SSE * j + 64 * i + 256), xmm1 );
+            _mm_store_si128( (__m128i *) (dprofile + CHANNELS_8_BIT_SSE * j + 64 * i + 320), xmm11 );
+            _mm_store_si128( (__m128i *) (dprofile + CHANNELS_8_BIT_SSE * j + 64 * i + 384), xmm6 );
+            _mm_store_si128( (__m128i *) (dprofile + CHANNELS_8_BIT_SSE * j + 64 * i + 448), xmm15 );
         }
     }
+#if 1
+    dbg_dprofile_dump_8( dprofile, CDEPTH_8_BIT, CHANNELS_8_BIT_SSE );
+#endif
 }

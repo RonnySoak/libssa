@@ -16,8 +16,9 @@
 #include "../../util/minheap.h"
 #include "../../util/linked_list.h"
 
-#define CHANNELS_8_BIT 16
 #define CDEPTH_8_BIT 4
+#define CHANNELS_8_BIT_SSE (128 / 8)
+#define CHANNELS_8_BIT_AVX (256 / 8)
 
 struct s8query {
     unsigned long q_len;
@@ -38,9 +39,6 @@ struct s8info {
 
     unsigned long maxdlen;
     unsigned long maxqlen;
-
-    uint8_t channels;
-    uint8_t cdepth;
 
     uint8_t penalty_gap_open;
     uint8_t penalty_gap_extension;

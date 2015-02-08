@@ -202,7 +202,7 @@ void dbg_print_aligned_sequences() {
 
         dbg_minheap_sort( aligned_sequences );
 
-        for (int i = 0; i < aligned_sequences->count; ++i) {
+        for( int i = 0; i < aligned_sequences->count; ++i ) {
             elem_t data = aligned_sequences->array[i];
 
             fprintf( f, "DB-ID %ld, query-ID: %d, score: %ld\n", data.db_id, data.query_id, data.score );
@@ -271,10 +271,10 @@ void dbg_mm_print_sw_16s( char * desc, __m128i x ) {
     printf( "\n" );
 }
 
-void dbg_dprofile_dump16( int16_t * dprofile, int cdepth, int channels ) {
+void dbg_dprofile_dump_16( int16_t * dprofile, int cdepth, int channels ) {
     const char * s = sym_ncbi_nt16u;
     printf( "\ndprofile:\n" );
-    for( int i = 0; i < 16; i++ ) {
+    for( int i = 0; i < SCORE_MATRIX_DIM; i++ ) {
         printf( "%c: ", s[i] );
         for( int k = 0; k < cdepth; k++ ) {
             printf( "[" );
@@ -286,11 +286,35 @@ void dbg_dprofile_dump16( int16_t * dprofile, int cdepth, int channels ) {
     }
 }
 
-void dbg_dumpscorematrix( int16_t * m ) {
-    for( int i = 0; i < 16; i++ ) {
+void dbg_dprofile_dump_8( int8_t * dprofile, int cdepth, int channels ) {
+    const char * s = sym_ncbi_nt16u;
+    printf( "\ndprofile:\n" );
+    for( int i = 0; i < SCORE_MATRIX_DIM; i++ ) {
+        printf( "%c: ", s[i] );
+        for( int k = 0; k < cdepth; k++ ) {
+            printf( "[" );
+            for( int j = 0; j < channels; j++ )
+                printf( " %3d", dprofile[channels * cdepth * i + channels * k + j] );
+            printf( "]" );
+        }
+        printf( "\n" );
+    }
+}
+
+void dbg_dumpscorematrix_16( int16_t * m ) {
+    for( int i = 0; i < SCORE_MATRIX_DIM; i++ ) {
         printf( "%2d %c", i, sym_ncbi_nt16u[i] );
-        for( int j = 0; j < 16; j++ )
-            printf( " %2d", m[16 * i + j] );
+        for( int j = 0; j < SCORE_MATRIX_DIM; j++ )
+            printf( " %2d", m[SCORE_MATRIX_DIM * i + j] );
+        printf( "\n" );
+    }
+}
+
+void dbg_dumpscorematrix_8( int8_t * m ) {
+    for( int i = 0; i < SCORE_MATRIX_DIM; i++ ) {
+        printf( "%2d %c", i, sym_ncbi_nt16u[i] );
+        for( int j = 0; j < SCORE_MATRIX_DIM; j++ )
+            printf( " %2d", m[SCORE_MATRIX_DIM * i + j] );
         printf( "\n" );
     }
 }

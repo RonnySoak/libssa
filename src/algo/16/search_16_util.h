@@ -10,14 +10,14 @@
 
 #include "search_16.h"
 
-static inline int move_db_sequence_window_16( int c, uint8_t* d_begin[CHANNELS_16_BIT], uint8_t* d_end[CHANNELS_16_BIT],
+static inline int move_db_sequence_window_16( int c, uint8_t* d_begin[CHANNELS_16_BIT_SSE], uint8_t* d_end[CHANNELS_16_BIT_SSE],
         uint8_t* dseq_search_window ) {
     for( int j = 0; j < CDEPTH_16_BIT; j++ ) {
         if( d_begin[c] < d_end[c] ) {
-            dseq_search_window[CHANNELS_16_BIT * j + c] = *(d_begin[c]++);
+            dseq_search_window[CHANNELS_16_BIT_SSE * j + c] = *(d_begin[c]++);
         }
         else {
-            dseq_search_window[CHANNELS_16_BIT * j + c] = 0;
+            dseq_search_window[CHANNELS_16_BIT_SSE * j + c] = 0;
         }
     }
 

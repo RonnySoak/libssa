@@ -30,7 +30,7 @@ void search_16_init_algo( int search_type ) {
 
     if( search_type == SMITH_WATERMAN ) {
         if( is_avx2_enabled() ) {
-//            search_algo = &search_16_avx2_sw;
+            search_algo = &search_16_avx2_sw;
         }
         else {
             search_algo = &search_16_sse2_sw;

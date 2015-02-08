@@ -271,19 +271,12 @@ Z  0  0  1  3 -5  3  3  0  2 -2 -3  0 -2 -5  0  0 -1 -6 -4 -2  2  3 -1\n\
 X  0 -1  0 -1 -3 -1 -1 -1 -1 -1 -1 -1 -1 -2 -1  0  0 -4 -2 -1 -1 -1 -1\n";
 
 long SCORELIMIT_7;
-long SCORELIMIT_8;
 long SCORELIMIT_16;
-long SCORELIMIT_32;
 long SCORELIMIT_63;
 char BIAS;
 
-/*
- * TODO evaluate, which ones I need
- */
 int8_t* score_matrix_7 = NULL; // char
-uint8_t * score_matrix_8 = NULL; // unsigned char
 int16_t * score_matrix_16 = NULL; // short
-uint32_t * score_matrix_32 = NULL; // unsigned int
 int64_t * score_matrix_63 = NULL; // long
 
 /**
@@ -291,22 +284,22 @@ int64_t * score_matrix_63 = NULL; // long
  *
  * @param outfile   the file, where to print the matrix
  */
-void mat_dump(char* outfile) {
+void mat_dump( char* outfile ) {
     // TODO dumps to stdout
-    outf("     ");
-    for (int i = 0; i < SCORE_MATRIX_DIM; i++)
-        outf("%2d", i);
-    outf("\n");
-    outf("     ");
-    for (int i = 0; i < SCORE_MATRIX_DIM; i++)
-        outf(" %c", sym_ncbi_aa[i]);
-    outf("\n");
-    for (int i = 0; i < SCORE_MATRIX_DIM; i++) {
-        outf("%2d %c ", i, sym_ncbi_aa[i]);
-        for (int j = 0; j < SCORE_MATRIX_DIM; j++) {
-            outf("%2ld", SCORE_MATRIX_63(i, j));
+    outf( "     " );
+    for( int i = 0; i < SCORE_MATRIX_DIM; i++ )
+        outf( "%2d", i );
+    outf( "\n" );
+    outf( "     " );
+    for( int i = 0; i < SCORE_MATRIX_DIM; i++ )
+        outf( " %c", sym_ncbi_aa[i] );
+    outf( "\n" );
+    for( int i = 0; i < SCORE_MATRIX_DIM; i++ ) {
+        outf( "%2d %c ", i, sym_ncbi_aa[i] );
+        for( int j = 0; j < SCORE_MATRIX_DIM; j++ ) {
+            outf( "%2ld", SCORE_MATRIX_63( i, j ) );
         }
-        outf("\n");
+        outf( "\n" );
     }
 }
 
@@ -316,17 +309,15 @@ void mat_dump(char* outfile) {
  * score_matrix_63 is initialised with -1.
  */
 static void prepare_matrices() {
-    if (score_matrix_63) {
+    if( score_matrix_63 ) {
         // free first, before we allocate new memory
         mat_free();
     }
 
-    score_matrix_7 = xmalloc(SCORE_MATRIX_DIM * SCORE_MATRIX_DIM * sizeof(int8_t));
-    score_matrix_8 = xmalloc(SCORE_MATRIX_DIM * SCORE_MATRIX_DIM * sizeof(uint8_t));
-    score_matrix_16 = xmalloc(SCORE_MATRIX_DIM * SCORE_MATRIX_DIM * sizeof(int16_t));
-    score_matrix_32 = xmalloc(SCORE_MATRIX_DIM * SCORE_MATRIX_DIM * sizeof(uint32_t));
-    score_matrix_63 = xmalloc(SCORE_MATRIX_DIM * SCORE_MATRIX_DIM * sizeof(int64_t));
-    memset(score_matrix_63, -1, SCORE_MATRIX_DIM * SCORE_MATRIX_DIM * sizeof(int64_t));
+    score_matrix_7 = xmalloc( SCORE_MATRIX_DIM * SCORE_MATRIX_DIM * sizeof(int8_t) );
+    score_matrix_16 = xmalloc( SCORE_MATRIX_DIM * SCORE_MATRIX_DIM * sizeof(int16_t) );
+    score_matrix_63 = xmalloc( SCORE_MATRIX_DIM * SCORE_MATRIX_DIM * sizeof(int64_t) );
+    memset( score_matrix_63, -1, SCORE_MATRIX_DIM * SCORE_MATRIX_DIM * sizeof(int64_t) );
 }
 
 /**
@@ -340,30 +331,26 @@ static void finalize_matrices() {
     hi = -100;
     lo = 100;
 
-    for (a = 0; a < SCORE_MATRIX_DIM; a++) {
-        for (b = 0; b < SCORE_MATRIX_DIM; b++) {
-            sc = SCORE_MATRIX_63(a, b);
-            if (sc < lo)
+    for( a = 0; a < SCORE_MATRIX_DIM; a++ ) {
+        for( b = 0; b < SCORE_MATRIX_DIM; b++ ) {
+            sc = SCORE_MATRIX_63( a, b );
+            if( sc < lo )
                 lo = sc;
-            if (sc > hi)
+            if( sc > hi )
                 hi = sc;
         }
     }
 
     BIAS = -lo;
     SCORELIMIT_7 = (2 ^ 7) - hi;
-    SCORELIMIT_8 = (2 ^ 8) - hi;
     SCORELIMIT_16 = (2 ^ 16) - hi;
-    SCORELIMIT_32 = (2 ^ 32) - hi;
 
-    for (a = 0; a < SCORE_MATRIX_DIM; a++) {
-        for (b = 0; b < SCORE_MATRIX_DIM; b++) {
-            sc = SCORE_MATRIX_63(a, b);
+    for( a = 0; a < SCORE_MATRIX_DIM; a++ ) {
+        for( b = 0; b < SCORE_MATRIX_DIM; b++ ) {
+            sc = SCORE_MATRIX_63( a, b );
 
             SCORE_MATRIX_7(a, b) = (int8_t) sc;
-            SCORE_MATRIX_8(a, b) = (uint8_t) (BIAS + sc);
             SCORE_MATRIX_16(a, b) = (int16_t) sc;
-            SCORE_MATRIX_32(a, b) = (int32_t) sc;
         }
     }
 }
@@ -375,14 +362,13 @@ static void finalize_matrices() {
  * @param symbols   nr of read symbols
  * @param order     TODO ???
  */
-static void read_line(char line[LINE_MAX], int* symbols, char* order) {
+static void read_line( char line[LINE_MAX], int* symbols, char* order ) {
     char *p, *q;
 
     p = line;
     char c = *p++;
 
-    switch (c) {
-
+    switch( c ) {
     case '\n':
     case '#':
         /* ignore blank lines and comments starting with # */
@@ -394,8 +380,8 @@ static void read_line(char line[LINE_MAX], int* symbols, char* order) {
 
         q = order;
 
-        while ((c = *p++)) {
-            if (strchr(" \t\n", c) == NULL) {
+        while( (c = *p++) ) {
+            if( strchr( " \t\n", c ) == NULL ) {
                 *q++ = map_ncbi_aa[(int) c];
                 (*symbols)++;
             }
@@ -407,16 +393,16 @@ static void read_line(char line[LINE_MAX], int* symbols, char* order) {
         int read;
 
         int8_t a = map_ncbi_aa[(int) c];
-        for (int i = 0; i < *symbols; i++) {
+        for( int i = 0; i < *symbols; i++ ) {
             long sc;
 
-            if (sscanf(p, "%ld%n", &sc, &read) == 0) {
-                ffatal("Problem parsing score matrix file.");
+            if( sscanf( p, "%ld%n", &sc, &read ) == 0 ) {
+                ffatal( "Problem parsing score matrix file." );
             }
 
             char b = order[i];
 
-            if ((a >= 0) && (b >= 0) && (a < SCORE_MATRIX_DIM) && (b < SCORE_MATRIX_DIM)) {
+            if( (a >= 0) && (b >= 0) && (a < SCORE_MATRIX_DIM) && (b < SCORE_MATRIX_DIM) ) {
 //                printf("c: %c, idx: %d, sc: %ld\n", (char)c, ((a << 5) + b), sc);
 
                 /* a line is 32 elements wide and the first element of the first
@@ -428,7 +414,8 @@ static void read_line(char line[LINE_MAX], int* symbols, char* order) {
             p += read;
         }
         break;
-    }}
+    }
+    }
 }
 
 /**
@@ -439,13 +426,12 @@ static void read_line(char line[LINE_MAX], int* symbols, char* order) {
  * @param matchscore        score for matching symbols
  * @param mismatchscore     score for mismatching symbols
  */
-void mat_init_constant_scoring(const int8_t matchscore,
-        const int8_t mismatchscore) {
+void mat_init_constant_scoring( const int8_t matchscore, const int8_t mismatchscore ) {
     prepare_matrices();
 
     int a, b;
-    for (a = 1; a < SCORE_MATRIX_DIM; a++) {
-        for (b = 1; b < SCORE_MATRIX_DIM; b++) {
+    for( a = 1; a < SCORE_MATRIX_DIM; a++ ) {
+        for( b = 1; b < SCORE_MATRIX_DIM; b++ ) {
             SCORE_MATRIX_63(a, b) = ((a == b) ? matchscore : mismatchscore);
         }
     }
@@ -458,7 +444,7 @@ void mat_init_constant_scoring(const int8_t matchscore,
  *
  * @param matrix    name of the file containing the scoring matrix
  */
-void mat_init_from_file(const char * matrix) {
+void mat_init_from_file( const char * matrix ) {
     prepare_matrices();
 
     // reading of the file
@@ -467,18 +453,18 @@ void mat_init_from_file(const char * matrix) {
 
     int symbols;
 
-    FILE * fp = fopen(matrix, "r");
+    FILE * fp = fopen( matrix, "r" );
 
-    if (!fp)
-        ffatal("Cannot open score matrix file.");
+    if( !fp )
+        ffatal( "Cannot open score matrix file." );
 
     symbols = 0;
 
-    while (fgets(line, LINE_MAX, fp) != NULL) {
-        read_line(line, &symbols, order);
+    while( fgets( line, LINE_MAX, fp ) != NULL ) {
+        read_line( line, &symbols, order );
     }
 
-    fclose(fp);
+    fclose( fp );
 
     finalize_matrices();
 }
@@ -488,7 +474,7 @@ void mat_init_from_file(const char * matrix) {
  *
  * @param matrix    scoring matrix as a string
  */
-void mat_init_from_string(const char * matrix) {
+void mat_init_from_string( const char * matrix ) {
     prepare_matrices();
 
     char line[LINE_MAX];
@@ -498,28 +484,28 @@ void mat_init_from_string(const char * matrix) {
 
     char * s = (char*) matrix;
 
-    if (!s)
-        ffatal("Cannot read score matrix string.");
+    if( !s )
+        ffatal( "Cannot read score matrix string." );
 
     symbols = 0;
 
-    while (*s) {
-        char * nextline = strchr(s, '\n');
+    while( *s ) {
+        char * nextline = strchr( s, '\n' );
         int linelen;
-        if (nextline)
+        if( nextline )
             linelen = nextline - s;
         else
-            linelen = strlen(s);
+            linelen = strlen( s );
 
-        strncpy(line, s, linelen);
+        strncpy( line, s, linelen );
         line[linelen] = 0;
 
-        read_line(line, &symbols, order);
+        read_line( line, &symbols, order );
 
-        if (nextline)
+        if( nextline )
             s = nextline + 1;
         else
-            s = s + strlen(s);
+            s = s + strlen( s );
     }
 
     finalize_matrices();
@@ -540,39 +526,35 @@ void mat_init_from_string(const char * matrix) {
  *
  * @param matrixname    one of the available matrices
  */
-void mat_init_buildin(const char* matrixname) {
-    if (strcasecmp(matrixname, BLOSUM45) == 0)
-        mat_init_from_string(mat_blosum45);
-    else if (strcasecmp(matrixname, BLOSUM50) == 0)
-        mat_init_from_string(mat_blosum50);
-    else if (strcasecmp(matrixname, BLOSUM62) == 0)
-        mat_init_from_string(mat_blosum62);
-    else if (strcasecmp(matrixname, BLOSUM80) == 0)
-        mat_init_from_string(mat_blosum80);
-    else if (strcasecmp(matrixname, BLOSUM90) == 0)
-        mat_init_from_string(mat_blosum90);
-    else if (strcasecmp(matrixname, PAM30) == 0)
-        mat_init_from_string(mat_pam30);
-    else if (strcasecmp(matrixname, PAM70) == 0)
-        mat_init_from_string(mat_pam70);
-    else if (strcasecmp(matrixname, PAM250) == 0)
-        mat_init_from_string(mat_pam250);
+void mat_init_buildin( const char* matrixname ) {
+    if( strcasecmp( matrixname, BLOSUM45 ) == 0 )
+        mat_init_from_string( mat_blosum45 );
+    else if( strcasecmp( matrixname, BLOSUM50 ) == 0 )
+        mat_init_from_string( mat_blosum50 );
+    else if( strcasecmp( matrixname, BLOSUM62 ) == 0 )
+        mat_init_from_string( mat_blosum62 );
+    else if( strcasecmp( matrixname, BLOSUM80 ) == 0 )
+        mat_init_from_string( mat_blosum80 );
+    else if( strcasecmp( matrixname, BLOSUM90 ) == 0 )
+        mat_init_from_string( mat_blosum90 );
+    else if( strcasecmp( matrixname, PAM30 ) == 0 )
+        mat_init_from_string( mat_pam30 );
+    else if( strcasecmp( matrixname, PAM70 ) == 0 )
+        mat_init_from_string( mat_pam70 );
+    else if( strcasecmp( matrixname, PAM250 ) == 0 )
+        mat_init_from_string( mat_pam250 );
     else
-        ffatal("Unknown matrix: %s", matrixname);
+        ffatal( "Unknown matrix: %s", matrixname );
 }
 
 /**
  * Releases the memory allocated for the scoring matrices.
  */
 void mat_free() {
-    free(score_matrix_7);
+    free( score_matrix_7 );
     score_matrix_7 = 0;
-    free(score_matrix_8);
-    score_matrix_8 = 0;
-    free(score_matrix_16);
+    free( score_matrix_16 );
     score_matrix_16 = 0;
-    free(score_matrix_32);
-    score_matrix_32 = 0;
-    free(score_matrix_63);
+    free( score_matrix_63 );
     score_matrix_63 = 0;
 }
