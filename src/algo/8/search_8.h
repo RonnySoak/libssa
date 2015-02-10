@@ -14,7 +14,6 @@
 #include "../16/search_16.h"
 #include "../../libssa_datatypes.h"
 #include "../../util/minheap.h"
-#include "../../util/linked_list.h"
 
 #define CDEPTH_8_BIT 4
 #define CHANNELS_8_BIT_SSE (128 / 8)

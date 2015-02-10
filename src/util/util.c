@@ -77,15 +77,6 @@ void * xrealloc( void *ptr, size_t size ) {
     return t;
 }
 
-char *strdup( const char *str ) {
-    int n = strlen( str ) + 1;
-    char *dup = malloc( n );
-    if( dup ) {
-        strcpy( dup, str );
-    }
-    return dup;
-}
-
 void add_to_minheap( p_minheap heap, int query_id, p_sdb_sequence db_seq, long score ) {
     elem_t * e = xmalloc( sizeof(elem_t) );
     e->query_id = query_id;

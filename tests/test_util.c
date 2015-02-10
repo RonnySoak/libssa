@@ -103,7 +103,7 @@ START_TEST (test_convert_to_chunk)
         int count = 5;
         for( int i = 0; i < count; ++i ) {
             db_seq = xmalloc( sizeof(sdb_sequence) );
-            db_seq->ID = data++;
+            db_seq->ID = ++data;
             db_seq->seq.seq = 0;
 
             ll_push( &node, db_seq );
@@ -113,8 +113,8 @@ START_TEST (test_convert_to_chunk)
 
         ck_assert_int_eq( count + 1, chunk->fill_pointer );
 
-        for( int i = 0; i < count; ++i ) {
-            ck_assert_int_eq( --data, chunk->seq[i]->ID );
+        for( int i = 0; i < chunk->fill_pointer; ++i ) {
+            ck_assert_int_eq( data--, chunk->seq[i]->ID );
         }
 
         ll_clear( &node );

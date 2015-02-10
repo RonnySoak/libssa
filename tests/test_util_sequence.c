@@ -111,20 +111,17 @@ START_TEST (test_translate_query)
 
         ck_assert_int_eq( 18, protp.len );
         ck_converted_prot_eq( "MPKTNSVEGFSSFEDDV*", protp );
-        free( protp.seq );
 
         // frame 2
         us_translate_sequence( 0, conv_dna, 0, 1, &protp );
 
         ck_assert_int_eq( 17, protp.len );
         ck_converted_prot_eq( "CPSWMA*RGFHHLRTMY", protp );
-        free( protp.seq );
 
         // frame 3
         us_translate_sequence( 0, conv_dna, 0, 2, &protp );
         ck_assert_int_eq( 17, protp.len );
         ck_converted_prot_eq( "AQAE*RRGVFIIWGRCM", protp );
-        free( protp.seq );
 
         // complementary strand
         // frame 1
@@ -132,14 +129,12 @@ START_TEST (test_translate_query)
 
         ck_assert_int_eq( 18, protp.len );
         ck_converted_prot_eq( "LYIVTKWWKPTYAIQTGH", protp );
-        free( protp.seq );
 
         // frame 2
         us_translate_sequence( 0, conv_dna, 1, 1, &protp );
 
         ck_assert_int_eq( 17, protp.len );
         ck_converted_prot_eq( "YTSSSNDENPSTTFSLG", protp );
-        free( protp.seq );
 
         // frame 3
         us_translate_sequence( 0, conv_dna, 1, 2, &protp );

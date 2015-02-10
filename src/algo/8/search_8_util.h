@@ -10,6 +10,8 @@
 
 #include "search_8.h"
 
+#include "../../util/linked_list.h"
+
 static inline int move_db_sequence_window_8( int c, int channels, uint8_t ** d_begin, uint8_t ** d_end,
         uint8_t * dseq_search_window ) {
     for( int j = 0; j < CDEPTH_8_BIT; j++ ) {

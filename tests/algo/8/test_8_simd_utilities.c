@@ -15,17 +15,16 @@
 #include "../../../src/algo/8/search_8.h"
 #include "../../../src/algo/8/search_8_util.h"
 #include "../../../src/util/debug_tools.h"
+#include "../../../src/util/util_sequence.h"
 
 #define MATCH 5
 #define MISMATCH -4
 
-static p_s8info setup_simd_util_test( char * query_string, char * db_file, int hit_count ) {
+static p_s8info setup_simd_util_test( char * query_string, int hit_count ) {
     mat_init_constant_scoring( MATCH, MISMATCH );
     init_symbol_translation( NUCLEOTIDE, FORWARD_STRAND, 3, 3 );
 
     p_query query = query_read_from_string( "short query", query_string );
-
-    ssa_db_init_fasta( concat( "./tests/testdata/", db_file ) );
 
     p_search_data sdp = s_create_searchdata( query, hit_count );
 
@@ -67,12 +66,12 @@ START_TEST (test_sse_simple)
     {
         set_max_compute_capability( COMPUTE_ON_SSE2 );
 
-        p_s8info s = setup_simd_util_test( "AT", "short_db.fas", 1 );
+        p_s8info s = setup_simd_util_test( "AT", 1 );
 
         uint8_t dseq_search_window[CDEPTH_8_BIT * CHANNELS_8_BIT_SSE];
         memset( dseq_search_window, 0, CDEPTH_8_BIT * CHANNELS_8_BIT_SSE );
 
-        sequence dseq = it_translate_sequence( it_get_sequence( 0 ), 0, 0 );
+        sequence dseq = us_prepare_sequence( "AATG", 4, 0, 0 );
 
         for( int i = 0; i < CDEPTH_8_BIT; ++i ) {
             dseq_search_window[i * CHANNELS_8_BIT_SSE] = dseq.seq[i];
@@ -91,12 +90,12 @@ START_TEST (test_avx_simple)
     {
         set_max_compute_capability( COMPUTE_ON_AVX2 );
 
-        p_s8info s = setup_simd_util_test( "AT", "short_db.fas", 1 );
+        p_s8info s = setup_simd_util_test( "AT", 1 );
 
         uint8_t dseq_search_window[CDEPTH_8_BIT * CHANNELS_8_BIT_AVX];
         memset( dseq_search_window, 0, CDEPTH_8_BIT * CHANNELS_8_BIT_AVX );
 
-        sequence dseq = it_translate_sequence( it_get_sequence( 0 ), 0, 0 );
+        sequence dseq = us_prepare_sequence( "AATG", 4, 0, 0 );
 
         for( int i = 0; i < CDEPTH_8_BIT; ++i ) {
             dseq_search_window[i * CHANNELS_8_BIT_AVX] = dseq.seq[i];

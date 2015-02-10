@@ -12,20 +12,18 @@
 
 void it_free();
 
-void it_init(unsigned long size);
+void it_init( unsigned long size );
 
-p_seqinfo it_get_sequence(unsigned long id);
-
-sequence it_translate_sequence(p_seqinfo info, int f, int s);
+p_seqinfo it_get_sequence( unsigned long id );
 
 void it_free_sequence( p_sdb_sequence seq );
 
 p_db_chunk it_alloc_chunk( unsigned long size );
 p_db_chunk it_init_new_chunk();
 
-void it_next_chunk(p_db_chunk chunk);
+void it_next_chunk( p_db_chunk chunk );
 
-void it_free_chunk(p_db_chunk chunk);
+void it_free_chunk( p_db_chunk chunk );
 
 void it_reset_chunk_counter();
 

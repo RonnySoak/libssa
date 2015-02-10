@@ -11,6 +11,7 @@
 
 #include "util_sequence.h"
 #include "util.h"
+#include "../query.h" // TODO remove (move symtype/strands out of query.h file)
 
 /*
  * Maps amino acids to their numerical representation. Maps upper case and lower
@@ -307,6 +308,36 @@ void us_translate_sequence( int db_sequence, sequence dna, int strand, int frame
     }
 
     prot_seq->seq[ppos] = 0;
+}
+
+sequence us_prepare_sequence( char * seq, unsigned long len, int f, int s ) {
+    sequence result;
+
+    sequence db_seq;
+    db_seq.seq = seq;
+    db_seq.len = len;
+
+    sequence conv_seq = { xmalloc( db_seq.len + 1 ), db_seq.len };
+
+    us_map_sequence( db_seq, conv_seq, map_ncbi_nt16 );
+
+    if( symtype == NUCLEOTIDE ) {
+        if( s == 2 ) {
+            result = (sequence ) { xmalloc( db_seq.len + 1 ), db_seq.len };
+            us_revcompl( conv_seq, result );
+        }
+        else {
+            result = conv_seq;
+        }
+    }
+    else if( (symtype == TRANS_DB) || (symtype == TRANS_BOTH) ) {
+        us_translate_sequence( 1, conv_seq, s, f, &result );
+    }
+    else {
+        result = conv_seq;
+    }
+
+    return result;
 }
 
 /**

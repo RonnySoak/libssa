@@ -8,6 +8,7 @@
 #include "../../tests.h"
 
 #include "../../../src/util/util.h"
+#include "../../../src/util/util_sequence.h"
 #include "../../../src/libssa.h"
 #include "../../../src/matrices.h"
 #include "../../../src/db_iterator.h"
@@ -24,9 +25,7 @@ START_TEST (test_search63_simple)
 
         p_query query = query_read_from_string( "short query", "AT" );
 
-        ssa_db_init_fasta( "./tests/testdata/short_db.fas" );
-        it_init( 1 );
-        sequence dseq = it_translate_sequence( ssa_db_get_sequence( 0 ), 0, 0 );
+        sequence dseq = us_prepare_sequence( "AATG", 4, 0, 0 );
 
         long *hearray = calloc( sizeof(long), 32 * query->nt[0].len );
         gapO = 1;
@@ -36,7 +35,6 @@ START_TEST (test_search63_simple)
 
         ck_assert_int_eq( score, 2 );
 
-        it_free();
         mat_free();
         query_free( query );
     }END_TEST
@@ -48,9 +46,7 @@ START_TEST (test_search63_simple_2)
 
         p_query query = query_read_from_string( "query", "ATGCAAA" );
 
-        ssa_db_init_fasta( "./tests/testdata/tmp.fas" );
-        it_init( 1 );
-        sequence dseq = it_translate_sequence( ssa_db_get_sequence( 0 ), 0, 0 );
+        sequence dseq = us_prepare_sequence( "ATGCCCAA", 4, 0, 0 );
 
         long *hearray = calloc( sizeof(long), 32 * query->nt[0].len );
         gapO = 1;
@@ -60,7 +56,6 @@ START_TEST (test_search63_simple_2)
 
         ck_assert_int_eq( score, 4 );
 
-        it_free();
         mat_free();
         query_free( query );
     }END_TEST

@@ -10,15 +10,9 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
 
-#include "../searcher.h"
 #include "../../util/util.h"
-#include "../../util/util_sequence.h" // TODO remove
-#include "../../util/linked_list.h"
-#include "../../db_iterator.h"
 #include "../../matrices.h"
-#include "../16/search_16.h"
 
 static void search_8_avx2_init_query( p_s8info s, int q_count, seq_buffer * queries ) {
     s->q_count = q_count;
@@ -43,7 +37,7 @@ static void search_8_avx2_init_query( p_s8info s, int q_count, seq_buffer * quer
              * q_table holds pointers to dprofile, which holds the actual query data.
              * The dprofile is filled during the search for every four columns, that are searched.
              */
-            query->q_table_avx[j] = s->dprofile_avx + CDEPTH_8_BIT * (int) (queries[i].seq.seq[j]);
+            query->q_table_avx[j] = &s->dprofile_avx[CDEPTH_8_BIT * (int) (queries[i].seq.seq[j])];
 
         s->queries[i] = query;
     }

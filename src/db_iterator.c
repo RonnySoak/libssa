@@ -125,36 +125,6 @@ p_seqinfo it_get_sequence( unsigned long id ) {
     return ssa_db_get_sequence( id );
 }
 
-sequence it_translate_sequence( p_seqinfo info, int f, int s ) {
-    sequence result;
-
-    sequence db_seq;
-    db_seq.seq = info->seq;
-    db_seq.len = info->seqlen;
-
-    sequence conv_seq = { xmalloc( db_seq.len + 1 ), db_seq.len };
-
-    us_map_sequence( db_seq, conv_seq, map_ncbi_nt16 );
-
-    if( symtype == NUCLEOTIDE ) {
-        if( s == 2 ) {
-            result = (sequence ) { xmalloc( db_seq.len + 1 ), db_seq.len };
-            us_revcompl( conv_seq, result );
-        }
-        else {
-            result = conv_seq;
-        }
-    }
-    else if( (symtype == TRANS_DB) || (symtype == TRANS_BOTH) ) {
-        us_translate_sequence( 1, conv_seq, s, f, &result );
-    }
-    else {
-        result = conv_seq;
-    }
-
-    return result;
-}
-
 void it_free_sequence( p_sdb_sequence seq ) {
     if( !seq ) {
         return;

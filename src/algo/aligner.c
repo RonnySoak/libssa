@@ -15,6 +15,7 @@
 #include "searcher.h"
 #include "align.h"
 #include "../util/util.h"
+#include "../util/util_sequence.h"
 
 static p_alignment_data adp = 0;
 static unsigned long chunk_counter = 0;
@@ -68,7 +69,7 @@ static void init_alignment( alignment_p a, elem_t * e, seq_buffer* queries ) {
      * TODO find a better way, maybe move code for translating based on symtype,
      * etc to util_sequence.c
      */
-    sequence dseq = it_translate_sequence( info, e->dframe, e->dstrand );
+    sequence dseq = us_prepare_sequence( info->seq, info->seqlen, e->dframe, e->dstrand );
 
     seq_buffer qseq = queries[e->query_id];
 

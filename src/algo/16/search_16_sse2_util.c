@@ -10,16 +10,8 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
 
-#include "../searcher.h"
-#include "../63/search_63.h"
-#include "../../util/minheap.h"
-#include "../../util/linked_list.h"
 #include "../../util/util.h"
-#include "../../util/util_sequence.h" // TODO remove
-#include "../../db_iterator.h"
-#include "../../cpu_config.h"
 #include "../../matrices.h"
 
 static void search_16_sse2_init_query( p_s16info s, int q_count, seq_buffer * queries ) {

@@ -58,6 +58,8 @@ void us_map_sequence( sequence orig, sequence mapped, const char* map );
 void us_translate_sequence(int db_sequence, sequence dna,
         int strand, int frame, sequence * prot_seq);
 
+sequence us_prepare_sequence( char * seq, unsigned long len, int f, int s );
+
 /**
  * Computes the reverse complement of the input sequence. If the input sequence
  * is empty, the function returns 0.
