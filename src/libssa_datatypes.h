@@ -11,6 +11,8 @@
 #include "libssa_extern_db.h"
 #include "libssa.h"
 
+#include <stddef.h>
+
 #include "util/minheap.h"
 
 /** @typedef    structure of a sequence
@@ -19,14 +21,14 @@
  * @field len   length of the sequence
  */
 typedef struct {
-  char * seq;
-  unsigned long len;
+    char * seq;
+    size_t len;
 } sequence;
 
 struct search_result {
     p_minheap heap;
-    unsigned long chunk_count;
-    unsigned long seq_count;
+    size_t chunk_count;
+    size_t seq_count;
 };
 typedef struct search_result * p_search_result;
 
@@ -37,9 +39,9 @@ typedef struct {
 } seq_buffer;
 
 struct search_data {
-    int hit_count;
+    size_t hit_count;
 
-    uint64_t hearraylen; // TODO only used in the 64 bit search
+    size_t hearraylen; // TODO only used in the 64 bit search
 
     seq_buffer queries[6];
     int q_count; // max 6
@@ -48,12 +50,12 @@ typedef struct search_data * p_search_data;
 
 struct alignment_data {
     elem_t * result_sequence_pairs;
-    int pair_count;
+    size_t pair_count;
 
     seq_buffer queries[6];
-    int q_count;
+    size_t q_count;
 
-    void (* align_function) (alignment_p);
+    void (*align_function)( alignment_p );
 };
 typedef struct alignment_data * p_alignment_data;
 
@@ -71,9 +73,9 @@ typedef struct {
 typedef sdb_sequence* p_sdb_sequence;
 
 struct db_chunk {
-    p_sdb_sequence* seq;
-    unsigned long size; // TODO change to long only
-    unsigned long fill_pointer;
+    p_sdb_sequence * seq;
+    size_t size; // TODO change to long only
+    size_t fill_pointer;
 };
 typedef struct db_chunk * p_db_chunk;
 
@@ -84,12 +86,12 @@ typedef struct db_chunk * p_db_chunk;
  * @field description   TODO ...
  */
 struct _query {
-  sequence nt[2]; /* 2 strands for nucleotides */
-  sequence aa[6]; /* 6 reading frames  for amino acids */
-  char * header;
-  unsigned long headerlen;
-  const char * map;
-  const char * sym;
+    sequence nt[2]; /* 2 strands for nucleotides */
+    sequence aa[6]; /* 6 reading frames  for amino acids */
+    char * header;
+    size_t headerlen;
+    const char * map;
+    const char * sym;
 };
 
 #endif /* LIBSSA_DATATYPES_H_ */

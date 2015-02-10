@@ -10,6 +10,7 @@
 #define LIBSSA_H_
 
 #include <stdint.h>
+#include <stddef.h>
 
 /*
  *
@@ -97,12 +98,11 @@ typedef struct _query* p_query;
 //    int32_t cigarLen;
 //} alignment;
 //typedef alignment_t* p_alignment;
-
 typedef struct {
     char* seq;
-    unsigned long len;
+    size_t len;
     char* header;
-    unsigned long headerlen;
+    size_t headerlen;
     unsigned long ID;
     int strand;
     int frame;
@@ -110,7 +110,7 @@ typedef struct {
 
 typedef struct {
     char* seq;
-    unsigned long len;
+    size_t len;
     int strand;
     int frame;
 } q_seq;
@@ -119,21 +119,21 @@ typedef struct {
     db_seq db_seq;
     q_seq query;
     char * alignment;
-    long alignment_len;
+    size_t alignment_len;
     long score;
 //    long score_align;
 //    long align_hint;  TODO what are these
 //    long bestq;
-    long align_q_start;
-    long align_q_end;
-    long align_d_start;
-    long align_d_end;
+    size_t align_q_start;
+    size_t align_q_end;
+    size_t align_d_start;
+    size_t align_d_end;
 } alignment_t;
 typedef alignment_t * alignment_p; // TODO rename in p_alignment
 
 struct alignment_list {
     alignment_p* alignments;
-    long len;
+    size_t len;
 };
 typedef struct alignment_list * p_alignment_list;
 
@@ -141,19 +141,19 @@ typedef struct alignment_list * p_alignment_list;
 // Configuration data
 // ##################
 extern int _verbose;
-extern long _max_thread_count;
+extern size_t _max_thread_count;
 extern int _use_simd;
 
 // #############################################################################
 // Technical initialisation
 // ########################
-void set_verbose(int verbose);
+void set_verbose( int verbose );
 
-void set_threads(long nr);
+void set_threads( long nr );
 
-void set_use_simd(int simd);
+void set_use_simd( int simd );
 
-void set_output_file(const char* outfile);
+void set_output_file( const char* outfile );
 
 // #############################################################################
 // Initialisations
@@ -174,7 +174,7 @@ void set_output_file(const char* outfile);
  *  - pam70
  *  - pam250
  */
-void init_score_matrix(const char* matrix_name);
+void init_score_matrix( const char* matrix_name );
 
 /**
  * Initialises the used scoring matrix from a file. The data
@@ -182,7 +182,7 @@ void init_score_matrix(const char* matrix_name);
  *
  * @param file_name  path to the file of the matrix
  */
-void init_score_matrix_file(const char* file_name);
+void init_score_matrix_file( const char* file_name );
 
 /**
  * Initialises the used scoring matrix from a string. The data
@@ -190,7 +190,7 @@ void init_score_matrix_file(const char* file_name);
  *
  * @param matrix  matrix as a string
  */
-void init_score_matrix_string(const char* matrix);
+void init_score_matrix_string( const char* matrix );
 
 /**
  * Release the memory allocated by function init_score_matrix.
@@ -205,7 +205,7 @@ void free_matrix();
  * @param  gapO  penalty for opening a gap
  * @param  gapE  penalty for extending a gap
  */
-void init_gap_penalties(const uint8_t gapO, const uint8_t gapE);
+void init_gap_penalties( const uint8_t gapO, const uint8_t gapE );
 
 /**
  * Initialises the scoring scheme if no scoring matrix is used.
@@ -215,7 +215,7 @@ void init_gap_penalties(const uint8_t gapO, const uint8_t gapE);
  * @param  p    penalty for a mismatch
  * @param  m    reward for a match
  */
-void init_scoring(const int8_t p, const int8_t m);
+void init_scoring( const int8_t p, const int8_t m );
 
 /**
  * Initialises the symbol type translation for the alignment. Depending on the
@@ -239,8 +239,7 @@ void init_scoring(const int8_t p, const int8_t m);
  * Possible values for the genetic codes of DB and query: [1-23]
  * TODO add list of codes
  */
-void init_symbol_translation(int type, int strands, int db_gencode,
-        int q_gencode);
+void init_symbol_translation( int type, int strands, int db_gencode, int q_gencode );
 
 /**
  * Reads a FASTA file containing multiple sequences to compare the query
@@ -249,14 +248,13 @@ void init_symbol_translation(int type, int strands, int db_gencode,
  *
  * @param fasta_db_file  path to a file in FASTA format
  */
-void init_db_fasta(const char* fasta_db_file);
+void init_db_fasta( const char* fasta_db_file );
 
 /**
  * Initialise the database lib, to use a third party implementation.
  */
 //void sdb_init_external(p_sdb_sequence (*extern_next_sequence)()); TODO make db lib configurable
 // TODO possibly best via linking or crating a dynamic lib
-
 /**
  * Release the memory allocated by the function init_db_fasta.
  *
@@ -270,7 +268,7 @@ void free_db();
  * @param fasta_seq_file  path to a file in FASTA format
  * @return pointer to the query profile structure
  */
-p_query init_sequence_fasta(const char* fasta_seq_file);
+p_query init_sequence_fasta( const char* fasta_seq_file );
 
 /**
  * Release the memory allocated by the function init_sequence_fasta.
@@ -279,7 +277,7 @@ p_query init_sequence_fasta(const char* fasta_seq_file);
  *
  * @see init_sequence_fasta
  */
-void free_sequence(p_query p);
+void free_sequence( p_query p );
 
 // #############################################################################
 // Alignment
@@ -292,7 +290,7 @@ void free_sequence(p_query p);
  * ...
  * @return pointer to the alignment structure
  */
-p_alignment_list sw_align(p_query p, int hitcount, int bit_width /* TODO ...*/);
+p_alignment_list sw_align( p_query p, size_t hitcount, int bit_width /* TODO ...*/);
 
 /**
  * Aligns the query sequence against all sequences in the database using the
@@ -302,7 +300,7 @@ p_alignment_list sw_align(p_query p, int hitcount, int bit_width /* TODO ...*/);
  * ...
  * @return pointer to the alignment structure
  */
-p_alignment_list nw_align(p_query p, int hitcount, int bit_width /* TODO ...*/);
+p_alignment_list nw_align( p_query p, size_t hitcount, int bit_width /* TODO ...*/);
 
 /**
  * Aligns the query sequence against all sequences in the database using the
@@ -314,7 +312,7 @@ p_alignment_list nw_align(p_query p, int hitcount, int bit_width /* TODO ...*/);
  * ...
  * @return pointer to the alignment structure
  */
-p_alignment_list nw_sellers_align(p_query p, int hitcount, int bit_width /* TODO ...*/);
+p_alignment_list nw_sellers_align( p_query p, size_t hitcount, int bit_width /* TODO ...*/);
 
 /**
  * Aligns the query sequence against all sequences in the database using the
@@ -324,7 +322,7 @@ p_alignment_list nw_sellers_align(p_query p, int hitcount, int bit_width /* TODO
  * ...
  * @return pointer to the alignment structure
  */
-p_alignment_list nw_ignore_gaps_align(p_query p, int hitcount, int bit_width /* TODO ... ignored gaps...*/);
+p_alignment_list nw_ignore_gaps_align( p_query p, size_t hitcount, int bit_width /* TODO ... ignored gaps...*/);
 
 /**
  * Release the memory allocated by the functions sw_align, nw_align,
@@ -335,7 +333,7 @@ p_alignment_list nw_ignore_gaps_align(p_query p, int hitcount, int bit_width /* 
  * @see sw_align
  * @see nw_align
  */
-void free_alignment(p_alignment_list alist);
+void free_alignment( p_alignment_list alist );
 
 void ssa_exit();
 

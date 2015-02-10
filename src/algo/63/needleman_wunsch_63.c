@@ -18,7 +18,7 @@ int64_t full_nw( sequence * dseq, sequence * qseq, int64_t * hearray ) {
     int64_t f; // value in upper cell
     int64_t *hep;
 
-    for( uint64_t i = 0; i < qseq->len; i++ ) {
+    for( size_t i = 0; i < qseq->len; i++ ) {
         hearray[2 * i] = -gapO + (i + 1) * -gapE;           // H (N) scores in previous column
         hearray[2 * i + 1] = 2 * -gapO + (i + 2) * -gapE;   // E     gap values in previous column
     }
@@ -27,13 +27,13 @@ int64_t full_nw( sequence * dseq, sequence * qseq, int64_t * hearray ) {
         dbg_init_matrix_data_collection( BIT_WIDTH_64, dseq->len, qseq->len );
 #endif
 
-    for( uint64_t j = 0; j < dseq->len; j++ ) {
+    for( size_t j = 0; j < dseq->len; j++ ) {
         hep = hearray;
 
         f = 2 * -gapO + (j + 2) * -gapE;            // value in first upper cell
         h = (j == 0) ? 0 : (-gapO + j * -gapE); // value in first cell of line
 
-        for( uint64_t i = 0; i < qseq->len; i++ ) {
+        for( size_t i = 0; i < qseq->len; i++ ) {
             n = *hep;
             e = *(hep + 1);
             h += SCORE_MATRIX_63( dseq->seq[j], qseq->seq[i] );

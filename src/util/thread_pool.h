@@ -8,11 +8,13 @@
 #ifndef THREAD_POOL_H_
 #define THREAD_POOL_H_
 
+#include <stddef.h>
+
 void init_thread_pool();
 
 void exit_thread_pool();
 
-int get_current_thread_count();
+size_t get_current_thread_count();
 
 void start_threads(void *(*start_routine) (void *) );
 

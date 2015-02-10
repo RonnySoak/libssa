@@ -18,7 +18,7 @@
 #include "../util/util_sequence.h"
 
 static p_alignment_data adp = 0;
-static unsigned long chunk_counter = 0;
+static size_t chunk_counter = 0;
 
 static pthread_mutex_t chunk_mutex = PTHREAD_MUTEX_INITIALIZER;
 
@@ -35,7 +35,7 @@ void a_init_data( int search_type ) {
         adp->align_function = &align_nw_sellers;
     }
     else {
-        ffatal("\nunknown search type: %d\n\n", search_type );
+        ffatal( "\nunknown search type: %d\n\n", search_type );
     }
 
     adp->q_count = s_get_query_count();
@@ -100,7 +100,7 @@ void a_free( p_alignment_list alist ) {
     }
 
     if( alist->alignments ) {
-        for( int i = 0; i < alist->len; i++ ) {
+        for( size_t i = 0; i < alist->len; i++ ) {
             if( alist->alignments[i] ) {
                 alignment_p a = alist->alignments[i];
 
@@ -140,13 +140,13 @@ void a_free( p_alignment_list alist ) {
     free( alist );
 }
 
-void a_set_alignment_pairs( int pair_count, elem_t * result_sequence_pairs ) {
+void a_set_alignment_pairs( size_t pair_count, elem_t * result_sequence_pairs ) {
     adp->pair_count = pair_count;
     adp->result_sequence_pairs = result_sequence_pairs;
 }
 
 static elem_t * get_chunk() {
-    int next_chunk;
+    size_t next_chunk;
 
     pthread_mutex_lock( &chunk_mutex );
     next_chunk = chunk_counter++;

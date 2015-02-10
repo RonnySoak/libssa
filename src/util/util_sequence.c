@@ -236,7 +236,7 @@ void us_init_translation( int qtableno, int dtableno ) {
  */
 void us_map_sequence( sequence orig, sequence mapped, const char* map ) {
     char m;
-    for( int i = 0; i < orig.len; i++ ) {
+    for( size_t i = 0; i < orig.len; i++ ) {
         if( (m = map[(int) orig.seq[i]]) >= 0 ) {
             mapped.seq[i] = m;
         }
@@ -259,8 +259,8 @@ void us_map_sequence( sequence orig, sequence mapped, const char* map ) {
 void us_translate_sequence( int db_sequence, sequence dna, int strand, int frame, sequence * prot_seq ) {
     char* ttable = (db_sequence) ? d_translate : q_translate;
 
-    long pos, c;
-    long ppos = 0;
+    size_t c;
+    size_t pos, ppos = 0;
 
     prot_seq->len = (dna.len - frame) / 3;
     prot_seq->seq = xrealloc( prot_seq->seq, prot_seq->len + 1 );
@@ -300,7 +300,8 @@ void us_translate_sequence( int db_sequence, sequence dna, int strand, int frame
             c |= ntcompl[(int) (dna.seq[pos--])];
 
             if( c > (16 * 16 * 16) ) {
-                ffatal( "Wrong data in sequence. Codon position out of range: %ld, at position %d, for protein sequence position: %d\n", c, pos, ppos );
+                ffatal( "Wrong data in sequence. Codon position out of range: %ld, at position %d, for protein sequence position: %d\n",
+                        c, pos, ppos );
             }
 
             prot_seq->seq[ppos++] = ttable[c];
@@ -310,7 +311,7 @@ void us_translate_sequence( int db_sequence, sequence dna, int strand, int frame
     prot_seq->seq[ppos] = 0;
 }
 
-sequence us_prepare_sequence( char * seq, unsigned long len, int f, int s ) {
+sequence us_prepare_sequence( char * seq, size_t len, int f, int s ) {
     sequence result;
 
     sequence db_seq;
@@ -354,7 +355,7 @@ void us_revcompl( sequence orig, sequence rc ) {
         return;
     }
 
-    for( unsigned long i = 0; i < orig.len; i++ ) {
+    for( size_t i = 0; i < orig.len; i++ ) {
         rc.seq[i] = ntcompl[(int) (orig.seq[orig.len - 1 - i])];
     }
     rc.seq[orig.len] = 0;

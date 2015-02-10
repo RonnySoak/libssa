@@ -10,15 +10,15 @@
 
 #include <stdio.h>
 
-static p_alignment_list do_alignment( char * desc, p_alignment_list (*align_func)( p_query, int, int ), p_query query,
-        int hit_count, int bit_width ) {
+static p_alignment_list do_alignment( char * desc, p_alignment_list (*align_func)( p_query, size_t, int ), p_query query,
+        size_t hit_count, int bit_width ) {
 
     printf( "%s: \n", desc );
     p_alignment_list alist = align_func( query, hit_count, bit_width );
 
     printf( "Nr of alignments: %ld\n", alist->len );
 
-    for( int i = 0; i < alist->len; i++ ) {
+    for( size_t i = 0; i < alist->len; i++ ) {
         alignment_p a = alist->alignments[i];
 
         printf( "DB-ID %ld, score: %ld, cigar: %s\n", a->db_seq.ID, a->score, a->alignment );
@@ -26,10 +26,10 @@ static p_alignment_list do_alignment( char * desc, p_alignment_list (*align_func
     return alist;
 }
 
-static void cmp_alignment_lists( p_alignment_list a, p_alignment_list b, int hit_count, char * desc ) {
+static void cmp_alignment_lists( p_alignment_list a, p_alignment_list b, size_t hit_count, char * desc ) {
     int difference = 0;
 
-    for( int i = 0; i < hit_count; ++i ) {
+    for( size_t i = 0; i < hit_count; ++i ) {
         if( a->alignments[i]->score != b->alignments[i]->score
                 || a->alignments[i]->db_seq.ID != b->alignments[i]->db_seq.ID ) {
             difference = 1;

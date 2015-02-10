@@ -16,16 +16,16 @@
 #define MIN(a,b) (a < b ? a : b)
 
 typedef struct {
-    uint64_t a_begin;
-    uint64_t a_end;
-    uint64_t b_begin;
-    uint64_t b_end;
+    size_t a_begin;
+    size_t a_end;
+    size_t b_begin;
+    size_t b_end;
 } region_t;
 
 typedef struct {
     char * cigar;
-    uint64_t len;
-    uint64_t allocated_size;
+    size_t len;
+    size_t allocated_size;
 } cigar_t;
 
 typedef cigar_t * cigar_p;

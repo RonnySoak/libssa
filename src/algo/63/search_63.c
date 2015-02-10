@@ -38,7 +38,7 @@ unsigned long search_63_chunk( p_minheap heap, p_db_chunk chunk, p_search_data s
     for( int q_id = 0; q_id < sdp->q_count; q_id++ ) {
         seq_buffer query = sdp->queries[q_id];
 
-        for( unsigned long i = 0; i < chunk->fill_pointer; i++ ) {
+        for( size_t i = 0; i < chunk->fill_pointer; i++ ) {
             p_sdb_sequence dseq = chunk->seq[i];
 
             long score = search_algo( &dseq->seq, &query.seq, hearray );

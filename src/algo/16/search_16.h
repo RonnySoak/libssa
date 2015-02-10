@@ -19,7 +19,7 @@
 #define CHANNELS_16_BIT_AVX (256 / 16)
 
 struct s16query {
-    unsigned long q_len;
+    size_t q_len;
 
     __m128i ** q_table_sse;
     __m256i ** q_table_avx;
@@ -37,8 +37,8 @@ struct s16info {
 
     int64_t * hearray_64;
 
-    unsigned long maxdlen;
-    unsigned long maxqlen;
+    size_t maxdlen;
+    size_t maxqlen;
 
     uint8_t q_count;
     p_s16query queries[6];

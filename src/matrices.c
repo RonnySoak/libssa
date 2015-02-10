@@ -489,7 +489,7 @@ void mat_init_from_string( const char * matrix ) {
 
     while( *s ) {
         char * nextline = strchr( s, '\n' );
-        int linelen;
+        size_t linelen;
         if( nextline )
             linelen = nextline - s;
         else

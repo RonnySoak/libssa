@@ -43,18 +43,18 @@ static uint8_t * compute_directions_for_nw( sequence a_seq, sequence b_seq ) {
 
     memset( directions, 0, a_seq.len * b_seq.len );
 
-    for( uint64_t i = 0; i < a_seq.len; i++ ) {
+    for( size_t i = 0; i < a_seq.len; i++ ) {
         hearray[2 * i] = -gapO + (i + 1) * -gapE; // H (N)    scores in previous column
         hearray[2 * i + 1] = hearray[2 * i]; // E    gap values in previous column
     }
 
-    for( uint64_t j = 0; j < b_seq.len; j++ ) {
+    for( size_t j = 0; j < b_seq.len; j++ ) {
         hep = hearray;
         f = -gapO + (j + 1) * -gapE;          	// value in first upper cell
         h = (j == 0) ? 0 : (-gapO + j * -gapE); // value in first cell of line
 
-        for( uint64_t i = 0; i < a_seq.len; i++ ) {
-            long index = a_seq.len * j + i;
+        for( size_t i = 0; i < a_seq.len; i++ ) {
+            size_t index = a_seq.len * j + i;
 
             n = *hep;
             e = *(hep + 1);
@@ -121,13 +121,13 @@ static uint8_t * compute_directions_for_sw( sequence a_seq, sequence b_seq ) {
     memset( directions, 0, a_seq.len * b_seq.len );
     memset( hearray, 0, 2 * a_seq.len * sizeof(int64_t) );
 
-    for( uint64_t j = 0; j < b_seq.len; j++ ) {
+    for( size_t j = 0; j < b_seq.len; j++ ) {
         hep = hearray;
         f = 0;   // value in first upper cell
         h = 0;   // value in first cell of line
 
-        for( uint64_t i = 0; i < a_seq.len; i++ ) {
-            long index = a_seq.len * j + i;
+        for( size_t i = 0; i < a_seq.len; i++ ) {
+            size_t index = a_seq.len * j + i;
 
             n = *hep;
             e = *(hep + 1);
@@ -180,11 +180,9 @@ static uint8_t * compute_directions_for_sw( sequence a_seq, sequence b_seq ) {
     return directions;
 }
 
-// TODO inline these
-static void check_allocated_size( cigar_p cigar ) {
+static inline void check_allocated_size( cigar_p cigar ) {
     while( cigar->len >= cigar->allocated_size ) {
-        cigar->allocated_size += CIGAR_ALLOC_STEP_SIZE
-        ;
+        cigar->allocated_size += CIGAR_ALLOC_STEP_SIZE;
         cigar->cigar = xrealloc( cigar->cigar, cigar->allocated_size * sizeof(char) );
     }
 }
@@ -203,8 +201,7 @@ char * strrev( char *str ) {
     return str;
 }
 
-// TODO inline these
-static void add_to_cigar( char op, long op_count, cigar_p cigar ) {
+static inline void add_to_cigar( char op, size_t op_count, cigar_p cigar ) {
     if( op_count == 0 ) {
         return;
     }
@@ -216,7 +213,7 @@ static void add_to_cigar( char op, long op_count, cigar_p cigar ) {
         uint64_t insert_pos = cigar->len;
 
         char counter_buf[25];
-        int len = sprintf( counter_buf, "%ld", op_count );
+        size_t len = sprintf( counter_buf, "%ld", op_count );
         cigar->len += len;
 
         check_allocated_size( cigar );
@@ -237,7 +234,7 @@ cigar_p reverse_cigar( cigar_p rev_cigar ) {
 
     cigar->cigar = xmalloc( cigar->allocated_size * sizeof(char) );
 
-    long cur_pos = 0;
+    size_t cur_pos = 0;
     while( rev_cigar->len > 0 ) {
         cigar->cigar[cur_pos] = rev_cigar->cigar[--rev_cigar->len];
 
@@ -267,18 +264,17 @@ cigar_p compute_cigar_for_nw( sequence a_seq, sequence b_seq ) {
      */
 
     cigar_p rev_cigar = xmalloc( sizeof(cigar_t) );
-    rev_cigar->allocated_size = CIGAR_ALLOC_STEP_SIZE
-    ;
+    rev_cigar->allocated_size = CIGAR_ALLOC_STEP_SIZE;
     rev_cigar->len = 0;
     rev_cigar->cigar = xmalloc( rev_cigar->allocated_size * sizeof(char) );
 
     uint8_t * directions = compute_directions_for_nw( a_seq, b_seq );
 
-    uint64_t i = a_seq.len;
-    uint64_t j = b_seq.len;
+    size_t i = a_seq.len;
+    size_t j = b_seq.len;
 
     char prev_op = 0, op = 0;
-    int op_count = 0;
+    size_t op_count = 0;
     while( (i > 0) && (j > 0) ) {
         uint8_t d = directions[a_seq.len * (j - 1) + (i - 1)];
 
@@ -346,18 +342,17 @@ cigar_p compute_cigar_for_sw( sequence a_seq, sequence b_seq, region_t region ) 
      */
 
     cigar_p rev_cigar = xmalloc( sizeof(cigar_t) );
-    rev_cigar->allocated_size = CIGAR_ALLOC_STEP_SIZE
-    ;
+    rev_cigar->allocated_size = CIGAR_ALLOC_STEP_SIZE;
     rev_cigar->len = 0;
     rev_cigar->cigar = xmalloc( rev_cigar->allocated_size * sizeof(char) );
 
     uint8_t * directions = compute_directions_for_sw( a_seq, b_seq );
 
-    uint64_t i = region.a_end;
-    uint64_t j = region.b_end;
+    size_t i = region.a_end;
+    size_t j = region.b_end;
 
     char prev_op = 0, op = 0;
-    int op_count = 0;
+    size_t op_count = 0;
 
     while( (i + 1 > 0) && (j + 1 > 0) && (i >= region.a_begin) && (j >= region.b_begin) ) {
         uint8_t d = directions[a_seq.len * j + i];

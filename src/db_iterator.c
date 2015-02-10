@@ -16,13 +16,13 @@
 #include "query.h"
 #include "util/thread_pool.h"
 
-static unsigned long chunk_db_seq_count;
-static unsigned long next_chunk_start = 0;
+static size_t chunk_db_seq_count = 0;
+static size_t next_chunk_start = 0;
 
 static int buffer_max = 0;
 static pthread_mutex_t chunk_mutex = PTHREAD_MUTEX_INITIALIZER;
 
-static void realloc_sequence( sequence * seq, unsigned long len ) {
+static void realloc_sequence( sequence * seq, size_t len ) {
     seq->seq = xrealloc( seq->seq, len + 1 );
     seq->len = len;
 }
@@ -100,7 +100,7 @@ void it_free() {
     buffer_max = 0;
 }
 
-void it_init( unsigned long size ) {
+void it_init( size_t size ) {
     chunk_db_seq_count = size;
 
     // set buffer size according symtype: 1, 2 oder 6
@@ -146,7 +146,7 @@ void it_free_sequence( p_sdb_sequence seq ) {
 
 void it_free_chunk( p_db_chunk chunk ) {
     if( chunk ) {
-        for( int i = 0; i < chunk->size; i++ ) {
+        for( size_t i = 0; i < chunk->size; i++ ) {
             it_free_sequence( chunk->seq[i] );
             chunk->seq[i] = 0;
         }
@@ -160,7 +160,7 @@ void it_free_chunk( p_db_chunk chunk ) {
     }
 }
 
-p_db_chunk it_alloc_chunk( unsigned long size ) {
+p_db_chunk it_alloc_chunk( size_t size ) {
     p_db_chunk chunk = xmalloc( sizeof(struct db_chunk) );
     chunk->fill_pointer = 0;
     chunk->size = size;
@@ -172,7 +172,7 @@ p_db_chunk it_alloc_chunk( unsigned long size ) {
 p_db_chunk it_init_new_chunk() {
     p_db_chunk chunk = it_alloc_chunk( chunk_db_seq_count * buffer_max );
 
-    for( int i = 0; i < chunk->size; ++i ) {
+    for( size_t i = 0; i < chunk->size; ++i ) {
         chunk->seq[i] = xmalloc( sizeof(sdb_sequence) );
 
         chunk->seq[i]->seq = (sequence ) { xmalloc( 1 ), 0 };
@@ -195,14 +195,14 @@ void it_next_chunk( p_db_chunk chunk ) {
     }
     chunk->fill_pointer = 0;
 
-    int next_chunk;
+    size_t next_chunk;
 
     pthread_mutex_lock( &chunk_mutex );
     next_chunk = next_chunk_start;
     next_chunk_start += chunk_db_seq_count;
     pthread_mutex_unlock( &chunk_mutex );
 
-    for( int i = next_chunk; i < (next_chunk + chunk_db_seq_count); i++ ) {
+    for( size_t i = next_chunk; i < (next_chunk + chunk_db_seq_count); i++ ) {
         p_seqinfo db_seq = it_get_sequence( i );
 
         if( !db_seq ) {

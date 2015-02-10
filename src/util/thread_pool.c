@@ -18,9 +18,9 @@
 #include "util.h"
 
 static pthread_t * thread_list = 0;
-static long current_thread_count = 0;
+static size_t current_thread_count = 0;
 
-int get_current_thread_count() {
+size_t get_current_thread_count() {
     if( !current_thread_count ) {
         if( _max_thread_count == -1 ) {
             _max_thread_count = get_nprocs(); //sysconf(_SC_NPROCESSORS_ONLN);
@@ -38,9 +38,9 @@ void init_thread_pool() {
 
     exit_thread_pool();
 
-    int thread_count = get_current_thread_count();
+    size_t thread_count = get_current_thread_count();
 
-    printf( "Using %d threads\n", thread_count );
+    printf( "Using %ld threads\n", thread_count );
 
     thread_list = xmalloc( thread_count * sizeof(pthread_t) );
 }
@@ -56,13 +56,13 @@ void exit_thread_pool() {
 }
 
 void start_threads( void *(*start_routine)( void * ) ) {
-    for( int i = 0; i < get_current_thread_count(); i++ ) {
+    for( size_t i = 0; i < get_current_thread_count(); i++ ) {
         pthread_create( &thread_list[i], NULL, start_routine, NULL );
     }
 }
 
 void wait_for_threads( void ** thread_results ) {
-    for( int i = 0; i < _max_thread_count; i++ ) {
+    for( size_t i = 0; i < _max_thread_count; i++ ) {
         pthread_join( thread_list[i], &thread_results[i] );
     }
 }

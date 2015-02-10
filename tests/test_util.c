@@ -19,9 +19,9 @@
 /**
  * A small helper, to print sequences in decimal representation.
  */
-void print_sequence( char* desc, int8_t* seq, long len ) {
+void print_sequence( char* desc, int8_t* seq, size_t len ) {
     printf( "seq (%s): '", desc );
-    for( int i = 0; i < len; i++ ) {
+    for( size_t i = 0; i < len; i++ ) {
         printf( "%d", seq[i] );
     }
     printf( "'\n" );
@@ -113,7 +113,7 @@ START_TEST (test_convert_to_chunk)
 
         ck_assert_int_eq( count + 1, chunk->fill_pointer );
 
-        for( int i = 0; i < chunk->fill_pointer; ++i ) {
+        for( size_t i = 0; i < chunk->fill_pointer; ++i ) {
             ck_assert_int_eq( data--, chunk->seq[i]->ID );
         }
 

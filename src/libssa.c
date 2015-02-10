@@ -24,7 +24,7 @@
 // Configuration data
 // ##################
 int _verbose = VERBOSE_OFF;
-long _max_thread_count = -1;
+size_t _max_thread_count = -1;
 int _use_simd = SIMD_ON;
 
 // #############################################################################
@@ -229,7 +229,7 @@ static void prepare_alignment() {
  * ...
  * @return pointer to the alignment structure
  */
-p_alignment_list sw_align( p_query p, int hitcount, int bit_width /* TODO ...*/) {
+p_alignment_list sw_align( p_query p, size_t hitcount, int bit_width /* TODO ...*/) {
     prepare_alignment();
 
     init_for_sw( p, hitcount, bit_width );
@@ -245,7 +245,7 @@ p_alignment_list sw_align( p_query p, int hitcount, int bit_width /* TODO ...*/)
  * ...
  * @return pointer to the alignment structure
  */
-p_alignment_list nw_align( p_query p, int hitcount, int bit_width /* TODO ...*/) {
+p_alignment_list nw_align( p_query p, size_t hitcount, int bit_width /* TODO ...*/) {
     prepare_alignment();
 
     init_for_nw( p, hitcount, bit_width );
@@ -263,7 +263,7 @@ p_alignment_list nw_align( p_query p, int hitcount, int bit_width /* TODO ...*/)
  * ...
  * @return pointer to the alignment structure
  */
-p_alignment_list nw_sellers_align( p_query p, int hitcount, int bit_width /* TODO ...*/) {
+p_alignment_list nw_sellers_align( p_query p, size_t hitcount, int bit_width /* TODO ...*/) {
     prepare_alignment();
 
     init_for_nw_sellers( p, hitcount, bit_width );
@@ -279,7 +279,7 @@ p_alignment_list nw_sellers_align( p_query p, int hitcount, int bit_width /* TOD
  * ...
  * @return pointer to the alignment structure
  */
-p_alignment_list nw_ignore_gaps_align( p_query p, int hitcount, int bit_width /* TODO ... ignored gaps...*/) {
+p_alignment_list nw_ignore_gaps_align( p_query p, size_t hitcount, int bit_width /* TODO ... ignored gaps...*/) {
     prepare_alignment();
 
     return NULL; // TODO

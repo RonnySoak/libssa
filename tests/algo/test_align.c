@@ -18,7 +18,7 @@
 sequence a_seq;
 sequence b_seq;
 
-void fill_translated_sequence( sequence* s, char * seq, long len ) {
+void fill_translated_sequence( sequence* s, char * seq, size_t len ) {
     sequence new_seq = { seq, len };
 
     *s = (sequence ) { xmalloc( len + 1 ), len };
@@ -28,7 +28,7 @@ void fill_translated_sequence( sequence* s, char * seq, long len ) {
     // TODO move to test util file
 }
 
-void setup_align( char * seq_a, char * seq_b, long len_a, long len_b ) {
+void setup_align( char * seq_a, char * seq_b, size_t len_a, size_t len_b ) {
     gapO = 1;
     gapE = 1;
     mat_init_constant_scoring( 1, -1 );

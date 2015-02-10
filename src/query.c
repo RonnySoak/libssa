@@ -83,7 +83,7 @@ void query_free( p_query query ) {
     query = 0;
 }
 
-static void fill_query( p_query query, char * query_sequence, unsigned long query_length ) {
+static void fill_query( p_query query, char * query_sequence, size_t query_length ) {
     if( (symtype == NUCLEOTIDE) || (symtype == TRANS_QUERY) || (symtype == TRANS_BOTH) ) {
         query->nt[0] = (sequence ) { query_sequence, query_length };
 
@@ -92,7 +92,6 @@ static void fill_query( p_query query, char * query_sequence, unsigned long quer
 
             us_revcompl( query->nt[0], query->nt[1] );
         }
-
 
         if( (symtype == TRANS_QUERY) || (symtype == TRANS_BOTH) ) {
             for( int s = 0; s < 2; s++ ) {
@@ -121,7 +120,7 @@ p_query query_read_from_string( char * header, char * sequence ) {
     query->header = xmalloc( query->headerlen );
     strcpy( query->header, header );
 
-    unsigned long length = strlen( sequence );
+    size_t length = strlen( sequence );
     char * query_sequence = xmalloc( length );
 
     char m;
@@ -170,7 +169,7 @@ p_query query_read_from_file( const char * filename ) {
     }
 
     // read description
-    unsigned long len = strlen( query_line );
+    size_t len = strlen( query_line );
 
     if( query_line[len - 1] == '\n' ) {
         query_line[len - 1] = 0;
@@ -194,10 +193,10 @@ p_query query_read_from_file( const char * filename ) {
     }
 
     // read sequence
-    int size = LINE_MAX;
+    size_t size = LINE_MAX;
     char * query_sequence = xmalloc( size );
     query_sequence[0] = 0;
-    long query_length = 0;
+    size_t query_length = 0;
 
     char m;
     while( query_line[0] && (query_line[0] != '>') ) {
@@ -240,8 +239,8 @@ void query_show( p_query query ) {
     int linewidth = 60;
 
     if( query->header ) {
-        for( unsigned int i = 0; i < strlen( query->header ); i += linewidth ) {
-            printf( "x%ud", i );
+        for( size_t i = 0; i < query->headerlen; i += linewidth ) {
+            printf( "x%ld", i );
             if( i == 0 )
                 outf( "Query description: %-60.60s\n", query->header + i );
             else

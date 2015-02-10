@@ -35,7 +35,7 @@ static inline int elem_smaller( elem_t * a, elem_t * b ) {
     return 0;
 }
 
-p_minheap minheap_init( int size ) {
+p_minheap minheap_init( size_t size ) {
     p_minheap m = xmalloc( sizeof(struct minheap_t) );
     m->alloc = size;
     m->array = xmalloc( size * sizeof(elem_t) );
@@ -54,7 +54,7 @@ static void minheap_replaceroot( p_minheap m, elem_t tmp ) {
 
     /* start with root */
     int p = 0;
-    int c = 2 * p + 1;
+    size_t c = 2 * p + 1;
     /* while at least one child */
     while( c < m->count ) {
         /* if two children: swap with the one with smallest value */
@@ -76,7 +76,7 @@ static void minheap_replaceroot( p_minheap m, elem_t tmp ) {
 void minheap_add( p_minheap m, elem_t * n ) {
     if( m->count < m->alloc ) {
         /* space for another item at end; swap upwards */
-        int i = m->count++;
+        size_t i = m->count++;
         int p = (i - 1) / 2;
         while( (i > 0) && elem_smaller( n, m->array + p ) ) {
             m->array[i] = m->array[p];

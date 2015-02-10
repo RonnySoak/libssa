@@ -32,7 +32,7 @@ static void search_16_sse2_init_query( p_s16info s, int q_count, seq_buffer * qu
         query->q_table_avx = 0;
         query->q_table_sse = (__m128i **) xmalloc( query->q_len * sizeof(__m128i *) );
 
-        for( int j = 0; j < query->q_len; j++ )
+        for( size_t j = 0; j < query->q_len; j++ )
             /*
              * q_table holds pointers to dprofile, which holds the actual query data.
              * The dprofile is filled during the search for every four columns, that are searched.

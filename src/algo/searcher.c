@@ -29,7 +29,7 @@ static void add_to_buffer( seq_buffer* buf, sequence seq, int strand, int frame 
     buf->strand = strand;
 }
 
-p_search_data s_create_searchdata( p_query query, int hit_count ) {
+p_search_data s_create_searchdata( p_query query, size_t hit_count ) {
     p_search_data sdp = xmalloc( sizeof(struct search_data) );
 
     sdp->hit_count = hit_count;
@@ -89,7 +89,7 @@ seq_buffer s_get_query( int idx ) {
     return sdp->queries[idx];
 }
 
-void s_init( int search_type, int bit_width, p_query query, int hit_count ) {
+void s_init( int search_type, int bit_width, p_query query, size_t hit_count ) {
     /*
      * Here we initialize all algorithms, to use them as fallbacks if one overflows.
      *

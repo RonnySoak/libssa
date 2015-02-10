@@ -106,7 +106,7 @@ void add_to_minheap( p_minheap heap, int query_id, p_sdb_sequence db_seq, long s
 p_db_chunk convert_to_chunk( p_node linked_list ) {
     p_node node = linked_list;
 
-    unsigned long size = ll_size( node );
+    size_t size = ll_size( node );
 
     p_db_chunk chunk = it_alloc_chunk( size );
 

@@ -44,7 +44,7 @@ void addLibssaTC( Suite *s );
 
 // some utility functions
 void dbg_print( int n, void* param );
-void print_sequence( char* desc, int8_t* seq, long len );
+void print_sequence( char* desc, int8_t* seq, size_t len );
 void print_sequence2( char* desc, sequence seq );
 char* concat( char *s1, char *s2 );
 

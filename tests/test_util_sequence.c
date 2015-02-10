@@ -57,7 +57,7 @@ void ck_converted_prot_eq( char* ref, sequence seq ) {
     sequence conv_dna;
     conv_dna.len = seq.len;
     conv_dna.seq = xmalloc( seq.len + 1 );
-    for( int i = 0; i < seq.len; i++ ) {
+    for( size_t i = 0; i < seq.len; i++ ) {
         conv_dna.seq[i] = sym_ncbi_aa[(int) seq.seq[i]];
     }
     conv_dna.seq[seq.len] = 0;
@@ -70,13 +70,13 @@ START_TEST (test_translate_query_RNA)
         us_init_translation( 3, 1 );
 
         char* dna = "AUGCCCAAGCUGAAUAGCGUAGAGGGGUUUUCAUCAUUUGAGGACGAUGUAUAA";
-        unsigned long dlen = strlen( dna );
+        size_t dlen = strlen( dna );
         sequence protp = { xmalloc( 1 ), 0 };
 
         sequence conv_dna;
         conv_dna.len = dlen;
         conv_dna.seq = xmalloc( dlen + 1 );
-        for( int i = 0; i < dlen; i++ ) {
+        for( size_t i = 0; i < dlen; i++ ) {
             conv_dna.seq[i] = map_ncbi_nt16[(int) dna[i]];
         }
         conv_dna.seq[dlen] = 0;
@@ -94,13 +94,13 @@ START_TEST (test_translate_query)
         us_init_translation( 3, 1 );
 
         char* dna = "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA";
-        unsigned long dlen = strlen( dna );
+        size_t dlen = strlen( dna );
         sequence protp = { xmalloc( 1 ), 0 };
 
         sequence conv_dna;
         conv_dna.len = dlen;
         conv_dna.seq = xmalloc( dlen + 1 );
-        for( int i = 0; i < dlen; i++ ) {
+        for( size_t i = 0; i < dlen; i++ ) {
             conv_dna.seq[i] = map_ncbi_nt16[(int) dna[i]];
         }
         conv_dna.seq[dlen] = 0;
@@ -150,13 +150,13 @@ START_TEST (test_translate_query_DNA)
         us_init_translation( 3, 1 );
 
         char* dna = "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA";
-        unsigned long dlen = strlen( dna );
+        size_t dlen = strlen( dna );
         sequence protp = { xmalloc( 1 ), 0 };
 
         sequence conv_dna;
         conv_dna.len = dlen;
         conv_dna.seq = xmalloc( dlen + 1 );
-        for( int i = 0; i < dlen; i++ ) {
+        for( size_t i = 0; i < dlen; i++ ) {
             conv_dna.seq[i] = map_ncbi_nt16[(int) dna[i]];
         }
         conv_dna.seq[dlen] = 0;
@@ -174,13 +174,13 @@ START_TEST (test_translate_db)
         us_init_translation( 1, 3 );
 
         char* dna = "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA";
-        unsigned long dlen = strlen( dna );
+        size_t dlen = strlen( dna );
         sequence protp = { xmalloc( 1 ), 0 };
 
         sequence conv_dna;
         conv_dna.len = dlen;
         conv_dna.seq = xmalloc( dlen + 1 );
-        for( int i = 0; i < dlen; i++ ) {
+        for( size_t i = 0; i < dlen; i++ ) {
             conv_dna.seq[i] = map_ncbi_nt16[(int) dna[i]];
         }
         conv_dna.seq[dlen] = 0;

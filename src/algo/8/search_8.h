@@ -20,7 +20,7 @@
 #define CHANNELS_8_BIT_AVX (256 / 8)
 
 struct s8query {
-    unsigned long q_len;
+    size_t q_len;
 
     __m128i ** q_table_sse;
     __m256i ** q_table_avx;
@@ -36,8 +36,8 @@ struct s8info {
     __m256i * hearray_avx;
     __m256i * dprofile_avx;
 
-    unsigned long maxdlen;
-    unsigned long maxqlen;
+    size_t maxdlen;
+    size_t maxqlen;
 
     uint8_t penalty_gap_open;
     uint8_t penalty_gap_extension;

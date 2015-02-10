@@ -24,10 +24,10 @@ char * get_mapped_sequence( sequence orig ) {
 /**
  * Simple reverse complement implementation for upper case nucleotide sequences.
  */
-char* revcompl( char* seq, unsigned long len ) {
+char* revcompl( char* seq, size_t len ) {
     char* rc = xmalloc( len + 1 );
 
-    for( long i = 0; i < len; i++ ) {
+    for( size_t i = 0; i < len; i++ ) {
         switch( (int) seq[len - 1 - i] ) {
         case 65:
             rc[i] = 'T';

@@ -74,8 +74,8 @@ void ll_clear( p_node * node ) {
     }
 }
 
-unsigned long ll_size( p_node node ) {
-    unsigned long size = 0;
+size_t ll_size( p_node node ) {
+    size_t size = 0;
 
     p_node tmp = node;
     while( tmp ) {

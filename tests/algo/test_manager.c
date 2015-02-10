@@ -97,7 +97,7 @@ START_TEST (test_manager_simple_nw_16)
         do_manager_test_std( query );
     }END_TEST
 
-static void compare_test( void (*init_func)( p_query, int, int ), int hit_count ) {
+static void compare_test( void (*init_func)( p_query, size_t, int ), size_t hit_count ) {
     p_query query = setup_manager_test();
 
     init_func( query, hit_count, BIT_WIDTH_64 );
@@ -112,7 +112,7 @@ static void compare_test( void (*init_func)( p_query, int, int ), int hit_count 
     ck_assert_int_eq( hit_count, alist_64->len );
     ck_assert_int_eq( hit_count, alist_16->len );
 
-    for( int i = 0; i < hit_count; i++ ) {
+    for( size_t i = 0; i < hit_count; i++ ) {
         alignment_p a64 = alist_64->alignments[i];
         alignment_p a16 = alist_16->alignments[i];
 

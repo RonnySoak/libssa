@@ -21,11 +21,11 @@
 #include "aligner.h"
 #include "searcher.h"
 
-static int alignment_hit_count = 0;
+static size_t alignment_hit_count = 0;
 
-unsigned long max_chunk_size = 1000; // TODO change and/or make it configurable
+size_t max_chunk_size = 1000; // TODO change and/or make it configurable
 
-static void init( p_query query, int hit_count, int search_type, int bit_width ) {
+static void init( p_query query, size_t hit_count, int search_type, int bit_width ) {
     alignment_hit_count = hit_count;
 
     s_init( search_type, bit_width, query, hit_count );
@@ -43,15 +43,15 @@ static void init( p_query query, int hit_count, int search_type, int bit_width )
 #endif
 }
 
-void init_for_sw( p_query query, int hit_count, int bit_width ) {
+void init_for_sw( p_query query, size_t hit_count, int bit_width ) {
     init( query, hit_count, SMITH_WATERMAN, bit_width );
 }
 
-void init_for_nw( p_query query, int hit_count, int bit_width ) {
+void init_for_nw( p_query query, size_t hit_count, int bit_width ) {
     init( query, hit_count, NEEDLEMAN_WUNSCH, bit_width );
 }
 
-void init_for_nw_sellers( p_query query, int hit_count, int bit_width ) {
+void init_for_nw_sellers( p_query query, size_t hit_count, int bit_width ) {
     init( query, hit_count, NEEDLEMAN_WUNSCH_SELLERS, bit_width );
 }
 
@@ -96,8 +96,8 @@ p_alignment_list m_run() {
 #endif
 
     p_minheap search_results = minheap_init( alignment_hit_count );
-    for( int i = 0; i < get_current_thread_count(); i++ ) {
-        for( int j = 0; j < search_result_list[i]->heap->count; j++ ) {
+    for( size_t i = 0; i < get_current_thread_count(); i++ ) {
+        for( size_t j = 0; j < search_result_list[i]->heap->count; j++ ) {
             minheap_add( search_results, &search_result_list[i]->heap->array[j] );
         }
 
@@ -124,8 +124,8 @@ p_alignment_list m_run() {
     wait_for_threads( (void **) &align_result_list );
 
     int alist_ptr = 0;
-    for( int i = 0; i < get_current_thread_count(); i++ ) {
-        for( int j = 0; j < align_result_list[i]->len; j++ ) {
+    for( size_t i = 0; i < get_current_thread_count(); i++ ) {
+        for( size_t j = 0; j < align_result_list[i]->len; j++ ) {
             alist->alignments[alist_ptr++] = align_result_list[i]->alignments[j];
         }
 
@@ -134,8 +134,8 @@ p_alignment_list m_run() {
     }
 
 #if 0
-    for( int i = 0; i < alist->len; i++ ) {
-        for( int j = 0; j < alist->len; j++ ) {
+    for( size_t i = 0; i < alist->len; i++ ) {
+        for( size_t j = 0; j < alist->len; j++ ) {
             if( i != j ) {
                 assert( alist->alignments[i]->db_seq.ID != alist->alignments[j]->db_seq.ID );
             }
@@ -151,7 +151,7 @@ p_alignment_list m_run() {
     minheap_exit( search_results );
 
     a_free_data();
-    for( int i = 0; i < _max_thread_count; i++ ) {
+    for( size_t i = 0; i < _max_thread_count; i++ ) {
         s_free( search_result_list[i] );
     }
 
