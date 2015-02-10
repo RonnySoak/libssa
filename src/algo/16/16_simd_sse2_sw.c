@@ -163,19 +163,6 @@ static void aligncolumns_rest( __m128i * Sm, __m128i * hep, __m128i ** qp, __m12
     *_h_max = h_max;
 }
 
-static void check_max( uint8_t overflow[CHANNELS_16_BIT_SSE], __m128i h_max, int16_t score_max ) {
-    for( int c = 0; c < CHANNELS_16_BIT_SSE; c++ ) {
-        if( !overflow[c] ) {
-            int16_t h_max_array[CHANNELS_16_BIT_SSE];
-            _mm_storeu_si128( (__m128i *) h_max_array, h_max );
-            int16_t h_max_c = h_max_array[c];
-            if( h_max_c >= score_max ) {
-                overflow[c] = 1;
-            }
-        }
-    }
-}
-
 void search_16_sse2_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * overflow_list, int q_id ) {
 
 #ifdef DBG_COLLECT_MATRIX
@@ -225,8 +212,12 @@ void search_16_sse2_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * 
 
     int16_t score_max = INT16_MAX;
 
-    int no_sequences_ended = 0;
+    union {
+        __m128i v;
+        int16_t a[CHANNELS_16_BIT_SSE];
+    } h_max;
 
+    int no_sequences_ended = 0;
     while( 1 ) {
         /*
          * TODO If there are less sequences, as channels, this loop switches constantly between
@@ -245,11 +236,7 @@ void search_16_sse2_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * 
 
             dprofile_fill_16_sse2( dprofile, dseq_search_window );
 
-            __m128i h_max;
-
-            aligncolumns_rest( &S.v, hep, s->queries[q_id]->q_table_sse, gap_open_extend, gap_extend, &h_max, qlen );
-
-            check_max( overflow, h_max, score_max );
+            aligncolumns_rest( &S.v, hep, s->queries[q_id]->q_table_sse, gap_open_extend, gap_extend, &h_max.v, qlen );
         }
         else {
             /* One or more sequences ended in the previous block.
@@ -326,12 +313,9 @@ void search_16_sse2_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * 
 
             dprofile_fill_16_sse2( dprofile, dseq_search_window );
 
-            __m128i h_max;
-
-            aligncolumns_first( &S.v, hep, s->queries[q_id]->q_table_sse, gap_open_extend, gap_extend, M, &h_max, qlen );
-
-            check_max( overflow, h_max, score_max );
+            aligncolumns_first( &S.v, hep, s->queries[q_id]->q_table_sse, gap_open_extend, gap_extend, M, &h_max.v, qlen );
         }
+        check_max( CHANNELS_16_BIT_SSE, overflow, h_max.a, score_max );
 
 #ifdef DBG_COLLECT_MATRIX
         d_idx += 4;

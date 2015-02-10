@@ -41,8 +41,8 @@ static void cmp_alignment_lists( p_alignment_list a, p_alignment_list b, int hit
 }
 
 int main( int argc, char**argv ) {
-    set_max_compute_capability( COMPUTE_ON_SSE41 ); // TODO make configurable via API
-//    set_max_compute_capability( COMPUTE_ON_AVX2 );
+//    set_max_compute_capability( COMPUTE_ON_SSE41 ); // TODO make configurable via API
+    set_max_compute_capability( COMPUTE_ON_AVX2 );
 
     init_scoring( 2, -2 );
     init_gap_penalties( 1, 1 );

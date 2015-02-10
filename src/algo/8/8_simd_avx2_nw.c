@@ -174,22 +174,6 @@ static void aligncolumns_rest( __m256i * Sm, __m256i * hep, __m256i ** qp, __m25
     *_h_max = h_max;
 }
 
-static void check_min_max( uint8_t overflow[CHANNELS_8_BIT_AVX], __m256i h_min, __m256i h_max, int8_t score_min, int8_t score_max ) {
-    for( int c = 0; c < CHANNELS_8_BIT_AVX; c++ ) {
-        if( !overflow[c] ) {
-            int8_t h_min_array[CHANNELS_8_BIT_AVX]; // TODO align memory
-            int8_t h_max_array[CHANNELS_8_BIT_AVX];
-            _mm256_storeu_si256( (__m256i *) h_min_array, h_min );
-            _mm256_storeu_si256( (__m256i *) h_max_array, h_max );
-            int8_t h_min_c = h_min_array[c];
-            int8_t h_max_c = h_max_array[c];
-            if( (h_min_c <= score_min) || (h_max_c >= score_max) ) {
-                overflow[c] = 1;
-            }
-        }
-    }
-}
-
 void search_8_avx2_nw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * overflow_list, int q_id ) {
 
 #ifdef DBG_COLLECT_MATRIX
@@ -254,8 +238,16 @@ void search_8_avx2_nw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * ov
     __m256i F2 = _mm256_setzero_si256();
     __m256i F3 = _mm256_setzero_si256();
 
-    int no_sequences_ended = 0;
+    union {
+        __m256i v;
+        int8_t a[CHANNELS_8_BIT_AVX];
+    } h_min;
+    union {
+        __m256i v;
+        int8_t a[CHANNELS_8_BIT_AVX];
+    } h_max;
 
+    int no_sequences_ended = 0;
     while( 1 ) {
         if( no_sequences_ended ) {
             /* fill all channels with symbols from the database sequences */
@@ -266,12 +258,8 @@ void search_8_avx2_nw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * ov
 
             dprofile_fill_8_avx2( dprofile, dseq_search_window );
 
-            __m256i h_min, h_max;
-
             aligncolumns_rest( S.v, hep, s->queries[q_id]->q_table_avx, gap_open_extend, gap_extend, H0, H1, H2, H3, F0, F1,
-                    F2, F3, &h_min, &h_max, qlen );
-
-            check_min_max( overflow, h_min, h_max, score_min, score_max );
+                    F2, F3, &h_min.v, &h_max.v, qlen );
         }
         else {
             /* One or more sequences ended in the previous block.
@@ -359,13 +347,10 @@ void search_8_avx2_nw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * ov
 
             dprofile_fill_8_avx2( dprofile, dseq_search_window );
 
-            __m256i h_min, h_max;
-
             aligncolumns_first( S.v, hep, s->queries[q_id]->q_table_avx, gap_open_extend, gap_extend, H0, H1, H2, H3, F0,
-                    F1, F2, F3, &h_min, &h_max, M.v, M_gap_open_extend, M_gap_extend, qlen );
-
-            check_min_max( overflow, h_min, h_max, score_min, score_max );
+                    F1, F2, F3, &h_min.v, &h_max.v, M.v, M_gap_open_extend, M_gap_extend, qlen );
         }
+        check_min_max( CHANNELS_8_BIT_AVX, overflow, h_min.a, h_max.a, score_min, score_max );
 
 #ifdef DBG_COLLECT_MATRIX
         d_idx += 4;

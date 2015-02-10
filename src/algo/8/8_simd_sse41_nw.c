@@ -174,22 +174,6 @@ static void aligncolumns_rest( __m128i * Sm, __m128i * hep, __m128i ** qp, __m12
     *_h_max = h_max;
 }
 
-static void check_min_max( uint8_t overflow[CHANNELS_8_BIT_SSE], __m128i h_min, __m128i h_max, int8_t score_min, int8_t score_max ) {
-    for( int c = 0; c < CHANNELS_8_BIT_SSE; c++ ) {
-        if( !overflow[c] ) {
-            int8_t h_min_array[CHANNELS_8_BIT_SSE];
-            int8_t h_max_array[CHANNELS_8_BIT_SSE];
-            _mm_storeu_si128( (__m128i *) h_min_array, h_min );
-            _mm_storeu_si128( (__m128i *) h_max_array, h_max );
-            int8_t h_min_c = h_min_array[c];
-            int8_t h_max_c = h_max_array[c];
-            if( (h_min_c <= score_min) || (h_max_c >= score_max) ) {
-                overflow[c] = 1;
-            }
-        }
-    }
-}
-
 void search_8_sse41_nw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * overflow_list, int q_id ) {
 
 #ifdef DBG_COLLECT_MATRIX
@@ -254,8 +238,16 @@ void search_8_sse41_nw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * o
     __m128i F2 = _mm_setzero_si128();
     __m128i F3 = _mm_setzero_si128();
 
+    union {
+        __m128i v;
+        int8_t a[CHANNELS_8_BIT_SSE];
+    } h_min;
+    union {
+        __m128i v;
+        int8_t a[CHANNELS_8_BIT_SSE];
+    } h_max;
+    
     int no_sequences_ended = 0;
-
     while( 1 ) {
         if( no_sequences_ended ) {
             /* fill all channels with symbols from the database sequences */
@@ -266,13 +258,9 @@ void search_8_sse41_nw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * o
 
             dprofile_fill_8_sse41( dprofile, dseq_search_window );
 
-            __m128i h_min, h_max;
-
             aligncolumns_rest( S.v, hep, s->queries[q_id]->q_table_sse, gap_open_extend, gap_extend, H0, H1, H2, H3, F0, F1,
-                    F2, F3, &h_min, &h_max, qlen );
-
-            check_min_max( overflow, h_min, h_max, score_min, score_max );
-        }
+                    F2, F3, &h_min.v, &h_max.v, qlen );
+       }
         else {
             /* One or more sequences ended in the previous block.
              We have to switch over to a new sequence           */
@@ -363,13 +351,10 @@ void search_8_sse41_nw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * o
 
             dprofile_fill_8_sse41( dprofile, dseq_search_window );
 
-            __m128i h_min, h_max;
-
             aligncolumns_first( S.v, hep, s->queries[q_id]->q_table_sse, gap_open_extend, gap_extend, H0, H1, H2, H3, F0,
-                    F1, F2, F3, &h_min, &h_max, M, M_gap_open_extend, M_gap_extend, qlen );
-
-            check_min_max( overflow, h_min, h_max, score_min, score_max );
+                    F1, F2, F3, &h_min.v, &h_max.v, M, M_gap_open_extend, M_gap_extend, qlen );
         }
+        check_min_max( CHANNELS_8_BIT_SSE, overflow, h_min.a, h_max.a, score_min, score_max );
 
 #ifdef DBG_COLLECT_MATRIX
         d_idx += 4;

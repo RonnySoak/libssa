@@ -26,6 +26,23 @@ static inline int move_db_sequence_window_8( int c, int channels, uint8_t ** d_b
     return 1;
 }
 
+static inline void check_min_max( int channels, uint8_t * overflow, int8_t * h_min, int8_t * h_max, int8_t score_min,
+        int8_t score_max ) {
+    for( int c = 0; c < channels; c++ ) {
+        if( (h_min[c] <= score_min) || (h_max[c] >= score_max) ) {
+            overflow[c] = 1;
+        }
+    }
+}
+
+static inline void check_max( int channels, uint8_t * overflow, int8_t * h_max, int8_t score_max ) {
+    for( int c = 0; c < channels; c++ ) {
+        if( h_max[c] >= score_max ) {
+            overflow[c] = 1;
+        }
+    }
+}
+
 void search_8_sse41_init( p_search_data sdp, p_s8info s );
 void search_8_avx2_init( p_search_data sdp, p_s8info s );
 
