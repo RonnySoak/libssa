@@ -29,7 +29,7 @@ void search_8_init_algo( int search_type ) {
 
     if( search_type == SMITH_WATERMAN ) {
         if( is_avx2_enabled() ) {
-//            search_algo = &search_8_avx2_sw;
+            search_algo = &search_8_avx2_sw;
         }
         else if( is_sse41_enabled() ) {
             search_algo = &search_8_sse41_sw;
@@ -37,7 +37,7 @@ void search_8_init_algo( int search_type ) {
     }
     else if( search_type == NEEDLEMAN_WUNSCH ) {
         if( is_avx2_enabled() ) {
-//            search_algo = &search_8_avx2_nw;
+            search_algo = &search_8_avx2_nw;
         }
         else if( is_sse41_enabled() ) {
             search_algo = &search_8_sse41_nw;
@@ -53,7 +53,7 @@ void search_8_init_algo( int search_type ) {
 
 }
 
-static p_s8info search_8_init( p_search_data sdp ) {
+p_s8info search_8_init( p_search_data sdp ) {
     p_s8info s = (p_s8info) xmalloc( sizeof(struct s8info) );
 
     s->dprofile_avx = 0;
@@ -157,7 +157,7 @@ static unsigned long search_8_chunk( p_s8info s8info, p_minheap heap, p_db_chunk
 }
 
 void search_8( p_db_chunk chunk, p_search_data sdp, p_search_result res ) {
-    if( !search_algo) {
+    if( !search_algo ) {
         ffatal( "\n 8 bit search not initialized.\n" );
     }
 

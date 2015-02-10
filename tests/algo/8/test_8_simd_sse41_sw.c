@@ -106,8 +106,8 @@ START_TEST (test_sw_simd_more_sequences)
         exit_searcher_8_test( res );
     }END_TEST
 
-void addSmithWaterman8TC( Suite *s ) {
-    TCase *tc_core = tcase_create( "SmithWaterman8" );
+void add_sw_8_SSE41_TC( Suite *s ) {
+    TCase *tc_core = tcase_create( "SmithWaterman_8_SSE41" );
     tcase_add_test( tc_core, test_sw_simd_simple );
     tcase_add_test( tc_core, test_sw_simd_simple_2 );
     tcase_add_test( tc_core, test_sw_simd_more_sequences );

@@ -62,14 +62,13 @@ static void aligncolumns_first( __m128i * Sm, __m128i * hep, __m128i ** qp, __m1
     __m128i h_min = _mm_setzero_si128();
     __m128i h_max = _mm_setzero_si128();
     __m128i M_gap_extension = M_gap_open_extend;
-    long i;
 
     f0 = _mm_subs_epi16( f0, gap_open_extend );
     f1 = _mm_subs_epi16( f1, gap_open_extend );
     f2 = _mm_subs_epi16( f2, gap_open_extend );
     f3 = _mm_subs_epi16( f3, gap_open_extend );
 
-    for( i = 0; i < ql; i++ ) {
+    for( long i = 0; i < ql; i++ ) {
         vp = qp[i + 0];
 
         h4 = hep[2 * i + 0];
@@ -119,7 +118,7 @@ static void aligncolumns_first( __m128i * Sm, __m128i * hep, __m128i ** qp, __m1
     Sm[0] = h1;
     Sm[1] = h2;
     Sm[2] = h3;
-    Sm[3] = hep[2 * (i - 1) + 0];
+    Sm[3] = hep[2 * (ql - 1) + 0];
 
     *_h_min = h_min;
     *_h_max = h_max;
@@ -132,14 +131,13 @@ static void aligncolumns_rest( __m128i * Sm, __m128i * hep, __m128i ** qp, __m12
     __m128i * vp;
     __m128i h_min = _mm_setzero_si128();
     __m128i h_max = _mm_setzero_si128();
-    long i;
 
     f0 = _mm_subs_epi16( f0, gap_open_extend );
     f1 = _mm_subs_epi16( f1, gap_open_extend );
     f2 = _mm_subs_epi16( f2, gap_open_extend );
     f3 = _mm_subs_epi16( f3, gap_open_extend );
 
-    for( i = 0; i < ql; i++ ) {
+    for( long i = 0; i < ql; i++ ) {
         vp = qp[i + 0];
 
         h4 = hep[2 * i + 0];
@@ -170,7 +168,7 @@ static void aligncolumns_rest( __m128i * Sm, __m128i * hep, __m128i ** qp, __m12
     Sm[0] = h1;
     Sm[1] = h2;
     Sm[2] = h3;
-    Sm[3] = hep[2 * (i - 1) + 0];
+    Sm[3] = hep[2 * (ql - 1) + 0];
 
     *_h_min = h_min;
     *_h_max = h_max;
@@ -263,7 +261,7 @@ void search_16_sse2_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * 
             /* fill all channels with symbols from the database sequences */
 
             for( int c = 0; c < CHANNELS_16_BIT_SSE; c++ ) {
-                no_sequences_ended &= move_db_sequence_window_16( c, d_begin, d_end, dseq_search_window );
+                no_sequences_ended &= move_db_sequence_window_16( c, CHANNELS_16_BIT_SSE, d_begin, d_end, dseq_search_window );
             }
 
             dprofile_fill_16_sse2( dprofile, dseq_search_window );
@@ -286,7 +284,7 @@ void search_16_sse2_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * 
                 if( d_begin[c] < d_end[c] ) {
                     /* the sequence in this channel is not finished yet */
 
-                    no_sequences_ended &= move_db_sequence_window_16( c, d_begin, d_end, dseq_search_window );
+                    no_sequences_ended &= move_db_sequence_window_16( c, CHANNELS_16_BIT_SSE, d_begin, d_end, dseq_search_window );
                 }
                 else {
                     /* sequence in channel c ended. change of sequence */
@@ -338,7 +336,7 @@ void search_16_sse2_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * 
                         ((int16_t*) &F2)[c] = -s->penalty_gap_open - 3 * s->penalty_gap_extension;
                         ((int16_t*) &F3)[c] = -s->penalty_gap_open - 4 * s->penalty_gap_extension;
 
-                        no_sequences_ended &= move_db_sequence_window_16( c, d_begin, d_end, dseq_search_window );
+                        no_sequences_ended &= move_db_sequence_window_16( c, CHANNELS_16_BIT_SSE, d_begin, d_end, dseq_search_window );
                     }
                     else {
                         /* no more sequences, empty channel */

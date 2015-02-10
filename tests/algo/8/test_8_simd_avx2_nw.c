@@ -19,7 +19,7 @@
 #include "../../../src/algo/searcher.h"
 
 static p_search_result setup_searcher_8_test( char * query_string, char * db_file, int hit_count ) {
-    set_max_compute_capability( COMPUTE_ON_SSE41 );
+    set_max_compute_capability( COMPUTE_ON_AVX2 );
 
     mat_init_constant_scoring( 1, -1 );
     init_symbol_translation( NUCLEOTIDE, FORWARD_STRAND, 3, 3 );
@@ -74,7 +74,7 @@ START_TEST (test_nw_simd_more_sequences)
         /*
          * The 8 bit NW implementation has an underflow here, that effects the overall score.
          *
-         * TODO test correct reporting of over-/underflows
+         * TODO test correct reporting of over-/underflows (maybe report overflow in p_search_result as number of overflown sequences)
          */
         ck_assert_int_eq( -50, heap->array[1].score );
         ck_assert_int_eq( -52, heap->array[2].score );
@@ -84,8 +84,8 @@ START_TEST (test_nw_simd_more_sequences)
         exit_searcher_8_test( res );
     }END_TEST
 
-void add_nw_8_SSE41_TC( Suite *s ) {
-    TCase *tc_core = tcase_create( "NeedlemanWunsch_8_SSE41" );
+void add_nw_8_AVX2_TC( Suite *s ) {
+    TCase *tc_core = tcase_create( "NeedlemanWunsch_8_AVX2" );
     tcase_add_test( tc_core, test_nw_simd_simple );
     tcase_add_test( tc_core, test_nw_simd_more_sequences );
 

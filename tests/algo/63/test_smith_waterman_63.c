@@ -65,8 +65,8 @@ START_TEST (test_search63_simple_2)
         query_free( query );
     }END_TEST
 
-void addSmithWaterman63TC( Suite *s ) {
-    TCase *tc_core = tcase_create( "SmithWaterman63" );
+void add_sw_63_TC( Suite *s ) {
+    TCase *tc_core = tcase_create( "SmithWaterman_63" );
     tcase_add_test( tc_core, test_search63_simple );
     tcase_add_test( tc_core, test_search63_simple_2 );
 

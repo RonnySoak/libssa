@@ -131,25 +131,17 @@ void dprofile_fill_16_sse2( int16_t * dprofile, uint8_t * dseq_search_window ) {
             xmm14 = _mm_unpacklo_epi64( xmm5, xmm7 );
             xmm15 = _mm_unpackhi_epi64( xmm5, xmm7 );
 
-            _mm_store_si128( (__m128i *) (dprofile + CDEPTH_16_BIT * CHANNELS_16_BIT_SSE * (i + 0) + CHANNELS_16_BIT_SSE * j),
-                    xmm8 );
-            _mm_store_si128( (__m128i *) (dprofile + CDEPTH_16_BIT * CHANNELS_16_BIT_SSE * (i + 1) + CHANNELS_16_BIT_SSE * j),
-                    xmm9 );
-            _mm_store_si128( (__m128i *) (dprofile + CDEPTH_16_BIT * CHANNELS_16_BIT_SSE * (i + 2) + CHANNELS_16_BIT_SSE * j),
-                    xmm10 );
-            _mm_store_si128( (__m128i *) (dprofile + CDEPTH_16_BIT * CHANNELS_16_BIT_SSE * (i + 3) + CHANNELS_16_BIT_SSE * j),
-                    xmm11 );
-            _mm_store_si128( (__m128i *) (dprofile + CDEPTH_16_BIT * CHANNELS_16_BIT_SSE * (i + 4) + CHANNELS_16_BIT_SSE * j),
-                    xmm12 );
-            _mm_store_si128( (__m128i *) (dprofile + CDEPTH_16_BIT * CHANNELS_16_BIT_SSE * (i + 5) + CHANNELS_16_BIT_SSE * j),
-                    xmm13 );
-            _mm_store_si128( (__m128i *) (dprofile + CDEPTH_16_BIT * CHANNELS_16_BIT_SSE * (i + 6) + CHANNELS_16_BIT_SSE * j),
-                    xmm14 );
-            _mm_store_si128( (__m128i *) (dprofile + CDEPTH_16_BIT * CHANNELS_16_BIT_SSE * (i + 7) + CHANNELS_16_BIT_SSE * j),
-                    xmm15 );
+            _mm_store_si128( (__m128i *) (dprofile + CDEPTH_16_BIT * CHANNELS_16_BIT_SSE * (i + 0) + CHANNELS_16_BIT_SSE * j), xmm8 );
+            _mm_store_si128( (__m128i *) (dprofile + CDEPTH_16_BIT * CHANNELS_16_BIT_SSE * (i + 1) + CHANNELS_16_BIT_SSE * j), xmm9 );
+            _mm_store_si128( (__m128i *) (dprofile + CDEPTH_16_BIT * CHANNELS_16_BIT_SSE * (i + 2) + CHANNELS_16_BIT_SSE * j), xmm10 );
+            _mm_store_si128( (__m128i *) (dprofile + CDEPTH_16_BIT * CHANNELS_16_BIT_SSE * (i + 3) + CHANNELS_16_BIT_SSE * j), xmm11 );
+            _mm_store_si128( (__m128i *) (dprofile + CDEPTH_16_BIT * CHANNELS_16_BIT_SSE * (i + 4) + CHANNELS_16_BIT_SSE * j), xmm12 );
+            _mm_store_si128( (__m128i *) (dprofile + CDEPTH_16_BIT * CHANNELS_16_BIT_SSE * (i + 5) + CHANNELS_16_BIT_SSE * j), xmm13 );
+            _mm_store_si128( (__m128i *) (dprofile + CDEPTH_16_BIT * CHANNELS_16_BIT_SSE * (i + 6) + CHANNELS_16_BIT_SSE * j), xmm14 );
+            _mm_store_si128( (__m128i *) (dprofile + CDEPTH_16_BIT * CHANNELS_16_BIT_SSE * (i + 7) + CHANNELS_16_BIT_SSE * j), xmm15 );
         }
     }
 #if 0
-    dbg_dprofile_dump16( dprofile, CDEPTH_16_BIT, CHANNELS_16_BIT_SSE );
+    dbg_dprofile_dump_16( dprofile, CDEPTH_16_BIT, CHANNELS_16_BIT_SSE );
 #endif
 }

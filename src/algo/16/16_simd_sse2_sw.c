@@ -85,12 +85,12 @@ static void aligncolumns_first( __m128i * Sm, __m128i * hep, __m128i ** qp, __m1
          * the other channels are set to zero.
          */
 
-        h4 = _mm_subs_epi16( h4, Mm );
-        h4 = _mm_subs_epi16( h4, Mm );
+        h4 = _mm_adds_epi16( h4, Mm );
+        h4 = _mm_adds_epi16( h4, Mm );
 
         E = hep[2 * i + 1];
-        E = _mm_subs_epi16( E, Mm );
-        E = _mm_subs_epi16( E, Mm );
+        E = _mm_adds_epi16( E, Mm );
+        E = _mm_adds_epi16( E, Mm );
 
         ALIGNCORE( h0, h5, f0, vp[0], gap_open_extend, gap_extend, *Sm, h_max );
         ALIGNCORE( h1, h6, f1, vp[1], gap_open_extend, gap_extend, *Sm, h_max );
@@ -209,12 +209,7 @@ void search_16_sse2_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * 
     unsigned long next_id = 0;
     unsigned long done = 0;
 
-    /*
-     * TODO if we compile with optimization -O3 this instruction gets optimized in a way,
-     * such that it cannot be processed by valgrind. The more optimal instruction is not
-     * yet implemented in valgrind.
-     */
-    T0 = _mm_set_epi16( 0, 0, 0, 0, 0, 0, 0, INT16_MAX );
+    T0 = _mm_set_epi16( 0, 0, 0, 0, 0, 0, 0, INT16_MIN );
 
     gap_open_extend = _mm_set1_epi16( s->penalty_gap_open + s->penalty_gap_extension );
     gap_extend = _mm_set1_epi16( s->penalty_gap_extension );
@@ -245,7 +240,7 @@ void search_16_sse2_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * 
             /* fill all channels with symbols from the database sequences */
 
             for( int c = 0; c < CHANNELS_16_BIT_SSE; c++ ) {
-                no_sequences_ended &= move_db_sequence_window_16( c, d_begin, d_end, dseq_search_window );
+                no_sequences_ended &= move_db_sequence_window_16( c, CHANNELS_16_BIT_SSE, d_begin, d_end, dseq_search_window );
             }
 
             dprofile_fill_16_sse2( dprofile, dseq_search_window );
@@ -267,7 +262,7 @@ void search_16_sse2_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * 
                 if( d_begin[c] < d_end[c] ) {
                     /* the sequence in this channel is not finished yet */
 
-                    no_sequences_ended &= move_db_sequence_window_16( c, d_begin, d_end, dseq_search_window );
+                    no_sequences_ended &= move_db_sequence_window_16( c, CHANNELS_16_BIT_SSE, d_begin, d_end, dseq_search_window );
                 }
                 else {
                     /* sequence in channel c ended. change of sequence */
@@ -309,7 +304,7 @@ void search_16_sse2_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * 
                         d_begin[c] = (unsigned char*) d_seq_ptr[c]->seq.seq;
                         d_end[c] = (unsigned char*) d_seq_ptr[c]->seq.seq + d_seq_ptr[c]->seq.len;
 
-                        no_sequences_ended &= move_db_sequence_window_16( c, d_begin, d_end, dseq_search_window );
+                        no_sequences_ended &= move_db_sequence_window_16( c, CHANNELS_16_BIT_SSE, d_begin, d_end, dseq_search_window );
                     }
                     else {
                         /* no more sequences, empty channel */

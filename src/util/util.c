@@ -60,7 +60,7 @@ void outf( const char* format, ... ) {
 }
 
 void * xmalloc( size_t size ) {
-    const size_t alignment = 16;
+    const size_t alignment = 32; // TODO AVX2 code needs a 32 bit alignment ...
     void * t;
     if( posix_memalign( &t, alignment, size ) != 0 ) {
         ffatal( "Unable to allocate enough memory." );

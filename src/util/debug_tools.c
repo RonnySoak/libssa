@@ -249,14 +249,44 @@ void dbg_mm_print_16u( char * desc, __m128i x ) {
     printf( "\n" );
 }
 
+void dbg_mm256_print_16u( char * desc, __m256i x ) {
+    uint16_t * y = (uint16_t*) &x;
+
+    printf( "%s: ", desc );
+
+    for( int i = 0; i < 16; i++ )
+        printf( "%s%3d", (i > 0 ? " " : ""), y[15 - i] );
+    printf( "\n" );
+}
+
 void dbg_mm_print_16s( char * desc, __m128i x ) {
     int16_t * y = (int16_t*) &x;
 
     printf( "%s: ", desc );
 
     for( int i = 0; i < 8; i++ ) {
-        printf( "%s%2d", (i > 0 ? " " : ""), y[7 - i] );
+        printf( "%s%3d", (i > 0 ? " " : ""), y[7 - i] );
     }
+    printf( "\n" );
+}
+
+void dbg_mm256_print_16s( char * desc, __m256i x ) {
+    int16_t * y = (int16_t*) &x;
+
+    printf( "%s: ", desc );
+
+    for( int i = 0; i < 16; i++ )
+        printf( "%s%3d", (i > 0 ? " " : ""), y[15 - i] );
+    printf( "\n" );
+}
+
+void dbg_mm256_print_8s( char * desc, __m256i x ) {
+    int8_t * y = (int8_t*) &x;
+
+    printf( "%s: ", desc );
+
+    for( int i = 0; i < 32; i++ )
+        printf( "%s%3d", (i > 0 ? " " : ""), y[31 - i] );
     printf( "\n" );
 }
 
@@ -266,20 +296,20 @@ void dbg_mm_print_sw_16s( char * desc, __m128i x ) {
     printf( "%s: ", desc );
 
     for( int i = 0; i < 8; i++ ) {
-        printf( "%s%2d", (i > 0 ? " " : ""), y[7 - i] + -INT16_MIN );
+        printf( "%s%3d", (i > 0 ? " " : ""), y[7 - i] + -INT16_MIN );
     }
     printf( "\n" );
 }
 
 void dbg_dprofile_dump_16( int16_t * dprofile, int cdepth, int channels ) {
     const char * s = sym_ncbi_nt16u;
-    printf( "\ndprofile:\n" );
+    printf( "\ndprofile (NUC):\n" );
     for( int i = 0; i < SCORE_MATRIX_DIM; i++ ) {
         printf( "%c: ", s[i] );
         for( int k = 0; k < cdepth; k++ ) {
             printf( "[" );
             for( int j = 0; j < channels; j++ )
-                printf( " %3d", dprofile[channels * cdepth * i + channels * k + j] );
+                printf( " %2d", dprofile[channels * cdepth * i + channels * k + j] );
             printf( "]" );
         }
         printf( "\n" );
@@ -288,13 +318,13 @@ void dbg_dprofile_dump_16( int16_t * dprofile, int cdepth, int channels ) {
 
 void dbg_dprofile_dump_8( int8_t * dprofile, int cdepth, int channels ) {
     const char * s = sym_ncbi_nt16u;
-    printf( "\ndprofile:\n" );
+    printf( "\ndprofile (NUC):\n" );
     for( int i = 0; i < SCORE_MATRIX_DIM; i++ ) {
         printf( "%c: ", s[i] );
         for( int k = 0; k < cdepth; k++ ) {
             printf( "[" );
             for( int j = 0; j < channels; j++ )
-                printf( " %3d", dprofile[channels * cdepth * i + channels * k + j] );
+                printf( " %2d", dprofile[channels * cdepth * i + channels * k + j] );
             printf( "]" );
         }
         printf( "\n" );

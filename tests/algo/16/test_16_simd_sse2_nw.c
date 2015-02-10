@@ -79,8 +79,8 @@ START_TEST (test_nw_simd_more_sequences)
         exit_searcher_16_test( res );
     }END_TEST
 
-void addNeedlemanWunsch16TC( Suite *s ) {
-    TCase *tc_core = tcase_create( "NeedlemanWunsch16" );
+void add_nw_16_SSE2_TC( Suite *s ) {
+    TCase *tc_core = tcase_create( "NeedlemanWunsch_16_SSE2" );
     tcase_add_test( tc_core, test_nw_simd_simple );
     tcase_add_test( tc_core, test_nw_simd_more_sequences );
 

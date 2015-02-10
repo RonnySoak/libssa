@@ -14,6 +14,7 @@
 
 #include "../searcher.h"
 #include "../../util/util.h"
+#include "../../util/util_sequence.h" // TODO remove
 #include "../../util/linked_list.h"
 #include "../../db_iterator.h"
 #include "../../matrices.h"
@@ -60,37 +61,47 @@ void search_8_avx2_init( p_search_data sdp, p_s8info s ) {
 }
 
 void dprofile_fill_8_avx2( int8_t * dprofile, uint8_t * dseq_search_window ) {
-    __m256i ymm[32];
-    __m256i ymm_t[32];
+    __m256i ymm[CHANNELS_8_BIT_AVX];
+    __m256i ymm_t[CHANNELS_8_BIT_AVX];
 
     // 4 x 16 db symbols
     // ca (60x2+68x2)x4 = 976 instructions TODO verify these numbers
 
+#if 0
+     dbg_dumpscorematrix_8( score_matrix_7 );
+
+    printf( "DB search window:\n");
+    for( int j = 0; j < CDEPTH_8_BIT; j++ ) {
+        for( int z = 0; z < CHANNELS_8_BIT_AVX; z++ )
+        fprintf( stderr, " [%c]", sym_ncbi_nt16u[dseq_search_window[j * CHANNELS_8_BIT_AVX + z]] );
+        fprintf( stderr, "\n" );
+    }
+#endif
     for( int j = 0; j < CDEPTH_8_BIT; j++ ) {
         int d[CHANNELS_8_BIT_AVX];
 
-        for( int i = 0; i < CHANNELS_8_BIT_AVX; i++ ) // TODO try out to merge this and the next for loop. Does it help to get faster?
+        for( int i = 0; i < CHANNELS_8_BIT_AVX; i++ ) // TODO try out to merge this and the next for loop. Does it save cycles?
             d[i] = dseq_search_window[j * CHANNELS_8_BIT_AVX + i] << 5;
 
         // load matrix
-        for( int i = 0; i < SCORE_MATRIX_DIM; i++ ) {
+        for( int i = 0; i < CHANNELS_8_BIT_AVX; i++ ) {
             ymm[i] = _mm256_lddqu_si256( (__m256i *) (score_matrix_7 + d[i]) );
         }
 
         // transpose matrix
-        for( int i = 0; i < SCORE_MATRIX_DIM; i += 2 ) {
+        for( int i = 0; i < CHANNELS_8_BIT_AVX; i += 2 ) {
             ymm_t[i + 0] = _mm256_unpacklo_epi8( ymm[i + 0], ymm[i + 1] );
             ymm_t[i + 1] = _mm256_unpackhi_epi8( ymm[i + 0], ymm[i + 1] );
         }
 
-        for( int i = 0; i < SCORE_MATRIX_DIM; i += 4 ) {
+        for( int i = 0; i < CHANNELS_8_BIT_AVX; i += 4 ) {
             ymm[i + 0] = _mm256_unpacklo_epi16( ymm_t[i + 0], ymm_t[i + 2] );
             ymm[i + 1] = _mm256_unpackhi_epi16( ymm_t[i + 0], ymm_t[i + 2] );
             ymm[i + 2] = _mm256_unpacklo_epi16( ymm_t[i + 1], ymm_t[i + 3] );
             ymm[i + 3] = _mm256_unpackhi_epi16( ymm_t[i + 1], ymm_t[i + 3] );
         }
 
-        for( int i = 0; i < SCORE_MATRIX_DIM; i += 8 ) {
+        for( int i = 0; i < CHANNELS_8_BIT_AVX; i += 8 ) {
             ymm_t[i + 0] = _mm256_unpacklo_epi32( ymm[i + 0], ymm[i + 4] );
             ymm_t[i + 1] = _mm256_unpackhi_epi32( ymm[i + 0], ymm[i + 4] );
             ymm_t[i + 2] = _mm256_unpacklo_epi32( ymm[i + 1], ymm[i + 5] );
@@ -101,7 +112,7 @@ void dprofile_fill_8_avx2( int8_t * dprofile, uint8_t * dseq_search_window ) {
             ymm_t[i + 7] = _mm256_unpackhi_epi32( ymm[i + 3], ymm[i + 7] );
         }
 
-        for( int i = 0; i < SCORE_MATRIX_DIM; i += 16 ) {
+        for( int i = 0; i < CHANNELS_8_BIT_AVX; i += 16 ) {
             ymm[i + 0] = _mm256_unpacklo_epi64( ymm_t[i + 0], ymm_t[i + 8] );
             ymm[i + 1] = _mm256_unpackhi_epi64( ymm_t[i + 0], ymm_t[i + 8] );
             ymm[i + 2] = _mm256_unpacklo_epi64( ymm_t[i + 1], ymm_t[i + 9] );
@@ -120,14 +131,20 @@ void dprofile_fill_8_avx2( int8_t * dprofile, uint8_t * dseq_search_window ) {
             ymm[i + 15] = _mm256_unpackhi_epi64( ymm_t[i + 7], ymm_t[i + 15] );
         }
 
-        for( int i = 0; i < 16; i++ ) {
-            ymm_t[i + 0] = _mm256_permute2x128_si256( ymm[i + 0], ymm[i + 16], (0 << 4) | 0 );
-            ymm_t[i + 16] = _mm256_permute2x128_si256( ymm[i + 0], ymm[i + 16], (3 << 4) | 3 );
+        for( int i = 0; i < (CHANNELS_8_BIT_AVX / 2); i++ ) {
+            ymm_t[i + 0]  = _mm256_permute2x128_si256( ymm[i + 0], ymm[i + 16], (2 << 4) | 0 );
+            ymm_t[i + 16] = _mm256_permute2x128_si256( ymm[i + 0], ymm[i + 16], (3 << 4) | 1 );
         }
 
         // store matrix
-        for( int i = 0; i < SCORE_MATRIX_DIM; i++ ) {
-            _mm256_storeu_si256( (__m256i *) (dprofile + j * CHANNELS_8_BIT_AVX + i * 128), ymm_t[i] );
+        for( int i = 0; i < CHANNELS_8_BIT_AVX; i++ ) {
+//                _mm256_stream_si256 prevents caching              TODO choose one
+//                _mm256_store_si256 does not prevent caching
+
+            _mm256_store_si256( (__m256i *) (dprofile + j * CHANNELS_8_BIT_AVX + i * 128), ymm_t[i] );
         }
     }
+#if 0
+    dbg_dprofile_dump_8( dprofile, CDEPTH_8_BIT, CHANNELS_8_BIT_AVX );
+#endif
 }

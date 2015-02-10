@@ -34,7 +34,9 @@ void dbg_mm_print_8u( char * desc, __m128i x );
 void dbg_mm_print_8s( char * desc, __m128i x );
 
 void dbg_mm_print_16u( char * desc, __m128i x );
+void dbg_mm256_print_16u( char * desc, __m256i x );
 void dbg_mm_print_16s( char * desc, __m128i x );
+void dbg_mm256_print_16s( char * desc, __m256i x );
 void dbg_mm_print_sw_16s( char * desc, __m128i x );
 
 void dbg_dprofile_dump_16( int16_t * dprofile, int cdepth, int channels );

@@ -273,9 +273,8 @@ X  0 -1  0 -1 -3 -1 -1 -1 -1 -1 -1 -1 -1 -2 -1  0  0 -4 -2 -1 -1 -1 -1\n";
 long SCORELIMIT_7;
 long SCORELIMIT_16;
 long SCORELIMIT_63;
-char BIAS;
 
-int8_t* score_matrix_7 = NULL; // char
+int8_t * score_matrix_7 = NULL; // char
 int16_t * score_matrix_16 = NULL; // short
 int64_t * score_matrix_63 = NULL; // long
 
@@ -341,7 +340,6 @@ static void finalize_matrices() {
         }
     }
 
-    BIAS = -lo;
     SCORELIMIT_7 = (2 ^ 7) - hi;
     SCORELIMIT_16 = (2 ^ 16) - hi;
 

@@ -35,7 +35,11 @@ MPI_LINK := `mpicxx --showme:link`
 
 # add "-fprofile-arcs -ftest-coverage" to COMMON for code coverage
 
-LIBS := -lpthread -lm -lsdb 
+#### TODO remove from PROD code ####
+#DEBUG_LIBS := -lefence
+DEBUG_FLAGS := --coverage -g
+
+LIBS := -lpthread -lm -lsdb $(DEBUG_LIBS)
 TEST_LIBS := -lcheck -lrt
 
 # Intel options
@@ -44,7 +48,7 @@ TEST_LIBS := -lcheck -lrt
 
 # GNU options
 CXX := gcc
-CXXFLAGS := -Wall -O3 -std=c99 -mavx2 --coverage -g
+CXXFLAGS := -Wall -O3 -std=c99 -mavx2 $(DEBUG_FLAGS)
 
 PROG := libssa libssa_check libssa_example
 

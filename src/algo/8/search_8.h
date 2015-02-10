@@ -52,6 +52,9 @@ typedef struct s8info * p_s8info;
 
 void search_8_init_algo( int search_type );
 
+p_s8info search_8_init( p_search_data sdp );
+void search_8_exit( p_s8info s );
+
 void search_8( p_db_chunk chunk, p_search_data sdp, p_search_result res );
 
 #endif /* SEARCH_8_H_ */

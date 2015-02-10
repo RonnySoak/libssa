@@ -67,7 +67,7 @@ void dprofile_fill_8_sse41( int8_t * dprofile, uint8_t * dseq_search_window ) {
     // 4 x 16 db symbols
     // ca (60x2+68x2)x4 = 976 instructions TODO verify these numbers
 
-#if 1
+#if 0
     dbg_dumpscorematrix_8( score_matrix_7 );
 
     for( int j = 0; j < CDEPTH_8_BIT; j++ ) {
@@ -159,7 +159,7 @@ void dprofile_fill_8_sse41( int8_t * dprofile, uint8_t * dseq_search_window ) {
             _mm_store_si128( (__m128i *) (dprofile + CHANNELS_8_BIT_SSE * j + 64 * i + 448), xmm15 );
         }
     }
-#if 1
+#if 0
     dbg_dprofile_dump_8( dprofile, CDEPTH_8_BIT, CHANNELS_8_BIT_SSE );
 #endif
 }

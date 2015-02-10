@@ -38,7 +38,7 @@ void search_16_init_algo( int search_type ) {
     }
     else if( search_type == NEEDLEMAN_WUNSCH ) {
         if( is_avx2_enabled() ) {
-//            search_algo = &search_16_avx2_nw;
+            search_algo = &search_16_avx2_nw;
         }
         else {
             search_algo = &search_16_sse2_nw;

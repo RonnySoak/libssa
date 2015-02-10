@@ -285,8 +285,7 @@ START_TEST (test_searcher_AA_nw_64)
         int result[12] = { -87, 0 };
 
         p_search_result res = init_translate_test( BIT_WIDTH_64, NEEDLEMAN_WUNSCH,
-                "HPEVYILIIPGFGIISHVVSTYSKKPVFGEISMVYAMASIGLLGFLVWSHHMYIVGLDADTRAYFTSATMIIAIPTGIKI", "short_AA.fas",
-                1,
+                "HPEVYILIIPGFGIISHVVSTYSKKPVFGEISMVYAMASIGLLGFLVWSHHMYIVGLDADTRAYFTSATMIIAIPTGIKI", "short_AA.fas", 1,
                 AMINOACID,
                 FORWARD_STRAND );
 
@@ -298,8 +297,7 @@ START_TEST (test_searcher_AA_sw_64)
         int result[12] = { 3, 0 };
 
         p_search_result res = init_translate_test( BIT_WIDTH_64, SMITH_WATERMAN,
-                "HPEVYILIIPGFGIISHVVSTYSKKPVFGEISMVYAMASIGLLGFLVWSHHMYIVGLDADTRAYFTSATMIIAIPTGIKI", "short_AA.fas",
-                1,
+                "HPEVYILIIPGFGIISHVVSTYSKKPVFGEISMVYAMASIGLLGFLVWSHHMYIVGLDADTRAYFTSATMIIAIPTGIKI", "short_AA.fas", 1,
                 AMINOACID,
                 FORWARD_STRAND );
 
@@ -313,8 +311,7 @@ START_TEST (test_searcher_AA_nw_16)
         int result[12] = { -87, 0 };
 
         p_search_result res = init_translate_test( BIT_WIDTH_16, NEEDLEMAN_WUNSCH,
-                "HPEVYILIIPGFGIISHVVSTYSKKPVFGEISMVYAMASIGLLGFLVWSHHMYIVGLDADTRAYFTSATMIIAIPTGIKI", "short_AA.fas",
-                1,
+                "HPEVYILIIPGFGIISHVVSTYSKKPVFGEISMVYAMASIGLLGFLVWSHHMYIVGLDADTRAYFTSATMIIAIPTGIKI", "short_AA.fas", 1,
                 AMINOACID,
                 FORWARD_STRAND );
 
@@ -328,8 +325,7 @@ START_TEST (test_searcher_AA_sw_16)
         int result[12] = { 3, 0 };
 
         p_search_result res = init_translate_test( BIT_WIDTH_16, SMITH_WATERMAN,
-                "HPEVYILIIPGFGIISHVVSTYSKKPVFGEISMVYAMASIGLLGFLVWSHHMYIVGLDADTRAYFTSATMIIAIPTGIKI", "short_AA.fas",
-                1,
+                "HPEVYILIIPGFGIISHVVSTYSKKPVFGEISMVYAMASIGLLGFLVWSHHMYIVGLDADTRAYFTSATMIIAIPTGIKI", "short_AA.fas", 1,
                 AMINOACID,
                 FORWARD_STRAND );
 
@@ -343,8 +339,7 @@ START_TEST (test_searcher_AA_nw_8)
         int result[12] = { -87, 0 };
 
         p_search_result res = init_translate_test( BIT_WIDTH_8, NEEDLEMAN_WUNSCH,
-                "HPEVYILIIPGFGIISHVVSTYSKKPVFGEISMVYAMASIGLLGFLVWSHHMYIVGLDADTRAYFTSATMIIAIPTGIKI", "short_AA.fas",
-                1,
+                "HPEVYILIIPGFGIISHVVSTYSKKPVFGEISMVYAMASIGLLGFLVWSHHMYIVGLDADTRAYFTSATMIIAIPTGIKI", "short_AA.fas", 1,
                 AMINOACID,
                 FORWARD_STRAND );
 
@@ -358,8 +353,7 @@ START_TEST (test_searcher_AA_sw_8)
         int result[12] = { 3, 0 };
 
         p_search_result res = init_translate_test( BIT_WIDTH_8, SMITH_WATERMAN,
-                "HPEVYILIIPGFGIISHVVSTYSKKPVFGEISMVYAMASIGLLGFLVWSHHMYIVGLDADTRAYFTSATMIIAIPTGIKI", "short_AA.fas",
-                1,
+                "HPEVYILIIPGFGIISHVVSTYSKKPVFGEISMVYAMASIGLLGFLVWSHHMYIVGLDADTRAYFTSATMIIAIPTGIKI", "short_AA.fas", 1,
                 AMINOACID,
                 FORWARD_STRAND );
 
@@ -436,6 +430,17 @@ START_TEST (test_searcher_AA_BLOSUM_nw_16)
 START_TEST (test_searcher_AA_BLOSUM_sw_8)
     {
         set_max_compute_capability( COMPUTE_ON_SSE41 );
+
+        int result[12] = { 103, 0 };
+
+        p_search_result res = setup_BLOSUM62_test( BIT_WIDTH_8, SMITH_WATERMAN, 1 );
+
+        test_result( res, result, 2 );
+    }END_TEST
+
+START_TEST (test_searcher_AA_BLOSUM_sw_8_avx)
+    {
+        set_max_compute_capability( COMPUTE_ON_AVX2 );
 
         int result[12] = { 103, 0 };
 
@@ -661,6 +666,7 @@ void addSearcherTC( Suite *s ) {
     tcase_add_test( tc_core, test_searcher_AA_BLOSUM_sw_16 );
     tcase_add_test( tc_core, test_searcher_AA_BLOSUM_nw_16 );
     tcase_add_test( tc_core, test_searcher_AA_BLOSUM_sw_8 );
+    tcase_add_test( tc_core, test_searcher_AA_BLOSUM_sw_8_avx );
     tcase_add_test( tc_core, test_searcher_AA_BLOSUM_nw_8 );
     tcase_add_test( tc_core, test_searcher_AA_nw_64 );
     tcase_add_test( tc_core, test_searcher_AA_sw_64 );

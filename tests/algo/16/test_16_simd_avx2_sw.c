@@ -19,7 +19,7 @@
 #include "../../../src/algo/searcher.h"
 
 static p_search_result setup_searcher_16_test( char * query_string, char * db_file, int hit_count ) {
-    set_max_compute_capability( COMPUTE_ON_SSE2 );
+    set_max_compute_capability( COMPUTE_ON_AVX2 );
 
     mat_init_constant_scoring( 1, -1 );
     init_symbol_translation( NUCLEOTIDE, FORWARD_STRAND, 3, 3 );
@@ -106,8 +106,8 @@ START_TEST (test_sw_simd_more_sequences)
         exit_searcher_16_test( res );
     }END_TEST
 
-void add_sw_16_SSE2_TC( Suite *s ) {
-    TCase *tc_core = tcase_create( "SmithWaterman_16_SSE2" );
+void add_sw_16_AVX2_TC( Suite *s ) {
+    TCase *tc_core = tcase_create( "SmithWaterman_16_AVX2" );
     tcase_add_test( tc_core, test_sw_simd_simple );
     tcase_add_test( tc_core, test_sw_simd_simple_2 );
     tcase_add_test( tc_core, test_sw_simd_more_sequences );
