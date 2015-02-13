@@ -70,12 +70,9 @@ START_TEST (test_nw_simd_more_sequences)
 
         p_minheap heap = res->heap;
 
+        ck_assert_int_eq( 4, res->overflow_8_bit_count );
+
         ck_assert_int_eq( -43, heap->array[0].score );
-        /*
-         * The 8 bit NW implementation has an underflow here, that effects the overall score.
-         *
-         * TODO test correct reporting of over-/underflows
-         */
         ck_assert_int_eq( -50, heap->array[1].score );
         ck_assert_int_eq( -52, heap->array[2].score );
         ck_assert_int_eq( -52, heap->array[3].score );

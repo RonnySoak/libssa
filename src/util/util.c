@@ -5,9 +5,6 @@
  *      Author: Jakob Frielingsdorf
  */
 
-#ifndef DATA_H_
-#define DATA_H_
-
 #include <stdarg.h>
 #include <mm_malloc.h>
 #include <stdlib.h>
@@ -116,5 +113,3 @@ p_db_chunk convert_to_chunk( p_node linked_list ) {
 
     return chunk;
 }
-
-#endif /* DATA_H_ */

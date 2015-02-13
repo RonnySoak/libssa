@@ -43,7 +43,7 @@ void set_verbose( int debug ) {
     _verbose = debug;
 }
 
-void set_threads( long nr ) {
+void set_threads( size_t nr ) {
     _max_thread_count = nr;
 }
 

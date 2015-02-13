@@ -320,9 +320,10 @@ sequence us_prepare_sequence( char * seq, size_t len, int f, int s ) {
 
     sequence conv_seq = { xmalloc( db_seq.len + 1 ), db_seq.len };
 
-    us_map_sequence( db_seq, conv_seq, map_ncbi_nt16 );
 
     if( symtype == NUCLEOTIDE ) {
+        us_map_sequence( db_seq, conv_seq, map_ncbi_nt16 );
+
         if( s == 2 ) {
             result = (sequence ) { xmalloc( db_seq.len + 1 ), db_seq.len };
             us_revcompl( conv_seq, result );
@@ -332,9 +333,13 @@ sequence us_prepare_sequence( char * seq, size_t len, int f, int s ) {
         }
     }
     else if( (symtype == TRANS_DB) || (symtype == TRANS_BOTH) ) {
+        us_map_sequence( db_seq, conv_seq, map_ncbi_nt16 );
+
         us_translate_sequence( 1, conv_seq, s, f, &result );
     }
     else {
+        us_map_sequence( db_seq, conv_seq, map_ncbi_aa );
+
         result = conv_seq;
     }
 

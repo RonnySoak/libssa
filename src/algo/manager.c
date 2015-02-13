@@ -95,14 +95,25 @@ p_alignment_list m_run() {
     dbg_print_aligned_sequences();
 #endif
 
+    size_t overflow_8_bit_count = 0;
+    size_t overflow_16_bit_count = 0;
+
     p_minheap search_results = minheap_init( alignment_hit_count );
     for( size_t i = 0; i < get_current_thread_count(); i++ ) {
         for( size_t j = 0; j < search_result_list[i]->heap->count; j++ ) {
             minheap_add( search_results, &search_result_list[i]->heap->array[j] );
         }
 
+        overflow_8_bit_count += search_result_list[i]->overflow_8_bit_count;
+        overflow_16_bit_count += search_result_list[i]->overflow_16_bit_count;
+
         chunks_processed += search_result_list[i]->chunk_count;
         db_sequences_processed += search_result_list[i]->seq_count;
+    }
+
+    if( overflow_8_bit_count || overflow_16_bit_count ) {
+        printf( "Overflow occurred: %ld sequences were re-aligned with 16 bit, and %ld sequences with 64 bit\n",
+                overflow_8_bit_count, overflow_16_bit_count );
     }
 
     assert( ssa_db_get_sequence_count() == db_sequences_processed );

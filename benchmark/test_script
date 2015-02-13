@@ -1,0 +1,70 @@
+#!/bin/bash
+
+TOTAL=0
+COUNT=50
+
+printf "run tests (AVX2, SW, 16 bit)... "
+for I in $(seq 1 $COUNT)
+do
+#    printf "$I . "
+    START=$(date +%s.%N)
+    ./benchmark -N 1 -O 3 -E 1 -M BLOSUM50 -c 10 -i data/O74807.fasta -d data/uniprot_sprot.fasta -t SW -b 16 -s AVX2
+    END=$(date +%s.%N)
+
+    TOTAL=$(echo "$TOTAL + $END - $START"|bc)
+done
+
+MEAN=$(echo "$TOTAL / $COUNT" | bc -l)
+
+echo "mean runtime: $MEAN s"
+
+
+TOTAL=0
+printf "run tests (SSE4.1, SW, 16 bit)... "
+for I in $(seq 1 $COUNT)
+do
+#    printf "$I . "
+    START=$(date +%s.%N)
+    ./benchmark -N 1 -O 3 -E 1 -M BLOSUM50 -c 10 -i data/O74807.fasta -d data/uniprot_sprot.fasta -t SW -b 16 -s SSE41
+    END=$(date +%s.%N)
+
+    TOTAL=$(echo "$TOTAL + $END - $START"|bc)
+done
+
+MEAN=$(echo "$TOTAL / $COUNT" | bc -l)
+
+echo "mean runtime: $MEAN s"
+
+
+TOTAL=0
+printf "run tests (AVX2, SW, 8 bit)... "
+for I in $(seq 1 $COUNT)
+do
+#    printf "$I . "
+    START=$(date +%s.%N)
+    ./benchmark -N 1 -O 3 -E 1 -M BLOSUM50 -c 10 -i data/O74807.fasta -d data/uniprot_sprot.fasta -t SW -b 8 -s AVX2
+    END=$(date +%s.%N)
+
+    TOTAL=$(echo "$TOTAL + $END - $START"|bc)
+done
+
+MEAN=$(echo "$TOTAL / $COUNT" | bc -l)
+
+echo "mean runtime: $MEAN s"
+
+
+TOTAL=0
+printf "run tests (SSE4.1, SW, 8 bit)... "
+for I in $(seq 1 $COUNT)
+do
+#    printf "$I . "
+    START=$(date +%s.%N)
+    ./benchmark -N 1 -O 3 -E 1 -M BLOSUM50 -c 10 -i data/O74807.fasta -d data/uniprot_sprot.fasta -t SW -b 8 -s SSE41
+    END=$(date +%s.%N)
+
+    TOTAL=$(echo "$TOTAL + $END - $START"|bc)
+done
+
+MEAN=$(echo "$TOTAL / $COUNT" | bc -l)
+
+echo "mean runtime: $MEAN s"

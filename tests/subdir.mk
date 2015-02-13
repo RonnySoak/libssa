@@ -1,5 +1,6 @@
 TESTS += \
 ./tests/check_libssa.o \
+./tests/test_bigger_databases.o \
 ./tests/test_query.o \
 ./tests/test_db_iterator.o \
 ./tests/test_util_sequence.o \

@@ -149,6 +149,8 @@ void * s_search( void * not_used ) {
     res->heap = minheap_init( sdp->hit_count );
     res->chunk_count = 0;
     res->seq_count = 0;
+    res->overflow_8_bit_count = 0;
+    res->overflow_16_bit_count = 0;
 
     p_db_chunk chunk = it_init_new_chunk();
 

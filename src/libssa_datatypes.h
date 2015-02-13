@@ -29,6 +29,8 @@ struct search_result {
     p_minheap heap;
     size_t chunk_count;
     size_t seq_count;
+    size_t overflow_8_bit_count;
+    size_t overflow_16_bit_count;
 };
 typedef struct search_result * p_search_result;
 

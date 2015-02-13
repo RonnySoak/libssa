@@ -149,7 +149,7 @@ extern int _use_simd;
 // ########################
 void set_verbose( int verbose );
 
-void set_threads( long nr );
+void set_threads( size_t nr );
 
 void set_use_simd( int simd );
 

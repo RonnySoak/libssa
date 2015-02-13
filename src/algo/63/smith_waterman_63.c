@@ -60,6 +60,7 @@ int64_t full_sw( sequence * dseq, sequence * qseq, int64_t * hearray ) {
         for( size_t i = 0; i < qseq->len; i++ ) {
             n = *hep;
             e = *(hep + 1);
+
             h += SCORE_MATRIX_63( dseq->seq[j], qseq->seq[i] );
 
             if( e > h )

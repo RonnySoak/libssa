@@ -110,25 +110,22 @@ void search_16_exit( p_s16info s ) {
     free( s );
 }
 
-unsigned long search_16_chunk( p_s16info s16info, p_minheap heap, p_db_chunk chunk, p_search_data sdp ) {
-    unsigned long searches_done = 0;
+size_t search_16_chunk( p_s16info s16info, p_minheap heap, p_db_chunk chunk, p_search_data sdp ) {
+    unsigned long overflown_seq_count = 0;
 
     p_node overflow_list = 0;
 
     for( int q_id = 0; q_id < sdp->q_count; q_id++ ) {
         search_algo( s16info, chunk, heap, &overflow_list, q_id );
-
-        searches_done += chunk->fill_pointer;
     }
 
     if( overflow_list ) {
-        printf( "Overflow detected: re-aligning %ld sequences with 64 bit\n", ll_size( overflow_list ) ); // TODO show info or not?
-
         if( !s16info->hearray_64 ) {
             s16info->hearray_64 = search_63_init_hearray( sdp );
         }
 
         p_db_chunk overflow_chunk = convert_to_chunk( overflow_list );
+        overflown_seq_count = overflow_chunk->fill_pointer;
 
         search_63_chunk( heap, overflow_chunk, sdp, s16info->hearray_64 );
 
@@ -136,7 +133,7 @@ unsigned long search_16_chunk( p_s16info s16info, p_minheap heap, p_db_chunk chu
         free( overflow_chunk );
     }
 
-    return searches_done;
+    return overflown_seq_count;
 }
 
 void search_16( p_db_chunk chunk, p_search_data sdp, p_search_result res ) {
@@ -149,12 +146,11 @@ void search_16( p_db_chunk chunk, p_search_data sdp, p_search_result res ) {
     it_next_chunk( chunk );
 
     while( chunk->fill_pointer ) {
-        int searched_sequences = search_16_chunk( s16info, res->heap, chunk, sdp );
-
-        assert( searched_sequences == chunk->fill_pointer * sdp->q_count );
+        size_t overflown_seq_count = search_16_chunk( s16info, res->heap, chunk, sdp );
 
         res->chunk_count++;
         res->seq_count += chunk->fill_pointer;
+        res->overflow_16_bit_count += overflown_seq_count;
 
         it_next_chunk( chunk );
     }
