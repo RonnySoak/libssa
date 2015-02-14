@@ -64,7 +64,7 @@ void dprofile_fill_16_avx2( int16_t * dprofile, uint8_t * dseq_search_window ) {
 #if 0
     dbg_dumpscorematrix_16( score_matrix_16 );
 
-    printf( "DB search window:\n");
+    outf( "DB search window:\n");
     for( int j = 0; j < CDEPTH_16_BIT; j++ ) {
         for( int z = 0; z < CHANNELS_16_BIT_AVX; z++ )
             fprintf( stderr, " [%c]", sym_ncbi_nt16u[dseq_search_window[j * CHANNELS_16_BIT_AVX + z]] );
@@ -81,7 +81,7 @@ void dprofile_fill_16_avx2( int16_t * dprofile, uint8_t * dseq_search_window ) {
         for( int i = 0; i < SCORE_MATRIX_DIM; i += 16 ) {
             // load matrix
             for( int x = 0; x < CHANNELS_16_BIT_AVX; x++ ) {
-                ymm[x] = _mm256_lddqu_si256( (__m256i *) (score_matrix_16 + d[x] + i) );
+                ymm[x] = _mm256_load_si256( (__m256i *) (score_matrix_16 + d[x] + i) );
             }
 
             // transpose matrix
@@ -116,9 +116,23 @@ void dprofile_fill_16_avx2( int16_t * dprofile, uint8_t * dseq_search_window ) {
 
             // store matrix
             for( int x = 0; x < CHANNELS_16_BIT_AVX; x++ ) {
-//                _mm256_stream_si256 prevents caching              TODO choose one
-//                _mm256_store_si256 does not prevent caching
-
+                /*
+                 * TODO do further tests and report in thesis
+                 *
+                 * If we use _mm256_stream_si256 here instead of _mm256_store_si256, the runtime drops
+                 * drastically.
+                 * The amount of CPU-clock cycles, reported by perf, rises from 14K to 45K !!!
+                 *
+                 * One issue here might be, that _mm256_stream_si256 uses a non-temporal hint, to prevent caching.
+                 * In our case, where we access the stored data almost immediately, this might not be, what we want.
+                 *
+                 * See: https://software.intel.com/en-us/node/524115
+                 *
+                 * Using _mm256_stream_load_si256, instead of _mm256_load_si256, while loading data into ymm registers,
+                 * seems to make no difference. The clock cycles are about the same.
+                 *
+                 * Same applies to the 8 bit AVX2 code.
+                 */
                 _mm256_store_si256( (__m256i *) (dprofile + CDEPTH_16_BIT * CHANNELS_16_BIT_AVX * (i + x) + CHANNELS_16_BIT_AVX * j), ymm[x] );
             }
         }

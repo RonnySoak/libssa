@@ -286,12 +286,6 @@ void us_translate_sequence( int db_sequence, sequence dna, int strand, int frame
     else {
         pos = dna.len - 1 - frame;
 
-//        printf("DNA sequence: ");
-//        for( int i = 0; i < dna.len; i++ ) {
-//            printf("%d  ", (int)dna.seq[i]);
-//        }
-//        printf("\n");
-
         while( ppos < prot_seq->len ) {
             c = ntcompl[(int) (dna.seq[pos--])];
             c <<= 4;

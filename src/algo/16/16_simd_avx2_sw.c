@@ -266,8 +266,6 @@ void search_16_avx2_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * 
                             add_to_minheap( heap, q_id, d_seq_ptr[c], score );
                         }
                         else {
-                            printf( "score: %ld\n", score );
-
                             if( *overflow_list ) {
                                 ll_push( overflow_list, d_seq_ptr[c] );
                             }

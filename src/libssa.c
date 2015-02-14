@@ -23,9 +23,8 @@
 // #############################################################################
 // Configuration data
 // ##################
-int _verbose = VERBOSE_OFF;
 size_t _max_thread_count = -1;
-int _use_simd = SIMD_ON;
+int _output_mode = OUTPUT_STDOUT;
 
 // #############################################################################
 // Data types
@@ -39,20 +38,12 @@ uint8_t gapE = 0;
 // #############################################################################
 // Technical initialisation
 // ########################
-void set_verbose( int debug ) {
-    _verbose = debug;
+void set_output_mode( int mode ) {
+    _output_mode = mode;
 }
 
 void set_threads( size_t nr ) {
     _max_thread_count = nr;
-}
-
-void set_use_simd( int simd ) {
-    _use_simd = simd;
-}
-
-void set_output_file( const char* outfile ) {
-    init_out( outfile );
 }
 
 // #############################################################################
@@ -140,7 +131,7 @@ void init_scoring( const int8_t p, const int8_t m ) {
 void init_db_fasta( const char* fasta_db_file ) {
     ssa_db_init_fasta( fasta_db_file );
 
-    printf( "DB read %lu sequences\n", ssa_db_get_sequence_count() );
+    outf( "DB read %lu sequences\n", ssa_db_get_sequence_count() );
 }
 
 /**
@@ -302,6 +293,4 @@ void ssa_exit() {
     mat_free();
 
     exit_thread_pool();
-
-    close_out();
 }

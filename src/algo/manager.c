@@ -112,7 +112,7 @@ p_alignment_list m_run() {
     }
 
     if( overflow_8_bit_count || overflow_16_bit_count ) {
-        printf( "Overflow occurred: %ld sequences were re-aligned with 16 bit, and %ld sequences with 64 bit\n",
+        outf( "Overflow occurred: %ld sequences were re-aligned with 16 bit, and %ld sequences with 64 bit\n",
                 overflow_8_bit_count, overflow_16_bit_count );
     }
 

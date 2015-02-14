@@ -54,6 +54,9 @@
 #define BIT_WIDTH_16 16
 #define BIT_WIDTH_64 64
 
+#define OUTPUT_SILENT 0
+#define OUTPUT_STDOUT 1
+
 // #############################################################################
 // Data types
 // ##########
@@ -140,20 +143,15 @@ typedef struct alignment_list * p_alignment_list;
 // #############################################################################
 // Configuration data
 // ##################
-extern int _verbose;
 extern size_t _max_thread_count;
-extern int _use_simd;
+extern int _output_mode;
 
 // #############################################################################
 // Technical initialisation
 // ########################
-void set_verbose( int verbose );
+void set_output_mode( int mode );
 
 void set_threads( size_t nr );
-
-void set_use_simd( int simd );
-
-void set_output_file( const char* outfile );
 
 // #############################################################################
 // Initialisations

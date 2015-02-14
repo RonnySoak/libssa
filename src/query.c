@@ -240,7 +240,7 @@ void query_show( p_query query ) {
 
     if( query->header ) {
         for( size_t i = 0; i < query->headerlen; i += linewidth ) {
-            printf( "x%ld", i );
+            outf( "x%ld", i );
             if( i == 0 )
                 outf( "Query description: %-60.60s\n", query->header + i );
             else

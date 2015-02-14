@@ -94,7 +94,7 @@ void ll_print( p_node * node ) {
         puts( "the stack is empty" );
     else {
         while( current ) {
-            printf( "%p ", current->data );
+            outf( "%p ", current->data );
 
             current = current->next;
         }

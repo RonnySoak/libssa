@@ -108,7 +108,7 @@ START_TEST (test_uniprot_sprot_sw)
         int hit_count = 10;
         init_score_matrix( BLOSUM62 );
 
-        p_query query = setup_bigger_db_test( "uniprot_sprot.fasta", "Q3ZAI3.fasta", 4, 2, 1, AMINOACID );
+        p_query query = setup_bigger_db_test( "uniprot_sprot.fasta", "O74807.fasta", 4, 2, 4, AMINOACID );
 
         long exp_al_sw_16[] = { 567, 231811, 144, 57600, 135, 57599, 130, 57596, 129, 57597, 128, 57598, 112, 231810, 104, 535981, 98, 538642, 98, 57604, };
         long exp_al_sw__8[] = { 567, 231811, 144, 57600, 135, 57599, 130, 57596, 129, 57597, 128, 57598, 112, 231810, 104, 535981, 98, 538642, 98, 57604, };
@@ -127,7 +127,7 @@ START_TEST (test_uniprot_sprot_nw)
         int hit_count = 10;
         init_score_matrix( BLOSUM62 );
 
-        p_query query = setup_bigger_db_test( "uniprot_sprot.fasta", "Q3ZAI3.fasta", 4, 3, 1, AMINOACID );
+        p_query query = setup_bigger_db_test( "uniprot_sprot.fasta", "O74807.fasta", 4, 2, 4, AMINOACID );
 
         long exp_al_nw_16[] = { 567, 231811, 101, 57600, 93, 57596, 82, 57598, 77, 57599, 77, 57597, 69, 231810, 53, 117276, 51, 231812, 49, 186429, };
         long exp_al_nw__8[] = { 567, 231811, 101, 57600, 93, 57596, 82, 57598, 77, 57599, 77, 57597, 69, 231810, 53, 117276, 51, 231812, 49, 186429, };

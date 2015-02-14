@@ -64,7 +64,7 @@ void dprofile_fill_8_avx2( int8_t * dprofile, uint8_t * dseq_search_window ) {
 #if 0
      dbg_dumpscorematrix_8( score_matrix_7 );
 
-    printf( "DB search window:\n");
+     outf( "DB search window:\n");
     for( int j = 0; j < CDEPTH_8_BIT; j++ ) {
         for( int z = 0; z < CHANNELS_8_BIT_AVX; z++ )
         fprintf( stderr, " [%c]", sym_ncbi_nt16u[dseq_search_window[j * CHANNELS_8_BIT_AVX + z]] );
@@ -79,7 +79,7 @@ void dprofile_fill_8_avx2( int8_t * dprofile, uint8_t * dseq_search_window ) {
 
         // load matrix
         for( int i = 0; i < CHANNELS_8_BIT_AVX; i++ ) {
-            ymm[i] = _mm256_lddqu_si256( (__m256i *) (score_matrix_7 + d[i]) );
+            ymm[i] = _mm256_load_si256( (__m256i *) (score_matrix_7 + d[i]) );
         }
 
         // transpose matrix
@@ -132,9 +132,6 @@ void dprofile_fill_8_avx2( int8_t * dprofile, uint8_t * dseq_search_window ) {
 
         // store matrix
         for( int i = 0; i < CHANNELS_8_BIT_AVX; i++ ) {
-//                _mm256_stream_si256 prevents caching              TODO choose one
-//                _mm256_store_si256 does not prevent caching
-
             _mm256_store_si256( (__m256i *) (dprofile + j * CHANNELS_8_BIT_AVX + i * 128), ymm_t[i] );
         }
     }

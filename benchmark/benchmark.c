@@ -20,7 +20,7 @@
  * Can be downloaded from here: http://www.uniprot.org/downloads
  *
  * Compile it with:
- * gcc -O3 -std=c99 -mavx2 -g -o benchmark benchmark.c --coverage -L.. -lssa -lpthread -lm -lsdb
+ * gcc -O3 -std=c99 -mavx2 -o benchmark benchmark.c -L.. -lssa -lpthread -lm -lsdb
  * TODO remove --coverage from libsdb to remove it here as well
  *
  * Run it with:

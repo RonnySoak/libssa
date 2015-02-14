@@ -20,11 +20,11 @@
  * A small helper, to print sequences in decimal representation.
  */
 void print_sequence( char* desc, int8_t* seq, size_t len ) {
-    printf( "seq (%s): '", desc );
+    outf( "seq (%s): '", desc );
     for( size_t i = 0; i < len; i++ ) {
-        printf( "%d", seq[i] );
+        outf( "%d", seq[i] );
     }
-    printf( "'\n" );
+    outf( "'\n" );
 }
 
 void print_sequence2( char* desc, sequence seq ) {
@@ -37,7 +37,7 @@ void print_sequence2( char* desc, sequence seq ) {
 void dbg_print( int n, void* param ) {
     int i;
     for( i = 0; i < n; i++ ) {
-        printf( "Param %d: %p\n", i, (param + i) );
+        outf( "Param %d: %p\n", i, (param + i) );
     }
 }
 

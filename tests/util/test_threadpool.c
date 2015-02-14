@@ -25,11 +25,15 @@ void teardown_pool() {
     set_threads( 1 );
 }
 
+struct int_result {
+    int val;
+};
+
 void * simple_test_thread( void * args ) {
-    int * counter = xmalloc( sizeof(int) );
+    struct int_result * counter = xmalloc( sizeof(struct int_result) );
 
     for( int i = 0; i < 1000; ++i ) {
-        (*counter)++;
+        counter->val++;
     }
 
     return counter;
@@ -91,21 +95,21 @@ START_TEST (test_20_threads)
         teardown_pool();
     }END_TEST
 
-START_TEST (test_2000_threads)
+START_TEST (test_1000_threads)
     {
-        int n = 2000;
+        int n = 1000;
         setup_pool( n );
 
         start_threads( &simple_test_thread );
 
         ck_assert_int_eq( n, get_current_thread_count() );
 
-        int * result_list[n];
+        struct int_result * result_list[n];
 
         wait_for_threads( (void **) &result_list );
 
         for( int i = 0; i < n; ++i ) {
-            ck_assert_int_eq( 1000, *result_list[i] );
+            ck_assert_int_eq( 1000, result_list[i]->val );
         }
 
         teardown_pool();
@@ -116,7 +120,7 @@ void addThreadPoolTC( Suite *s ) {
     tcase_add_test( tc_core, test_one_thread );
     tcase_add_test( tc_core, test_nr_of_cores_threads );
     tcase_add_test( tc_core, test_20_threads );
-    tcase_add_test( tc_core, test_2000_threads );
+    tcase_add_test( tc_core, test_1000_threads );
 
     suite_add_tcase( s, tc_core );
 }

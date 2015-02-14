@@ -82,10 +82,10 @@ int main( int argc, char**argv ) {
     p_alignment_list alist_nw_16 = do_alignment( "Do global alignment using 16 bit Needleman-Wunsch", &nw_align, query,
             hit_count, BIT_WIDTH_16 );
 
-    p_alignment_list alist_sw_8 = do_alignment( "Do local alignment using 8 bit Smith-Waterman", &sw_align, query,
-            hit_count, BIT_WIDTH_8 );
-    p_alignment_list alist_nw_8 = do_alignment( "Do global alignment using 8 bit Needleman-Wunsch", &nw_align, query,
-            hit_count, BIT_WIDTH_8 );
+//    p_alignment_list alist_sw_8 = do_alignment( "Do local alignment using 8 bit Smith-Waterman", &sw_align, query,
+//            hit_count, BIT_WIDTH_8 );
+//    p_alignment_list alist_nw_8 = do_alignment( "Do global alignment using 8 bit Needleman-Wunsch", &nw_align, query,
+//            hit_count, BIT_WIDTH_8 );
 
 //    cmp_alignment_lists( alist_nw_64, alist_nw_16, hit_count, "NW_64_16" );
 //    cmp_alignment_lists( alist_nw_64, alist_nw_8, hit_count, "NW_64_8" );

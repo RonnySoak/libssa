@@ -40,7 +40,7 @@ void init_thread_pool() {
 
     size_t thread_count = get_current_thread_count();
 
-    printf( "Using %ld threads\n", thread_count );
+    outf( "Using %ld threads\n", thread_count );
 
     thread_list = xmalloc( thread_count * sizeof(pthread_t) );
 }

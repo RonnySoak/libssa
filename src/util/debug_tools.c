@@ -106,8 +106,8 @@ void dbg_print_matrices_to_file( int bit_width, char * algorithm, char * qseq, s
     }
 
     if( dseq_count > matrix_count ) {
-        printf( "\nThere are more database sequences, than matrices: DB %d, M %d\n", dseq_count, matrix_count );
-        printf( "Only %d matrices will be printed.\n", matrix_count );
+        outf( "\nThere are more database sequences, than matrices: DB %d, M %d\n", dseq_count, matrix_count );
+        outf( "Only %d matrices will be printed.\n", matrix_count );
 
         dseq_count = matrix_count;
     }
@@ -118,7 +118,7 @@ void dbg_print_matrices_to_file( int bit_width, char * algorithm, char * qseq, s
 
         FILE *f = fopen( file_name, "a" );
         if( f == NULL ) {
-            printf( "Error opening file!\n" );
+            outf( "Error opening file!\n" );
             exit( 1 );
         }
 
@@ -195,7 +195,7 @@ void dbg_print_aligned_sequences() {
 
         FILE * f = fopen( file_name, "a" );
         if( f == NULL ) {
-            printf( "Error opening file!\n" );
+            outf( "Error opening file!\n" );
             exit( 1 );
         }
         free( file_name );
@@ -221,130 +221,130 @@ void dbg_print_aligned_sequences() {
 void dbg_mm_print_8u( char * desc, __m128i x ) {
     uint8_t * y = (uint8_t*) &x;
 
-    printf( "%s: ", desc );
+    outf( "%s: ", desc );
 
     for( int i = 0; i < 16; i++ )
-        printf( "%s%3d", (i > 0 ? " " : ""), y[15 - i] );
-    printf( "\n" );
+        outf( "%s%3d", (i > 0 ? " " : ""), y[15 - i] );
+    outf( "\n" );
 }
 
 void dbg_mm_print_8s( char * desc, __m128i x ) {
     int8_t* y = (int8_t*) &x;
 
-    printf( "%s: ", desc );
+    outf( "%s: ", desc );
 
     for( int i = 0; i < 16; i++ ) {
-        printf( "%s%3d", (i > 0 ? " " : ""), y[15 - i] );
+        outf( "%s%3d", (i > 0 ? " " : ""), y[15 - i] );
     }
-    printf( "\n" );
+    outf( "\n" );
 }
 
 void dbg_mm_print_16u( char * desc, __m128i x ) {
     uint16_t * y = (uint16_t*) &x;
 
-    printf( "%s: ", desc );
+    outf( "%s: ", desc );
 
     for( int i = 0; i < 8; i++ )
-        printf( "%s%6d", (i > 0 ? " " : ""), y[7 - i] );
-    printf( "\n" );
+        outf( "%s%6d", (i > 0 ? " " : ""), y[7 - i] );
+    outf( "\n" );
 }
 
 void dbg_mm256_print_16u( char * desc, __m256i x ) {
     uint16_t * y = (uint16_t*) &x;
 
-    printf( "%s: ", desc );
+    outf( "%s: ", desc );
 
     for( int i = 0; i < 16; i++ )
-        printf( "%s%3d", (i > 0 ? " " : ""), y[15 - i] );
-    printf( "\n" );
+        outf( "%s%3d", (i > 0 ? " " : ""), y[15 - i] );
+    outf( "\n" );
 }
 
 void dbg_mm_print_16s( char * desc, __m128i x ) {
     int16_t * y = (int16_t*) &x;
 
-    printf( "%s: ", desc );
+    outf( "%s: ", desc );
 
     for( int i = 0; i < 8; i++ ) {
-        printf( "%s%3d", (i > 0 ? " " : ""), y[7 - i] );
+        outf( "%s%3d", (i > 0 ? " " : ""), y[7 - i] );
     }
-    printf( "\n" );
+    outf( "\n" );
 }
 
 void dbg_mm256_print_16s( char * desc, __m256i x ) {
     int16_t * y = (int16_t*) &x;
 
-    printf( "%s: ", desc );
+    outf( "%s: ", desc );
 
     for( int i = 0; i < 16; i++ )
-        printf( "%s%3d", (i > 0 ? " " : ""), y[15 - i] );
-    printf( "\n" );
+        outf( "%s%3d", (i > 0 ? " " : ""), y[15 - i] );
+    outf( "\n" );
 }
 
 void dbg_mm256_print_8s( char * desc, __m256i x ) {
     int8_t * y = (int8_t*) &x;
 
-    printf( "%s: ", desc );
+    outf( "%s: ", desc );
 
     for( int i = 0; i < 32; i++ )
-        printf( "%s%3d", (i > 0 ? " " : ""), y[31 - i] );
-    printf( "\n" );
+        outf( "%s%3d", (i > 0 ? " " : ""), y[31 - i] );
+    outf( "\n" );
 }
 
 void dbg_mm_print_sw_16s( char * desc, __m128i x ) {
     int16_t * y = (int16_t*) &x;
 
-    printf( "%s: ", desc );
+    outf( "%s: ", desc );
 
     for( int i = 0; i < 8; i++ ) {
-        printf( "%s%3d", (i > 0 ? " " : ""), y[7 - i] + -INT16_MIN );
+        outf( "%s%3d", (i > 0 ? " " : ""), y[7 - i] + -INT16_MIN );
     }
-    printf( "\n" );
+    outf( "\n" );
 }
 
 void dbg_dprofile_dump_16( int16_t * dprofile, int cdepth, int channels ) {
     const char * s = sym_ncbi_nt16u;
-    printf( "\ndprofile (NUC):\n" );
+    outf( "\ndprofile (NUC):\n" );
     for( int i = 0; i < SCORE_MATRIX_DIM; i++ ) {
-        printf( "%c: ", s[i] );
+        outf( "%c: ", s[i] );
         for( int k = 0; k < cdepth; k++ ) {
-            printf( "[" );
+            outf( "[" );
             for( int j = 0; j < channels; j++ )
-                printf( " %2d", dprofile[channels * cdepth * i + channels * k + j] );
-            printf( "]" );
+                outf( " %2d", dprofile[channels * cdepth * i + channels * k + j] );
+            outf( "]" );
         }
-        printf( "\n" );
+        outf( "\n" );
     }
 }
 
 void dbg_dprofile_dump_8( int8_t * dprofile, int cdepth, int channels ) {
     const char * s = sym_ncbi_nt16u;
-    printf( "\ndprofile (NUC):\n" );
+    outf( "\ndprofile (NUC):\n" );
     for( int i = 0; i < SCORE_MATRIX_DIM; i++ ) {
-        printf( "%c: ", s[i] );
+        outf( "%c: ", s[i] );
         for( int k = 0; k < cdepth; k++ ) {
-            printf( "[" );
+            outf( "[" );
             for( int j = 0; j < channels; j++ )
-                printf( " %2d", dprofile[channels * cdepth * i + channels * k + j] );
-            printf( "]" );
+                outf( " %2d", dprofile[channels * cdepth * i + channels * k + j] );
+            outf( "]" );
         }
-        printf( "\n" );
+        outf( "\n" );
     }
 }
 
 void dbg_dumpscorematrix_16( int16_t * m ) {
     for( int i = 0; i < SCORE_MATRIX_DIM; i++ ) {
-        printf( "%2d %c", i, sym_ncbi_nt16u[i] );
+        outf( "%2d %c", i, sym_ncbi_nt16u[i] );
         for( int j = 0; j < SCORE_MATRIX_DIM; j++ )
-            printf( " %2d", m[SCORE_MATRIX_DIM * i + j] );
-        printf( "\n" );
+            outf( " %2d", m[SCORE_MATRIX_DIM * i + j] );
+        outf( "\n" );
     }
 }
 
 void dbg_dumpscorematrix_8( int8_t * m ) {
     for( int i = 0; i < SCORE_MATRIX_DIM; i++ ) {
-        printf( "%2d %c", i, sym_ncbi_nt16u[i] );
+        outf( "%2d %c", i, sym_ncbi_nt16u[i] );
         for( int j = 0; j < SCORE_MATRIX_DIM; j++ )
-            printf( " %2d", m[SCORE_MATRIX_DIM * i + j] );
-        printf( "\n" );
+            outf( " %2d", m[SCORE_MATRIX_DIM * i + j] );
+        outf( "\n" );
     }
 }

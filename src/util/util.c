@@ -5,13 +5,14 @@
  *      Author: Jakob Frielingsdorf
  */
 
+#include "util.h"
+
 #include <stdarg.h>
 #include <mm_malloc.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
-#include "util.h"
 #include "../db_iterator.h"
 
 FILE* out_file;
@@ -25,35 +26,35 @@ void ffatal( const char * format, ... ) {
     exit( 1 );
 }
 
-void init_out( const char* filename ) {
-    if( NULL == filename ) {
-        out_file = stdout;
-        outf( "Writing to stdout\n" );
-    }
-    else {
-        FILE * f = fopen( filename, "w" );
-        if( !f ) {
-            ffatal( "Unable to open output file for writing." );
-        }
-        out_file = f;
-    }
-}
-
-void close_out() {
-    if( out_file && (out_file != stdout) ) {
-        if( fclose( out_file ) ) {
-            ffatal( "Could not close output file." );
-        }
-    }
-}
-
-void outf( const char* format, ... ) {
-//    if( !out_file ) { // TODO test it, is broken
-//        init_out( NULL );
+//void init_out( int mode ) {
+//    if(  ) {
+//        out_file = stdout;
+//        outf( "Writing to stdout\n" );
 //    }
+//    else {
+//        FILE * f = fopen( filename, "w" );
+//        if( !f ) {
+//            ffatal( "Unable to open output file for writing." );
+//        }
+//        out_file = f;
+//    }
+//}
 
-    va_list arg;
-    printf( format, arg );
+//void close_out() {
+//    if( out_file && (out_file != stdout) ) {
+//        if( fclose( out_file ) ) {
+//            ffatal( "Could not close output file." );
+//        }
+//    }
+//}
+
+void outf( const char * format, ... ) {
+    if( _output_mode == OUTPUT_STDOUT ) {
+        va_list argptr;
+        va_start(argptr, format);
+        vfprintf(stdout, format, argptr);
+        va_end(argptr);
+    }
 }
 
 void * xmalloc( size_t size ) {
