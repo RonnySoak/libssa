@@ -3,7 +3,7 @@
 # Runs the benchmark of libssa, including database loading, in different configurations.
 #
 
-COUNT=3
+COUNT=5
 
 DATABASE="uniprot_sprot.fasta"
 GAP_O=3
@@ -13,7 +13,7 @@ MATRIX="BLOSUM50"
 declare -a THREADS_ARR=("1" "4")
 declare -a TYPE_ARR=("SW" "NW")
 declare -a SIMD_ARR=("SSE41" "AVX2")
-declare -a BIT_ARR=("8" "16", "64")
+declare -a BIT_ARR=("8" "16")
 declare -a QUERY_ARR=("O74807.fasta" "P18080.fasta" "P19930.fasta" "Q3ZAI3.fasta")
 
 for THREADS in "${THREADS_ARR[@]}"
@@ -28,10 +28,10 @@ do
 			do
 				for QUERY in "${QUERY_ARR[@]}"
 				do
-					printf "run tests ($QUERY $SIMD, $TYPE, $BIT_WIDTH bit)\t...\t"
+					printf "($QUERY, $SIMD, $TYPE, $BIT_WIDTH bit),"
 					./runner.sh $COUNT "./benchmark -N $THREADS -O $GAP_O -E $GAP_E -M $MATRIX -c 10 -i data/$QUERY -d data/$DATABASE -t $TYPE -b $BIT_WIDTH -s $SIMD"
+					printf "\n"
 				done
-				echo ""
 			done
 		done
 	done

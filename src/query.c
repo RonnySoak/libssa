@@ -157,7 +157,7 @@ p_query query_read_from_file( const char * filename ) {
         query_fp = fopen( filename, "r" );
 
     if( !query_fp )
-        ffatal( "Cannot open query file." );
+        ffatal( "Cannot open query file: %s", filename );
 
     p_query query = init();
 

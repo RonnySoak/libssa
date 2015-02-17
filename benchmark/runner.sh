@@ -13,10 +13,6 @@
 COUNT=$1
 CMD=$2
 
-MIN=0
-MAX=0
-TOTAL=0
-
 for I in $(seq 1 $COUNT)
 do
 #    printf "$I . "
@@ -25,22 +21,6 @@ do
     END=$(date +%s.%N)
 
     RUNTIME=$(echo "$END - $START" | bc)
-    if [ "$MIN" == "0" ]
-    then
-		MIN=$RUNTIME
-    elif [ $(echo "$RUNTIME < $MIN" | bc) == "1" ]
-    then
-        MIN=$RUNTIME
-    fi
 
-	if [ $(echo "$RUNTIME > $MAX" | bc) == "1" ]
-    then
-        MAX=$RUNTIME
-    fi
-
-	TOTAL=$(echo "$TOTAL + $RUNTIME"|bc)
+	printf "$RUNTIME,"
 done
-
-MEAN=$(echo "$TOTAL / $COUNT" | bc -l)
-
-printf "(min/max/mean) time: $MIN \t $MAX \t $MEAN \t\n"
