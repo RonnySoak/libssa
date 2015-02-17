@@ -10,6 +10,7 @@
 #ifndef LIBSSA_EXTERN_DB_H_
 #define LIBSSA_EXTERN_DB_H_
 
+#include <stddef.h>
 /**
  * TODO
  *
@@ -23,9 +24,9 @@
 typedef struct seqinfo {
     char * header;
     char * seq;
-    unsigned long ID;
-    unsigned long headerlen;
-    unsigned long seqlen;
+    size_t ID;
+    size_t headerlen;
+    size_t seqlen;
 } seqinfo;
 
 typedef struct seqinfo* p_seqinfo;
@@ -38,25 +39,12 @@ void ssa_db_init_fasta(const char* fasta_file_name);
 // #############################################################################
 // Accessors
 // #########
-void ssa_db_reset_sequence_counter();
-
-
 unsigned long ssa_db_get_sequence_count();
 
 /**
  * Returns the DB sequence of the specified ID.
  */
-p_seqinfo ssa_db_get_sequence(unsigned long id);
-
-long ssa_db_get_longest_sequence();
-
-/**
- * Returns the next sequence available in the database.
- *
- * TODO better to copy the data to a new instance, to prevent alteration of the
- *      DB from the outside, or maybe do it on the DB side ...
- */
-p_seqinfo ssa_db_next_sequence();
+p_seqinfo ssa_db_get_sequence(size_t id);
 
 /**
  * Releases the memory allocated by the function sdb_init_fasta.

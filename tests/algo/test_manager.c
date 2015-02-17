@@ -103,7 +103,6 @@ static void compare_test( void (*init_func)( p_query, size_t, int ), size_t hit_
     init_func( query, hit_count, BIT_WIDTH_64 );
     p_alignment_list alist_64 = m_run();
 
-    ssa_db_reset_sequence_counter();
     it_reset_chunk_counter();
 
     init_func( query, hit_count, BIT_WIDTH_16 );

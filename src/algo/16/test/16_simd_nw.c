@@ -39,7 +39,6 @@ typedef __m256i __mxxxi;        //!< represents register containing integers
 #define _mmxxx_max_epi16 _mm256_max_epi16
 #define _mmxxx_set1_epi16 _mm256_set1_epi16
 
-
 #else // SSE2
 
 #define CHANNELS_16_BIT CHANNELS_16_BIT_SSE
@@ -54,31 +53,7 @@ typedef __m128i  __mxxxi;
 #define _mmxxx_set1_epi16 _mm_set1_epi16
 #define _mmxxx_setzero_si128 _mm_setzero_si128
 
-
 #endif
-
-struct s16query {
-    size_t q_len;
-
-    __mxxxi ** q_table;
-
-    char * seq;
-};
-struct s16info {
-    __mxxxi * hearray;
-    __mxxxi * dprofile;
-
-    int64_t * hearray_64;
-
-    size_t maxdlen;
-    size_t maxqlen;
-
-    uint8_t q_count;
-    p_s16query queries[6];
-
-    int16_t penalty_gap_open;
-    int16_t penalty_gap_extension;
-};
 
 /*
  Using 16-bit signed values, from -32768 to +32767.
@@ -93,7 +68,7 @@ struct s16info {
     static int d_idx;
 #endif
 
-#define ALIGNCORE(H, N, F, V, QR, R, H_MIN, H_MAX)                                \
+#define ALIGNCORE(H, N, F, V, QR, R, H_MIN, H_MAX)                             \
  H = _mmxxx_adds_epi16(H, V);         /* add value of scoring matrix */        \
  H = _mmxxx_max_epi16(H, F);          /* max(H, F) */                          \
  H = _mmxxx_max_epi16(H, E);          /* max(H, E) */                          \

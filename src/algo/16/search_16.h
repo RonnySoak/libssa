@@ -37,7 +37,6 @@ struct s16info {
 
     int64_t * hearray_64;
 
-    size_t maxdlen;
     size_t maxqlen;
 
     uint8_t q_count;

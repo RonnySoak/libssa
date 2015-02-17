@@ -36,7 +36,6 @@ struct s8info {
     __m256i * hearray_avx;
     __m256i * dprofile_avx;
 
-    size_t maxdlen;
     size_t maxqlen;
 
     uint8_t penalty_gap_open;

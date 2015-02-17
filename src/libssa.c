@@ -208,7 +208,6 @@ static void test_configuration() {
 static void prepare_alignment() {
     test_configuration();
 
-    ssa_db_reset_sequence_counter();
     it_reset_chunk_counter();
 }
 

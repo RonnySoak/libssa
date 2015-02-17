@@ -63,8 +63,6 @@ p_s16info search_16_init( p_search_data sdp ) {
     s->hearray_sse = 0;
     s->hearray_64 = 0;
 
-    s->maxdlen = ssa_db_get_longest_sequence();
-
     s->q_count = 0;
     for( int i = 0; i < 6; i++ ) {
         s->queries[i] = 0;

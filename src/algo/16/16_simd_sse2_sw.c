@@ -166,7 +166,7 @@ static void aligncolumns_rest( __m128i * Sm, __m128i * hep, __m128i ** qp, __m12
 void search_16_sse2_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * overflow_list, int q_id ) {
 
 #ifdef DBG_COLLECT_MATRIX
-        dbg_init_matrix_data_collection( BIT_WIDTH_16, s->maxdlen + CDEPTH_16_BIT, s->maxqlen );
+        dbg_init_matrix_data_collection( BIT_WIDTH_16, ssa_db_get_sequence( 0 )->seqlen + CDEPTH_16_BIT, s->maxqlen );
 
         d_idx = 0;
 #endif
