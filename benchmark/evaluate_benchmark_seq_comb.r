@@ -34,7 +34,7 @@ idx_1t <- which( config_reduced == "1t", arr.ind=T )[,2]
 idx_4t <- which( config_reduced == "4t", arr.ind=T )[,2]
 idx_8t <- which( config_reduced == "8t", arr.ind=T )[,2]
 
-
+# comparing configurations
 compare_plot_func <- function( idx_dim1_a, idx_dim1_b, idx_dim2, vdata, config_reduced, legend, title ) {
     idx_1a_2 = c(idx_dim1_a, idx_dim2)
     idx_1b_2 = c(idx_dim1_b, idx_dim2)
@@ -62,6 +62,7 @@ compare_plot_func( idx_8bit, idx_16bit, idx_NW, meantiming, config_reduced[-(2:3
 compare_plot_func( idx_1t, idx_4t, idx_SW, meantiming, config_reduced[-c(2,4),], c("1 thread", "4 threads"), "SW calculation: 1 thread vs. 4 threads" )
 compare_plot_func( idx_1t, idx_4t, idx_NW, meantiming, config_reduced[-c(2,4),], c("1 thread", "4 threads"), "NW calculation: 1 thread vs. 4 threads" )
 
+# improvements
 improvements_func <- function( idx_a, idx_b, vdata, config_reduced, title ) {
     data = matrix( c( vdata[ idx_a ], vdata[ idx_b ] ), ncol=length(idx_a), byrow=T )
 
@@ -76,7 +77,6 @@ improvements_func <- function( idx_a, idx_b, vdata, config_reduced, title ) {
     print( improvement )
 }
 
-# improvements
 improvements_func( idx_sse41, idx_avx2, meantiming, config_reduced[-1,], "Improvement: SSE vs. AVX" )
 improvements_func( idx_16bit, idx_8bit, meantiming, config_reduced[-3,], "Improvement: 8 bit vs. 16 bit" )
 improvements_func( idx_1t, idx_4t, meantiming, config_reduced[-4,], "Improvement: 1 thread vs. 4 threads" )
