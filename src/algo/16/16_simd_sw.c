@@ -79,7 +79,7 @@ static int d_idx;
  E = _mmxxx_max_epi16(E, HE);            /* test for gap extension, or opening */
 
 static void aligncolumns_first( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mxxxi gap_open_extend, __mxxxi gap_extend,
-        __mxxxi Mm, __mxxxi * _h_max, long ql ) {
+        __mxxxi Mm, __mxxxi * _h_max, size_t ql ) {
     __mxxxi h4, h5, h6, h7, h8, f0, f1, f2, f3, E, HE, HF;
     __mxxxi * vp;
 
@@ -139,7 +139,7 @@ static void aligncolumns_first( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mx
 }
 
 static void aligncolumns_rest( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mxxxi gap_open_extend, __mxxxi gap_extend,
-        __mxxxi * _h_max, long ql ) {
+        __mxxxi * _h_max, size_t ql ) {
     __mxxxi h4, h5, h6, h7, h8, f0, f1, f2, f3, E, HE, HF;
     __mxxxi * vp;
 

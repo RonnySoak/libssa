@@ -85,7 +85,7 @@ static int d_idx;
 
 static void aligncolumns_first( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mxxxi gap_open_extend, __mxxxi gap_extend,
         __mxxxi h0, __mxxxi h1, __mxxxi h2, __mxxxi h3, __mxxxi f0, __mxxxi f1, __mxxxi f2, __mxxxi f3,
-        __mxxxi * _h_min, __mxxxi * _h_max, __mxxxi Mm, __mxxxi M_gap_open_extend, __mxxxi M_gap_extend, long ql ) {
+        __mxxxi * _h_min, __mxxxi * _h_max, __mxxxi Mm, __mxxxi M_gap_open_extend, __mxxxi M_gap_extend, size_t ql ) {
     __mxxxi h4, h5, h6, h7, h8, E, HE, HF;
     __mxxxi * vp;
     __mxxxi h_min = _mmxxx_setzero_si();
@@ -155,7 +155,7 @@ static void aligncolumns_first( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mx
 
 static void aligncolumns_rest( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mxxxi gap_open_extend, __mxxxi gap_extend,
         __mxxxi h0, __mxxxi h1, __mxxxi h2, __mxxxi h3, __mxxxi f0, __mxxxi f1, __mxxxi f2, __mxxxi f3,
-        __mxxxi * _h_min, __mxxxi * _h_max, long ql ) {
+        __mxxxi * _h_min, __mxxxi * _h_max, size_t ql ) {
     __mxxxi h4, h5, h6, h7, h8, E, HE, HF;
     __mxxxi * vp;
     __mxxxi h_min = _mmxxx_setzero_si();

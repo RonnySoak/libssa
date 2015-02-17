@@ -12,6 +12,36 @@
 
 #include "../../util/linked_list.h"
 
+#ifdef __AVX2__
+typedef __m256i __mxxxi;
+#else
+typedef __m128i  __mxxxi;
+#endif
+
+struct s8query {
+    size_t q_len;
+
+    __mxxxi ** q_table;
+
+    char * seq;
+};
+typedef struct s8query * p_s8query;
+
+struct s8info {
+    __mxxxi * hearray;
+    __mxxxi * dprofile;
+
+    size_t maxqlen;
+
+    uint8_t penalty_gap_open;
+    uint8_t penalty_gap_extension;
+
+    uint8_t q_count;
+    p_s8query queries[6];
+
+    p_s16info s16info;
+};
+
 static inline int move_db_sequence_window_8( int c, int channels, uint8_t ** d_begin, uint8_t ** d_end,
         uint8_t * dseq_search_window ) {
     for( int j = 0; j < CDEPTH_8_BIT; j++ ) {
@@ -45,8 +75,8 @@ static inline void check_max( int channels, uint8_t * overflow, int8_t * h_max, 
     }
 }
 
-void search_8_sse41_init( p_search_data sdp, p_s8info s );
-void search_8_avx2_init( p_search_data sdp, p_s8info s );
+p_s8info search_8_sse41_init( p_search_data sdp );
+p_s8info search_8_avx2_init( p_search_data sdp );
 
 void dprofile_fill_8_sse41( int8_t * dprofile, uint8_t * dseq_search_window );
 void dprofile_fill_8_avx2( int8_t * dprofile, uint8_t * dseq_search_window );

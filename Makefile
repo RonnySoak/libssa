@@ -7,6 +7,7 @@ DEPS := Makefile
 # objects to compile
 OBJS := 
 OBJS_SSE2 :=
+OBJS_SSE41 :=
 OBJS_AVX2 :=
 
 # files some targets depend on, like header files
@@ -49,16 +50,17 @@ TEST_LIBS := -lcheck -lrt
 CXX := gcc
 CXXFLAGS := $(BASE_FLAGS)
 
-BASE_FLAGS := -Wall -O3 -std=c99
+BASE_FLAGS := -Wall -O3 -std=c99 -g
 
 PROG := libssa libssa_check libssa_example
 
-OBJS_ALL := $(OBJS) $(OBJS_SSE2) $(OBJS_AVX2)
+OBJS_ALL := $(OBJS) $(OBJS_SSE2) $(OBJS_SSE41) $(OBJS_AVX2)
 
 OBJS_BASE_COMPILE := $(OBJS) $(TESTS) src/libssa_example.o
 
 $(OBJS_BASE_COMPILE): CXXFLAGS := $(BASE_FLAGS) -march=native
 $(OBJS_SSE2): CXXFLAGS := $(BASE_FLAGS) -msse2
+$(OBJS_SSE41): CXXFLAGS := $(BASE_FLAGS) -msse4.1
 $(OBJS_AVX2): CXXFLAGS := $(BASE_FLAGS) -mavx2 -D__AVX2__
 
 # compiles all files without linking
@@ -83,6 +85,24 @@ src/algo/16/16_simd_sw_avx2.o: src/algo/16/16_simd_sw.c $(DEPS)
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 	
 src/algo/16/search_16_util_avx2.o: src/algo/16/search_16_util.c $(DEPS)
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+	
+src/algo/8/8_simd_nw_sse2.o: src/algo/8/8_simd_nw.c $(DEPS)
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+	
+src/algo/8/8_simd_sw_sse2.o: src/algo/8/8_simd_sw.c $(DEPS)
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+	
+src/algo/8/search_8_util_sse2.o: src/algo/8/search_8_util.c $(DEPS)
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+src/algo/8/8_simd_nw_avx2.o: src/algo/8/8_simd_nw.c $(DEPS)
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+	
+src/algo/8/8_simd_sw_avx2.o: src/algo/8/8_simd_sw.c $(DEPS)
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+	
+src/algo/8/search_8_util_avx2.o: src/algo/8/search_8_util.c $(DEPS)
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 

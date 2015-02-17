@@ -77,7 +77,7 @@ START_TEST (test_sse_simple)
             dseq_search_window[i * CHANNELS_8_BIT_SSE] = dseq.seq[i];
         }
 
-        int8_t * dprofile = (int8_t*) s->dprofile_sse;
+        int8_t * dprofile = (int8_t*) s->dprofile;
 
         dprofile_fill_8_sse41( dprofile, dseq_search_window );
 
@@ -100,7 +100,7 @@ START_TEST (test_avx_simple)
         for( int i = 0; i < CDEPTH_8_BIT; ++i ) {
             dseq_search_window[i * CHANNELS_8_BIT_AVX] = dseq.seq[i];
         }
-        int8_t * dprofile = (int8_t*) s->dprofile_avx;
+        int8_t * dprofile = (int8_t*) s->dprofile;
 
         dprofile_fill_8_avx2( dprofile, dseq_search_window );
 

@@ -19,33 +19,10 @@
 #define CHANNELS_8_BIT_SSE (128 / 8)
 #define CHANNELS_8_BIT_AVX (256 / 8)
 
-struct s8query {
-    size_t q_len;
-
-    __m128i ** q_table_sse;
-    __m256i ** q_table_avx;
-
-    char * seq;
-};
+struct s8query;
 typedef struct s8query * p_s8query;
 
-struct s8info {
-    __m128i * hearray_sse;
-    __m128i * dprofile_sse;
-
-    __m256i * hearray_avx;
-    __m256i * dprofile_avx;
-
-    size_t maxqlen;
-
-    uint8_t penalty_gap_open;
-    uint8_t penalty_gap_extension;
-
-    uint8_t q_count;
-    p_s8query queries[6];
-
-    p_s16info s16info;
-};
+struct s8info;
 typedef struct s8info * p_s8info;
 
 void search_8_init_algo( int search_type );

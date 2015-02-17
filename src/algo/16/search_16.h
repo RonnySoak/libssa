@@ -25,8 +25,8 @@ struct s16info;
 typedef struct s16info * p_s16info;
 
 void search_16_init_algo( int search_type );
-p_s16info search_16_init( p_search_data sdp );
 
+p_s16info search_16_init( p_search_data sdp );
 void search_16_exit( p_s16info s );
 
 size_t search_16_chunk( p_s16info s16info, p_minheap heap, p_db_chunk chunk, p_search_data sdp );

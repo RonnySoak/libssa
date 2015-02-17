@@ -55,8 +55,6 @@ static void search_16_init_query( p_s16info s, int q_count, seq_buffer * queries
         s->queries[i] = query;
     }
 
-    if( s->hearray )
-        free( s->hearray );
     s->hearray = (__mxxxi *) xmalloc( 2 * s->maxqlen * sizeof(__mxxxi ) );
     memset( s->hearray, 0, 2 * s->maxqlen * sizeof(__mxxxi ) );
 }
@@ -68,8 +66,6 @@ p_s16info search_16_sse2_init( p_search_data sdp ) {
 #endif
     p_s16info s = (p_s16info) xmalloc( sizeof(struct s16info) );
 
-    s->dprofile = 0;
-    s->hearray = 0;
     s->hearray_64 = 0;
 
     s->q_count = 0;
