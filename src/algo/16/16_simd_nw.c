@@ -30,19 +30,22 @@
 #ifdef __AVX2__
 
 #define CHANNELS_16_BIT CHANNELS_16_BIT_AVX
-typedef __m256i __mxxxi;        //!< represents register containing integers
+typedef __m256i __mxxxi;
 
 #define _mmxxx_and_si _mm256_and_si256
 #define _mmxxx_adds_epi16 _mm256_adds_epi16
 #define _mmxxx_subs_epi16 _mm256_subs_epi16
+#define _mmxxx_subs_epu16 _mm256_subs_epu16
 #define _mmxxx_min_epi16 _mm256_min_epi16
 #define _mmxxx_max_epi16 _mm256_max_epi16
 #define _mmxxx_set1_epi16 _mm256_set1_epi16
+#define _mmxxx_setzero_si _mm256_setzero_si256
+#define dprofile_fill_16_xxx dprofile_fill_16_avx2
 
 #else // SSE2
 
 #define CHANNELS_16_BIT CHANNELS_16_BIT_SSE
-typedef __m128i  __mxxxi;
+typedef __m128i   __mxxxi;
 
 #define _mmxxx_and_si _mm_and_si128
 #define _mmxxx_adds_epi16 _mm_adds_epi16
@@ -51,10 +54,9 @@ typedef __m128i  __mxxxi;
 #define _mmxxx_min_epi16 _mm_min_epi16
 #define _mmxxx_max_epi16 _mm_max_epi16
 #define _mmxxx_set1_epi16 _mm_set1_epi16
-#define _mmxxx_setzero_si128 _mm_setzero_si128
-
+#define _mmxxx_setzero_si _mm_setzero_si128
+#define dprofile_fill_16_xxx dprofile_fill_16_sse2
 #endif
-
 /*
  Using 16-bit signed values, from -32768 to +32767.
  match: positive
@@ -63,9 +65,8 @@ typedef __m128i  __mxxxi;
  optimal global alignment (NW)
  maximize score
  */
-
 #ifdef DBG_COLLECT_MATRIX
-    static int d_idx;
+static int d_idx;
 #endif
 
 #define ALIGNCORE(H, N, F, V, QR, R, H_MIN, H_MAX)                             \
@@ -87,8 +88,8 @@ static void aligncolumns_first( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mx
         __mxxxi * _h_min, __mxxxi * _h_max, __mxxxi Mm, __mxxxi M_gap_open_extend, __mxxxi M_gap_extend, long ql ) {
     __mxxxi h4, h5, h6, h7, h8, E, HE, HF;
     __mxxxi * vp;
-    __mxxxi h_min = _mmxxx_setzero_si128();
-    __mxxxi h_max = _mmxxx_setzero_si128();
+    __mxxxi h_min = _mmxxx_setzero_si();
+    __mxxxi h_max = _mmxxx_setzero_si();
     __mxxxi M_gap_extension = M_gap_open_extend;
 
     f0 = _mmxxx_subs_epi16( f0, gap_open_extend );
@@ -157,8 +158,8 @@ static void aligncolumns_rest( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mxx
         __mxxxi * _h_min, __mxxxi * _h_max, long ql ) {
     __mxxxi h4, h5, h6, h7, h8, E, HE, HF;
     __mxxxi * vp;
-    __mxxxi h_min = _mmxxx_setzero_si128();
-    __mxxxi h_max = _mmxxx_setzero_si128();
+    __mxxxi h_min = _mmxxx_setzero_si();
+    __mxxxi h_max = _mmxxx_setzero_si();
 
     f0 = _mmxxx_subs_epi16( f0, gap_open_extend );
     f1 = _mmxxx_subs_epi16( f1, gap_open_extend );
@@ -209,9 +210,9 @@ void search_16_sse2_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * 
 #endif
 
 #ifdef DBG_COLLECT_MATRIX
-        dbg_init_matrix_data_collection( BIT_WIDTH_16, s->maxdlen + CDEPTH_16_BIT, s->maxqlen );
+    dbg_init_matrix_data_collection( BIT_WIDTH_16, s->maxdlen + CDEPTH_16_BIT, s->maxqlen );
 
-        d_idx = 0;
+    d_idx = 0;
 #endif
 
     int16_t * dprofile = (int16_t*) s->dprofile;
@@ -260,15 +261,15 @@ void search_16_sse2_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * 
     int16_t score_min = INT16_MIN + s->penalty_gap_open + s->penalty_gap_extension;
     int16_t score_max = INT16_MAX;
 
-    __mxxxi H0 = _mmxxx_setzero_si128();
-    __mxxxi H1 = _mmxxx_setzero_si128();
-    __mxxxi H2 = _mmxxx_setzero_si128();
-    __mxxxi H3 = _mmxxx_setzero_si128();
+    __mxxxi H0 = _mmxxx_setzero_si();
+    __mxxxi H1 = _mmxxx_setzero_si();
+    __mxxxi H2 = _mmxxx_setzero_si();
+    __mxxxi H3 = _mmxxx_setzero_si();
 
-    __mxxxi F0 = _mmxxx_setzero_si128();
-    __mxxxi F1 = _mmxxx_setzero_si128();
-    __mxxxi F2 = _mmxxx_setzero_si128();
-    __mxxxi F3 = _mmxxx_setzero_si128();
+    __mxxxi F0 = _mmxxx_setzero_si();
+    __mxxxi F1 = _mmxxx_setzero_si();
+    __mxxxi F2 = _mmxxx_setzero_si();
+    __mxxxi F3 = _mmxxx_setzero_si();
 
     union {
         __mxxxi v;
@@ -285,10 +286,11 @@ void search_16_sse2_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * 
             /* fill all channels with symbols from the database sequences */
 
             for( int c = 0; c < CHANNELS_16_BIT; c++ ) {
-                no_sequences_ended &= move_db_sequence_window_16( c, CHANNELS_16_BIT, d_begin, d_end, dseq_search_window );
+                no_sequences_ended &= move_db_sequence_window_16( c, CHANNELS_16_BIT, d_begin, d_end,
+                        dseq_search_window );
             }
 
-            dprofile_fill_16_sse2( dprofile, dseq_search_window );
+            dprofile_fill_16_xxx( dprofile, dseq_search_window );
 
             aligncolumns_rest( S.v, hep, s->queries[q_id]->q_table, gap_open_extend, gap_extend, H0, H1, H2, H3, F0, F1,
                     F2, F3, &h_min.v, &h_max.v, qlen );
@@ -298,18 +300,18 @@ void search_16_sse2_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * 
              We have to switch over to a new sequence           */
             no_sequences_ended = 1;
 
-            M.v = _mmxxx_setzero_si128();
+            M.v = _mmxxx_setzero_si();
             for( int c = 0; c < CHANNELS_16_BIT; c++ ) {
                 if( d_begin[c] < d_end[c] ) {
                     /* the sequence in this channel is not finished yet */
 
-                    no_sequences_ended &= move_db_sequence_window_16( c, CHANNELS_16_BIT, d_begin, d_end, dseq_search_window );
+                    no_sequences_ended &= move_db_sequence_window_16( c, CHANNELS_16_BIT, d_begin, d_end,
+                            dseq_search_window );
                 }
                 else {
                     /* sequence in channel c ended. change of sequence */
 
                     M.a[c] = 0xffff;
-
 
                     if( d_seq_ptr[c] ) {
                         /* save score */
@@ -355,7 +357,8 @@ void search_16_sse2_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * 
                         ((int16_t*) &F2)[c] = -s->penalty_gap_open - 3 * s->penalty_gap_extension;
                         ((int16_t*) &F3)[c] = -s->penalty_gap_open - 4 * s->penalty_gap_extension;
 
-                        no_sequences_ended &= move_db_sequence_window_16( c, CHANNELS_16_BIT, d_begin, d_end, dseq_search_window );
+                        no_sequences_ended &= move_db_sequence_window_16( c, CHANNELS_16_BIT, d_begin, d_end,
+                                dseq_search_window );
                     }
                     else {
                         /* no more sequences, empty channel */
@@ -374,10 +377,10 @@ void search_16_sse2_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * 
                 break;
 
             /* make masked versions of QR, R and E0 */
-            M_gap_open_extend = _mmxxx_and_si( M, gap_open_extend );
-            M_gap_extend = _mmxxx_and_si( M, gap_extend );
+            M_gap_open_extend = _mmxxx_and_si( M.v, gap_open_extend );
+            M_gap_extend = _mmxxx_and_si( M.v, gap_extend );
 
-            dprofile_fill_16_sse2( dprofile, dseq_search_window );
+            dprofile_fill_16_xxx( dprofile, dseq_search_window );
 
             aligncolumns_first( S.v, hep, s->queries[q_id]->q_table, gap_open_extend, gap_extend, H0, H1, H2, H3, F0,
                     F1, F2, F3, &h_min.v, &h_max.v, M.v, M_gap_open_extend, M_gap_extend, qlen );
@@ -403,12 +406,12 @@ void search_16_sse2_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * 
     }
 
 #ifdef DBG_COLLECT_MATRIX
-        sequence * db_sequences = xmalloc( sizeof( sequence ) * done );
+    sequence * db_sequences = xmalloc( sizeof( sequence ) * done );
 
-        for (int i = 0; i < done; ++i) {
-            db_sequences[i] = chunk->seq[i]->seq;
-        }
+    for (int i = 0; i < done; ++i) {
+        db_sequences[i] = chunk->seq[i]->seq;
+    }
 
-        dbg_print_matrices_to_file( BIT_WIDTH_16, "NW", s->queries[q_id]->seq, db_sequences, done );
+    dbg_print_matrices_to_file( BIT_WIDTH_16, "NW", s->queries[q_id]->seq, db_sequences, done );
 #endif
 }

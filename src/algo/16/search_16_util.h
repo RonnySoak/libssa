@@ -12,6 +12,34 @@
 
 #include "../../util/linked_list.h"
 
+#ifdef __AVX2__
+typedef __m256i __mxxxi;
+#else
+typedef __m128i  __mxxxi;
+#endif
+
+struct s16query {
+    size_t q_len;
+
+    __mxxxi ** q_table;
+
+    char * seq;
+};
+struct s16info {
+    __mxxxi * hearray;
+    __mxxxi * dprofile;
+
+    int64_t * hearray_64;
+
+    size_t maxqlen;
+
+    uint8_t q_count;
+    p_s16query queries[6];
+
+    int16_t penalty_gap_open;
+    int16_t penalty_gap_extension;
+};
+
 static inline int move_db_sequence_window_16( int c, int channels, uint8_t ** d_begin, uint8_t ** d_end,
         uint8_t* dseq_search_window ) {
     for( int j = 0; j < CDEPTH_16_BIT; j++ ) {
@@ -45,8 +73,8 @@ static inline void check_max( int channels, uint8_t * overflow, int16_t * h_max,
     }
 }
 
-void search_16_sse2_init( p_search_data sdp, p_s16info s );
-void search_16_avx2_init( p_search_data sdp, p_s16info s );
+p_s16info search_16_sse2_init( p_search_data sdp );
+p_s16info search_16_avx2_init( p_search_data sdp );
 
 void dprofile_fill_16_sse2( int16_t * dprofile, uint8_t * dseq_search_window );
 void dprofile_fill_16_avx2( int16_t * dprofile, uint8_t * dseq_search_window );

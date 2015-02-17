@@ -75,7 +75,7 @@ START_TEST (test_sse_simple)
             dseq_search_window[i * CHANNELS_16_BIT_SSE] = dseq.seq[i];
         }
 
-        int16_t * dprofile = (int16_t*) s->dprofile_sse;
+        int16_t * dprofile = (int16_t*) s->dprofile;
 
         dprofile_fill_16_sse2( dprofile, dseq_search_window );
 
@@ -98,7 +98,7 @@ START_TEST (test_avx_simple)
         for( int i = 0; i < CDEPTH_16_BIT; ++i ) {
             dseq_search_window[i * CHANNELS_16_BIT_AVX] = dseq.seq[i];
         }
-        int16_t * dprofile = (int16_t*) s->dprofile_avx;
+        int16_t * dprofile = (int16_t*) s->dprofile;
 
         dprofile_fill_16_avx2( dprofile, dseq_search_window );
 

@@ -30,27 +30,27 @@
 #ifdef __AVX2__
 
 #define CHANNELS_16_BIT CHANNELS_16_BIT_AVX
-typedef __m256i __mxxxi;        //!< represents register containing integers
+typedef __m256i __mxxxi;
 
 #define _mmxxx_adds_epi16 _mm256_adds_epi16
 #define _mmxxx_subs_epi16 _mm256_subs_epi16
-#define _mmxxx_min_epi16 _mm256_min_epi16
 #define _mmxxx_max_epi16 _mm256_max_epi16
 #define _mmxxx_set1_epi16 _mm256_set1_epi16
+#define _mmxxx_setzero_si _mm256_setzero_si256
+#define dprofile_fill_16_xxx dprofile_fill_16_avx2
 
 #else // SSE2
 
 #define CHANNELS_16_BIT CHANNELS_16_BIT_SSE
-typedef __m128i  __mxxxi;
+typedef __m128i   __mxxxi;
 
 #define _mmxxx_adds_epi16 _mm_adds_epi16
 #define _mmxxx_subs_epi16 _mm_subs_epi16
 #define _mmxxx_max_epi16 _mm_max_epi16
-#define _mmxxx_set1_epi16 _mmxxx_set1_epi16
-#define _mmxxx_setzero_si128 _mm_setzero_si128
-
+#define _mmxxx_set1_epi16 _mm_set1_epi16
+#define _mmxxx_setzero_si _mm_setzero_si128
+#define dprofile_fill_16_xxx dprofile_fill_16_sse2
 #endif
-
 /*
  * use the range from -32768 - 0 - to 32767
  *
@@ -60,9 +60,8 @@ typedef __m128i  __mxxxi;
  *
  * a biased Version adds more instructions in ALIGNCORE, than the other version
  */
-
 #ifdef DBG_COLLECT_MATRIX
-    static int d_idx;
+static int d_idx;
 #endif
 
 #define ALIGNCORE(H, N, F, V, QR, R, S, H_MAX )                         	   \
@@ -108,13 +107,12 @@ static void aligncolumns_first( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mx
          * Mm is set to INT16_MIN on all channels, where new database sequences begin,
          * the other channels are set to zero.
          */
-
-        h4 = _mmxxx_adds_epi16( h4, Mm );
-        h4 = _mmxxx_adds_epi16( h4, Mm );
+        h4 = _mmxxx_subs_epi16( h4, Mm );
+        h4 = _mmxxx_subs_epi16( h4, Mm );
 
         E = hep[2 * i + 1];
-        E = _mmxxx_adds_epi16( E, Mm );
-        E = _mmxxx_adds_epi16( E, Mm );
+        E = _mmxxx_subs_epi16( E, Mm );
+        E = _mmxxx_subs_epi16( E, Mm );
 
         ALIGNCORE( h0, h5, f0, vp[0], gap_open_extend, gap_extend, *Sm, h_max );
         ALIGNCORE( h1, h6, f1, vp[1], gap_open_extend, gap_extend, *Sm, h_max );
@@ -194,9 +192,9 @@ void search_16_sse2_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * 
 #endif
 
 #ifdef DBG_COLLECT_MATRIX
-        dbg_init_matrix_data_collection( BIT_WIDTH_16, s->maxdlen + CDEPTH_16_BIT, s->maxqlen );
+    dbg_init_matrix_data_collection( BIT_WIDTH_16, s->maxdlen + CDEPTH_16_BIT, s->maxqlen );
 
-        d_idx = 0;
+    d_idx = 0;
 #endif
 
     int16_t * dprofile = (int16_t*) s->dprofile;
@@ -259,10 +257,11 @@ void search_16_sse2_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * 
             /* fill all channels with symbols from the database sequences */
 
             for( int c = 0; c < CHANNELS_16_BIT; c++ ) {
-                no_sequences_ended &= move_db_sequence_window_16( c, CHANNELS_16_BIT, d_begin, d_end, dseq_search_window );
+                no_sequences_ended &= move_db_sequence_window_16( c, CHANNELS_16_BIT, d_begin, d_end,
+                        dseq_search_window );
             }
 
-            dprofile_fill_16_sse2( dprofile, dseq_search_window );
+            dprofile_fill_16_xxx( dprofile, dseq_search_window );
 
             aligncolumns_rest( &S.v, hep, s->queries[q_id]->q_table, gap_open_extend, gap_extend, &h_max.v, qlen );
         }
@@ -271,12 +270,13 @@ void search_16_sse2_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * 
              We have to switch over to a new sequence           */
             no_sequences_ended = 1;
 
-            M.v = _mmxxx_setzero_si128();
+            M.v = _mmxxx_setzero_si();
             for( int c = 0; c < CHANNELS_16_BIT; c++ ) {
                 if( d_begin[c] < d_end[c] ) {
                     /* the sequence in this channel is not finished yet */
 
-                    no_sequences_ended &= move_db_sequence_window_16( c, CHANNELS_16_BIT, d_begin, d_end, dseq_search_window );
+                    no_sequences_ended &= move_db_sequence_window_16( c, CHANNELS_16_BIT, d_begin, d_end,
+                            dseq_search_window );
                 }
                 else {
                     /* sequence in channel c ended. change of sequence */
@@ -318,7 +318,8 @@ void search_16_sse2_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * 
                         d_begin[c] = (unsigned char*) d_seq_ptr[c]->seq.seq;
                         d_end[c] = (unsigned char*) d_seq_ptr[c]->seq.seq + d_seq_ptr[c]->seq.len;
 
-                        no_sequences_ended &= move_db_sequence_window_16( c, CHANNELS_16_BIT, d_begin, d_end, dseq_search_window );
+                        no_sequences_ended &= move_db_sequence_window_16( c, CHANNELS_16_BIT, d_begin, d_end,
+                                dseq_search_window );
                     }
                     else {
                         /* no more sequences, empty channel */
@@ -336,9 +337,10 @@ void search_16_sse2_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * 
             if( done == chunk->fill_pointer )
                 break;
 
-            dprofile_fill_16_sse2( dprofile, dseq_search_window );
+            dprofile_fill_16_xxx( dprofile, dseq_search_window );
 
-            aligncolumns_first( &S.v, hep, s->queries[q_id]->q_table, gap_open_extend, gap_extend, M.v, &h_max.v, qlen );
+            aligncolumns_first( &S.v, hep, s->queries[q_id]->q_table, gap_open_extend, gap_extend, M.v, &h_max.v,
+                    qlen );
         }
         check_max( CHANNELS_16_BIT, overflow, h_max.a, score_max );
 
@@ -348,12 +350,12 @@ void search_16_sse2_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * 
     }
 
 #ifdef DBG_COLLECT_MATRIX
-        sequence * db_sequences = xmalloc( sizeof( sequence ) * done );
+    sequence * db_sequences = xmalloc( sizeof( sequence ) * done );
 
-        for (int i = 0; i < done; ++i) {
-            db_sequences[i] = chunk->seq[i]->seq;
-        }
+    for (int i = 0; i < done; ++i) {
+        db_sequences[i] = chunk->seq[i]->seq;
+    }
 
-        dbg_print_matrices_to_file( BIT_WIDTH_16, "SW", s->queries[q_id]->seq, db_sequences, done );
+    dbg_print_matrices_to_file( BIT_WIDTH_16, "SW", s->queries[q_id]->seq, db_sequences, done );
 #endif
 }

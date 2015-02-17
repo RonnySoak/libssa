@@ -1,11 +1,15 @@
 OBJS += \
-./src/algo/16/search_16.o \
-./src/algo/16/16_simd_sse2_nw.o \
-./src/algo/16/16_simd_sse2_sw.o \
-./src/algo/16/16_simd_avx2_nw.o \
-./src/algo/16/16_simd_avx2_sw.o \
-./src/algo/16/search_16_sse2_util.o \
-./src/algo/16/search_16_avx2_util.o
+./src/algo/16/search_16.o
+
+OBJS_SSE2 += \
+./src/algo/16/16_simd_nw_sse2.o \
+./src/algo/16/search_16_util_sse2.o \
+./src/algo/16/16_simd_sw_sse2.o
+
+OBJS_AVX2 += \
+./src/algo/16/16_simd_nw_avx2.o \
+./src/algo/16/16_simd_sw_avx2.o \
+./src/algo/16/search_16_util_avx2.o
 
 USER_OBJS += \
 ./src/algo/16/search_16.h \

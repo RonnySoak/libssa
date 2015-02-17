@@ -54,49 +54,24 @@ void search_16_init_algo( int search_type ) {
 }
 
 p_s16info search_16_init( p_search_data sdp ) {
-    /* prepare alloc of qtable, dprofile, hearray, dir */
-    p_s16info s = (p_s16info) xmalloc( sizeof(struct s16info) );
-
-    s->dprofile_avx = 0;
-    s->dprofile_sse = 0;
-    s->hearray_avx = 0;
-    s->hearray_sse = 0;
-    s->hearray_64 = 0;
-
-    s->q_count = 0;
-    for( int i = 0; i < 6; i++ ) {
-        s->queries[i] = 0;
-    }
-
-    s->penalty_gap_open = gapO;
-    s->penalty_gap_extension = gapE;
-
     if( is_avx2_enabled() ) {
-        search_16_avx2_init( sdp, s );
+        return search_16_avx2_init( sdp );
     }
-    else {
-        search_16_sse2_init( sdp, s );
-    }
-
-    return s;
+    return search_16_sse2_init( sdp );
 }
 
 void search_16_exit( p_s16info s ) {
     /* free mem for dprofile, hearray, dir, qtable */
-    if( s->hearray_avx )
-        free( s->hearray_avx );
-    if( s->hearray_sse )
-        free( s->hearray_sse );
+    if( s->hearray )
+        free( s->hearray );
     if( s->hearray_64 )
         free( s->hearray_64 );
-    if( s->dprofile_avx )
-        free( s->dprofile_avx );
+    if( s->dprofile )
+        free( s->dprofile );
 
     for( int i = 0; i < s->q_count; i++ ) {
-        if( s->queries[i]->q_table_sse )
-            free( s->queries[i]->q_table_sse );
-        if( s->queries[i]->q_table_avx )
-            free( s->queries[i]->q_table_avx );
+        if( s->queries[i]->q_table )
+            free( s->queries[i]->q_table );
 
         s->queries[i]->q_len = 0;
 

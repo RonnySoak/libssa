@@ -13,6 +13,7 @@
 
 #include "../../util/util.h"
 #include "../../matrices.h"
+#include "../search.h"
 
 #ifdef __AVX2__
 
@@ -26,34 +27,6 @@ typedef __m128i  __mxxxi;
 
 #endif
 
-
-struct q_table {
-
-};
-struct hearray {
-
-};
-struct dprofile {
-
-};
-
-//void free_avx2_data( p_s16info s ) {
-//
-//}
-//
-//void free_sse2_data( p_s16info s ) {
-//
-//}
-//
-//void free_avx2_query( p_s16info s, int idx ) {
-//    if( s->queries[idx]->q_table )
-//        free( s->queries[idx]->q_table );
-//}
-//
-//void free_see2_query( p_s16info s, int idx ) {
-//    if( s->queries[idx]->q_table )
-//        free( s->queries[idx]->q_table );
-//}
 
 static void search_16_init_query( p_s16info s, int q_count, seq_buffer * queries ) {
     s->q_count = q_count;
@@ -89,13 +62,29 @@ static void search_16_init_query( p_s16info s, int q_count, seq_buffer * queries
 }
 
 #ifdef __AVX2__
-void search_16_avx2_init( p_search_data sdp, p_s16info s ) {
+p_s16info search_16_avx2_init( p_search_data sdp ) {
 #else
-void search_16_sse2_init( p_search_data sdp, p_s16info s ) {
+p_s16info search_16_sse2_init( p_search_data sdp ) {
 #endif
+    p_s16info s = (p_s16info) xmalloc( sizeof(struct s16info) );
+
+    s->dprofile = 0;
+    s->hearray = 0;
+    s->hearray_64 = 0;
+
+    s->q_count = 0;
+    for( int i = 0; i < 6; i++ ) {
+        s->queries[i] = 0;
+    }
+
+    s->penalty_gap_open = gapO;
+    s->penalty_gap_extension = gapE;
+
     s->dprofile = (__mxxxi *) xmalloc( sizeof(int16_t) * CDEPTH_16_BIT * CHANNELS_16_BIT * SCORE_MATRIX_DIM );
 
     search_16_init_query( s, sdp->q_count, sdp->queries );
+
+    return s;
 }
 
 /*

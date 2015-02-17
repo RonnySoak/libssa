@@ -6,6 +6,9 @@
 DEPS := Makefile
 # objects to compile
 OBJS := 
+OBJS_SSE2 :=
+OBJS_AVX2 :=
+
 # files some targets depend on, like header files
 USR_OBJS :=
 # tests
@@ -42,20 +45,46 @@ DEBUG_FLAGS := --coverage -g
 LIBS := -lpthread -lm -lsdb $(DEBUG_LIBS)
 TEST_LIBS := -lcheck -lrt
 
-# Intel options
-#CXX := icpc
-#CXXFLAGS := -Wall -Wno-missing-declarations -fast -xSSE2 $(COMMON)
-
 # GNU options
 CXX := gcc
-CXXFLAGS := -Wall -O3 -std=c99 -mavx2 $(DEBUG_FLAGS)
+CXXFLAGS := $(BASE_FLAGS)
+
+BASE_FLAGS := -Wall -O3 -std=c99
 
 PROG := libssa libssa_check libssa_example
 
-.SUFFIXES := .o .c
+OBJS_ALL := $(OBJS) $(OBJS_SSE2) $(OBJS_AVX2)
 
-%.o : %.c $(DEPS)
-	$(CXX) $(CXXFLAGS) -c -o $@ $< -L. -lsdb 
+OBJS_BASE_COMPILE := $(OBJS) $(TESTS) src/libssa_example.o
+
+$(OBJS_BASE_COMPILE): CXXFLAGS := $(BASE_FLAGS) -march=native
+$(OBJS_SSE2): CXXFLAGS := $(BASE_FLAGS) -msse2
+$(OBJS_AVX2): CXXFLAGS := $(BASE_FLAGS) -mavx2 -D__AVX2__
+
+# compiles all files without linking
+#$(OBJS_ALL): $(DEPS)
+
+$(OBJS_BASE_COMPILE): %.o : %.c $(DEPS)
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+src/algo/16/16_simd_nw_sse2.o: src/algo/16/16_simd_nw.c $(DEPS)
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+	
+src/algo/16/16_simd_sw_sse2.o: src/algo/16/16_simd_sw.c $(DEPS)
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+	
+src/algo/16/search_16_util_sse2.o: src/algo/16/search_16_util.c $(DEPS)
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+src/algo/16/16_simd_nw_avx2.o: src/algo/16/16_simd_nw.c $(DEPS)
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+	
+src/algo/16/16_simd_sw_avx2.o: src/algo/16/16_simd_sw.c $(DEPS)
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+	
+src/algo/16/search_16_util_avx2.o: src/algo/16/search_16_util.c $(DEPS)
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
 
 all : init $(PROG)
 
@@ -67,9 +96,9 @@ init:
 	cp ../libsdb/libsdb.a .
 	mkdir -p $(DEBUG_OUTPUT_DIR)
 
-libssa : init $(OBJS) $(USR_OBJS) $(DEPS)
+libssa : init $(OBJS_ALL) $(USR_OBJS) $(DEPS)
 	@echo 'Building target: $@'
-	ar -cvq libssa.a $(DEPS) $(OBJS)
+	ar -cvq libssa.a $(DEPS) $(OBJS_ALL)
 	@echo 'Finished building target: $@'
 
 #mpilibssa : mpilibssa.o $(OBJS) $(DEPS)
@@ -79,17 +108,17 @@ libssa : init $(OBJS) $(USR_OBJS) $(DEPS)
 
 libssa_check : init libssa $(TESTS)
 	@echo 'Building target: $@'
-	$(CXX) $(CXXFLAGS) -o $@ $(OBJS) $(TESTS) $(TEST_LIBS) -L. $(LIBS) 
+	$(CXX) $(BASE_FLAGS) -march=native -o $@ $(OBJS_ALL) $(TESTS) $(TEST_LIBS) -L. $(LIBS) 
 	@echo 'Finished building target: $@'
 	
 libssa_example : init libssa ./src/libssa_example.o
 	@echo 'Building target: $@'
-	$(CXX) $(CXXFLAGS) -o $@ ./src/libssa_example.c -L. -lssa $(LIBS)
+	$(CXX) $(BASE_FLAGS) -march=native -o $@ ./src/libssa_example.c -L. -lssa $(LIBS)
 	@echo 'Finished building target: $@'
 
 # clean created files
 clean:
-	rm -f $(OBJS) $(TESTS) $(TO_CLEAN) $(PROG) libsdb.a gmon.out
+	rm -f $(OBJS_ALL) $(TESTS) $(TO_CLEAN) $(PROG) libsdb.a gmon.out
 	rm -rf $(COVERAGE_DIR)
 	rm -rf $(DEBUG_OUTPUT_DIR)
 	find . -type f -name '*.gcda' -print | xargs /bin/rm -f
