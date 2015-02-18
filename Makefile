@@ -6,9 +6,7 @@
 DEPS := Makefile
 # objects to compile
 OBJS := 
-OBJS_SSE2 :=
-OBJS_SSE41 :=
-OBJS_AVX2 :=
+OBJS_COMPILE_SEPARATE :=
 
 # files some targets depend on, like header files
 USR_OBJS :=
@@ -41,75 +39,30 @@ MPI_LINK := `mpicxx --showme:link`
 
 #### TODO remove from PROD code ####
 #DEBUG_LIBS := -lefence
-DEBUG_FLAGS := --coverage -g
+DEBUG_FLAGS := -g# --coverage
 
 LIBS := -lpthread -lm -lsdb $(DEBUG_LIBS)
 TEST_LIBS := -lcheck -lrt
 
 # GNU options
 CXX := gcc
-CXXFLAGS := $(BASE_FLAGS)
-
-BASE_FLAGS := -Wall -O3 -std=c99 -g
+	
+BASE_FLAGS := -Wall -O3 -std=c99 $(DEBUG_FLAGS)
 
 PROG := libssa libssa_check libssa_example
 
-OBJS_ALL := $(OBJS) $(OBJS_SSE2) $(OBJS_SSE41) $(OBJS_AVX2)
+OBJS_ALL := $(OBJS) $(OBJS_COMPILE_SEPARATE)
 
 OBJS_BASE_COMPILE := $(OBJS) $(TESTS) src/libssa_example.o
 
 $(OBJS_BASE_COMPILE): CXXFLAGS := $(BASE_FLAGS) -march=native
-$(OBJS_SSE2): CXXFLAGS := $(BASE_FLAGS) -msse2
-$(OBJS_SSE41): CXXFLAGS := $(BASE_FLAGS) -msse4.1
-$(OBJS_AVX2): CXXFLAGS := $(BASE_FLAGS) -mavx2 -D__AVX2__
+$(OBJS_COMPILE_SEPARATE): CXXFLAGS := $(BASE_FLAGS)
 
 # compiles all files without linking
-#$(OBJS_ALL): $(DEPS)
-
 $(OBJS_BASE_COMPILE): %.o : %.c $(DEPS)
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-src/algo/16/16_simd_nw_sse2.o: src/algo/16/16_simd_nw.c $(DEPS)
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
-	
-src/algo/16/16_simd_sw_sse2.o: src/algo/16/16_simd_sw.c $(DEPS)
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
-	
-src/algo/16/search_16_util_sse2.o: src/algo/16/search_16_util.c $(DEPS)
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
-
-src/algo/16/16_simd_nw_avx2.o: src/algo/16/16_simd_nw.c $(DEPS)
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
-	
-src/algo/16/16_simd_sw_avx2.o: src/algo/16/16_simd_sw.c $(DEPS)
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
-	
-src/algo/16/search_16_util_avx2.o: src/algo/16/search_16_util.c $(DEPS)
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
-	
-src/algo/8/8_simd_nw_sse2.o: src/algo/8/8_simd_nw.c $(DEPS)
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
-	
-src/algo/8/8_simd_sw_sse2.o: src/algo/8/8_simd_sw.c $(DEPS)
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
-	
-src/algo/8/search_8_util_sse2.o: src/algo/8/search_8_util.c $(DEPS)
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
-
-src/algo/8/8_simd_nw_avx2.o: src/algo/8/8_simd_nw.c $(DEPS)
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
-	
-src/algo/8/8_simd_sw_avx2.o: src/algo/8/8_simd_sw.c $(DEPS)
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
-	
-src/algo/8/search_8_util_avx2.o: src/algo/8/search_8_util.c $(DEPS)
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
-
-
 all : init $(PROG)
-
-#mpilibssa.o : src/libssa.cc $(OBJS) $(DEPS)
-#	$(CXX) $(CXXFLAGS) -DMPIlibssa $(MPI_COMPILE) -c -o $@ src/libssa.cc
 
 init:
 	@echo 'Copying file libsdb.a'
@@ -120,11 +73,6 @@ libssa : init $(OBJS_ALL) $(USR_OBJS) $(DEPS)
 	@echo 'Building target: $@'
 	ar -cvq libssa.a $(DEPS) $(OBJS_ALL)
 	@echo 'Finished building target: $@'
-
-#mpilibssa : mpilibssa.o $(OBJS) $(DEPS)
-#	@echo 'Building target: $@'
-#	$(CXX) $(LINKFLAGS) -o $@ mpilibssa.o $(OBJS) $(LIBS) $(MPI_LINK)
-#	@echo 'Finished building target: $@'
 
 libssa_check : init libssa $(TESTS)
 	@echo 'Building target: $@'

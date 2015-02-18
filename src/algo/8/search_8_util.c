@@ -101,14 +101,9 @@ void dprofile_fill_8_avx2( int8_t * dprofile, uint8_t * dseq_search_window ) {
     }
 #endif
     for( int j = 0; j < CDEPTH_8_BIT; j++ ) {
-        int d[CHANNELS_8_BIT];
-
-        for( int i = 0; i < CHANNELS_8_BIT; i++ ) // TODO try out to merge this and the next for loop. Does it save cycles?
-            d[i] = dseq_search_window[j * CHANNELS_8_BIT + i] << 5;
-
         // load matrix
         for( int i = 0; i < CHANNELS_8_BIT; i++ ) {
-            ymm[i] = _mm256_load_si256( (__m256i *) (score_matrix_7 + d[i]) );
+            ymm[i] = _mm256_load_si256( (__m256i *) (score_matrix_7 + (dseq_search_window[j * CHANNELS_8_BIT + i] << 5)) );
         }
 
         // transpose matrix

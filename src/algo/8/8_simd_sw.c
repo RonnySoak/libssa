@@ -106,7 +106,7 @@ static void aligncolumns_first( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mx
          * To set both to INT8_MIN, we simply subtract INT8_MIN twice.
          *
          * Mm is set to INT8_MIN on all channels, where new database sequences begin,
-         * the other channels are set to zero.
+         * the other channels are not affected.
          */
 
         h4 = _mmxxx_adds_epi8( h4, Mm );
