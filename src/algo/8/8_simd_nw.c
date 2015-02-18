@@ -28,9 +28,7 @@
 #include "../../util/util.h"
 #ifdef __AVX2__
 
-#define CHANNELS_8_BIT CHANNELS_8_BIT_AVX
 typedef __m256i __mxxxi;
-
 #define _mmxxx_and_si _mm256_and_si256
 #define _mmxxx_adds_epi8 _mm256_adds_epi8
 #define _mmxxx_subs_epi8 _mm256_subs_epi8
@@ -39,13 +37,14 @@ typedef __m256i __mxxxi;
 #define _mmxxx_min_epi8 _mm256_min_epi8
 #define _mmxxx_set1_epi8 _mm256_set1_epi8
 #define _mmxxx_setzero_si _mm256_setzero_si256
+#define _mmxxx_cmpgt_epi8 _mm256_cmpgt_epi8
+#define _mmxxx_or_si _mm256_or_si256
+#define _mmxxx_cmpeq_epi8 _mm256_cmpeq_epi8
 #define dprofile_fill_8_xxx dprofile_fill_8_avx2
 
 #else // SSE2
 
-#define CHANNELS_8_BIT CHANNELS_8_BIT_SSE
-typedef __m128i     __mxxxi;
-
+typedef __m128i  __mxxxi;
 #define _mmxxx_and_si _mm_and_si128
 #define _mmxxx_adds_epi8 _mm_adds_epi8
 #define _mmxxx_subs_epi8 _mm_subs_epi8
@@ -54,7 +53,11 @@ typedef __m128i     __mxxxi;
 #define _mmxxx_min_epi8 _mm_min_epi8
 #define _mmxxx_set1_epi8 _mm_set1_epi8
 #define _mmxxx_setzero_si _mm_setzero_si128
+#define _mmxxx_cmpgt_epi8 _mm_cmpgt_epi8
+#define _mmxxx_or_si _mm_or_si128
+#define _mmxxx_cmpeq_epi8 _mm_cmpeq_epi8
 #define dprofile_fill_8_xxx dprofile_fill_8_sse41
+
 #endif
 /*
  Using 8-bit signed values, from -32768 to +32767.
@@ -68,27 +71,32 @@ typedef __m128i     __mxxxi;
 static int d_idx;
 #endif
 
-#define ALIGNCORE(H, N, F, V, QR, R, H_MIN, H_MAX)                            \
- H = _mmxxx_adds_epi8(H, V);            /* add value of scoring matrix */        \
- H = _mmxxx_max_epi8(H, F);             /* max(H, F) */                          \
- H = _mmxxx_max_epi8(H, E);             /* max(H, E) */                          \
- H_MIN = _mmxxx_min_epi8(H_MIN, H);                                              \
- H_MAX = _mmxxx_max_epi8(H_MAX, H);                                              \
- N = H;                               /* save H in HE-array */                \
- HF = _mmxxx_subs_epi8(H, QR);          /* subtract gap open-extend */           \
- F = _mmxxx_subs_epi8(F, R);            /* subtract gap extend */                \
- F = _mmxxx_max_epi8(F, HF);            /* test for gap extension, or opening */ \
- HE = _mmxxx_subs_epi8(H, QR);          /* subtract gap open-extend */           \
- E = _mmxxx_subs_epi8(E, R);            /* subtract gap extend */                \
- E = _mmxxx_max_epi8(E, HE);            /* test for gap extension, or opening */
+#define ALIGNCORE(H, N, F, V, QR, R, H_MIN, H_MAX)                             \
+ H = _mmxxx_adds_epi8(H, V);          /* add value of scoring matrix */        \
+ H = _mmxxx_max_epi8(H, F);           /* max(H, F) */                          \
+ H = _mmxxx_max_epi8(H, E);           /* max(H, E) */                          \
+ H_MIN = _mmxxx_min_epi8(H_MIN, H);                                            \
+ H_MAX = _mmxxx_max_epi8(H_MAX, H);                                            \
+ N = H;                               /* save H in HE-array */                 \
+ HF = _mmxxx_subs_epi8(H, QR);        /* subtract gap open-extend */           \
+ F = _mmxxx_subs_epi8(F, R);          /* subtract gap extend */                \
+ F = _mmxxx_max_epi8(F, HF);          /* test for gap extension, or opening */ \
+ HE = _mmxxx_subs_epi8(H, QR);        /* subtract gap open-extend */           \
+ E = _mmxxx_subs_epi8(E, R);          /* subtract gap extend */                \
+ E = _mmxxx_max_epi8(E, HE);          /* test for gap extension, or opening */
 
 static void aligncolumns_first( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mxxxi gap_open_extend, __mxxxi gap_extend,
         __mxxxi h0, __mxxxi h1, __mxxxi h2, __mxxxi h3, __mxxxi f0, __mxxxi f1, __mxxxi f2, __mxxxi f3,
         __mxxxi * _h_min, __mxxxi * _h_max, __mxxxi Mm, __mxxxi M_gap_open_extend, __mxxxi M_gap_extend, size_t ql ) {
     __mxxxi h4, h5, h6, h7, h8, E, HE, HF;
     __mxxxi * vp;
-    __mxxxi h_min = _mmxxx_setzero_si();
-    __mxxxi h_max = _mmxxx_setzero_si();
+    /*
+     * We set h_min and h_max to zero, to prevent a reuse of the previous score
+     * in the same channel.
+     */
+    *_h_min = _mmxxx_setzero_si();
+    *_h_max = _mmxxx_setzero_si();
+
     __mxxxi M_gap_extension = M_gap_open_extend;
 
     f0 = _mmxxx_subs_epi8( f0, gap_open_extend );
@@ -122,10 +130,10 @@ static void aligncolumns_first( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mx
 
         M_gap_extension = _mmxxx_adds_epi8( M_gap_extension, M_gap_extend );
 
-        ALIGNCORE( h0, h5, f0, vp[0], gap_open_extend, gap_extend, h_min, h_max );
-        ALIGNCORE( h1, h6, f1, vp[1], gap_open_extend, gap_extend, h_min, h_max );
-        ALIGNCORE( h2, h7, f2, vp[2], gap_open_extend, gap_extend, h_min, h_max );
-        ALIGNCORE( h3, h8, f3, vp[3], gap_open_extend, gap_extend, h_min, h_max );
+        ALIGNCORE( h0, h5, f0, vp[0], gap_open_extend, gap_extend, *_h_min, *_h_max );
+        ALIGNCORE( h1, h6, f1, vp[1], gap_open_extend, gap_extend, *_h_min, *_h_max );
+        ALIGNCORE( h2, h7, f2, vp[2], gap_open_extend, gap_extend, *_h_min, *_h_max );
+        ALIGNCORE( h3, h8, f3, vp[3], gap_open_extend, gap_extend, *_h_min, *_h_max );
 
 #ifdef DBG_COLLECT_MATRIX
         dbg_add_matrix_data_256_8( i, d_idx + 0, h5 );
@@ -147,9 +155,6 @@ static void aligncolumns_first( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mx
     Sm[1] = h2;
     Sm[2] = h3;
     Sm[3] = hep[2 * (ql - 1) + 0];
-
-    *_h_min = h_min;
-    *_h_max = h_max;
 }
 
 static void aligncolumns_rest( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mxxxi gap_open_extend, __mxxxi gap_extend,
@@ -157,8 +162,6 @@ static void aligncolumns_rest( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mxx
         __mxxxi * _h_min, __mxxxi * _h_max, size_t ql ) {
     __mxxxi h4, h5, h6, h7, h8, E, HE, HF;
     __mxxxi * vp;
-    __mxxxi h_min = _mmxxx_setzero_si();
-    __mxxxi h_max = _mmxxx_setzero_si();
 
     f0 = _mmxxx_subs_epi8( f0, gap_open_extend );
     f1 = _mmxxx_subs_epi8( f1, gap_open_extend );
@@ -172,10 +175,10 @@ static void aligncolumns_rest( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mxx
 
         E = hep[2 * i + 1];
 
-        ALIGNCORE( h0, h5, f0, vp[0], gap_open_extend, gap_extend, h_min, h_max );
-        ALIGNCORE( h1, h6, f1, vp[1], gap_open_extend, gap_extend, h_min, h_max );
-        ALIGNCORE( h2, h7, f2, vp[2], gap_open_extend, gap_extend, h_min, h_max );
-        ALIGNCORE( h3, h8, f3, vp[3], gap_open_extend, gap_extend, h_min, h_max );
+        ALIGNCORE( h0, h5, f0, vp[0], gap_open_extend, gap_extend, *_h_min, *_h_max );
+        ALIGNCORE( h1, h6, f1, vp[1], gap_open_extend, gap_extend, *_h_min, *_h_max );
+        ALIGNCORE( h2, h7, f2, vp[2], gap_open_extend, gap_extend, *_h_min, *_h_max );
+        ALIGNCORE( h3, h8, f3, vp[3], gap_open_extend, gap_extend, *_h_min, *_h_max );
 
 #ifdef DBG_COLLECT_MATRIX
         dbg_add_matrix_data_256_8( i, d_idx + 0, h5 );
@@ -197,9 +200,6 @@ static void aligncolumns_rest( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mxx
     Sm[1] = h2;
     Sm[2] = h3;
     Sm[3] = hep[2 * (ql - 1) + 0];
-
-    *_h_min = h_min;
-    *_h_max = h_max;
 }
 
 
@@ -228,7 +228,6 @@ void search_8_sse41_nw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * o
     uint8_t * d_end[CHANNELS_8_BIT];
     size_t d_length[CHANNELS_8_BIT];
     p_sdb_sequence d_seq_ptr[CHANNELS_8_BIT];
-    uint8_t overflow[CHANNELS_8_BIT];
 
     union {
         __mxxxi v[CDEPTH_8_BIT];
@@ -238,6 +237,12 @@ void search_8_sse41_nw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * o
         __mxxxi v;
         int8_t a[CHANNELS_8_BIT];
     } M;
+    union {
+        __mxxxi v;
+        int8_t a[CHANNELS_8_BIT];
+    } overflow;
+
+    overflow.v = _mmxxx_setzero_si();
 
     uint8_t dseq_search_window[CDEPTH_8_BIT * CHANNELS_8_BIT];
     memset( dseq_search_window, 0, CDEPTH_8_BIT * CHANNELS_8_BIT );
@@ -255,11 +260,10 @@ void search_8_sse41_nw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * o
         d_end[c] = d_begin[c];
         d_length[c] = 0;
         d_seq_ptr[c] = 0;
-        overflow[c] = 0;
     }
 
-    int8_t score_min = INT8_MIN + s->penalty_gap_open + s->penalty_gap_extension;
-    int8_t score_max = INT8_MAX;
+    __mxxxi score_min = _mmxxx_set1_epi8( INT8_MIN + s->penalty_gap_open + s->penalty_gap_extension -1 );
+    __mxxxi score_max = _mmxxx_set1_epi8( INT8_MAX );
 
     __mxxxi H0 = _mmxxx_setzero_si();
     __mxxxi H1 = _mmxxx_setzero_si();
@@ -271,14 +275,8 @@ void search_8_sse41_nw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * o
     __mxxxi F2 = _mmxxx_setzero_si();
     __mxxxi F3 = _mmxxx_setzero_si();
 
-    union {
-        __mxxxi v;
-        int8_t a[CHANNELS_8_BIT];
-    } h_min;
-    union {
-        __mxxxi v;
-        int8_t a[CHANNELS_8_BIT];
-    } h_max;
+    __mxxxi h_min;
+    __mxxxi h_max;
 
     int no_sequences_ended = 0;
     while( 1 ) {
@@ -286,14 +284,13 @@ void search_8_sse41_nw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * o
             /* fill all channels with symbols from the database sequences */
 
             for( int c = 0; c < CHANNELS_8_BIT; c++ ) {
-                no_sequences_ended &= move_db_sequence_window_8( c, CHANNELS_8_BIT, d_begin, d_end,
-                        dseq_search_window );
+                no_sequences_ended &= move_db_sequence_window_8( c, d_begin, d_end, dseq_search_window );
             }
 
             dprofile_fill_8_xxx( dprofile, dseq_search_window );
 
-            aligncolumns_rest( S.v, hep, s->queries[q_id]->q_table, gap_open_extend, gap_extend, H0, H1, H2, H3, F0,
-                    F1, F2, F3, &h_min.v, &h_max.v, qlen );
+            aligncolumns_rest( S.v, hep, s->queries[q_id]->q_table, gap_open_extend, gap_extend, H0, H1, H2, H3, F0, F1,
+                    F2, F3, &h_min, &h_max, qlen );
         }
         else {
             /* One or more sequences ended in the previous block.
@@ -305,8 +302,7 @@ void search_8_sse41_nw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * o
                 if( d_begin[c] < d_end[c] ) {
                     /* the sequence in this channel is not finished yet */
 
-                    no_sequences_ended &= move_db_sequence_window_8( c, CHANNELS_8_BIT, d_begin, d_end,
-                            dseq_search_window );
+                    no_sequences_ended &= move_db_sequence_window_8( c, d_begin, d_end, dseq_search_window );
                 }
                 else {
                     /* sequence in channel c ended. change of sequence */
@@ -319,7 +315,7 @@ void search_8_sse41_nw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * o
                         long z = (d_length[c] + 3) % 4;
                         long score = S.a[z * CHANNELS_8_BIT + c];
 
-                        if( !overflow[c] && (score > INT8_MIN) && (score < INT8_MAX) ) {
+                        if( !overflow.a[c] && (score > INT8_MIN) && (score < INT8_MAX) ) {
                             /* Alignments, with a score equal to the current lowest score in the
                              heap are ignored! */
                             add_to_minheap( heap, q_id, d_seq_ptr[c], score );
@@ -332,7 +328,7 @@ void search_8_sse41_nw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * o
                                 *overflow_list = ll_init( d_seq_ptr[c] );
                             }
 
-                            overflow[c] = 0;
+                            overflow.a[c] = 0;
                         }
 
                         done++;
@@ -357,8 +353,7 @@ void search_8_sse41_nw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * o
                         ((int8_t*) &F2)[c] = -s->penalty_gap_open - 3 * s->penalty_gap_extension;
                         ((int8_t*) &F3)[c] = -s->penalty_gap_open - 4 * s->penalty_gap_extension;
 
-                        no_sequences_ended &= move_db_sequence_window_8( c, CHANNELS_8_BIT, d_begin, d_end,
-                                dseq_search_window );
+                        no_sequences_ended &= move_db_sequence_window_8( c, d_begin, d_end, dseq_search_window );
                     }
                     else {
                         /* no more sequences, empty channel */
@@ -383,9 +378,11 @@ void search_8_sse41_nw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * o
             dprofile_fill_8_xxx( dprofile, dseq_search_window );
 
             aligncolumns_first( S.v, hep, s->queries[q_id]->q_table, gap_open_extend, gap_extend, H0, H1, H2, H3,
-                    F0, F1, F2, F3, &h_min.v, &h_max.v, M.v, M_gap_open_extend, M_gap_extend, qlen );
+                    F0, F1, F2, F3, &h_min, &h_max, M.v, M_gap_open_extend, M_gap_extend, qlen );
         }
-        check_min_max( CHANNELS_8_BIT, overflow, h_min.a, h_max.a, score_min, score_max );
+
+        overflow.v = _mmxxx_or_si( _mmxxx_cmpgt_epi8( score_min, h_min ), overflow.v );
+        overflow.v = _mmxxx_or_si( _mmxxx_cmpeq_epi8( h_max, score_max ), overflow.v );
 
 #ifdef DBG_COLLECT_MATRIX
         d_idx += 4;
