@@ -115,12 +115,82 @@ START_TEST (test_1000_threads)
         teardown_pool();
     }END_TEST
 
+START_TEST (test_changing_nr_of_threads)
+    {
+        int n = 2;
+        setup_pool( n );
+
+        start_threads( &simple_test_thread );
+
+        ck_assert_int_eq( n, get_current_thread_count() );
+
+        struct int_result * result_list[n];
+
+        wait_for_threads( (void **) &result_list );
+
+        for( int i = 0; i < n; ++i ) {
+            ck_assert_int_eq( 1000, result_list[i]->val );
+        }
+
+        n = 4;
+        setup_pool( n );
+
+        start_threads( &simple_test_thread );
+
+        ck_assert_int_eq( n, get_current_thread_count() );
+
+        wait_for_threads( (void **) &result_list );
+
+        for( int i = 0; i < n; ++i ) {
+            ck_assert_int_eq( 1000, result_list[i]->val );
+        }
+
+        teardown_pool();
+    }END_TEST
+
+START_TEST (test_reuse_threadpool)
+    {
+        int n = 2;
+        setup_pool( n );
+
+        start_threads( &simple_test_thread );
+
+        ck_assert_int_eq( n, get_current_thread_count() );
+
+        struct int_result * result_list[n];
+
+        wait_for_threads( (void **) &result_list );
+
+        for( int i = 0; i < n; ++i ) {
+            ck_assert_int_eq( 1000, result_list[i]->val );
+        }
+
+        exit_thread_pool();
+
+        n = 4;
+        setup_pool( n );
+
+        start_threads( &simple_test_thread );
+
+        ck_assert_int_eq( n, get_current_thread_count() );
+
+        wait_for_threads( (void **) &result_list );
+
+        for( int i = 0; i < n; ++i ) {
+            ck_assert_int_eq( 1000, result_list[i]->val );
+        }
+
+        teardown_pool();
+    }END_TEST
+
 void addThreadPoolTC( Suite *s ) {
     TCase *tc_core = tcase_create( "threadpool" );
     tcase_add_test( tc_core, test_one_thread );
     tcase_add_test( tc_core, test_nr_of_cores_threads );
     tcase_add_test( tc_core, test_20_threads );
     tcase_add_test( tc_core, test_1000_threads );
+    tcase_add_test( tc_core, test_changing_nr_of_threads );
+    tcase_add_test( tc_core, test_reuse_threadpool );
 
     suite_add_tcase( s, tc_core );
 }

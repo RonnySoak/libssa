@@ -21,7 +21,11 @@ static pthread_t * thread_list = 0;
 static size_t current_thread_count = 0;
 
 size_t get_current_thread_count() {
-    if( !current_thread_count ) {
+    return current_thread_count;
+}
+
+static size_t get_new_thread_count() {
+    if( !current_thread_count || (current_thread_count != _max_thread_count) ) {
         if( _max_thread_count == -1 ) {
             _max_thread_count = get_nprocs(); //sysconf(_SC_NPROCESSORS_ONLN);
         }
@@ -33,12 +37,13 @@ size_t get_current_thread_count() {
 
 void init_thread_pool() {
     if( thread_list ) {
-        return;
+        if( get_current_thread_count() == _max_thread_count ) {
+            return;
+        }
+        exit_thread_pool();
     }
 
-    exit_thread_pool();
-
-    size_t thread_count = get_current_thread_count();
+    size_t thread_count = get_new_thread_count();
 
     outf( "Using %ld threads\n", thread_count );
 
@@ -52,6 +57,7 @@ void exit_thread_pool() {
 //        }
 
         free( thread_list );
+        thread_list = 0;
     }
 }
 

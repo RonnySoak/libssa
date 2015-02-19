@@ -325,8 +325,7 @@ void search_8_sse41_sw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * o
 
             dprofile_fill_8_xxx( dprofile, dseq_search_window );
 
-            aligncolumns_first( &S.v, hep, s->queries[q_id]->q_table, gap_open_extend, gap_extend, M.v, &h_max,
-                    qlen );
+            aligncolumns_first( &S.v, hep, s->queries[q_id]->q_table, gap_open_extend, gap_extend, M.v, &h_max, qlen );
         }
         overflow.v = _mmxxx_or_si( _mmxxx_cmpeq_epi8( h_max, score_max ), overflow.v );
 

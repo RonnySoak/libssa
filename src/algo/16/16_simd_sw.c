@@ -332,8 +332,7 @@ void search_16_sse2_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * 
 
             dprofile_fill_16_xxx( dprofile, dseq_search_window );
 
-            aligncolumns_first( &S.v, hep, s->queries[q_id]->q_table, gap_open_extend, gap_extend, M.v, &h_max,
-                    qlen );
+            aligncolumns_first( &S.v, hep, s->queries[q_id]->q_table, gap_open_extend, gap_extend, M.v, &h_max, qlen );
         }
         overflow.v = _mmxxx_or_si( _mmxxx_cmpeq_epi16( h_max, score_max ), overflow.v );
 
