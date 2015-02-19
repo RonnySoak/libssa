@@ -11,16 +11,17 @@
 #
 
 COUNT=$1
-CMD=$2
+LOG_FILE=$2
+CMD=$3
 
 for I in $(seq 1 $COUNT)
 do
-#    printf "$I . "
     START=$(date +%s.%N)
     $CMD > /dev/null
     END=$(date +%s.%N)
 
     RUNTIME=$(echo "$END - $START" | bc)
 
+	printf "$RUNTIME," >> $LOG_FILE
 	printf "$RUNTIME,"
 done

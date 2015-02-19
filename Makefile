@@ -39,7 +39,7 @@ MPI_LINK := `mpicxx --showme:link`
 
 #### TODO remove from PROD code ####
 #DEBUG_LIBS := -lefence
-DEBUG_FLAGS := -g# --coverage
+#DEBUG_FLAGS := -g# --coverage
 
 LIBS := -lpthread -lm -lsdb $(DEBUG_LIBS)
 TEST_LIBS := -lcheck -lrt

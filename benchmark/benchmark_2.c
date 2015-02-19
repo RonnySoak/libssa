@@ -50,13 +50,13 @@ static double run_alignment( p_alignment_list (*align_func)( p_query, size_t, in
 }
 
 int main( int argc, char**argv ) {
-    FILE *f = fopen( "results/15_02_15_16_00", "w" );
+    FILE *f = fopen( "results/18_02_2015_alignment_only_2", "w" );
     if( f == NULL ) {
         printf( "Error opening file!\n" );
         exit( 1 );
     }
 
-    int threads[2] = { 4, 8 };
+    int threads[2] = { 1, 4, 8 };
     int SIMD[2] = { COMPUTE_ON_SSE41, COMPUTE_ON_AVX2 };
     int bit_width[2] = { 8, 16 };
     char * queries[4] = { "O74807", "P18080", "P19930", "Q3ZAI3" };
@@ -64,7 +64,7 @@ int main( int argc, char**argv ) {
 
     size_t hit_count = 10;
 
-    int iterations = 15;
+    int iterations = 10;
 
     set_output_mode( OUTPUT_SILENT );
 
@@ -73,7 +73,7 @@ int main( int argc, char**argv ) {
     init_symbol_translation( AMINOACID, FORWARD_STRAND, 3, 3 );
     init_db_fasta( "data/uniprot_sprot.fasta" );
 
-    for( int t = 0; t < 2; ++t ) {
+    for( int t = 0; t < 3; ++t ) {
         set_threads( threads[t] );
 
         for( int type = 0; type < 2; ++type ) {

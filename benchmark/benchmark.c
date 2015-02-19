@@ -142,10 +142,10 @@ int main( int argc, char**argv ) {
     int simd = -1;
     size_t hit_count = 0;
 
-    read_options( argc, argv, &gapO, &gapE, &search_type, &bit_width, &simd, &query, &hit_count );
-
     init_symbol_translation( AMINOACID, FORWARD_STRAND, 3, 3 ); // TODO currently not configurable
     init_gap_penalties( gapO, gapE );
+
+    read_options( argc, argv, &gapO, &gapE, &search_type, &bit_width, &simd, &query, &hit_count );
 
     if( simd == AVX2 ) {
         set_max_compute_capability( COMPUTE_ON_AVX2 );
