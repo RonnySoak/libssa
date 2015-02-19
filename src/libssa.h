@@ -57,6 +57,9 @@
 #define OUTPUT_SILENT 0
 #define OUTPUT_STDOUT 1
 
+#define COMPUTE_SCORE 0
+#define COMPUTE_ALIGNMENT 1
+
 // #############################################################################
 // Data types
 // ##########
@@ -118,7 +121,7 @@ typedef struct {
     int frame;
 } q_seq;
 
-typedef struct {
+typedef struct { // TODO use either typedef, or struct for all!!
     db_seq db_seq;
     q_seq query;
     char * alignment;
@@ -288,7 +291,7 @@ void free_sequence( p_query p );
  * ...
  * @return pointer to the alignment structure
  */
-p_alignment_list sw_align( p_query p, size_t hitcount, int bit_width /* TODO ...*/);
+p_alignment_list sw_align( p_query p, size_t hitcount, int bit_width, int align_type /* TODO ...*/);
 
 /**
  * Aligns the query sequence against all sequences in the database using the
@@ -298,7 +301,7 @@ p_alignment_list sw_align( p_query p, size_t hitcount, int bit_width /* TODO ...
  * ...
  * @return pointer to the alignment structure
  */
-p_alignment_list nw_align( p_query p, size_t hitcount, int bit_width /* TODO ...*/);
+p_alignment_list nw_align( p_query p, size_t hitcount, int bit_width, int align_type /* TODO ...*/);
 
 /**
  * Aligns the query sequence against all sequences in the database using the
@@ -310,7 +313,7 @@ p_alignment_list nw_align( p_query p, size_t hitcount, int bit_width /* TODO ...
  * ...
  * @return pointer to the alignment structure
  */
-p_alignment_list nw_sellers_align( p_query p, size_t hitcount, int bit_width /* TODO ...*/);
+p_alignment_list nw_sellers_align( p_query p, size_t hitcount, int bit_width, int align_type /* TODO ...*/);
 
 /**
  * Aligns the query sequence against all sequences in the database using the
@@ -320,7 +323,7 @@ p_alignment_list nw_sellers_align( p_query p, size_t hitcount, int bit_width /* 
  * ...
  * @return pointer to the alignment structure
  */
-p_alignment_list nw_ignore_gaps_align( p_query p, size_t hitcount, int bit_width /* TODO ... ignored gaps...*/);
+p_alignment_list nw_ignore_gaps_align( p_query p, size_t hitcount, int bit_width, int align_type /* TODO ... ignored gaps...*/);
 
 /**
  * Release the memory allocated by the functions sw_align, nw_align,

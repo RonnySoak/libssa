@@ -94,6 +94,16 @@ static void init_alignment( alignment_p a, elem_t * e, seq_buffer* queries ) {
     a->score = e->score;
 }
 
+void create_score_alignment_list( p_minheap search_results, p_alignment_list alist ) {
+    for( int i = 0; i < search_results->count; ++i ) {
+        alignment_p a = xmalloc( sizeof( alignment_t ) );
+
+        init_alignment( a, &search_results->array[i], adp->queries );
+
+        alist->alignments[i] = a;
+    }
+}
+
 void a_free( p_alignment_list alist ) {
     if( !alist ) {
         return;

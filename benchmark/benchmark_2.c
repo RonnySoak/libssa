@@ -10,7 +10,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/time.h>
 #include <time.h>
+#include <unistd.h>
 
 #include "../src/cpu_config.h"
 
@@ -36,27 +38,34 @@ static char* concat( char * s1, char * s2 ) {
 #define SIMD_DESC(s) ( (s == COMPUTE_ON_AVX2) ? "AVX2" : "SSE41" )
 #define TYPE_DESC(t) ( (t == SMITH_WATERMAN) ? "SW" : "NW" )
 
-static double run_alignment( p_alignment_list (*align_func)( p_query, size_t, int ), p_query query, size_t hit_count,
+static double run_alignment( p_alignment_list (*align_func)( p_query, size_t, int, int ), p_query query, size_t hit_count,
         int bit_width ) {
-    clock_t start = clock();
 
-    p_alignment_list alist = align_func( query, hit_count, bit_width );
+    struct timeval start;
+    struct timeval finish;
 
-    clock_t diff = clock() - start;
+    gettimeofday( &start, NULL );
+
+    p_alignment_list alist = align_func( query, hit_count, bit_width, COMPUTE_SCORE );
+
+    gettimeofday( &finish, NULL );
 
     free_alignment( alist );
 
-    return (double) diff / CLOCKS_PER_SEC;
+    double elapsed = (finish.tv_sec - start.tv_sec);
+    elapsed += (finish.tv_usec - start.tv_usec) / 1000000.0;
+
+    return elapsed;
 }
 
 int main( int argc, char**argv ) {
-    FILE *f = fopen( "results/18_02_2015_alignment_only_2", "w" );
+    FILE *f = fopen( "results/19_02_2015_alignment_only", "w" );
     if( f == NULL ) {
         printf( "Error opening file!\n" );
         exit( 1 );
     }
 
-    int threads[2] = { 1, 4, 8 };
+    int threads[3] = { 1, 4, 8 };
     int SIMD[2] = { COMPUTE_ON_SSE41, COMPUTE_ON_AVX2 };
     int bit_width[2] = { 8, 16 };
     char * queries[4] = { "O74807", "P18080", "P19930", "Q3ZAI3" };
@@ -77,7 +86,7 @@ int main( int argc, char**argv ) {
         set_threads( threads[t] );
 
         for( int type = 0; type < 2; ++type ) {
-            p_alignment_list (*align_func)( p_query, size_t, int );
+            p_alignment_list (*align_func)( p_query, size_t, int, int );
             if( type == SMITH_WATERMAN ) {
                 align_func = &sw_align;
             }
@@ -119,8 +128,8 @@ int main( int argc, char**argv ) {
                 p_query query = init_sequence_fasta( filename );
                 free( filename );
 
-                fprintf( f, "%s,%s,%d_bit,%d_t", queries[q], TYPE_DESC( type ), 64, threads[t] );
-                printf( "%s,%s,%d_bit,%d_t", queries[q], TYPE_DESC( type ), 64, threads[t] );
+                fprintf( f, "%s,NO_SIMD,%s,%d_bit,%d_t", queries[q], TYPE_DESC( type ), 64, threads[t] );
+                printf( "%s,NO_SIMD,%s,%d_bit,%d_t", queries[q], TYPE_DESC( type ), 64, threads[t] );
 
                 for( int i = 0; i < iterations; i++ ) {
                     double time = run_alignment( align_func, query, hit_count, 64 );

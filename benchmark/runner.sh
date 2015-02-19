@@ -22,6 +22,6 @@ do
 
     RUNTIME=$(echo "$END - $START" | bc)
 
-	printf "$RUNTIME," >> $LOG_FILE
-	printf "$RUNTIME,"
+	printf ",$RUNTIME" >> $LOG_FILE
+	printf ",$RUNTIME"
 done

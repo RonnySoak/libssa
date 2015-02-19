@@ -22,11 +22,13 @@
 #include "searcher.h"
 
 static size_t alignment_hit_count = 0;
+static int align_type;
 
 size_t max_chunk_size = 1000; // TODO change and/or make it configurable
 
-static void init( p_query query, size_t hit_count, int search_type, int bit_width ) {
+static void init( p_query query, size_t hit_count, int search_type, int bit_width, int al_type ) {
     alignment_hit_count = hit_count;
+    align_type = al_type;
 
     s_init( search_type, bit_width, query, hit_count );
 
@@ -43,16 +45,16 @@ static void init( p_query query, size_t hit_count, int search_type, int bit_widt
 #endif
 }
 
-void init_for_sw( p_query query, size_t hit_count, int bit_width ) {
-    init( query, hit_count, SMITH_WATERMAN, bit_width );
+void init_for_sw( p_query query, size_t hit_count, int bit_width, int align_type ) {
+    init( query, hit_count, SMITH_WATERMAN, bit_width, align_type );
 }
 
-void init_for_nw( p_query query, size_t hit_count, int bit_width ) {
-    init( query, hit_count, NEEDLEMAN_WUNSCH, bit_width );
+void init_for_nw( p_query query, size_t hit_count, int bit_width, int align_type ) {
+    init( query, hit_count, NEEDLEMAN_WUNSCH, bit_width, align_type );
 }
 
-void init_for_nw_sellers( p_query query, size_t hit_count, int bit_width ) {
-    init( query, hit_count, NEEDLEMAN_WUNSCH_SELLERS, bit_width );
+void init_for_nw_sellers( p_query query, size_t hit_count, int bit_width, int align_type ) {
+    init( query, hit_count, NEEDLEMAN_WUNSCH_SELLERS, bit_width, align_type );
 }
 
 static int alignment_compare( const void * a, const void * b ) {
@@ -122,26 +124,31 @@ p_alignment_list m_run() {
     minheap_sort( search_results );
     it_free();
 
-    a_set_alignment_pairs( search_results->count, search_results->array );
-
-    start_threads( a_align );
-
     p_alignment_list alist = xmalloc( alignment_hit_count * sizeof(struct alignment_list) );
     alist->alignments = xmalloc( alignment_hit_count * sizeof(alignment_t) );
     alist->len = alignment_hit_count;
 
-    p_alignment_list align_result_list[get_current_thread_count()];
+    if( align_type == COMPUTE_SCORE ) {
+        create_score_alignment_list( search_results, alist );
+    }
+    else {
+        a_set_alignment_pairs( search_results->count, search_results->array );
 
-    wait_for_threads( (void **) &align_result_list );
+        start_threads( a_align );
 
-    int alist_ptr = 0;
-    for( size_t i = 0; i < get_current_thread_count(); i++ ) {
-        for( size_t j = 0; j < align_result_list[i]->len; j++ ) {
-            alist->alignments[alist_ptr++] = align_result_list[i]->alignments[j];
+        p_alignment_list align_result_list[get_current_thread_count()];
+
+        wait_for_threads( (void **) &align_result_list );
+
+        int alist_ptr = 0;
+        for( size_t i = 0; i < get_current_thread_count(); i++ ) {
+            for( size_t j = 0; j < align_result_list[i]->len; j++ ) {
+                alist->alignments[alist_ptr++] = align_result_list[i]->alignments[j];
+            }
+
+            free( align_result_list[i]->alignments );
+            free( align_result_list[i] );
         }
-
-        free( align_result_list[i]->alignments );
-        free( align_result_list[i] );
     }
 
 #if 0

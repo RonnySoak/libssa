@@ -10,11 +10,11 @@
 
 #include <stdio.h>
 
-static p_alignment_list do_alignment( char * desc, p_alignment_list (*align_func)( p_query, size_t, int ), p_query query,
+static p_alignment_list do_alignment( char * desc, p_alignment_list (*align_func)( p_query, size_t, int, int ), p_query query,
         size_t hit_count, int bit_width ) {
 
     printf( "%s: \n", desc );
-    p_alignment_list alist = align_func( query, hit_count, bit_width );
+    p_alignment_list alist = align_func( query, hit_count, bit_width, COMPUTE_ALIGNMENT );
 
     printf( "Nr of alignments: %ld\n", alist->len );
 

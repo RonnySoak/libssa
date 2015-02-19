@@ -39,9 +39,9 @@ static void ck_alignment( p_alignment_list alist, size_t hit_count, long * expec
     }
 }
 
-static void do_alignment( p_alignment_list (*align_func)( p_query, size_t, int ), p_query query, size_t hit_count,
+static void do_alignment( p_alignment_list (*align_func)( p_query, size_t, int, int ), p_query query, size_t hit_count,
         int bit_width, long * exp_al_data ) {
-    p_alignment_list alist = align_func( query, hit_count, bit_width );
+    p_alignment_list alist = align_func( query, hit_count, bit_width, COMPUTE_SCORE );
 
     // 64 bit
     ck_alignment( alist, hit_count, exp_al_data );

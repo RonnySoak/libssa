@@ -26,7 +26,7 @@ START_TEST (test_simple_one_thread)
 
         p_query query = init_sequence_fasta( "tests/testdata/one_seq.fas" );
 
-        p_alignment_list alist = sw_align( query, 5, BIT_WIDTH_64 );
+        p_alignment_list alist = sw_align( query, 5, BIT_WIDTH_64, COMPUTE_ALIGNMENT );
         ck_assert_int_eq( 5, alist->len );
 
         ck_assert_int_eq( 1290, alist->alignments[0]->db_seq.ID );
@@ -47,7 +47,7 @@ START_TEST (test_simple_one_thread)
 
         free_alignment( alist );
 
-        alist = nw_align( query, 5, BIT_WIDTH_64 );
+        alist = nw_align( query, 5, BIT_WIDTH_64, COMPUTE_ALIGNMENT );
         ck_assert_int_eq( 5, alist->len );
 
         ck_assert_int_eq( 1050, alist->alignments[0]->db_seq.ID );
@@ -85,7 +85,7 @@ START_TEST (test_sw_multiple_threads)
 
         p_query query = init_sequence_fasta( "tests/testdata/one_seq.fas" );
 
-        p_alignment_list alist = sw_align( query, 5, BIT_WIDTH_64 );
+        p_alignment_list alist = sw_align( query, 5, BIT_WIDTH_64, COMPUTE_ALIGNMENT );
         ck_assert_int_eq( 5, alist->len );
 
         ck_assert_int_eq( 1290, alist->alignments[0]->db_seq.ID );
@@ -122,7 +122,7 @@ START_TEST (test_nw_multiple_threads)
 
         p_query query = init_sequence_fasta( "tests/testdata/one_seq.fas" );
 
-        p_alignment_list alist = nw_align( query, 5, BIT_WIDTH_64 );
+        p_alignment_list alist = nw_align( query, 5, BIT_WIDTH_64, COMPUTE_ALIGNMENT );
         ck_assert_int_eq( 5, alist->len );
 
         ck_assert_int_eq( 1050, alist->alignments[0]->db_seq.ID );
@@ -164,7 +164,7 @@ START_TEST (test_1000_threads)
 
         p_query query = init_sequence_fasta( "tests/testdata/one_seq.fas" );
 
-        p_alignment_list alist = nw_align( query, 5, BIT_WIDTH_64 );
+        p_alignment_list alist = nw_align( query, 5, BIT_WIDTH_64, COMPUTE_ALIGNMENT );
         ck_assert_int_eq( 5, alist->len );
 
         ck_assert_int_eq( 1050, alist->alignments[0]->db_seq.ID );
@@ -186,7 +186,7 @@ START_TEST (test_1000_threads)
 
         free_alignment( alist );
 
-        alist = sw_align( query, 5, BIT_WIDTH_64 );
+        alist = sw_align( query, 5, BIT_WIDTH_64, COMPUTE_ALIGNMENT );
         ck_assert_int_eq( 5, alist->len );
 
         ck_assert_int_eq( 1290, alist->alignments[0]->db_seq.ID );

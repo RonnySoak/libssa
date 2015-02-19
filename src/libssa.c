@@ -219,10 +219,10 @@ static void prepare_alignment() {
  * ...
  * @return pointer to the alignment structure
  */
-p_alignment_list sw_align( p_query p, size_t hitcount, int bit_width /* TODO ...*/) {
+p_alignment_list sw_align( p_query p, size_t hitcount, int bit_width, int align_type /* TODO ...*/) {
     prepare_alignment();
 
-    init_for_sw( p, hitcount, bit_width );
+    init_for_sw( p, hitcount, bit_width, align_type );
 
     return m_run();
 }
@@ -235,10 +235,10 @@ p_alignment_list sw_align( p_query p, size_t hitcount, int bit_width /* TODO ...
  * ...
  * @return pointer to the alignment structure
  */
-p_alignment_list nw_align( p_query p, size_t hitcount, int bit_width /* TODO ...*/) {
+p_alignment_list nw_align( p_query p, size_t hitcount, int bit_width, int align_type /* TODO ...*/) {
     prepare_alignment();
 
-    init_for_nw( p, hitcount, bit_width );
+    init_for_nw( p, hitcount, bit_width, align_type );
 
     return m_run();
 }
@@ -253,12 +253,10 @@ p_alignment_list nw_align( p_query p, size_t hitcount, int bit_width /* TODO ...
  * ...
  * @return pointer to the alignment structure
  */
-p_alignment_list nw_sellers_align( p_query p, size_t hitcount, int bit_width /* TODO ...*/) {
+p_alignment_list nw_sellers_align( p_query p, size_t hitcount, int bit_width, int align_type /* TODO ...*/) {
     prepare_alignment();
 
-    init_for_nw_sellers( p, hitcount, bit_width );
-
-    return m_run();
+    return NULL; // TODO
 }
 
 /**
@@ -269,7 +267,7 @@ p_alignment_list nw_sellers_align( p_query p, size_t hitcount, int bit_width /* 
  * ...
  * @return pointer to the alignment structure
  */
-p_alignment_list nw_ignore_gaps_align( p_query p, size_t hitcount, int bit_width /* TODO ... ignored gaps...*/) {
+p_alignment_list nw_ignore_gaps_align( p_query p, size_t hitcount, int bit_width, int align_type /* TODO ... ignored gaps...*/) {
     prepare_alignment();
 
     return NULL; // TODO

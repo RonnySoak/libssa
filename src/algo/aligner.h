@@ -18,6 +18,8 @@ void a_free( p_alignment_list alist );
 
 void a_set_alignment_pairs( size_t pair_count, elem_t * result_sequence_pairs );
 
+void create_score_alignment_list( p_minheap search_results, p_alignment_list alist );
+
 void * a_align( void * adp );
 
 #endif /* ALIGNER_H_ */

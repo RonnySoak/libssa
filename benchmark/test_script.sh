@@ -39,8 +39,8 @@ do
 		# 64 bit
 		for QUERY in "${QUERY_ARR[@]}"
 		do
-			printf "$QUERY,NO_SIMD,$TYPE,64_b,$THREADS t," >> $LOG_FILE
-			printf "$QUERY,NO_SIMD,$TYPE,64_b,$THREADS t,"
+			printf "$QUERY,NO_SIMD,$TYPE,64_b,$THREADS t" >> $LOG_FILE
+			printf "$QUERY,NO_SIMD,$TYPE,64_b,$THREADS t"
 			./runner.sh $COUNT $LOG_FILE "./benchmark -N $THREADS -O $GAP_O -E $GAP_E -M $MATRIX -c 10 -i data/$QUERY.fasta -d data/$DATABASE -t $TYPE -b 64 -s $SIMD"
 			printf "\n" >> $LOG_FILE
 			printf "\n"
