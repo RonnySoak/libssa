@@ -13,7 +13,7 @@
 
 #define SCORE_MATRIX_DIM 32
 
-#define SCORE_MATRIX_7(x, y) (score_matrix_7[(x << 5) + y])
+#define SCORE_MATRIX_8(x, y) (score_matrix_8[(x << 5) + y])
 #define SCORE_MATRIX_16(x, y) (score_matrix_16[(x << 5) + y])
 #define SCORE_MATRIX_63(x, y) (score_matrix_63[(x << 5) + y])
 
@@ -27,7 +27,7 @@ extern const char mat_pam30[];
 extern const char mat_pam70[];
 extern const char mat_pam250[];
 
-extern int8_t* score_matrix_7;
+extern int8_t* score_matrix_8;
 extern int16_t * score_matrix_16;
 extern int64_t * score_matrix_63;
 

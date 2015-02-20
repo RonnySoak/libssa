@@ -274,7 +274,7 @@ long SCORELIMIT_7;
 long SCORELIMIT_16;
 long SCORELIMIT_63;
 
-int8_t * score_matrix_7 = NULL; // char
+int8_t * score_matrix_8 = NULL; // char
 int16_t * score_matrix_16 = NULL; // short
 int64_t * score_matrix_63 = NULL; // long
 
@@ -313,7 +313,7 @@ static void prepare_matrices() {
         mat_free();
     }
 
-    score_matrix_7 = xmalloc( SCORE_MATRIX_DIM * SCORE_MATRIX_DIM * sizeof(int8_t) );
+    score_matrix_8 = xmalloc( SCORE_MATRIX_DIM * SCORE_MATRIX_DIM * sizeof(int8_t) );
     score_matrix_16 = xmalloc( SCORE_MATRIX_DIM * SCORE_MATRIX_DIM * sizeof(int16_t) );
     score_matrix_63 = xmalloc( SCORE_MATRIX_DIM * SCORE_MATRIX_DIM * sizeof(int64_t) );
     memset( score_matrix_63, -1, SCORE_MATRIX_DIM * SCORE_MATRIX_DIM * sizeof(int64_t) );
@@ -347,7 +347,7 @@ static void finalize_matrices() {
         for( b = 0; b < SCORE_MATRIX_DIM; b++ ) {
             sc = SCORE_MATRIX_63( a, b );
 
-            SCORE_MATRIX_7(a, b) = (int8_t) sc;
+            SCORE_MATRIX_8(a, b) = (int8_t) sc;
             SCORE_MATRIX_16(a, b) = (int16_t) sc;
         }
     }
@@ -547,8 +547,8 @@ void mat_init_buildin( const char* matrixname ) {
  * Releases the memory allocated for the scoring matrices.
  */
 void mat_free() {
-    free( score_matrix_7 );
-    score_matrix_7 = 0;
+    free( score_matrix_8 );
+    score_matrix_8 = 0;
     free( score_matrix_16 );
     score_matrix_16 = 0;
     free( score_matrix_63 );

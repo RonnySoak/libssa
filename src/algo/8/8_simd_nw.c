@@ -342,6 +342,17 @@ void search_8_sse41_nw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * o
                         d_begin[c] = (unsigned char*) d_seq_ptr[c]->seq.seq;
                         d_end[c] = (unsigned char*) d_seq_ptr[c]->seq.seq + d_seq_ptr[c]->seq.len;
 
+                        /*
+                         * TODO: Could be changed into a masked operation after this loop.
+                         * The mask is created anyway and if we have to do this multiple times,
+                         * we can do it masked as well.
+                         *
+                         * Maybe combine it with the instructions at the end of the outer loop,
+                         * where the H and F values are changed, to the next column.
+                         *
+                         * By combining it, we just have to reset F3 and H3 and then apply the
+                         * standard changes: H3 = (masked) 0; F3 = (masked) penalty_gap_open
+                         */
                         ((int8_t*) &H0)[c] = 0;
                         ((int8_t*) &H1)[c] = -s->penalty_gap_open - 1 * s->penalty_gap_extension;
                         ((int8_t*) &H2)[c] = -s->penalty_gap_open - 2 * s->penalty_gap_extension;
@@ -356,6 +367,13 @@ void search_8_sse41_nw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * o
                     }
                     else {
                         /* no more sequences, empty channel */
+
+                        /*
+                         * TODO "switch off" empty channel, when the chunk is empty.
+                         *
+                         * This could prevent a constant switching between align_cloumns_first
+                         * and align_columns_rest ...
+                         */
 
                         d_seq_ptr[c] = 0;
                         d_begin[c] = 0;

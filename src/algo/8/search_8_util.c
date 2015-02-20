@@ -90,8 +90,19 @@ void dprofile_fill_8_avx2( __mxxxi * dprofile, uint8_t * dseq_search_window ) {
     // 4 x 16 db symbols
     // ca (60x2+68x2)x4 = 976 instructions TODO verify these numbers
 
+    /*
+     * Approximately 4*(6*32+6*32)=1536 instructions.
+     *
+     * TODO:
+     * This one is not so easy to reduce to an 16x16 matrix for nucleotides.
+     * This requires a separate implementation of the inner loop.
+     *
+     * It might be possible to load two depth at once and transform them in one
+     * iteration, and hence saving half the depth-iterations.
+     */
+
 #if 0
-     dbg_dumpscorematrix_8( score_matrix_7 );
+     dbg_dumpscorematrix_8( score_matrix_8 );
 
      outf( "DB search window:\n");
     for( int j = 0; j < CDEPTH_8_BIT; j++ ) {
@@ -103,7 +114,7 @@ void dprofile_fill_8_avx2( __mxxxi * dprofile, uint8_t * dseq_search_window ) {
     for( int j = 0; j < CDEPTH_8_BIT; j++ ) {
         // load matrix
         for( int i = 0; i < CHANNELS_8_BIT; i++ ) {
-            ymm[i] = _mm256_load_si256( (__m256i *) (score_matrix_7 + (dseq_search_window[j * CHANNELS_8_BIT + i] << 5)) );
+            ymm[i] = _mm256_load_si256( (__m256i *) (score_matrix_8 + (dseq_search_window[j * CHANNELS_8_BIT + i] << 5)) );
         }
 
         // transpose matrix
@@ -165,14 +176,22 @@ void dprofile_fill_8_avx2( __mxxxi * dprofile, uint8_t * dseq_search_window ) {
 }
 #else
 void dprofile_fill_8_sse41( __mxxxi * dprofile, uint8_t * dseq_search_window ) {
-    __m128i xmm0, xmm1, xmm2, xmm3, xmm4, xmm5, xmm6, xmm7;
-    __m128i xmm8, xmm9, xmm10, xmm11, xmm12, xmm13, xmm14, xmm15;
+    __m128i xmm[CHANNELS_8_BIT];
+    __m128i xmm_t[CHANNELS_8_BIT];
 
-    // 4 x 16 db symbols
-    // ca (60x2+68x2)x4 = 976 instructions TODO verify these numbers
+    /*
+     * Approximately 4*(16*5+2*6*16)=1088 instructions.
+     *
+     * TODO:
+     * Could be reduced to 4*(16*5+1*6*16)=704 instructions, if we would use a 16x16 matrix only.
+     * So in case of nucleotide sequences, we could reduce the number of instructions here.
+     *
+     * TODO check assembly before and after optimization -> changing SCORE_MATRIX_DIM into a variable,
+     * instead of a constant might change the loop unrolling to be less optimal ...
+     */
 
 #if 0
-    dbg_dumpscorematrix_8( score_matrix_7 );
+    dbg_dumpscorematrix_8( score_matrix_8 );
 
     for( int j = 0; j < CDEPTH_8_BIT; j++ ) {
         for( int z = 0; z < CHANNELS_8_BIT_SSE; z++ )
@@ -182,89 +201,54 @@ void dprofile_fill_8_sse41( __mxxxi * dprofile, uint8_t * dseq_search_window ) {
 #endif
 
     for( int j = 0; j < CDEPTH_8_BIT; j++ ) {
-        int d[CHANNELS_8_BIT_SSE];
+        int d[CHANNELS_8_BIT];
 
-        for( int i = 0; i < CHANNELS_8_BIT_SSE; i++ )
-            d[i] = dseq_search_window[j * CHANNELS_8_BIT_SSE + i] << 5;
+        for( int i = 0; i < CHANNELS_8_BIT; i++ )
+            d[i] = dseq_search_window[j * CHANNELS_8_BIT + i] << 5;
 
-        for( int i = 0; i < SCORE_MATRIX_DIM; i += 8 ) {
-            xmm0 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + i + d[0]) );
-            xmm1 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + i + d[1]) );
-            xmm2 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + i + d[2]) );
-            xmm3 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + i + d[3]) );
-            xmm4 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + i + d[4]) );
-            xmm5 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + i + d[5]) );
-            xmm6 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + i + d[6]) );
-            xmm7 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + i + d[7]) );
-            xmm8 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + i + d[8]) );
-            xmm9 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + i + d[9]) );
-            xmm10 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + i + d[10]) );
-            xmm11 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + i + d[11]) );
-            xmm12 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + i + d[12]) );
-            xmm13 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + i + d[13]) );
-            xmm14 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + i + d[14]) );
-            xmm15 = _mm_loadl_epi64( (__m128i *) (score_matrix_7 + i + d[15]) );
+        for( int i = 0; i < SCORE_MATRIX_DIM; i += 16 ) {
+            // load matrix
+            for( int x = 0; x < CHANNELS_8_BIT; x++ ) {
+                xmm[x] = _mm_load_si128( (__m128i *) (score_matrix_8 + d[x] + i) );
+            }
 
-            xmm0 = _mm_unpacklo_epi8( xmm0, xmm1 );
-            xmm2 = _mm_unpacklo_epi8( xmm2, xmm3 );
-            xmm4 = _mm_unpacklo_epi8( xmm4, xmm5 );
-            xmm6 = _mm_unpacklo_epi8( xmm6, xmm7 );
-            xmm8 = _mm_unpacklo_epi8( xmm8, xmm9 );
-            xmm10 = _mm_unpacklo_epi8( xmm10, xmm11 );
-            xmm12 = _mm_unpacklo_epi8( xmm12, xmm13 );
-            xmm14 = _mm_unpacklo_epi8( xmm14, xmm15 );
+            // transpose matrix
+            for( int x = 0; x < CHANNELS_8_BIT; x += 2 ) {
+                xmm_t[x + 0] = _mm_unpacklo_epi8( xmm[x + 0], xmm[x + 1] );
+                xmm_t[x + 1] = _mm_unpackhi_epi8( xmm[x + 0], xmm[x + 1] );
+            }
 
-            xmm1 = xmm0;
-            xmm0 = _mm_unpacklo_epi16( xmm0, xmm2 );
-            xmm1 = _mm_unpackhi_epi16( xmm1, xmm2 );
-            xmm5 = xmm4;
-            xmm4 = _mm_unpacklo_epi16( xmm4, xmm6 );
-            xmm5 = _mm_unpackhi_epi16( xmm5, xmm6 );
-            xmm9 = xmm8;
-            xmm8 = _mm_unpacklo_epi16( xmm8, xmm10 );
-            xmm9 = _mm_unpackhi_epi16( xmm9, xmm10 );
-            xmm13 = xmm12;
-            xmm12 = _mm_unpacklo_epi16( xmm12, xmm14 );
-            xmm13 = _mm_unpackhi_epi16( xmm13, xmm14 );
+            for( int x = 0; x < CHANNELS_8_BIT; x += 4 ) {
+                xmm[x + 0] = _mm_unpacklo_epi16( xmm_t[x + 0], xmm_t[x + 2] );
+                xmm[x + 1] = _mm_unpackhi_epi16( xmm_t[x + 0], xmm_t[x + 2] );
+                xmm[x + 2] = _mm_unpacklo_epi16( xmm_t[x + 1], xmm_t[x + 3] );
+                xmm[x + 3] = _mm_unpackhi_epi16( xmm_t[x + 1], xmm_t[x + 3] );
+            }
 
-            xmm2 = xmm0;
-            xmm0 = _mm_unpacklo_epi32( xmm0, xmm4 );
-            xmm2 = _mm_unpackhi_epi32( xmm2, xmm4 );
-            xmm6 = xmm1;
-            xmm1 = _mm_unpacklo_epi32( xmm1, xmm5 );
-            xmm6 = _mm_unpackhi_epi32( xmm6, xmm5 );
-            xmm10 = xmm8;
-            xmm8 = _mm_unpacklo_epi32( xmm8, xmm12 );
-            xmm10 = _mm_unpackhi_epi32( xmm10, xmm12 );
-            xmm14 = xmm9;
-            xmm9 = _mm_unpacklo_epi32( xmm9, xmm13 );
-            xmm14 = _mm_unpackhi_epi32( xmm14, xmm13 );
+            for( int x = 0; x < CHANNELS_8_BIT; x += 8 ) {
+                xmm_t[x + 0] = _mm_unpacklo_epi32( xmm[x + 0], xmm[x + 4] );
+                xmm_t[x + 1] = _mm_unpackhi_epi32( xmm[x + 0], xmm[x + 4] );
+                xmm_t[x + 2] = _mm_unpacklo_epi32( xmm[x + 1], xmm[x + 5] );
+                xmm_t[x + 3] = _mm_unpackhi_epi32( xmm[x + 1], xmm[x + 5] );
+                xmm_t[x + 4] = _mm_unpacklo_epi32( xmm[x + 2], xmm[x + 6] );
+                xmm_t[x + 5] = _mm_unpackhi_epi32( xmm[x + 2], xmm[x + 6] );
+                xmm_t[x + 6] = _mm_unpacklo_epi32( xmm[x + 3], xmm[x + 7] );
+                xmm_t[x + 7] = _mm_unpackhi_epi32( xmm[x + 3], xmm[x + 7] );
+            }
 
-            xmm3 = xmm0;
-            xmm0 = _mm_unpacklo_epi64( xmm0, xmm8 );
-            xmm3 = _mm_unpackhi_epi64( xmm3, xmm8 );
-            xmm7 = xmm2;
-            xmm2 = _mm_unpacklo_epi64( xmm2, xmm10 );
-            xmm7 = _mm_unpackhi_epi64( xmm7, xmm10 );
-            xmm11 = xmm1;
-            xmm1 = _mm_unpacklo_epi64( xmm1, xmm9 );
-            xmm11 = _mm_unpackhi_epi64( xmm11, xmm9 );
-            xmm15 = xmm6;
-            xmm6 = _mm_unpacklo_epi64( xmm6, xmm14 );
-            xmm15 = _mm_unpackhi_epi64( xmm15, xmm14 );
+            for( int x = 0; x < (CHANNELS_8_BIT / 2); x++ ) {
+                xmm[(x*2) + 0] = _mm_unpacklo_epi64( xmm_t[x + 0], xmm_t[x + 8] );
+                xmm[(x*2) + 1] = _mm_unpackhi_epi64( xmm_t[x + 0], xmm_t[x + 8] );
+            }
 
-            _mm_store_si128( (dprofile + CDEPTH_8_BIT * (i + 0) + j), xmm0 );
-            _mm_store_si128( (dprofile + CDEPTH_8_BIT * (i + 1) + j), xmm3 );
-            _mm_store_si128( (dprofile + CDEPTH_8_BIT * (i + 2) + j), xmm2 );
-            _mm_store_si128( (dprofile + CDEPTH_8_BIT * (i + 3) + j), xmm7 );
-            _mm_store_si128( (dprofile + CDEPTH_8_BIT * (i + 4) + j), xmm1 );
-            _mm_store_si128( (dprofile + CDEPTH_8_BIT * (i + 5) + j), xmm11 );
-            _mm_store_si128( (dprofile + CDEPTH_8_BIT * (i + 6) + j), xmm6 );
-            _mm_store_si128( (dprofile + CDEPTH_8_BIT * (i + 7) + j), xmm15 );
+            // store matrix
+            for( int x = 0; x < CHANNELS_8_BIT; x++ ) {
+                _mm_store_si128( (dprofile + CDEPTH_8_BIT * (i + x) + j), xmm[x] );
+            }
         }
     }
 #if 0
-    dbg_dprofile_dump_8( dprofile, CDEPTH_8_BIT, CHANNELS_8_BIT_SSE );
+    dbg_dprofile_dump_8( (int8_t *)dprofile, CDEPTH_8_BIT, CHANNELS_8_BIT_SSE );
 #endif
 }
 #endif

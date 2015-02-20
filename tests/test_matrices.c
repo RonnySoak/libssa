@@ -14,19 +14,19 @@
 
 START_TEST (test_free)
     {
-        ck_assert_ptr_eq(NULL, score_matrix_7);
+        ck_assert_ptr_eq(NULL, score_matrix_8);
         ck_assert_ptr_eq(NULL, score_matrix_16);
         ck_assert_ptr_eq(NULL, score_matrix_63);
 
         mat_init_buildin(BLOSUM62);
 
-        ck_assert_ptr_ne(NULL, score_matrix_7);
+        ck_assert_ptr_ne(NULL, score_matrix_8);
         ck_assert_ptr_ne(NULL, score_matrix_16);
         ck_assert_ptr_ne(NULL, score_matrix_63);
 
         mat_free();
 
-        ck_assert_ptr_eq(NULL, score_matrix_7);
+        ck_assert_ptr_eq(NULL, score_matrix_8);
         ck_assert_ptr_eq(NULL, score_matrix_16);
         ck_assert_ptr_eq(NULL, score_matrix_63);
     }END_TEST
@@ -38,8 +38,8 @@ START_TEST (test_buildin)
         mat_init_buildin(BLOSUM45);
         ck_assert_int_eq(5, (int)score_matrix_63[33]);
         ck_assert_int_eq(-2, (int)score_matrix_63[48]);
-        ck_assert_int_eq(5, (int)score_matrix_7[33]);
-        ck_assert_int_eq(-2, (int)score_matrix_7[48]);
+        ck_assert_int_eq(5, (int)score_matrix_8[33]);
+        ck_assert_int_eq(-2, (int)score_matrix_8[48]);
         ck_assert_int_eq(5, (int)score_matrix_16[33]);
         ck_assert_int_eq(-2, (int)score_matrix_16[48]);
         mat_free();
