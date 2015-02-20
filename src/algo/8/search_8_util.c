@@ -1,5 +1,5 @@
 /*
- * search_8.c
+ * search_8_util.c
  *
  *  Created on: Jan 17, 2015
  *      Author: Jakob Frielingsdorf
@@ -13,7 +13,7 @@
 
 #include "../../util/util.h"
 #include "../../matrices.h"
-#include "../search.h"
+#include "../gap_costs.h"
 
 #ifdef __AVX2__
 

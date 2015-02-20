@@ -96,7 +96,7 @@ static void set_translated_sequences( p_seqinfo seqinfo, p_sdb_sequence * buffer
     }
 }
 
-void it_free() {
+void it_exit() {
     buffer_max = 0;
 }
 

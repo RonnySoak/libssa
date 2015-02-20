@@ -14,7 +14,7 @@
 
 #include "../util/util.h"
 #include "../matrices.h"
-#include "searcher.h"
+#include "gap_costs.h"
 
 #define CIGAR_ALLOC_STEP_SIZE 64;
 

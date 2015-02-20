@@ -22,13 +22,12 @@
  PO Box 1080 Blindern, NO-0316 Oslo, Norway
  */
 
-#include "../search.h"
-
 #include <stdio.h>
 #include <string.h>
 
 #include "../../util/util.h"
 #include "../../matrices.h"
+#include "../gap_costs.h"
 
 #define MIN(a,b) (a < b ? a : b)
 

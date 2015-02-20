@@ -52,27 +52,27 @@ char* revcompl( char* seq, size_t len ) {
 START_TEST (test_init)
     {
         // should return doing nothing
-        it_free();
+        it_exit();
 
         symtype = NUCLEOTIDE;
         it_init( 1 );
-        it_free();
+        it_exit();
 
         symtype = TRANS_QUERY;
         it_init( 1 );
-        it_free();
+        it_exit();
 
         symtype = TRANS_DB;
         it_init( 1 );
-        it_free();
+        it_exit();
 
         symtype = TRANS_BOTH;
         it_init( 1 );
-        it_free();
+        it_exit();
 
         symtype = AMINOACID;
         it_init( 1 );
-        it_free();
+        it_exit();
     }END_TEST
 
 START_TEST (test_next_empty)
@@ -85,7 +85,7 @@ START_TEST (test_next_empty)
         it_next_chunk( chunk );
         ck_assert_int_eq( 0, chunk->fill_pointer );
 
-        it_free();
+        it_exit();
     }END_TEST
 
 START_TEST (test_next_one_nuc_forward)
@@ -114,7 +114,7 @@ START_TEST (test_next_one_nuc_forward)
 
         it_free_chunk( chunk );
 
-        it_free();
+        it_exit();
         ssa_db_free();
 
     }END_TEST
@@ -155,7 +155,7 @@ START_TEST (test_next_one_nuc_both)
 
         it_free_chunk( chunk );
 
-        it_free();
+        it_exit();
         ssa_db_free();
     }END_TEST
 
@@ -205,7 +205,7 @@ START_TEST (test_next_one_db_translate_forward)
 
         it_free_chunk( chunk );
 
-        it_free();
+        it_exit();
         ssa_db_free();
     }END_TEST
 
@@ -279,7 +279,7 @@ START_TEST (test_next_one_db_translate_both)
 
         it_free_chunk( chunk );
 
-        it_free();
+        it_exit();
         ssa_db_free();
     }END_TEST
 
@@ -319,7 +319,7 @@ START_TEST (test_next_chunk)
 
         it_free_chunk( chunk );
 
-        it_free();
+        it_exit();
         ssa_db_free();
     }END_TEST
 

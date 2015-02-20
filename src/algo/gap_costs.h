@@ -1,19 +1,17 @@
 /*
- * search.h
+ * gap_costs.h
  *
  *  Created on: Oct 18, 2014
  *      Author: Jakob Frielingsdorf
  */
 
-#ifndef SEARCH_H_
-#define SEARCH_H_
+#ifndef GAP_COSTS_H_
+#define GAP_COSTS_H_
 
 #include <stdint.h>
-
-#include "../libssa_datatypes.h"
 
 // both are filled from libssa.c
 extern uint8_t gapO;
 extern uint8_t gapE;
 
-#endif /* SEARCH_H_ */
+#endif /* GAP_COSTS_H_ */

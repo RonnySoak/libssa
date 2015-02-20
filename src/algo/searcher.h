@@ -9,7 +9,6 @@
 #define SEARCHER_H_
 
 #include "../libssa_datatypes.h"
-#include "search.h"
 
 #define SMITH_WATERMAN 0
 #define NEEDLEMAN_WUNSCH 1

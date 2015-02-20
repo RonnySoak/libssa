@@ -10,7 +10,7 @@
 
 #include "libssa_datatypes.h"
 
-void it_free();
+void it_exit();
 
 void it_init( unsigned long size );
 

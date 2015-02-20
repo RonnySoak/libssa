@@ -19,6 +19,7 @@
 #include "../../src/db_iterator.h"
 #include "../../src/query.h"
 #include "../../src/algo/searcher.h"
+#include "../../src/algo/gap_costs.h"
 
 static elem_t new_elem( int ID, int frame, int strand, int qid, long score ) {
     elem_t e;
@@ -64,7 +65,7 @@ static void exit_aligner_test( p_alignment_list alist, p_query query ) {
 
     mat_free();
     query_free( query );
-    it_free();
+    it_exit();
     ssa_db_free();
 }
 

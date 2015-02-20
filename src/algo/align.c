@@ -1,5 +1,5 @@
 /*
- * align_new.c
+ * align.c
  *
  *  Created on: Oct 15, 2014
  *      Author: Jakob Frielingsdorf
@@ -12,6 +12,7 @@
 #include "../util/util.h"
 #include "searcher.h"
 #include "../matrices.h"
+#include "gap_costs.h"
 
 /*
  * TODO merge finding region and finding directions

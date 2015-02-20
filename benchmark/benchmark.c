@@ -142,10 +142,12 @@ int main( int argc, char**argv ) {
     int simd = -1;
     size_t hit_count = 0;
 
+    set_output_mode( OUTPUT_SILENT );
+
     init_symbol_translation( AMINOACID, FORWARD_STRAND, 3, 3 ); // TODO currently not configurable
-    init_gap_penalties( gapO, gapE );
 
     read_options( argc, argv, &gapO, &gapE, &search_type, &bit_width, &simd, &query, &hit_count );
+    init_gap_penalties( gapO, gapE );
 
     if( simd == AVX2 ) {
         set_max_compute_capability( COMPUTE_ON_AVX2 );
@@ -163,10 +165,10 @@ int main( int argc, char**argv ) {
 
     p_alignment_list alist;
     if( search_type == SMITH_WATERMAN ) {
-        alist = sw_align( query, hit_count, bit_width );
+        alist = sw_align( query, hit_count, bit_width, COMPUTE_SCORE );
     }
     else if( search_type == NEEDLEMAN_WUNSCH ) {
-        alist = nw_align( query, hit_count, bit_width );
+        alist = nw_align( query, hit_count, bit_width, COMPUTE_SCORE );
     }
     else {
         fprintf( stderr, "Unknown search type, try --help.\n" );

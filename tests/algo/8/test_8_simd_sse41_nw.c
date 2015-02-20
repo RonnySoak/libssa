@@ -15,7 +15,7 @@
 #include "../../../src/query.h"
 #include "../../../src/util/minheap.h"
 #include "../../../src/algo/8/search_8.h"
-#include "../../../src/algo/search.h"
+#include "../../../src/algo/gap_costs.h"
 #include "../../../src/algo/searcher.h"
 
 static p_search_result setup_searcher_8_test( char * query_string, char * db_file, int hit_count ) {
@@ -46,7 +46,7 @@ static p_search_result setup_searcher_8_test( char * query_string, char * db_fil
 
 static void exit_searcher_8_test( p_search_result res ) {
     s_free( res );
-    it_free();
+    it_exit();
     mat_free();
 
     reset_compute_capability();

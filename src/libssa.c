@@ -27,11 +27,8 @@ size_t _max_thread_count = -1;
 int _output_mode = OUTPUT_STDOUT;
 
 // #############################################################################
-// Data types
-// ##########
-
-// defined in and include from libssa_datatypes.h
-
+// Alignment data
+// ##################
 uint8_t gapO = 0;
 uint8_t gapE = 0;
 

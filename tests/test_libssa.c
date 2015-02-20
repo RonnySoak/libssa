@@ -11,6 +11,7 @@
 #include "../src/query.h"
 #include "../src/matrices.h"
 #include "../src/algo/searcher.h"
+#include "../src/algo/gap_costs.h"
 
 extern unsigned long max_chunk_size; // TODO make it better configurable
 

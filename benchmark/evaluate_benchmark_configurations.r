@@ -8,6 +8,7 @@ nr_desc_elements <- 5
 idx_data <- nr_desc_elements + 1
 
 timing <- read.csv(file="results/18_02_2015_whole_lib",header=FALSE,sep=",");
+timing <- read.csv(file="results/19_02_2015_whole_lib",header=FALSE,sep=",");
 #timing <- read.csv(file="results/14_02_2015_whole_lib",header=FALSE,sep=",");
 
 configtiming <- t(timing[2:(idx_data-1)])

@@ -9,8 +9,7 @@
 
 #include "../../src/algo/manager.h"
 #include "../../src/algo/aligner.h"
-#include "../../src/algo/search.h"
-
+#include "../../src/algo/gap_costs.h"
 #include "../../src/util/util.h"
 #include "../../src/libssa.h"
 #include "../../src/cpu_config.h"

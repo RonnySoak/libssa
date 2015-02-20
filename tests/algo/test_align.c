@@ -14,6 +14,7 @@
 #include "../../src/matrices.h"
 #include "../../src/util/util_sequence.h"
 #include "../../src/util/util.h"
+#include "../../src/algo/gap_costs.h"
 
 sequence a_seq;
 sequence b_seq;

@@ -5,10 +5,9 @@
  *      Author: Jakob Frielingsdorf
  */
 
-#include "../search.h"
-
 #include "../../matrices.h"
 #include "../../util/util.h"
+#include "../gap_costs.h"
 
 
 int64_t full_nw( sequence * dseq, sequence * qseq, int64_t * hearray ) {

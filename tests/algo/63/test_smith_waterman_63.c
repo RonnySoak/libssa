@@ -13,10 +13,10 @@
 #include "../../../src/matrices.h"
 #include "../../../src/db_iterator.h"
 #include "../../../src/query.h"
-#include "../../../src/algo/search.h"
 #include "../../../src/algo/searcher.h"
 
 #include "../../../src/algo/63/search_63.h"
+#include "../../../src/algo/gap_costs.h"
 
 START_TEST (test_search63_simple)
     {

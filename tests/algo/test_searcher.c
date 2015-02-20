@@ -15,7 +15,7 @@
 #include "../../src/db_iterator.h"
 #include "../../src/query.h"
 #include "../../src/algo/searcher.h"
-#include "../../src/algo/search.h"
+#include "../../src/algo/gap_costs.h"
 
 static p_search_result setup_searcher_test( int bit_width, int search_type, char * query_string, char * db_file,
         int hit_count, int symtype, int strands ) {
@@ -43,7 +43,7 @@ static p_search_result setup_searcher_test( int bit_width, int search_type, char
 
 static void exit_searcher_test( p_search_result res ) {
     s_free( res );
-    it_free();
+    it_exit();
     mat_free();
 
     reset_compute_capability();

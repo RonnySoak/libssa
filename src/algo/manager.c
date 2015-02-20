@@ -72,6 +72,38 @@ static void sort_alignment_list( p_alignment_list alist ) {
     qsort( alist->alignments, alist->len, sizeof(alignment_p), alignment_compare );
 }
 
+static p_alignment_list do_align( p_minheap search_results ) {
+    p_alignment_list alist = xmalloc( alignment_hit_count * sizeof(struct alignment_list) );
+    alist->alignments = xmalloc( alignment_hit_count * sizeof(alignment_t) );
+    alist->len = alignment_hit_count;
+
+    if( align_type == COMPUTE_SCORE ) {
+        create_score_alignment_list( search_results, alist );
+    }
+    else {
+        a_set_alignment_pairs( search_results->count, search_results->array );
+
+        start_threads( a_align );
+
+        p_alignment_list align_result_list[get_current_thread_count()];
+
+        wait_for_threads( (void **) &align_result_list );
+
+        int alist_ptr = 0;
+        for( size_t i = 0; i < get_current_thread_count(); i++ ) {
+            for( size_t j = 0; j < align_result_list[i]->len; j++ ) {
+                alist->alignments[alist_ptr++] = align_result_list[i]->alignments[j];
+            }
+
+            free( align_result_list[i]->alignments );
+            free( align_result_list[i] );
+        }
+    }
+    sort_alignment_list( alist );
+
+    return alist;
+}
+
 /**
  * Run a search for query in the database. Aligns the query sequence against
  * each sequence in the DB and returns 'hit_count' alignments. The search is
@@ -122,49 +154,9 @@ p_alignment_list m_run() {
     assert( ceil( ssa_db_get_sequence_count() / (double ) max_chunk_size ) == chunks_processed );
 
     minheap_sort( search_results );
-    it_free();
+    it_exit();
 
-    p_alignment_list alist = xmalloc( alignment_hit_count * sizeof(struct alignment_list) );
-    alist->alignments = xmalloc( alignment_hit_count * sizeof(alignment_t) );
-    alist->len = alignment_hit_count;
-
-    if( align_type == COMPUTE_SCORE ) {
-        create_score_alignment_list( search_results, alist );
-    }
-    else {
-        a_set_alignment_pairs( search_results->count, search_results->array );
-
-        start_threads( a_align );
-
-        p_alignment_list align_result_list[get_current_thread_count()];
-
-        wait_for_threads( (void **) &align_result_list );
-
-        int alist_ptr = 0;
-        for( size_t i = 0; i < get_current_thread_count(); i++ ) {
-            for( size_t j = 0; j < align_result_list[i]->len; j++ ) {
-                alist->alignments[alist_ptr++] = align_result_list[i]->alignments[j];
-            }
-
-            free( align_result_list[i]->alignments );
-            free( align_result_list[i] );
-        }
-    }
-
-#if 0
-    for( size_t i = 0; i < alist->len; i++ ) {
-        for( size_t j = 0; j < alist->len; j++ ) {
-            if( i != j ) {
-                assert( alist->alignments[i]->db_seq.ID != alist->alignments[j]->db_seq.ID );
-            }
-            else {
-                assert( alist->alignments[i]->db_seq.ID == alist->alignments[j]->db_seq.ID );
-            }
-        }
-    }
-#endif
-
-    sort_alignment_list( alist );
+    p_alignment_list alist = do_align( search_results );
 
     minheap_exit( search_results );
 

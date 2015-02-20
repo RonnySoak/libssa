@@ -1,5 +1,5 @@
 /*
- * search.h
+ * search_8.h
  *
  *  Created on: Oct 18, 2014
  *      Author: Jakob Frielingsdorf

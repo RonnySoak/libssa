@@ -13,6 +13,7 @@
 #include "../../src/algo/searcher.h"
 #include "../../src/matrices.h"
 #include "../../src/util/util_sequence.h"
+#include "../../src/algo/gap_costs.h"
 
 extern void fill_translated_sequence(sequence* s, char * seq, long len);
 

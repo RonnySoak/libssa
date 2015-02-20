@@ -5,8 +5,6 @@
  *      Author: Jakob Frielingsdorf
  */
 
-#include "search.h"
-
 #include <stdlib.h>
 #include <assert.h>
 

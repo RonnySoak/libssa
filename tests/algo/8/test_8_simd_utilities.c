@@ -33,7 +33,7 @@ static p_s8info setup_simd_util_test( char * query_string, int hit_count ) {
 
 static void exit_simd_util_test( p_s8info s ) {
     search_8_exit( s );
-    it_free();
+    it_exit();
     mat_free();
     free_db();
 
