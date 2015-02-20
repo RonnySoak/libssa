@@ -49,7 +49,7 @@ static p_alignment_list do_alignment( char * desc, p_alignment_list (*align_func
 //}
 
 int main( int argc, char**argv ) {
-    set_max_compute_capability( COMPUTE_ON_AVX2 ); // TODO make configurable via API
+    set_max_compute_capability( COMPUTE_ON_SSE41 ); // TODO make configurable via API
 
 //    init_scoring( 5, -4 );
     init_score_matrix( BLOSUM62 );
@@ -60,15 +60,14 @@ int main( int argc, char**argv ) {
 
 //    init_db_fasta("tests/testdata/test.fas");
 //    init_db_fasta("tests/testdata/test_16_seq.fas");
-//    init_db_fasta( "tests/testdata/AF091148.fas" );
+    init_db_fasta( "tests/testdata/AF091148.fas" );
 //    init_db_fasta( "tests/testdata/AF091148_selection.fas" );
 //    init_db_fasta("tests/testdata/Rfam_11_0.fasta");
 
-    init_db_fasta( "benchmark/data/uniprot_sprot.fasta" );
-//
-    p_query query = init_sequence_fasta( "benchmark/data/O74807.fasta" );
+//    init_db_fasta( "benchmark/data/uniprot_sprot.fasta" );
+//    p_query query = init_sequence_fasta( "benchmark/data/O74807.fasta" );
 
-//    p_query query = init_sequence_fasta( "tests/testdata/one_seq.fas" );
+    p_query query = init_sequence_fasta( "tests/testdata/one_seq.fas" );
 
     int hit_count = 10;
 
@@ -82,10 +81,10 @@ int main( int argc, char**argv ) {
     p_alignment_list alist_nw_16 = do_alignment( "Do global alignment using 16 bit Needleman-Wunsch", &nw_align, query,
             hit_count, BIT_WIDTH_16 );
 
-//    p_alignment_list alist_sw_8 = do_alignment( "Do local alignment using 8 bit Smith-Waterman", &sw_align, query,
-//            hit_count, BIT_WIDTH_8 );
-//    p_alignment_list alist_nw_8 = do_alignment( "Do global alignment using 8 bit Needleman-Wunsch", &nw_align, query,
-//            hit_count, BIT_WIDTH_8 );
+    p_alignment_list alist_sw_8 = do_alignment( "Do local alignment using 8 bit Smith-Waterman", &sw_align, query,
+            hit_count, BIT_WIDTH_8 );
+    p_alignment_list alist_nw_8 = do_alignment( "Do global alignment using 8 bit Needleman-Wunsch", &nw_align, query,
+            hit_count, BIT_WIDTH_8 );
 
 //    cmp_alignment_lists( alist_nw_64, alist_nw_16, hit_count, "NW_64_16" );
 //    cmp_alignment_lists( alist_nw_64, alist_nw_8, hit_count, "NW_64_8" );
@@ -98,8 +97,8 @@ int main( int argc, char**argv ) {
 //    free_alignment( alist_sw_64 );
     free_alignment( alist_nw_16 );
     free_alignment( alist_sw_16 );
-//    free_alignment( alist_nw_8 );
-//    free_alignment( alist_sw_8 );
+    free_alignment( alist_nw_8 );
+    free_alignment( alist_sw_8 );
 
 //    set_max_compute_capability( COMPUTE_ON_AVX2 );
 //

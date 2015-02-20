@@ -193,7 +193,6 @@ void search_8_sse41_sw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * o
     d_idx = 0;
 #endif
 
-    int8_t * dprofile = (int8_t*) s->dprofile;
     size_t qlen = s->queries[q_id]->q_len;
 
     __mxxxi gap_open_extend, gap_extend;
@@ -249,7 +248,7 @@ void search_8_sse41_sw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * o
                 no_sequences_ended &= move_db_sequence_window_8( c, d_begin, d_end, dseq_search_window );
             }
 
-            dprofile_fill_8_xxx( dprofile, dseq_search_window );
+            dprofile_fill_8_xxx( s->dprofile, dseq_search_window );
 
             aligncolumns_rest( &S.v, hep, s->queries[q_id]->q_table, gap_open_extend, gap_extend, &h_max, qlen );
         }
@@ -323,7 +322,7 @@ void search_8_sse41_sw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * o
             if( done == chunk->fill_pointer )
                 break;
 
-            dprofile_fill_8_xxx( dprofile, dseq_search_window );
+            dprofile_fill_8_xxx( s->dprofile, dseq_search_window );
 
             aligncolumns_first( &S.v, hep, s->queries[q_id]->q_table, gap_open_extend, gap_extend, M.v, &h_max, qlen );
         }

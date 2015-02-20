@@ -213,7 +213,6 @@ void search_16_sse2_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * 
     d_idx = 0;
 #endif
 
-    int16_t * dprofile = (int16_t*) s->dprofile;
     size_t qlen = s->queries[q_id]->q_len;
 
     __mxxxi M_gap_open_extend, M_gap_extend;
@@ -285,7 +284,7 @@ void search_16_sse2_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * 
                 no_sequences_ended &= move_db_sequence_window_16( c, d_begin, d_end, dseq_search_window );
             }
 
-            dprofile_fill_16_xxx( dprofile, dseq_search_window );
+            dprofile_fill_16_xxx( s->dprofile, dseq_search_window );
 
             aligncolumns_rest( S.v, hep, s->queries[q_id]->q_table, gap_open_extend, gap_extend, H0, H1, H2, H3, F0, F1,
                     F2, F3, &h_min, &h_max, qlen );
@@ -373,7 +372,7 @@ void search_16_sse2_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * 
             M_gap_open_extend = _mmxxx_and_si( M.v, gap_open_extend );
             M_gap_extend = _mmxxx_and_si( M.v, gap_extend );
 
-            dprofile_fill_16_xxx( dprofile, dseq_search_window );
+            dprofile_fill_16_xxx( s->dprofile, dseq_search_window );
 
             aligncolumns_first( S.v, hep, s->queries[q_id]->q_table, gap_open_extend, gap_extend, H0, H1, H2, H3, F0,
                     F1, F2, F3, &h_min, &h_max, M.v, M_gap_open_extend, M_gap_extend, qlen );

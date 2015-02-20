@@ -77,11 +77,9 @@ START_TEST (test_sse_simple)
             dseq_search_window[i * CHANNELS_8_BIT_SSE] = dseq.seq[i];
         }
 
-        int8_t * dprofile = (int8_t*) s->dprofile;
+        dprofile_fill_8_sse41( s->dprofile, dseq_search_window );
 
-        dprofile_fill_8_sse41( dprofile, dseq_search_window );
-
-        test_dprofile_8( dprofile, CHANNELS_8_BIT_SSE, dseq );
+        test_dprofile_8( (int8_t*) s->dprofile, CHANNELS_8_BIT_SSE, dseq );
 
         exit_simd_util_test( s );
     }END_TEST
@@ -100,11 +98,10 @@ START_TEST (test_avx_simple)
         for( int i = 0; i < CDEPTH_8_BIT; ++i ) {
             dseq_search_window[i * CHANNELS_8_BIT_AVX] = dseq.seq[i];
         }
-        int8_t * dprofile = (int8_t*) s->dprofile;
 
-        dprofile_fill_8_avx2( dprofile, dseq_search_window );
+        dprofile_fill_8_avx2( s->dprofile, dseq_search_window );
 
-        test_dprofile_8( dprofile, CHANNELS_8_BIT_AVX, dseq );
+        test_dprofile_8( (int8_t*) s->dprofile, CHANNELS_8_BIT_AVX, dseq );
 
         exit_simd_util_test( s );
     }END_TEST

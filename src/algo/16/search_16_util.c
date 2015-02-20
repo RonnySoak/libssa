@@ -93,7 +93,7 @@ p_s16info search_16_sse2_init( p_search_data sdp ) {
  *      corresponding score matrix line
  */
 #ifdef __AVX2__
-void dprofile_fill_16_avx2( int16_t * dprofile, uint8_t * dseq_search_window ) {
+void dprofile_fill_16_avx2( __mxxxi * dprofile, uint8_t * dseq_search_window ) {
     __m256i ymm[CHANNELS_16_BIT];
     __m256i ymm_t[CHANNELS_16_BIT];
 
@@ -172,7 +172,7 @@ void dprofile_fill_16_avx2( int16_t * dprofile, uint8_t * dseq_search_window ) {
                  *
                  * Same applies to the 8 bit AVX2 code.
                  */
-                _mm256_store_si256( (__m256i *) (dprofile + CDEPTH_16_BIT * CHANNELS_16_BIT * (i + x) + CHANNELS_16_BIT * j), ymm[x] );
+                _mm256_store_si256( (dprofile + CDEPTH_16_BIT * (i + x) + j), ymm[x] );
             }
         }
     }
@@ -181,9 +181,10 @@ void dprofile_fill_16_avx2( int16_t * dprofile, uint8_t * dseq_search_window ) {
 #endif
 }
 #else
-void dprofile_fill_16_sse2( int16_t * dprofile, uint8_t * dseq_search_window ) {
+void dprofile_fill_16_sse2( __mxxxi * dprofile, uint8_t * dseq_search_window ) {
     __m128i xmm0, xmm1, xmm2, xmm3, xmm4, xmm5, xmm6, xmm7;
     __m128i xmm8, xmm9, xmm10, xmm11, xmm12, xmm13, xmm14, xmm15;
+
 
     /* does not require ssse3 */
     /* approx 4*(5*8+2*40)=480 instructions TODO verify these numbers */
@@ -241,14 +242,14 @@ void dprofile_fill_16_sse2( int16_t * dprofile, uint8_t * dseq_search_window ) {
             xmm14 = _mm_unpacklo_epi64( xmm5, xmm7 );
             xmm15 = _mm_unpackhi_epi64( xmm5, xmm7 );
 
-            _mm_store_si128( (__m128i *) (dprofile + CDEPTH_16_BIT * CHANNELS_16_BIT * (i + 0) + CHANNELS_16_BIT * j), xmm8 );
-            _mm_store_si128( (__m128i *) (dprofile + CDEPTH_16_BIT * CHANNELS_16_BIT * (i + 1) + CHANNELS_16_BIT * j), xmm9 );
-            _mm_store_si128( (__m128i *) (dprofile + CDEPTH_16_BIT * CHANNELS_16_BIT * (i + 2) + CHANNELS_16_BIT * j), xmm10 );
-            _mm_store_si128( (__m128i *) (dprofile + CDEPTH_16_BIT * CHANNELS_16_BIT * (i + 3) + CHANNELS_16_BIT * j), xmm11 );
-            _mm_store_si128( (__m128i *) (dprofile + CDEPTH_16_BIT * CHANNELS_16_BIT * (i + 4) + CHANNELS_16_BIT * j), xmm12 );
-            _mm_store_si128( (__m128i *) (dprofile + CDEPTH_16_BIT * CHANNELS_16_BIT * (i + 5) + CHANNELS_16_BIT * j), xmm13 );
-            _mm_store_si128( (__m128i *) (dprofile + CDEPTH_16_BIT * CHANNELS_16_BIT * (i + 6) + CHANNELS_16_BIT * j), xmm14 );
-            _mm_store_si128( (__m128i *) (dprofile + CDEPTH_16_BIT * CHANNELS_16_BIT * (i + 7) + CHANNELS_16_BIT * j), xmm15 );
+            _mm_store_si128( (dprofile + CDEPTH_16_BIT * (i + 0) + j), xmm8 );
+            _mm_store_si128( (dprofile + CDEPTH_16_BIT * (i + 1) + j), xmm9 );
+            _mm_store_si128( (dprofile + CDEPTH_16_BIT * (i + 2) + j), xmm10 );
+            _mm_store_si128( (dprofile + CDEPTH_16_BIT * (i + 3) + j), xmm11 );
+            _mm_store_si128( (dprofile + CDEPTH_16_BIT * (i + 4) + j), xmm12 );
+            _mm_store_si128( (dprofile + CDEPTH_16_BIT * (i + 5) + j), xmm13 );
+            _mm_store_si128( (dprofile + CDEPTH_16_BIT * (i + 6) + j), xmm14 );
+            _mm_store_si128( (dprofile + CDEPTH_16_BIT * (i + 7) + j), xmm15 );
         }
     }
 #if 0
