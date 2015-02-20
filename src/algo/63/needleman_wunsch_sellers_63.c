@@ -26,8 +26,6 @@
 #include <string.h>
 
 #include "../../util/util.h"
-#include "../../matrices.h"
-#include "../gap_costs.h"
 
 #define MIN(a,b) (a < b ? a : b)
 

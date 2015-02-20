@@ -20,7 +20,6 @@
 #include "minheap.h"
 
 #include <stdlib.h>
-#include <stdio.h>
 
 #include "util.h"
 

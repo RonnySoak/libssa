@@ -11,7 +11,6 @@
 #include <mm_malloc.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
 
 #include "../db_iterator.h"
 

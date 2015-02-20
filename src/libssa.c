@@ -14,7 +14,6 @@
 #include "matrices.h"
 #include "algo/manager.h"
 #include "algo/aligner.h"
-#include "algo/searcher.h"
 #include "query.h"
 #include "util/thread_pool.h"
 #include "db_iterator.h"

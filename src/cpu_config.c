@@ -7,8 +7,6 @@
 
 #include "cpu_config.h"
 
-#include <stdio.h>
-
 #include "util/util.h"
 
 /*
