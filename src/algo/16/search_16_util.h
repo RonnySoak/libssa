@@ -43,7 +43,14 @@ struct s16info {
 };
 
 static inline int move_db_sequence_window_16( int c, uint8_t * d_begin[CHANNELS_16_BIT],
-        uint8_t * d_end[CHANNELS_16_BIT], uint8_t dseq_search_window[CHANNELS_16_BIT * CDEPTH_16_BIT] ) {
+        uint8_t * d_end[CHANNELS_16_BIT], uint16_t dseq_search_window[CHANNELS_16_BIT * CDEPTH_16_BIT] ) {
+    /*
+     * TODO vectorize this one, using cmpgt/cmpeq intrinsics
+     *
+     * This might prove a bit difficult (in case of the 8 bit search), if we set
+     * dseq_search_window to an uint16_t, as needed by the vectorized first part
+     * of dprofile_fill ...
+     */
     for( int j = 0; j < CDEPTH_16_BIT; j++ ) {
         if( d_begin[c] < d_end[c] ) {
             dseq_search_window[CHANNELS_16_BIT * j + c] = *(d_begin[c]++);
@@ -61,8 +68,8 @@ static inline int move_db_sequence_window_16( int c, uint8_t * d_begin[CHANNELS_
 p_s16info search_16_sse2_init( p_search_data sdp );
 p_s16info search_16_avx2_init( p_search_data sdp );
 
-void dprofile_fill_16_sse2( __mxxxi * dprofile, uint8_t * dseq_search_window );
-void dprofile_fill_16_avx2( __mxxxi * dprofile, uint8_t * dseq_search_window );
+void dprofile_fill_16_sse2( __mxxxi * dprofile, uint16_t * dseq_search_window );
+void dprofile_fill_16_avx2( __mxxxi * dprofile, uint16_t * dseq_search_window );
 
 void search_16_sse2_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * overflow_list, int query_id );
 void search_16_sse2_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * overflow_list, int query_id );

@@ -93,7 +93,7 @@ p_s16info search_16_sse2_init( p_search_data sdp ) {
  *      corresponding score matrix line
  */
 #ifdef __AVX2__
-void dprofile_fill_16_avx2( __mxxxi * dprofile, uint8_t * dseq_search_window ) {
+void dprofile_fill_16_avx2( __mxxxi * dprofile, uint16_t * dseq_search_window ) {
     __m256i ymm[CHANNELS_16_BIT];
     __m256i ymm_t[CHANNELS_16_BIT];
 
@@ -185,7 +185,7 @@ void dprofile_fill_16_avx2( __mxxxi * dprofile, uint8_t * dseq_search_window ) {
 #endif
 }
 #else
-void dprofile_fill_16_sse2( __mxxxi * dprofile, uint8_t * dseq_search_window ) {
+void dprofile_fill_16_sse2( __mxxxi * dprofile, uint16_t * dseq_search_window ) {
     __m128i xmm[CHANNELS_16_BIT_SSE];
     __m128i xmm_t[CHANNELS_16_BIT_SSE];
 
@@ -208,14 +208,29 @@ void dprofile_fill_16_sse2( __mxxxi * dprofile, uint8_t * dseq_search_window ) {
 #endif
 
     for( int j = 0; j < CDEPTH_16_BIT; j++ ) {
-        int d[CHANNELS_16_BIT];
+        union {
+            __m128i v;
+            int16_t a[CHANNELS_16_BIT];
+        } d;
 
-        for( int z = 0; z < CHANNELS_16_BIT; z++ )
-            d[z] = dseq_search_window[j * CHANNELS_16_BIT + z] << 5;
+        /*
+         * TODO pre-calculate the "<< 5" values and store them in matrices.h, for use here
+         *
+         * load line and use _mm_slli_epi16 to do the "<< 5" operation, and store it,
+         * reducing this to 3 operations
+         *
+         * The problem here is, this have to be 16 bit integers, since the ">> 5" operation
+         * overflows the 8 bit space.
+         */
+        __m128i tmp = _mm_load_si128( (__m128i *) (dseq_search_window + (j * CHANNELS_16_BIT)) );
+        _mm_store_si128( &d.v, _mm_slli_epi16( tmp, 5 ) );
+
+//        for( int z = 0; z < CHANNELS_16_BIT; z++ )
+//            d[z] = dseq_search_window[j * CHANNELS_16_BIT + z] << 5;
 
         for( int i = 0; i < SCORE_MATRIX_DIM; i += 8 ) {
             for( int x = 0; x < CHANNELS_16_BIT_SSE; ++x ) {
-                xmm[x] = _mm_load_si128( (__m128i *) (score_matrix_16 + d[x] + i) );
+                xmm[x] = _mm_load_si128( (__m128i *) (score_matrix_16 + d.a[x] + i) );
             }
 
             for( int x = 0; x < CHANNELS_16_BIT_SSE; x += 2 ) {
