@@ -218,7 +218,6 @@ void search_16_sse2_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * 
     overflow.v = _mmxxx_setzero_si();
 
     uint16_t dseq_search_window[CDEPTH_16_BIT * CHANNELS_16_BIT];
-    memset( dseq_search_window, 0, sizeof( uint16_t ) * CDEPTH_16_BIT * CHANNELS_16_BIT );
 
     size_t next_id = 0;
     size_t done = 0;

@@ -83,7 +83,7 @@ p_s8info search_8_sse41_init( p_search_data sdp ) {
 }
 
 #ifdef __AVX2__
-void dprofile_fill_8_avx2( __mxxxi * dprofile, uint8_t * dseq_search_window ) {
+void dprofile_fill_8_avx2( __mxxxi * dprofile, uint16_t * dseq_search_window ) {
     __m256i ymm[CHANNELS_8_BIT];
     __m256i ymm_t[CHANNELS_8_BIT];
 
@@ -113,8 +113,19 @@ void dprofile_fill_8_avx2( __mxxxi * dprofile, uint8_t * dseq_search_window ) {
 #endif
     for( int j = 0; j < CDEPTH_8_BIT; j++ ) {
         // load matrix
+        union {
+            __m256i v[2];
+            int16_t a[CHANNELS_8_BIT];
+        } d;
+
+        __m256i tmp = _mm256_loadu_si256( (__m256i *) (dseq_search_window + (j * CHANNELS_8_BIT)) );
+        _mm256_store_si256( &d.v[0], _mm256_slli_epi16( tmp, 5 ) );
+
+        tmp = _mm256_loadu_si256( (__m256i *) (dseq_search_window + (j * CHANNELS_8_BIT + (CHANNELS_8_BIT / 2))) );
+        _mm256_store_si256( &d.v[1], _mm256_slli_epi16( tmp, 5 ) );
+
         for( int i = 0; i < CHANNELS_8_BIT; i++ ) {
-            ymm[i] = _mm256_load_si256( (__m256i *) (score_matrix_8 + (dseq_search_window[j * CHANNELS_8_BIT + i] << 5)) );
+            ymm[i] = _mm256_load_si256( (__m256i *) (score_matrix_8 + d.a[i]) );
         }
 
         // transpose matrix
@@ -175,7 +186,7 @@ void dprofile_fill_8_avx2( __mxxxi * dprofile, uint8_t * dseq_search_window ) {
 #endif
 }
 #else
-void dprofile_fill_8_sse41( __mxxxi * dprofile, uint8_t * dseq_search_window ) {
+void dprofile_fill_8_sse41( __mxxxi * dprofile, uint16_t * dseq_search_window ) {
     __m128i xmm[CHANNELS_8_BIT];
     __m128i xmm_t[CHANNELS_8_BIT];
 
@@ -201,15 +212,21 @@ void dprofile_fill_8_sse41( __mxxxi * dprofile, uint8_t * dseq_search_window ) {
 #endif
 
     for( int j = 0; j < CDEPTH_8_BIT; j++ ) {
-        int d[CHANNELS_8_BIT];
+        union {
+            __m128i v[2];
+            int16_t a[CHANNELS_8_BIT];
+        } d;
 
-        for( int i = 0; i < CHANNELS_8_BIT; i++ )
-            d[i] = dseq_search_window[j * CHANNELS_8_BIT + i] << 5;
+        __m128i tmp = _mm_loadu_si128( (__m128i *) (dseq_search_window + (j * CHANNELS_8_BIT)) );
+        _mm_store_si128( &d.v[0], _mm_slli_epi16( tmp, 5 ) );
+
+        tmp = _mm_loadu_si128( (__m128i *) (dseq_search_window + (j * CHANNELS_8_BIT + (CHANNELS_8_BIT / 2))) );
+        _mm_store_si128( &d.v[1], _mm_slli_epi16( tmp, 5 ) );
 
         for( int i = 0; i < SCORE_MATRIX_DIM; i += 16 ) {
             // load matrix
             for( int x = 0; x < CHANNELS_8_BIT; x++ ) {
-                xmm[x] = _mm_load_si128( (__m128i *) (score_matrix_8 + d[x] + i) );
+                xmm[x] = _mm_load_si128( (__m128i *) (score_matrix_8 + d.a[x] + i) );
             }
 
             // transpose matrix

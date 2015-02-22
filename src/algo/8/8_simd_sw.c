@@ -218,8 +218,7 @@ void search_8_sse41_sw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * o
 
     overflow.v = _mmxxx_setzero_si();
 
-    uint8_t dseq_search_window[CDEPTH_8_BIT * CHANNELS_8_BIT];
-    memset( dseq_search_window, 0, CDEPTH_8_BIT * CHANNELS_8_BIT );
+    uint16_t dseq_search_window[CDEPTH_8_BIT * CHANNELS_8_BIT];
 
     size_t next_id = 0;
     size_t done = 0;

@@ -45,7 +45,7 @@ struct s8info {
 };
 
 static inline int move_db_sequence_window_8( int c, uint8_t * d_begin[CHANNELS_8_BIT],
-        uint8_t * d_end[CHANNELS_8_BIT], uint8_t dseq_search_window[CHANNELS_8_BIT * CDEPTH_8_BIT] ) {
+        uint8_t * d_end[CHANNELS_8_BIT], uint16_t dseq_search_window[CHANNELS_8_BIT * CDEPTH_8_BIT] ) {
     for( int j = 0; j < CDEPTH_8_BIT; j++ ) {
         if( d_begin[c] < d_end[c] ) {
             dseq_search_window[CHANNELS_8_BIT * j + c] = *(d_begin[c]++);
@@ -63,8 +63,8 @@ static inline int move_db_sequence_window_8( int c, uint8_t * d_begin[CHANNELS_8
 p_s8info search_8_sse41_init( p_search_data sdp );
 p_s8info search_8_avx2_init( p_search_data sdp );
 
-void dprofile_fill_8_sse41( __mxxxi * dprofile, uint8_t * dseq_search_window );
-void dprofile_fill_8_avx2( __mxxxi * dprofile, uint8_t * dseq_search_window );
+void dprofile_fill_8_sse41( __mxxxi * dprofile, uint16_t * dseq_search_window );
+void dprofile_fill_8_avx2( __mxxxi * dprofile, uint16_t * dseq_search_window );
 
 void search_8_sse41_sw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * overflow_list, int query_id );
 void search_8_sse41_nw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * overflow_list, int query_id );

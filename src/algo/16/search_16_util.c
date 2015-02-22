@@ -98,10 +98,10 @@ void dprofile_fill_16_avx2( __mxxxi * dprofile, uint16_t * dseq_search_window ) 
     __m256i ymm_t[CHANNELS_16_BIT];
 
     /*
-     * Approximately 4*(16*5+2*6*16)=1088 instructions.
+     * Approximately 4*(5+2*6*16)=788 instructions.
      *
      * TODO:
-     * Could be reduced to 4*(16*5+1*6*16)=704 instructions, if we would use a 16x16 matrix only.
+     * Could be reduced to 4*(5+1*6*16)=404 instructions, if we would use a 16x16 matrix only.
      * So in case of nucleotide sequences, we could reduce the number of instructions here.
      */
 #if 0
@@ -116,15 +116,18 @@ void dprofile_fill_16_avx2( __mxxxi * dprofile, uint16_t * dseq_search_window ) 
 #endif
 
     for( int j = 0; j < CDEPTH_16_BIT; j++ ) {
-        int d[CHANNELS_16_BIT];
+        union {
+            __m256i v;
+            int16_t a[CHANNELS_16_BIT];
+        } d;
 
-        for( int i = 0; i < CHANNELS_16_BIT; i++ )
-            d[i] = dseq_search_window[j * CHANNELS_16_BIT + i] << 5;
+        __m256i tmp = _mm256_loadu_si256( (__m256i *) (dseq_search_window + (j * CHANNELS_16_BIT)) );
+        _mm256_store_si256( &d.v, _mm256_slli_epi16( tmp, 5 ) );
 
         for( int i = 0; i < SCORE_MATRIX_DIM; i += 16 ) {
             // load matrix
             for( int x = 0; x < CHANNELS_16_BIT; x++ ) {
-                ymm[x] = _mm256_load_si256( (__m256i *) (score_matrix_16 + d[x] + i) );
+                ymm[x] = _mm256_load_si256( (__m256i *) (score_matrix_16 + d.a[x] + i) );
             }
 
             // transpose matrix
@@ -190,10 +193,10 @@ void dprofile_fill_16_sse2( __mxxxi * dprofile, uint16_t * dseq_search_window ) 
     __m128i xmm_t[CHANNELS_16_BIT_SSE];
 
     /*
-     * Approximately 4*(8*5+4*5*8)=800 instructions.
+     * Approximately 4*(5+4*5*8)=660 instructions.
      *
      * TODO:
-     * Could be reduced to 4*(8*5+2*5*8)=480 instructions, if we would use a 16x16 matrix only.
+     * Could be reduced to 4*(5+2*5*8)=340 instructions, if we would use a 16x16 matrix only.
      * So in case of nucleotide sequences, we could reduce the number of instructions here.
      */
 
@@ -214,15 +217,15 @@ void dprofile_fill_16_sse2( __mxxxi * dprofile, uint16_t * dseq_search_window ) 
         } d;
 
         /*
-         * TODO pre-calculate the "<< 5" values and store them in matrices.h, for use here
-         *
-         * load line and use _mm_slli_epi16 to do the "<< 5" operation, and store it,
+         * TODO load line and use _mm_slli_epi16 to do the "<< 5" operation, and store it,
          * reducing this to 3 operations
          *
          * The problem here is, this have to be 16 bit integers, since the ">> 5" operation
          * overflows the 8 bit space.
+         *
+         * TODO _mm_loadu_si128, since we do not explicitly align it
          */
-        __m128i tmp = _mm_load_si128( (__m128i *) (dseq_search_window + (j * CHANNELS_16_BIT)) );
+        __m128i tmp = _mm_loadu_si128( (__m128i *) (dseq_search_window + (j * CHANNELS_16_BIT)) );
         _mm_store_si128( &d.v, _mm_slli_epi16( tmp, 5 ) );
 
 //        for( int z = 0; z < CHANNELS_16_BIT; z++ )
