@@ -87,11 +87,8 @@ void dprofile_fill_8_avx2( __mxxxi * dprofile, uint16_t * dseq_search_window ) {
     __m256i ymm[CHANNELS_8_BIT];
     __m256i ymm_t[CHANNELS_8_BIT];
 
-    // 4 x 16 db symbols
-    // ca (60x2+68x2)x4 = 976 instructions TODO verify these numbers
-
     /*
-     * Approximately 4*(6*32+6*32)=1536 instructions.
+     * Approximately 4*(2*5+2*32+6*32)=1064 instructions.
      *
      * TODO:
      * This one is not so easy to reduce to an 16x16 matrix for nucleotides.
@@ -191,10 +188,10 @@ void dprofile_fill_8_sse41( __mxxxi * dprofile, uint16_t * dseq_search_window ) 
     __m128i xmm_t[CHANNELS_8_BIT];
 
     /*
-     * Approximately 4*(16*5+2*6*16)=1088 instructions.
+     * Approximately 4*(2*5+2*6*16)=808 instructions.
      *
      * TODO:
-     * Could be reduced to 4*(16*5+1*6*16)=704 instructions, if we would use a 16x16 matrix only.
+     * Could be reduced to 4*(2*5+1*6*16)=424 instructions, if we would use a 16x16 matrix only.
      * So in case of nucleotide sequences, we could reduce the number of instructions here.
      *
      * TODO check assembly before and after optimization -> changing SCORE_MATRIX_DIM into a variable,

@@ -4,7 +4,7 @@
 #
 
 COUNT=10
-LOG_FILE=results/18_02_2015_whole_lib
+LOG_FILE=results/22_02_2015_whole_lib
 
 DATABASE="uniprot_sprot.fasta"
 GAP_O=3
@@ -27,8 +27,8 @@ do
 			do
 				for QUERY in "${QUERY_ARR[@]}"
 				do
-					printf "$QUERY,$SIMD,$TYPE,$BIT_WIDTH b,$THREADS t," >> $LOG_FILE
-					printf "$QUERY,$SIMD,$TYPE,$BIT_WIDTH b,$THREADS t,"
+					printf "$QUERY,$SIMD,$TYPE,$BIT_WIDTH b,$THREADS t" >> $LOG_FILE
+					printf "$QUERY,$SIMD,$TYPE,$BIT_WIDTH b,$THREADS t"
 					./runner.sh $COUNT $LOG_FILE "./benchmark -N $THREADS -O $GAP_O -E $GAP_E -M $MATRIX -c 10 -i data/$QUERY.fasta -d data/$DATABASE -t $TYPE -b $BIT_WIDTH -s $SIMD"
 					printf "\n" >> $LOG_FILE
 					printf "\n"

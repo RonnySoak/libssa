@@ -3,10 +3,6 @@
 #library(plyr)
 #library(reshape2)
 
-nr_desc_elements <- 5
-
-idx_data <- nr_desc_elements + 1
-
 #read_reduced_timing( "results/14_02_2015_whole_lib" );
 read_reduced_timing( "results/18_02_2015_whole_lib" );
 #read_reduced_timing( "results/19_02_2015_alignment_only" );
