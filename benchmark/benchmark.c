@@ -73,7 +73,7 @@ static void read_options( int argc, char ** argv, uint8_t * gapO, uint8_t * gapE
             *gapE = atoi( optarg );
             break;
         case 'M':
-            init_score_matrix( optarg );
+            init_score_matrix( MATRIX_BUILDIN, optarg );
             break;
         case 'i':
             *query = init_sequence_fasta( optarg );
@@ -179,7 +179,6 @@ int main( int argc, char**argv ) {
 
     free_alignment( alist );
 
-    free_db();
     free_sequence( query );
 
     ssa_exit();

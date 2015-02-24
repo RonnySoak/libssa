@@ -52,7 +52,7 @@ int main( int argc, char**argv ) {
     set_max_compute_capability( COMPUTE_ON_SSE41 ); // TODO make configurable via API
 
 //    init_scoring( 5, -4 );
-    init_score_matrix( BLOSUM62 );
+    init_score_matrix( MATRIX_BUILDIN, BLOSUM62 );
     init_gap_penalties( 4, 2 );
     init_symbol_translation( AMINOACID, FORWARD_STRAND, 3, 3 );
 
@@ -131,7 +131,6 @@ int main( int argc, char**argv ) {
 //    free_alignment( alist_nw_8 );
 //    free_alignment( alist_sw_8 );
 
-    free_db();
     free_sequence( query );
 
     ssa_exit();

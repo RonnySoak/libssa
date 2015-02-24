@@ -61,37 +61,19 @@ void set_threads( size_t nr ) {
  *  - pam70
  *  - pam250
  */
-void init_score_matrix( const char* matrix_name ) {
-    mat_init_buildin( matrix_name );
-}
-
-/**
- * Initialises the used scoring matrix from a file. The data
- * is stored internally.
- *
- * @param file_name  path to the file of the matrix
- */
-void init_score_matrix_file( const char* file_name ) {
-    mat_init_from_file( file_name );
-}
-
-/**
- * Initialises the used scoring matrix from a string. The data
- * is stored internally.
- *
- * @param matrix matrix as a string
- */
-void init_score_matrix_string( const char* matrix ) {
-    mat_init_from_string( matrix );
-}
-
-/**
- * Release the memory allocated by function init_score_matrix.
- *
- * @see init_score_matrix
- */
-void free_matrix() {
-    mat_free();
+void init_score_matrix( int mode, const char* matrix ) {
+    if( MATRIX_FROM_FILE == mode ) {
+        mat_init_from_file( matrix );
+    }
+    else if( MATRIX_FROM_STRING == mode ) {
+        mat_init_from_string( matrix );
+    }
+    else if( MATRIX_BUILDIN == mode ) {
+        mat_init_buildin( matrix );
+    }
+    else {
+        ffatal( "Unknown mode for reading score matrices: %d", mode );
+    }
 }
 
 /**
@@ -113,7 +95,7 @@ void init_gap_penalties( const uint8_t gap_open, const uint8_t gap_extend ) {
  * @param  p    penalty for a mismatch
  * @param  m    reward for a match
  */
-void init_scoring( const int8_t p, const int8_t m ) {
+void init_constant_scoring( const int8_t p, const int8_t m ) {
     mat_init_constant_scoring( p, m );
 }
 
@@ -125,18 +107,11 @@ void init_scoring( const int8_t p, const int8_t m ) {
  * @param fasta_db_file  path to a file in FASTA format
  */
 void init_db_fasta( const char* fasta_db_file ) {
+    ssa_db_free();
+
     ssa_db_init_fasta( fasta_db_file );
 
     outf( "DB read %lu sequences\n", ssa_db_get_sequence_count() );
-}
-
-/**
- * Release the memory allocated by the function init_db_fasta.
- *
- * @see init_db_fasta
- */
-void free_db() {
-    ssa_db_free();
 }
 
 /**
@@ -284,6 +259,7 @@ void free_alignment( p_alignment_list alist ) {
 
 void ssa_exit() {
     mat_free();
+    ssa_db_free();
 
     exit_thread_pool();
 }

@@ -77,7 +77,7 @@ int main( int argc, char**argv ) {
 
     set_output_mode( OUTPUT_SILENT );
 
-    init_score_matrix( BLOSUM50 );
+    init_score_matrix( MATRIX_BUILDIN, BLOSUM50 );
     init_gap_penalties( 3, 1 );
     init_symbol_translation( AMINOACID, FORWARD_STRAND, 3, 3 );
     init_db_fasta( "data/uniprot_sprot.fasta" );
@@ -145,7 +145,6 @@ int main( int argc, char**argv ) {
         }
     }
 
-    free_db();
     ssa_exit();
 
     fclose( f );

@@ -280,7 +280,8 @@ void search_16_sse2_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * 
             /* fill all channels with symbols from the database sequences */
 
             for( int c = 0; c < CHANNELS_16_BIT; c++ ) {
-                no_sequences_ended &= move_db_sequence_window_16( c, d_begin, d_end, dseq_search_window );
+                if( d_seq_ptr[c] )
+                    no_sequences_ended &= move_db_sequence_window_16( c, d_begin, d_end, dseq_search_window );
             }
 
             dprofile_fill_16_xxx( s->dprofile, dseq_search_window );

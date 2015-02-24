@@ -60,6 +60,10 @@
 #define COMPUTE_SCORE 0
 #define COMPUTE_ALIGNMENT 1
 
+#define MATRIX_FROM_FILE 0
+#define MATRIX_FROM_STRING 1
+#define MATRIX_BUILDIN 2
+
 // #############################################################################
 // Data types
 // ##########
@@ -174,39 +178,13 @@ void set_threads( size_t nr );
  *  - pam30
  *  - pam70
  *  - pam250
- */
-void init_score_matrix( const char* matrix_name );
-
-/**
- * Initialises the used scoring matrix from a file. The data
- * is stored internally.
  *
- * @param file_name  path to the file of the matrix
+ *  Mode:
+ *   - MATRIX_FROM_FILE
+ *   - MATRIX_FROM_STRING
+ *   - MATRIX_BUILDIN
  */
-void init_score_matrix_file( const char* file_name );
-
-/**
- * Initialises the used scoring matrix from a string. The data
- * is stored internally.
- *
- * @param matrix  matrix as a string
- */
-void init_score_matrix_string( const char* matrix );
-
-/**
- * Release the memory allocated by function init_score_matrix.
- *
- * @see init_score_matrix
- */
-void free_matrix();
-
-/**
- * Initialises gap penalties used for the alignments.
- *
- * @param  gapO  penalty for opening a gap
- * @param  gapE  penalty for extending a gap
- */
-void init_gap_penalties( const uint8_t gapO, const uint8_t gapE );
+void init_score_matrix( int mode, const char* matrix );
 
 /**
  * Initialises the scoring scheme if no scoring matrix is used.
@@ -216,7 +194,15 @@ void init_gap_penalties( const uint8_t gapO, const uint8_t gapE );
  * @param  p    penalty for a mismatch
  * @param  m    reward for a match
  */
-void init_scoring( const int8_t p, const int8_t m );
+void init_constant_scoring( const int8_t p, const int8_t m );
+
+/**
+ * Initialises gap penalties used for the alignments.
+ *
+ * @param  gapO  penalty for opening a gap
+ * @param  gapE  penalty for extending a gap
+ */
+void init_gap_penalties( const uint8_t gapO, const uint8_t gapE );
 
 /**
  * Initialises the symbol type translation for the alignment. Depending on the
@@ -250,18 +236,6 @@ void init_symbol_translation( int type, int strands, int db_gencode, int q_genco
  * @param fasta_db_file  path to a file in FASTA format
  */
 void init_db_fasta( const char* fasta_db_file );
-
-/**
- * Initialise the database lib, to use a third party implementation.
- */
-//void sdb_init_external(p_sdb_sequence (*extern_next_sequence)()); TODO make db lib configurable
-// TODO possibly best via linking or crating a dynamic lib
-/**
- * Release the memory allocated by the function init_db_fasta.
- *
- * @see init_db_fasta
- */
-void free_db();
 
 /**
  * Reads a FASTA file containing the query sequence.

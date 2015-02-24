@@ -282,7 +282,8 @@ void search_8_sse41_nw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * o
             /* fill all channels with symbols from the database sequences */
 
             for( int c = 0; c < CHANNELS_8_BIT; c++ ) {
-                no_sequences_ended &= move_db_sequence_window_8( c, d_begin, d_end, dseq_search_window );
+                if( d_seq_ptr[c] )
+                    no_sequences_ended &= move_db_sequence_window_8( c, d_begin, d_end, dseq_search_window );
             }
 
             dprofile_fill_8_xxx( s->dprofile, dseq_search_window );
