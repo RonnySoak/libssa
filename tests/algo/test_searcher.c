@@ -50,8 +50,7 @@ static void exit_searcher_test( p_search_result res ) {
 }
 
 static void do_searcher_test_simple( int bit_width, int search_type, long score ) {
-    p_search_result res = setup_searcher_test( bit_width, search_type, "AT", "short_db.fas", 1, NUCLEOTIDE,
-    FORWARD_STRAND );
+    p_search_result res = setup_searcher_test( bit_width, search_type, "AT", "short_db.fas", 1, NUCLEOTIDE, FORWARD_STRAND );
 
     ck_assert_int_eq( 1, res->chunk_count );
     ck_assert_int_eq( 1, res->seq_count );
@@ -83,11 +82,19 @@ START_TEST (test_searcher_simple_sw_16)
         set_max_compute_capability( COMPUTE_ON_SSE2 );
 
         do_searcher_test_simple( BIT_WIDTH_16, SMITH_WATERMAN, 2 );
+
+        set_max_compute_capability( COMPUTE_ON_AVX2 );
+
+        do_searcher_test_simple( BIT_WIDTH_16, SMITH_WATERMAN, 2 );
     }END_TEST
 
 START_TEST (test_searcher_simple_nw_16)
     {
         set_max_compute_capability( COMPUTE_ON_SSE2 );
+
+        do_searcher_test_simple( BIT_WIDTH_16, NEEDLEMAN_WUNSCH, -2 );
+
+        set_max_compute_capability( COMPUTE_ON_AVX2 );
 
         do_searcher_test_simple( BIT_WIDTH_16, NEEDLEMAN_WUNSCH, -2 );
     }END_TEST
@@ -97,11 +104,19 @@ START_TEST (test_searcher_simple_sw_8)
         set_max_compute_capability( COMPUTE_ON_SSE41 );
 
         do_searcher_test_simple( BIT_WIDTH_8, SMITH_WATERMAN, 2 );
+
+        set_max_compute_capability( COMPUTE_ON_AVX2 );
+
+        do_searcher_test_simple( BIT_WIDTH_8, SMITH_WATERMAN, 2 );
     }END_TEST
 
 START_TEST (test_searcher_simple_nw_8)
     {
         set_max_compute_capability( COMPUTE_ON_SSE41 );
+
+        do_searcher_test_simple( BIT_WIDTH_8, NEEDLEMAN_WUNSCH, -2 );
+
+        set_max_compute_capability( COMPUTE_ON_AVX2 );
 
         do_searcher_test_simple( BIT_WIDTH_8, NEEDLEMAN_WUNSCH, -2 );
     }END_TEST
@@ -152,6 +167,10 @@ START_TEST (test_searcher_multiple_sequences_nw_16)
 
         int result[16] = { -1, 0, -3, 3, -4, 7, -4, 6, -4, 4, -5, 2, -6, 5, -6, 1 };
 
+        set_max_compute_capability( COMPUTE_ON_SSE41 );
+        do_multiple_sequence_test( BIT_WIDTH_16, NEEDLEMAN_WUNSCH, result );
+
+        set_max_compute_capability( COMPUTE_ON_AVX2 );
         do_multiple_sequence_test( BIT_WIDTH_16, NEEDLEMAN_WUNSCH, result );
     }END_TEST
 
@@ -161,6 +180,10 @@ START_TEST (test_searcher_multiple_sequences_sw_16)
 
         int result[16] = { 4, 3, 4, 1, 4, 0, 3, 7, 3, 5, 3, 4, 3, 2, 2, 6 };
 
+        set_max_compute_capability( COMPUTE_ON_SSE41 );
+        do_multiple_sequence_test( BIT_WIDTH_16, SMITH_WATERMAN, result );
+
+        set_max_compute_capability( COMPUTE_ON_AVX2 );
         do_multiple_sequence_test( BIT_WIDTH_16, SMITH_WATERMAN, result );
     }END_TEST
 
@@ -170,6 +193,10 @@ START_TEST (test_searcher_multiple_sequences_nw_8)
 
         int result[16] = { -1, 0, -3, 3, -4, 7, -4, 6, -4, 4, -5, 2, -6, 5, -6, 1 };
 
+        set_max_compute_capability( COMPUTE_ON_SSE41 );
+        do_multiple_sequence_test( BIT_WIDTH_8, NEEDLEMAN_WUNSCH, result );
+
+        set_max_compute_capability( COMPUTE_ON_AVX2 );
         do_multiple_sequence_test( BIT_WIDTH_8, NEEDLEMAN_WUNSCH, result );
     }END_TEST
 
@@ -179,6 +206,10 @@ START_TEST (test_searcher_multiple_sequences_sw_8)
 
         int result[16] = { 4, 3, 4, 1, 4, 0, 3, 7, 3, 5, 3, 4, 3, 2, 2, 6 };
 
+        set_max_compute_capability( COMPUTE_ON_SSE41 );
+        do_multiple_sequence_test( BIT_WIDTH_8, SMITH_WATERMAN, result );
+
+        set_max_compute_capability( COMPUTE_ON_AVX2 );
         do_multiple_sequence_test( BIT_WIDTH_8, SMITH_WATERMAN, result );
     }END_TEST
 

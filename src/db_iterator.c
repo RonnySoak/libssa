@@ -98,6 +98,8 @@ static void set_translated_sequences( p_seqinfo seqinfo, p_sdb_sequence * buffer
 
 void it_exit() {
     buffer_max = 0;
+    chunk_db_seq_count = 0;
+    next_chunk_start = 0;
 }
 
 void it_init( size_t size ) {
