@@ -240,6 +240,9 @@ void us_map_sequence( sequence orig, sequence mapped, const char* map ) {
         if( (m = map[(int) orig.seq[i]]) >= 0 ) {
             mapped.seq[i] = m;
         }
+        else {
+            mapped.seq[i] = 0;
+        }
     }
     mapped.seq[orig.len] = 0;
 }

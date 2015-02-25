@@ -58,7 +58,7 @@ static uint8_t * compute_directions_for_nw( sequence a_seq, sequence b_seq ) {
 
             n = *hep;
             e = *(hep + 1);
-            h += SCORE_MATRIX_63( b_seq.seq[j], a_seq.seq[i] );
+            h += SCORE_MATRIX_64( b_seq.seq[j], a_seq.seq[i] );
 
             // test for gap opening
             if( f > h ) {
@@ -131,7 +131,7 @@ static uint8_t * compute_directions_for_sw( sequence a_seq, sequence b_seq ) {
 
             n = *hep;
             e = *(hep + 1);
-            h += SCORE_MATRIX_63( b_seq.seq[j], a_seq.seq[i] );
+            h += SCORE_MATRIX_64( b_seq.seq[j], a_seq.seq[i] );
 
             // test for gap opening
             if( f > h ) {

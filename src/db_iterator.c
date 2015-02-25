@@ -123,10 +123,6 @@ void it_init( size_t size ) {
     }
 }
 
-p_seqinfo it_get_sequence( unsigned long id ) {
-    return ssa_db_get_sequence( id );
-}
-
 void it_free_sequence( p_sdb_sequence seq ) {
     if( !seq ) {
         return;
@@ -205,7 +201,7 @@ void it_next_chunk( p_db_chunk chunk ) {
     pthread_mutex_unlock( &chunk_mutex );
 
     for( size_t i = next_chunk; i < (next_chunk + chunk_db_seq_count); i++ ) {
-        p_seqinfo db_seq = it_get_sequence( i );
+        p_seqinfo db_seq = ssa_db_get_sequence( i );
 
         if( !db_seq ) {
             break;

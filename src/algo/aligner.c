@@ -11,7 +11,7 @@
 #include <pthread.h>
 
 #include "../matrices.h"
-#include "../db_iterator.h"
+#include "../libssa_extern_db.h"
 #include "searcher.h"
 #include "align.h"
 #include "../util/util.h"
@@ -59,16 +59,12 @@ void a_free_data() {
 }
 
 static void init_alignment( alignment_p a, elem_t * e, seq_buffer* queries ) {
-    p_seqinfo info = it_get_sequence( e->db_id );
+    p_seqinfo info = ssa_db_get_sequence( e->db_id );
     if( !info ) {
         // TODO raise error, as this should not be possible
         ffatal( "Could not get sequence from DB: %ld", e->db_id );
     }
 
-    /*
-     * TODO find a better way, maybe move code for translating based on symtype,
-     * etc to util_sequence.c
-     */
     sequence dseq = us_prepare_sequence( info->seq, info->seqlen, e->dframe, e->dstrand );
 
     seq_buffer qseq = queries[e->query_id];

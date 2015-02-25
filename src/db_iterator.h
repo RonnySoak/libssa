@@ -12,13 +12,11 @@
 
 void it_exit();
 
-void it_init( unsigned long size );
-
-p_seqinfo it_get_sequence( unsigned long id );
+void it_init( size_t size );
 
 void it_free_sequence( p_sdb_sequence seq );
 
-p_db_chunk it_alloc_chunk( unsigned long size );
+p_db_chunk it_alloc_chunk( size_t size );
 p_db_chunk it_init_new_chunk();
 
 void it_next_chunk( p_db_chunk chunk );

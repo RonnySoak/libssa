@@ -272,12 +272,13 @@ X  0 -1  0 -1 -3 -1 -1 -1 -1 -1 -1 -1 -1 -2 -1  0  0 -4 -2 -1 -1 -1 -1\n";
 
 long SCORELIMIT_7;
 long SCORELIMIT_16;
-long SCORELIMIT_63;
+long SCORELIMIT_64;
 
 int8_t * score_matrix_8 = NULL; // char
 int16_t * score_matrix_16 = NULL; // short
-int64_t * score_matrix_63 = NULL; // long
+int64_t * score_matrix_64 = NULL; // long
 
+#if 0
 /**
  * Prints the currently initialised scoring matrix to the specified output file.
  *
@@ -296,11 +297,12 @@ void mat_dump( char* outfile ) {
     for( int i = 0; i < SCORE_MATRIX_DIM; i++ ) {
         outf( "%2d %c ", i, sym_ncbi_aa[i] );
         for( int j = 0; j < SCORE_MATRIX_DIM; j++ ) {
-            outf( "%2ld", SCORE_MATRIX_63( i, j ) );
+            outf( "%2ld", SCORE_MATRIX_64( i, j ) );
         }
         outf( "\n" );
     }
 }
+#endif
 
 /**
  * Allocates memory for storing the scoring matrices.
@@ -308,15 +310,15 @@ void mat_dump( char* outfile ) {
  * score_matrix_63 is initialised with -1.
  */
 static void prepare_matrices() {
-    if( score_matrix_63 ) {
+    if( score_matrix_64 ) {
         // free first, before we allocate new memory
         mat_free();
     }
 
     score_matrix_8 = xmalloc( SCORE_MATRIX_DIM * SCORE_MATRIX_DIM * sizeof(int8_t) );
     score_matrix_16 = xmalloc( SCORE_MATRIX_DIM * SCORE_MATRIX_DIM * sizeof(int16_t) );
-    score_matrix_63 = xmalloc( SCORE_MATRIX_DIM * SCORE_MATRIX_DIM * sizeof(int64_t) );
-    memset( score_matrix_63, -1, SCORE_MATRIX_DIM * SCORE_MATRIX_DIM * sizeof(int64_t) );
+    score_matrix_64 = xmalloc( SCORE_MATRIX_DIM * SCORE_MATRIX_DIM * sizeof(int64_t) );
+    memset( score_matrix_64, -1, SCORE_MATRIX_DIM * SCORE_MATRIX_DIM * sizeof(int64_t) );
 }
 
 /**
@@ -332,7 +334,7 @@ static void finalize_matrices() {
 
     for( a = 0; a < SCORE_MATRIX_DIM; a++ ) {
         for( b = 0; b < SCORE_MATRIX_DIM; b++ ) {
-            sc = SCORE_MATRIX_63( a, b );
+            sc = SCORE_MATRIX_64( a, b );
             if( sc < lo )
                 lo = sc;
             if( sc > hi )
@@ -345,7 +347,7 @@ static void finalize_matrices() {
 
     for( a = 0; a < SCORE_MATRIX_DIM; a++ ) {
         for( b = 0; b < SCORE_MATRIX_DIM; b++ ) {
-            sc = SCORE_MATRIX_63( a, b );
+            sc = SCORE_MATRIX_64( a, b );
 
             SCORE_MATRIX_8(a, b) = (int8_t) sc;
             SCORE_MATRIX_16(a, b) = (int16_t) sc;
@@ -404,7 +406,7 @@ static void read_line( char line[LINE_MAX], int* symbols, char* order ) {
                 /* a line is 32 elements wide and the first element of the first
                  * symbol (aa or nt) starts at index 33.
                  */
-                SCORE_MATRIX_63(a, b) = sc;
+                SCORE_MATRIX_64(a, b) = sc;
             }
 
             p += read;
@@ -428,7 +430,7 @@ void mat_init_constant_scoring( const int8_t matchscore, const int8_t mismatchsc
     int a, b;
     for( a = 1; a < SCORE_MATRIX_DIM; a++ ) {
         for( b = 1; b < SCORE_MATRIX_DIM; b++ ) {
-            SCORE_MATRIX_63(a, b) = ((a == b) ? matchscore : mismatchscore);
+            SCORE_MATRIX_64(a, b) = ((a == b) ? matchscore : mismatchscore);
         }
     }
 
@@ -551,6 +553,6 @@ void mat_free() {
     score_matrix_8 = 0;
     free( score_matrix_16 );
     score_matrix_16 = 0;
-    free( score_matrix_63 );
-    score_matrix_63 = 0;
+    free( score_matrix_64 );
+    score_matrix_64 = 0;
 }

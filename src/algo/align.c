@@ -42,7 +42,7 @@ region_t find_region_and_score_for_local( sequence a_seq, sequence b_seq ) {
             f = MAX(f, h - gapO) - gapE;
             EE[j] = MAX(EE[j], HH[j] - gapO) - gapE;
 
-            h = p + SCORE_MATRIX_63( a_seq.seq[j], b_seq.seq[i] );
+            h = p + SCORE_MATRIX_64( a_seq.seq[j], b_seq.seq[i] );
 
             if( h < 0 )
                 h = 0;
@@ -84,7 +84,7 @@ region_t find_region_and_score_for_local( sequence a_seq, sequence b_seq ) {
             f = MAX(f, h - gapO) - gapE;
             EE[j] = MAX(EE[j], HH[j] - gapO) - gapE;
 
-            h = p + SCORE_MATRIX_63( a_seq.seq[j], b_seq.seq[i] );
+            h = p + SCORE_MATRIX_64( a_seq.seq[j], b_seq.seq[i] );
 
             if( f > h )
                 h = f;

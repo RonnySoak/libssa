@@ -44,13 +44,49 @@ START_TEST (test_revcompl)
         ck_assert_str_eq( rev_seq, rc2.seq );
         free( rc2.seq );
 
-        // TODO test if orig and rc sequence have different length!!!
+        free( seq.seq );
+    }END_TEST
 
-//        rc2 = (sequence ) { xmalloc( seq.len + 1 ), seq.len };
-//        us_revcompl( rc1, rc2 );
-//        ck_assert_ptr_eq( 0, rc2.seq );
-//        free( rc2.seq );
-//        free( seq.seq );
+START_TEST (test_map_sequence)
+    {
+        sequence orig = { xmalloc( 5 ), 4 };
+        orig.seq[0] = 'A';
+        orig.seq[1] = 'C';
+        orig.seq[2] = 'A';
+        orig.seq[3] = 'T';
+        orig.seq[4] = 0;
+
+        sequence mapped = { xmalloc( 5 ), 4 };
+
+        us_map_sequence( orig, mapped, map_ncbi_nt16 );
+
+        ck_assert_int_eq( 4, mapped.len );
+        ck_assert_int_eq( 1, mapped.seq[0] );
+        ck_assert_int_eq( 2, mapped.seq[1] );
+        ck_assert_int_eq( 1, mapped.seq[2] );
+        ck_assert_int_eq( 8, mapped.seq[3] );
+        ck_assert_int_eq( 0, mapped.seq[4] );
+    }END_TEST
+
+START_TEST (test_map_sequence_illegal_symbol)
+    {
+        sequence orig = { xmalloc( 5 ), 4 };
+        orig.seq[0] = 'A';
+        orig.seq[1] = 'X';
+        orig.seq[2] = 'A';
+        orig.seq[3] = '2';
+        orig.seq[4] = 0;
+
+        sequence mapped = { xmalloc( 5 ), 4 };
+
+        us_map_sequence( orig, mapped, map_ncbi_nt16 );
+
+        ck_assert_int_eq( 4, mapped.len );
+        ck_assert_int_eq( 1, mapped.seq[0] );
+        ck_assert_int_eq( 0, mapped.seq[1] );
+        ck_assert_int_eq( 1, mapped.seq[2] );
+        ck_assert_int_eq( 0, mapped.seq[3] );
+        ck_assert_int_eq( 0, mapped.seq[4] );
     }END_TEST
 
 void ck_converted_prot_eq( char* ref, sequence seq ) {
@@ -197,6 +233,8 @@ START_TEST (test_translate_db)
 void addUtilSequenceTC( Suite *s ) {
     TCase *tc_core = tcase_create( "util_sequence" );
     tcase_add_test( tc_core, test_revcompl );
+    tcase_add_test( tc_core, test_map_sequence );
+    tcase_add_test( tc_core, test_map_sequence_illegal_symbol );
     tcase_add_test( tc_core, test_translate_query );
     tcase_add_test( tc_core, test_translate_query_DNA );
     tcase_add_test( tc_core, test_translate_query_RNA );

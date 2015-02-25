@@ -182,7 +182,7 @@ static void test_configuration() {
     if( !gapO && !gapE ) {
         ffatal( "Gap opening and gap extension cost set to zero. Possible error." );
     }
-    if( !score_matrix_63 ) {
+    if( !score_matrix_64 ) {
         ffatal( "Scoring not initialized." );
     }
 
