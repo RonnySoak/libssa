@@ -76,7 +76,7 @@ static void read_options( int argc, char ** argv, uint8_t * gapO, uint8_t * gapE
             init_score_matrix( MATRIX_BUILDIN, optarg );
             break;
         case 'i':
-            *query = init_sequence_fasta( optarg );
+            *query = init_sequence_fasta( READ_FROM_FILE, optarg );
             break;
         case 'd':
             init_db_fasta( optarg );

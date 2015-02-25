@@ -15,7 +15,19 @@
 
 extern unsigned long max_chunk_size; // TODO make it better configurable
 
-void exit_libssa_test( p_alignment_list alist, p_query query ) {
+static p_query init_libssa_test( size_t thread_count, char * db_file, char * query_file) {
+    init_score_matrix( MATRIX_BUILDIN, BLOSUM62 );
+    init_gap_penalties( 4, 2 );
+    init_symbol_translation( NUCLEOTIDE, FORWARD_STRAND, 3, 3 );
+
+    set_threads( thread_count );
+
+    init_db_fasta( db_file );
+
+    return init_sequence_fasta( READ_FROM_FILE, query_file );
+}
+
+static void exit_libssa_test( p_alignment_list alist, p_query query ) {
     free_alignment( alist );
     free_sequence( query );
     ssa_exit();
@@ -23,15 +35,7 @@ void exit_libssa_test( p_alignment_list alist, p_query query ) {
 
 START_TEST (test_simple_one_thread)
     {
-        init_score_matrix( MATRIX_BUILDIN, BLOSUM62 );
-        init_gap_penalties( 4, 2 );
-        init_symbol_translation( NUCLEOTIDE, FORWARD_STRAND, 3, 3 );
-
-        set_threads( 1 );
-
-        init_db_fasta( "tests/testdata/AF091148.fas" );
-
-        p_query query = init_sequence_fasta( "tests/testdata/one_seq.fas" );
+        p_query query = init_libssa_test( 1, "tests/testdata/AF091148.fas", "tests/testdata/one_seq.fas" );
 
         p_alignment_list alist = sw_align( query, 5, BIT_WIDTH_64, COMPUTE_ALIGNMENT );
         ck_assert_int_eq( 5, alist->len );
@@ -79,13 +83,7 @@ START_TEST (test_simple_one_thread)
 
 START_TEST (test_sw_multiple_threads)
     {
-        init_score_matrix( MATRIX_BUILDIN, BLOSUM62 );
-        init_gap_penalties( 4, 2 );
-        init_symbol_translation( NUCLEOTIDE, FORWARD_STRAND, 3, 3 );
-
-        init_db_fasta( "tests/testdata/AF091148.fas" );
-
-        p_query query = init_sequence_fasta( "tests/testdata/one_seq.fas" );
+        p_query query = init_libssa_test( 4, "tests/testdata/AF091148.fas", "tests/testdata/one_seq.fas" );
 
         p_alignment_list alist = sw_align( query, 5, BIT_WIDTH_64, COMPUTE_ALIGNMENT );
         ck_assert_int_eq( 5, alist->len );
@@ -96,28 +94,28 @@ START_TEST (test_sw_multiple_threads)
         ck_assert_int_eq( 1075, alist->alignments[1]->db_seq.ID );
         ck_assert_int_eq( 165, alist->alignments[1]->score );
         ck_assert_str_eq( "6M2I3MD3MD3M2D9M5I4M8I7MI5MI4M2I3MI3M", alist->alignments[1]->alignment );
-        ck_assert_int_eq( 1144, alist->alignments[2]->db_seq.ID );
+        /*
+         * TODO the rest of the test is not testable, since there are more than 3 alignments with a score of 210.
+         *
+         *      The current algorithms does not give alignments with the same score a particular order, it takes
+         *      them, as they come ... here we have to decide, what is best to do in that case!
+         */
+//        ck_assert_int_eq( 1144, alist->alignments[2]->db_seq.ID );
         ck_assert_int_eq( 163, alist->alignments[2]->score );
-        ck_assert_str_eq( "6M2I3MD3MD3M2D9M5I4M8I7MI5MI4M2I2MI4M", alist->alignments[2]->alignment );
-        ck_assert_int_eq( 965, alist->alignments[3]->db_seq.ID );
+//        ck_assert_str_eq( "6M2I3MD3MD3M2D9M5I4M8I7MI5MI4M2I2MI4M", alist->alignments[2]->alignment );
+//        ck_assert_int_eq( 965, alist->alignments[3]->db_seq.ID );
         ck_assert_int_eq( 163, alist->alignments[3]->score );
-        ck_assert_str_eq( "4M2I5M3I6MIM2I3MD13M3I7M2I13M", alist->alignments[3]->alignment );
-        ck_assert_int_eq( 313, alist->alignments[4]->db_seq.ID );
+//        ck_assert_str_eq( "4M2I5M3I6MIM2I3MD13M3I7M2I13M", alist->alignments[3]->alignment );
+//        ck_assert_int_eq( 313, alist->alignments[4]->db_seq.ID );
         ck_assert_int_eq( 163, alist->alignments[4]->score );
-        ck_assert_str_eq( "7MI6MD3M2D9M5I4M8I7MI5MI4M2I3MI3M", alist->alignments[4]->alignment );
+//        ck_assert_str_eq( "7MI6MD3M2D9M5I4M8I7MI5MI4M2I3MI3M", alist->alignments[4]->alignment );
 
         exit_libssa_test( alist, query );
     }END_TEST
 
 START_TEST (test_nw_multiple_threads)
     {
-        init_score_matrix( MATRIX_BUILDIN, BLOSUM62 );
-        init_gap_penalties( 4, 2 );
-        init_symbol_translation( NUCLEOTIDE, FORWARD_STRAND, 3, 3 );
-
-        init_db_fasta( "tests/testdata/AF091148.fas" );
-
-        p_query query = init_sequence_fasta( "tests/testdata/one_seq.fas" );
+        p_query query = init_libssa_test( -1, "tests/testdata/AF091148.fas", "tests/testdata/one_seq.fas" );
 
         p_alignment_list alist = nw_align( query, 5, BIT_WIDTH_64, COMPUTE_ALIGNMENT );
         ck_assert_int_eq( 5, alist->len );
@@ -144,17 +142,10 @@ START_TEST (test_nw_multiple_threads)
 
 START_TEST (test_1000_threads)
     {
-        init_score_matrix( MATRIX_BUILDIN, BLOSUM62 );
-        init_gap_penalties( 4, 2 );
-        init_symbol_translation( NUCLEOTIDE, FORWARD_STRAND, 3, 3 );
-
-        set_threads( 1000 );
         long prev_chunk_size = max_chunk_size;
         max_chunk_size = 1;
 
-        init_db_fasta( "tests/testdata/AF091148.fas" );
-
-        p_query query = init_sequence_fasta( "tests/testdata/one_seq.fas" );
+        p_query query = init_libssa_test( 1000, "tests/testdata/AF091148.fas", "tests/testdata/one_seq.fas" );
 
         p_alignment_list alist = nw_align( query, 5, BIT_WIDTH_64, COMPUTE_ALIGNMENT );
         ck_assert_int_eq( 5, alist->len );
@@ -188,19 +179,19 @@ START_TEST (test_1000_threads)
         ck_assert_int_eq( 165, alist->alignments[1]->score );
         ck_assert_str_eq( "6M2I3MD3MD3M2D9M5I4M8I7MI5MI4M2I3MI3M", alist->alignments[1]->alignment );
         /*
-         * TODO the rest of the test is not working, since there are more than 3 alignments with a score of 210.
+         * TODO the rest of the test is not testable, since there are more than 3 alignments with a score of 163.
          *
          *      The current algorithms does not give alignments with the same score a particular order, it takes
          *      them, as they come ... here we have to decide, what is best to do in that case!
          */
 //        ck_assert_int_eq(1340, alist->alignments[2]->db_seq.ID);
-//        ck_assert_int_eq(163, alist->alignments[2]->score);
+        ck_assert_int_eq(163, alist->alignments[2]->score);
 //        ck_assert_str_eq("6M2I3MD3MD3M2D9M5I4M8I7MI5MI4M2I3MI3M", alist->alignments[2]->alignment);
 //        ck_assert_int_eq(965, alist->alignments[3]->db_seq.ID);
-//        ck_assert_int_eq(163, alist->alignments[3]->score);
+        ck_assert_int_eq(163, alist->alignments[3]->score);
 //        ck_assert_str_eq("7M2I3MD3MD4M2D8M5I4M8I7MI5MI4M2I3MI2M", alist->alignments[3]->alignment);
 //        ck_assert_int_eq(1164, alist->alignments[4]->db_seq.ID);
-//        ck_assert_int_eq(210, alist->alignments[4]->score);
+        ck_assert_int_eq(163, alist->alignments[4]->score);
 //        ck_assert_str_eq("7M2I3MD3MD4M2D8M5I4M8I7MI5MI4M2I3MI2M", alist->alignments[4]->alignment);
         max_chunk_size = prev_chunk_size;
 
@@ -218,9 +209,9 @@ START_TEST (test_init_functions)
         init_score_matrix( MATRIX_BUILDIN, PAM70 );
         init_score_matrix( MATRIX_BUILDIN, PAM250 );
 
-        init_score_matrix( MATRIX_FROM_FILE, "tests/testdata/blosum90.txt" );
+        init_score_matrix( READ_FROM_FILE, "tests/testdata/blosum90.txt" );
 
-        init_score_matrix( MATRIX_FROM_STRING, mat_blosum80 );
+        init_score_matrix( READ_FROM_STRING, mat_blosum80 );
 
         init_gap_penalties( 8, 5 );
         ck_assert_int_eq( 8, gapO );
@@ -235,8 +226,12 @@ START_TEST (test_init_functions)
         init_db_fasta( "tests/testdata/AF091148.fas" );
         ck_assert_int_eq( 1403, ssa_db_get_sequence_count() );
 
-        p_query query = init_sequence_fasta( "tests/testdata/one_seq.fas" );
+        p_query query = init_sequence_fasta( READ_FROM_FILE, "tests/testdata/one_seq.fas" );
         ck_assert_str_eq( "97485665bcded44c4d86c131ca714848", query->header );
+        free_sequence( query );
+
+        query = init_sequence_fasta( READ_FROM_STRING, "ATGCCCAAAATTGACTTGAATAGGGGCGT" );
+        ck_assert_ptr_ne( NULL, query->nt[0].seq );
 
         exit_libssa_test( NULL, query );
     }END_TEST

@@ -15,17 +15,24 @@
 #include "util.h"
 #include "linked_list.h"
 #include "../matrices.h"
+#include "../query.h"
 
 static int16_t ** matrix = 0;
 static int matrix_count = 0;
 
 static int matrix_width;
 static int matrix_height;
-static const char * symbol_translation;
+
+static const char * get_symbol_translation() {
+    if( (symtype == NUCLEOTIDE) ) {
+        return sym_ncbi_nt16u;
+    }
+    return sym_ncbi_aa;
+}
 
 void dbg_init_matrix_data_collection( int bit_width, int maxdlen, int maxqlen ) {
     if( bit_width == BIT_WIDTH_64 ) {
-        matrix_count = 1;
+        matrix_count = 3;
     }
     else if( bit_width == BIT_WIDTH_16 ) {
         matrix_count = 8;
@@ -43,7 +50,6 @@ void dbg_init_matrix_data_collection( int bit_width, int maxdlen, int maxqlen ) 
 
     matrix_width = maxdlen;
     matrix_height = maxqlen;
-    symbol_translation = sym_ncbi_aa;
 
     for( int i = 0; i < matrix_count; ++i ) {
         matrix[i] = xmalloc( sizeof(int16_t) * maxdlen * maxqlen );
@@ -52,8 +58,10 @@ void dbg_init_matrix_data_collection( int bit_width, int maxdlen, int maxqlen ) 
     }
 }
 
-void dbg_add_matrix_data_64( int q_idx, int d_idx, int value ) {
-    matrix[0][q_idx * matrix_width + d_idx] = value;
+void dbg_add_matrix_data_64( int q_idx, int d_idx, int h, int e, int f ) {
+    matrix[0][q_idx * matrix_width + d_idx] = h;
+    matrix[1][q_idx * matrix_width + d_idx] = e;
+    matrix[2][q_idx * matrix_width + d_idx] = f;
 }
 
 void dbg_add_matrix_data_128_16( int q_idx, int d_idx, __m128i value ) {
@@ -92,6 +100,57 @@ void dbg_add_matrix_data_128_16_sw( int q_idx, int d_idx, __m128i value ) {
     }
 }
 
+void dbg_add_matrix_data_256_8( int q_idx, int d_idx, __m256i value ) {
+    ffatal( "not implemented yet" );
+}
+
+void dbg_add_matrix_data_256_16( int q_idx, int d_idx, __m256i value ) {
+    ffatal( "not implemented yet" );
+}
+
+void dbg_add_matrix_data_256_8_sw( int q_idx, int d_idx, __m256i value ) {
+    ffatal( "not implemented yet" );
+}
+
+void dbg_add_matrix_data_256_16_sw( int q_idx, int d_idx, __m256i value ) {
+    ffatal( "not implemented yet" );
+}
+
+static void print_matrix( char * bit_string, char * algorithm, sequence * dseq, int x, char * qseq, int16_t * matrix ) {
+    char * file_name = xmalloc( 40 );
+    sprintf( file_name, "debug_output/matrix_%s_%s.txt", bit_string, algorithm );
+
+    FILE *f = fopen( file_name, "a" );
+    if( f == NULL ) {
+        outf( "Error opening file!\n" );
+        exit( 1 );
+    }
+
+    free( file_name );
+    // first line seq1
+    fprintf( f, " " );
+    for( int i = 0; i < dseq[x].len; i++ ) {
+        fprintf( f, "     %c", get_symbol_translation()[(int) dseq[x].seq[i]] );
+    }
+    fprintf( f, "\n" );
+
+    // rest of matrix and seq2
+    for( int q_id = 0; q_id < matrix_height; q_id++ ) {
+        if( qseq ) {
+            fprintf( f, " %c", get_symbol_translation()[(int) qseq[q_id]] );
+        }
+
+        for( int d_id = 0; d_id < dseq[x].len; d_id++ ) {
+            fprintf( f, " %4d ", matrix[q_id * matrix_width + d_id] );
+        }
+        fprintf( f, "\n" );
+    }
+    fprintf( f, "\n" );
+    fprintf( f, "\n" );
+
+    fclose( f );
+}
+
 void dbg_print_matrices_to_file( int bit_width, char * algorithm, char * qseq, sequence * dseq, int dseq_count ) {
     char * bit_string = "";
 
@@ -113,38 +172,15 @@ void dbg_print_matrices_to_file( int bit_width, char * algorithm, char * qseq, s
     }
 
     for( int x = 0; x < dseq_count; ++x ) {
-        char * file_name = xmalloc( 40 );
-        sprintf( file_name, "debug_output/matrix_%s_%s.txt", bit_string, algorithm );
+        print_matrix( bit_string, algorithm, dseq, x, qseq, matrix[x] );
 
-        FILE *f = fopen( file_name, "a" );
-        if( f == NULL ) {
-            outf( "Error opening file!\n" );
-            exit( 1 );
+        if( bit_width == BIT_WIDTH_64 ) {
+            print_matrix( bit_string, algorithm, dseq, x, qseq, matrix[x + 1] );
+            free( matrix[x + 1] );
+
+            print_matrix( bit_string, algorithm, dseq, x, qseq, matrix[x + 2] );
+            free( matrix[x + 2] );
         }
-
-        free( file_name );
-        // first line seq1
-        fprintf( f, " " );
-        for( int i = 0; i < dseq[x].len; i++ ) {
-            fprintf( f, "     %c", symbol_translation[(int) dseq[x].seq[i]] );
-        }
-        fprintf( f, "\n" );
-
-        // rest of matrix and seq2
-        for( int q_id = 0; q_id < matrix_height; q_id++ ) {
-            if( qseq ) {
-                fprintf( f, " %c", symbol_translation[(int) qseq[q_id]] );
-            }
-
-            for( int d_id = 0; d_id < dseq[x].len; d_id++ ) {
-                fprintf( f, " %4d ", matrix[x][q_id * matrix_width + d_id] );
-            }
-            fprintf( f, "\n" );
-        }
-        fprintf( f, "\n" );
-        fprintf( f, "\n" );
-
-        fclose( f );
 
         free( matrix[x] );
     }

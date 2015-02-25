@@ -62,10 +62,10 @@ void set_threads( size_t nr ) {
  *  - pam250
  */
 void init_score_matrix( int mode, const char* matrix ) {
-    if( MATRIX_FROM_FILE == mode ) {
+    if( READ_FROM_FILE == mode ) {
         mat_init_from_file( matrix );
     }
-    else if( MATRIX_FROM_STRING == mode ) {
+    else if( READ_FROM_STRING == mode ) {
         mat_init_from_string( matrix );
     }
     else if( MATRIX_BUILDIN == mode ) {
@@ -145,8 +145,21 @@ void init_symbol_translation( int type, int strands, int d_gencode, int q_gencod
  * @param fasta_seq_file  path to a file in FASTA format
  * @return pointer to the query profile structure
  */
-p_query init_sequence_fasta( const char* fasta_seq_file ) {
-    return query_read_from_file( fasta_seq_file );
+p_query init_sequence_fasta( int mode, const char* fasta_sequence ) {
+    p_query query = NULL;
+
+    if( READ_FROM_FILE == mode ) {
+        query = query_read_from_file( fasta_sequence );
+    }
+    else if( READ_FROM_STRING == mode ) {
+        // TODO do we need the header here?
+        query = query_read_from_string( "\0", fasta_sequence );
+    }
+    else {
+        ffatal( "Unknown mode for reading query sequences: %d", mode );
+    }
+
+    return query;
 }
 
 /**
@@ -166,8 +179,8 @@ void free_sequence( p_query p ) {
 static void test_configuration() {
     test_cpu_features();
 
-    if( !gapO || !gapE ) {
-        ffatal( "Gap opening and/or gap extension cost set to zero. Possible error." );
+    if( !gapO && !gapE ) {
+        ffatal( "Gap opening and gap extension cost set to zero. Possible error." );
     }
     if( !score_matrix_63 ) {
         ffatal( "Scoring not initialized." );

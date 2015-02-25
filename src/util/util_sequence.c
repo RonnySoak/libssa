@@ -276,7 +276,8 @@ void us_translate_sequence( int db_sequence, sequence dna, int strand, int frame
             c |= dna.seq[pos++];
 
             if( c > (16 * 16 * 16) ) {
-                ffatal( "Wrong data in sequence. Codon position out of range: %ld, at position %d, for protein sequence position: %d\n", c, pos, ppos );
+                outf( "Wrong data in sequence. Codon position out of range: %ld, at position %d, for protein sequence position: %d\n",
+                        c, pos, ppos );
             }
 
             prot_seq->seq[ppos++] = ttable[c];
@@ -294,7 +295,7 @@ void us_translate_sequence( int db_sequence, sequence dna, int strand, int frame
             c |= ntcompl[(int) (dna.seq[pos--])];
 
             if( c > (16 * 16 * 16) ) {
-                ffatal( "Wrong data in sequence. Codon position out of range: %ld, at position %d, for protein sequence position: %d\n",
+                outf( "Wrong data in sequence. Codon position out of range: %ld, at position %d, for protein sequence position: %d\n",
                         c, pos, ppos );
             }
 

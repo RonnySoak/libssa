@@ -24,7 +24,7 @@ static p_query setup_bigger_db_test( char * db_file, char * query_file, uint8_t 
 
     init_db_fasta( concat( "tests/testdata/", db_file ) );
 
-    return init_sequence_fasta( concat( "tests/testdata/", query_file ) );
+    return init_sequence_fasta( READ_FROM_FILE, concat( "tests/testdata/", query_file ) );
 }
 
 static void ck_alignment( p_alignment_list alist, size_t hit_count, long * expected_alignment ) {

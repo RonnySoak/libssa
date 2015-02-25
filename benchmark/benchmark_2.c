@@ -100,7 +100,7 @@ int main( int argc, char**argv ) {
                 for( int b = 0; b < 2; ++b ) {
                     for( int q = 0; q < 4; ++q ) {
                         char * filename = concat( concat( "data/", queries[q] ), ".fasta" );
-                        p_query query = init_sequence_fasta( filename );
+                        p_query query = init_sequence_fasta( READ_FROM_FILE, filename );
                         free( filename );
 
                         fprintf( f, "%s,%s,%s,%d_bit,%d_t", queries[q], SIMD_DESC( SIMD[s] ), TYPE_DESC( type ),
@@ -125,7 +125,7 @@ int main( int argc, char**argv ) {
             // 64 bit
             for( int q = 0; q < 4; ++q ) {
                 char * filename = concat( concat( "data/", queries[q] ), ".fasta" );
-                p_query query = init_sequence_fasta( filename );
+                p_query query = init_sequence_fasta( READ_FROM_FILE, filename );
                 free( filename );
 
                 fprintf( f, "%s,NO_SIMD,%s,%d_bit,%d_t", queries[q], TYPE_DESC( type ), 64, threads[t] );

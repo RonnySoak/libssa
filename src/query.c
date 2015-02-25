@@ -113,26 +113,38 @@ static void fill_query( p_query query, char * query_sequence, size_t query_lengt
     }
 }
 
-p_query query_read_from_string( char * header, char * sequence ) {
+p_query query_read_from_string( const char * header, const char * sequence ) {
     p_query query = init();
 
     query->headerlen = strlen( header );
-    query->header = xmalloc( query->headerlen );
+    query->header = xmalloc( query->headerlen + 1 );
     strcpy( query->header, header );
 
     size_t length = strlen( sequence );
-    char * query_sequence = xmalloc( length );
+    char * query_sequence = xmalloc( length + 1 );
+    char * unknown_symbols = xmalloc( length + 1 );
+    size_t unknown_count = 0;
 
     char m;
-    char * p = sequence;
+    const char * p = sequence;
     char * p_q = query_sequence;
     int8_t c = *p++;
     while( c ) {
         if( (m = query->map[c]) >= 0 ) {
             (*p_q++) = m;
         }
+        else {
+            unknown_symbols[unknown_count++] = c;
+        }
         c = *p++;
     }
+    if( unknown_count > 0 ) {
+        length -= unknown_count;
+        unknown_symbols[unknown_count] = 0;
+
+        outf( "Unknown symbols found and omitted: %s\n", unknown_symbols );
+    }
+    free( unknown_symbols );
 
     query_sequence[length] = 0;
 

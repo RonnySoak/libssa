@@ -18,11 +18,16 @@
 
 void dbg_init_matrix_data_collection( int bit_width, int maxdlen, int maxqlen );
 
-void dbg_add_matrix_data_64( int q_idx, int d_idx, int value );
+void dbg_add_matrix_data_64( int q_idx, int d_idx, int h, int e, int f );
 void dbg_add_matrix_data_128_8( int q_idx, int d_idx, __m128i value );
 void dbg_add_matrix_data_128_16( int q_idx, int d_idx, __m128i value );
 void dbg_add_matrix_data_128_8_sw( int q_idx, int d_idx, __m128i value );
 void dbg_add_matrix_data_128_16_sw( int q_idx, int d_idx, __m128i value );
+
+void dbg_add_matrix_data_256_8( int q_idx, int d_idx, __m256i value );
+void dbg_add_matrix_data_256_16( int q_idx, int d_idx, __m256i value );
+void dbg_add_matrix_data_256_8_sw( int q_idx, int d_idx, __m256i value );
+void dbg_add_matrix_data_256_16_sw( int q_idx, int d_idx, __m256i value );
 
 void dbg_print_matrices_to_file( int bit_width, char * algorithm, char * qseq, sequence * dseq, int dseq_count );
 

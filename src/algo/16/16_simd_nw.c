@@ -41,6 +41,7 @@
 #define _mmxxx_or_si _mm256_or_si256
 #define _mmxxx_cmpeq_epi16 _mm256_cmpeq_epi16
 #define dprofile_fill_16_xxx dprofile_fill_16_avx2
+#define dbg_add_matrix_data_xxx_16 dbg_add_matrix_data_256_16
 
 #else // SSE2
 
@@ -56,6 +57,7 @@
 #define _mmxxx_or_si _mm_or_si128
 #define _mmxxx_cmpeq_epi16 _mm_cmpeq_epi16
 #define dprofile_fill_16_xxx dprofile_fill_16_sse2
+#define dbg_add_matrix_data_xxx_16 dbg_add_matrix_data_128_16
 #endif
 
 /*
@@ -135,10 +137,10 @@ static void aligncolumns_first( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mx
         ALIGNCORE( h3, h8, f3, vp[3], gap_open_extend, gap_extend, *_h_min, *_h_max );
 
 #ifdef DBG_COLLECT_MATRIX
-        dbg_add_matrix_data_128_16( i, d_idx + 0, h5 );
-        dbg_add_matrix_data_128_16( i, d_idx + 1, h6 );
-        dbg_add_matrix_data_128_16( i, d_idx + 2, h7 );
-        dbg_add_matrix_data_128_16( i, d_idx + 3, h8 );
+        dbg_add_matrix_data_xxx_16( i, d_idx + 0, h5 );
+        dbg_add_matrix_data_xxx_16( i, d_idx + 1, h6 );
+        dbg_add_matrix_data_xxx_16( i, d_idx + 2, h7 );
+        dbg_add_matrix_data_xxx_16( i, d_idx + 3, h8 );
 #endif
 
         hep[2 * i + 0] = h8;
@@ -180,10 +182,10 @@ static void aligncolumns_rest( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mxx
         ALIGNCORE( h3, h8, f3, vp[3], gap_open_extend, gap_extend, *_h_min, *_h_max );
 
 #ifdef DBG_COLLECT_MATRIX
-        dbg_add_matrix_data_128_16( i, d_idx + 0, h5 );
-        dbg_add_matrix_data_128_16( i, d_idx + 1, h6 );
-        dbg_add_matrix_data_128_16( i, d_idx + 2, h7 );
-        dbg_add_matrix_data_128_16( i, d_idx + 3, h8 );
+        dbg_add_matrix_data_xxx_16( i, d_idx + 0, h5 );
+        dbg_add_matrix_data_xxx_16( i, d_idx + 1, h6 );
+        dbg_add_matrix_data_xxx_16( i, d_idx + 2, h7 );
+        dbg_add_matrix_data_xxx_16( i, d_idx + 3, h8 );
 #endif
 
         hep[2 * i + 0] = h8;
@@ -208,7 +210,14 @@ void search_16_sse2_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * 
 #endif
 
 #ifdef DBG_COLLECT_MATRIX
-    dbg_init_matrix_data_collection( BIT_WIDTH_16, s->maxdlen + CDEPTH_16_BIT, s->maxqlen );
+    size_t maxdlen =  0;
+    for( int i = 0; i < chunk->fill_pointer; ++i ) {
+        if( maxdlen < chunk->seq[i]->seq.len ) {
+            maxdlen = chunk->seq[i]->seq.len;
+        }
+    }
+
+    dbg_init_matrix_data_collection( BIT_WIDTH_16, maxdlen + CDEPTH_16_BIT, s->maxqlen );
 
     d_idx = 0;
 #endif
@@ -406,5 +415,7 @@ void search_16_sse2_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * 
     }
 
     dbg_print_matrices_to_file( BIT_WIDTH_16, "NW", s->queries[q_id]->seq, db_sequences, done );
+
+    free( db_sequences );
 #endif
 }

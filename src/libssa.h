@@ -60,8 +60,8 @@
 #define COMPUTE_SCORE 0
 #define COMPUTE_ALIGNMENT 1
 
-#define MATRIX_FROM_FILE 0
-#define MATRIX_FROM_STRING 1
+#define READ_FROM_FILE 0
+#define READ_FROM_STRING 1
 #define MATRIX_BUILDIN 2
 
 // #############################################################################
@@ -243,7 +243,7 @@ void init_db_fasta( const char* fasta_db_file );
  * @param fasta_seq_file  path to a file in FASTA format
  * @return pointer to the query profile structure
  */
-p_query init_sequence_fasta( const char* fasta_seq_file );
+p_query init_sequence_fasta( int mode, const char* fasta_seq_file );
 
 /**
  * Release the memory allocated by the function init_sequence_fasta.

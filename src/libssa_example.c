@@ -18,18 +18,18 @@ static p_alignment_list do_alignment( char * desc, p_alignment_list (*align_func
 
     printf( "Nr of alignments: %ld\n", alist->len );
 
-//    for( size_t i = 0; i < alist->len; i++ ) {
-//        alignment_p a = alist->alignments[i];
-//
-//        printf( "DB-ID %ld, score: %ld, cigar: %s\n", a->db_seq.ID, a->score, a->alignment );
-//    }
-
     for( size_t i = 0; i < alist->len; i++ ) {
         alignment_p a = alist->alignments[i];
 
-        printf( "%ld, %ld, ", a->score, a->db_seq.ID );
+        printf( "DB-ID %ld, score: %ld, cigar: %s\n", a->db_seq.ID, a->score, a->alignment );
     }
-    printf( "\n" );
+
+//    for( size_t i = 0; i < alist->len; i++ ) {
+//        alignment_p a = alist->alignments[i];
+//
+//        printf( "%ld, %ld, ", a->score, a->db_seq.ID );
+//    }
+//    printf( "\n" );
 
     return alist;
 }
@@ -51,85 +51,67 @@ static p_alignment_list do_alignment( char * desc, p_alignment_list (*align_func
 int main( int argc, char**argv ) {
     set_max_compute_capability( COMPUTE_ON_SSE41 ); // TODO make configurable via API
 
-//    init_scoring( 5, -4 );
-    init_score_matrix( MATRIX_BUILDIN, BLOSUM62 );
-    init_gap_penalties( 4, 2 );
-    init_symbol_translation( AMINOACID, FORWARD_STRAND, 3, 3 );
+    init_constant_scoring( 1, -1 );
+    init_gap_penalties( 0, 1 );
+    init_symbol_translation( NUCLEOTIDE, FORWARD_STRAND, 3, 3 );
 
     set_threads( 1 );
 
-//    init_db_fasta("tests/testdata/test.fas");
-//    init_db_fasta("tests/testdata/test_16_seq.fas");
-    init_db_fasta( "tests/testdata/AF091148.fas" );
-//    init_db_fasta( "tests/testdata/AF091148_selection.fas" );
-//    init_db_fasta("tests/testdata/Rfam_11_0.fasta");
+    init_db_fasta( "tmp/3a.fas" );
+    p_query query = init_sequence_fasta( READ_FROM_STRING, "TACGGGTAT" );
 
-//    init_db_fasta( "benchmark/data/uniprot_sprot.fasta" );
-//    p_query query = init_sequence_fasta( "benchmark/data/O74807.fasta" );
+    int hit_count = 1;
 
-    p_query query = init_sequence_fasta( "tests/testdata/one_seq.fas" );
+    p_alignment_list alist = do_alignment( "3.a", &nw_align, query, hit_count, BIT_WIDTH_64 );
+    free_alignment( alist );
 
-    int hit_count = 10;
+    alist = do_alignment( "3.b", &sw_align, query, hit_count, BIT_WIDTH_64 );
+    free_alignment( alist );
 
-//    p_alignment_list alist_sw_64 = do_alignment( "Do local alignment using 64 bit Smith-Waterman", &sw_align, query,
-//            hit_count, BIT_WIDTH_64 );
-//    p_alignment_list alist_nw_64 = do_alignment( "Do global alignment using 64 bit Needleman-Wunsch", &nw_align, query,
-//            hit_count, BIT_WIDTH_64 );
+    init_gap_penalties( 20, 1 );
 
-    p_alignment_list alist_sw_16 = do_alignment( "Do local alignment using 16 bit Smith-Waterman", &sw_align, query,
-            hit_count, BIT_WIDTH_16 );
-    p_alignment_list alist_nw_16 = do_alignment( "Do global alignment using 16 bit Needleman-Wunsch", &nw_align, query,
-            hit_count, BIT_WIDTH_16 );
+    alist = do_alignment( "3.c", &nw_align, query, hit_count, BIT_WIDTH_64 );
+    free_alignment( alist );
 
-    p_alignment_list alist_sw_8 = do_alignment( "Do local alignment using 8 bit Smith-Waterman", &sw_align, query,
-            hit_count, BIT_WIDTH_8 );
-    p_alignment_list alist_nw_8 = do_alignment( "Do global alignment using 8 bit Needleman-Wunsch", &nw_align, query,
-            hit_count, BIT_WIDTH_8 );
+    free_sequence( query );
 
-//    cmp_alignment_lists( alist_nw_64, alist_nw_16, hit_count, "NW_64_16" );
-//    cmp_alignment_lists( alist_nw_64, alist_nw_8, hit_count, "NW_64_8" );
-//    cmp_alignment_lists( alist_nw_16, alist_nw_8, hit_count, "NW_16_8" );
-//    cmp_alignment_lists( alist_sw_64, alist_sw_16, hit_count, "SW_64_16" );
-//    cmp_alignment_lists( alist_sw_64, alist_sw_8, hit_count, "SW_64_8" );
-//    cmp_alignment_lists( alist_sw_16, alist_sw_8, hit_count, "SW_16_8" );
 
-//    free_alignment( alist_nw_64 );
-//    free_alignment( alist_sw_64 );
-    free_alignment( alist_nw_16 );
-    free_alignment( alist_sw_16 );
-    free_alignment( alist_nw_8 );
-    free_alignment( alist_sw_8 );
+    init_db_fasta( "tmp/3d.fas" );
+    query = init_sequence_fasta( READ_FROM_STRING, "AAGT" );
+    init_gap_penalties( 1, 1 );
 
-//    set_max_compute_capability( COMPUTE_ON_AVX2 );
-//
-//    alist_sw_64 = do_alignment( "Do local alignment using 64 bit Smith-Waterman", &sw_align, query, hit_count,
-//            BIT_WIDTH_64 );
-//    alist_nw_64 = do_alignment( "Do global alignment using 64 bit Needleman-Wunsch", &nw_align, query, hit_count,
-//            BIT_WIDTH_64 );
-//
-//    alist_sw_16 = do_alignment( "Do local alignment using 16 bit Smith-Waterman", &sw_align, query, hit_count,
-//            BIT_WIDTH_16 );
-//    alist_nw_16 = do_alignment( "Do global alignment using 16 bit Needleman-Wunsch", &nw_align, query, hit_count,
-//            BIT_WIDTH_16 );
-//
-//    alist_sw_8 = do_alignment( "Do local alignment using 8 bit Smith-Waterman", &sw_align, query, hit_count,
-//            BIT_WIDTH_8 );
-//    alist_nw_8 = do_alignment( "Do global alignment using 8 bit Needleman-Wunsch", &nw_align, query, hit_count,
-//            BIT_WIDTH_8 );
-//
-//    cmp_alignment_lists( alist_nw_64, alist_nw_16, hit_count, "NW_64_16" );
-//    cmp_alignment_lists( alist_nw_64, alist_nw_8, hit_count, "NW_64_8" );
-//    cmp_alignment_lists( alist_nw_16, alist_nw_8, hit_count, "NW_16_8" );
-//    cmp_alignment_lists( alist_sw_64, alist_sw_16, hit_count, "SW_64_16" );
-//    cmp_alignment_lists( alist_sw_64, alist_sw_8, hit_count, "SW_64_8" );
-//    cmp_alignment_lists( alist_sw_16, alist_sw_8, hit_count, "SW_16_8" );
-//
-//    free_alignment( alist_nw_64 );
-//    free_alignment( alist_sw_64 );
-//    free_alignment( alist_nw_16 );
-//    free_alignment( alist_sw_16 );
-//    free_alignment( alist_nw_8 );
-//    free_alignment( alist_sw_8 );
+    alist = do_alignment( "3.d", &nw_align, query, hit_count, BIT_WIDTH_64 );
+    free_alignment( alist );
+
+    free_sequence( query );
+
+    init_db_fasta( "tmp/3e.fas" );
+    init_symbol_translation( AMINOACID, FORWARD_STRAND, 3, 3 );
+    query = init_sequence_fasta( READ_FROM_STRING, "MRWAC" );
+
+    init_constant_scoring( 2, 0 );
+    init_gap_penalties( 0, 1 );
+
+    alist = do_alignment( "3.e", &nw_align, query, hit_count, BIT_WIDTH_64 );
+    free_alignment( alist );
+
+    free_sequence( query );
+
+
+    init_db_fasta( "tmp/3f.fas" );
+    init_symbol_translation( AMINOACID, FORWARD_STRAND, 3, 3 );
+    query = init_sequence_fasta( READ_FROM_STRING, "EGGHVLVAV" );
+
+    init_score_matrix( MATRIX_BUILDIN, BLOSUM62 );
+    init_gap_penalties( 0, 5 );
+
+    alist = do_alignment( "3.f", &sw_align, query, hit_count, BIT_WIDTH_64 );
+    free_alignment( alist );
+
+    init_gap_penalties( 4, 1 );
+
+    alist = do_alignment( "3.g", &sw_align, query, hit_count, BIT_WIDTH_64 );
+    free_alignment( alist );
 
     free_sequence( query );
 

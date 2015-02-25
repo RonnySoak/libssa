@@ -72,7 +72,7 @@ int64_t full_sw( sequence * dseq, sequence * qseq, int64_t * hearray ) {
                 s = h;
 
 #ifdef DBG_COLLECT_MATRIX
-        dbg_add_matrix_data_64( i, j, h);
+            dbg_add_matrix_data_64( i, j, h, e, f );
 #endif
 
             *hep = h;
@@ -96,6 +96,8 @@ int64_t full_sw( sequence * dseq, sequence * qseq, int64_t * hearray ) {
         db_sequences[0] = *dseq;
 
         dbg_print_matrices_to_file( BIT_WIDTH_64, "SW", qseq->seq, db_sequences, 1 );
+
+        free( db_sequences );
 #endif
 
     return s;
