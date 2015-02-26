@@ -43,10 +43,6 @@ int64_t full_nw( sequence * dseq, sequence * qseq, int64_t * hearray ) {
             if( e > h )
                 h = e;
 
-#ifdef DBG_COLLECT_MATRIX
-            dbg_add_matrix_data_64( i, j, h, e, f );
-#endif
-
             *hep = h;
 
             // test for gap extensions
@@ -58,6 +54,10 @@ int64_t full_nw( sequence * dseq, sequence * qseq, int64_t * hearray ) {
                 f = h;
             if( e < h )
                 e = h;
+
+#ifdef DBG_COLLECT_MATRIX
+            dbg_add_matrix_data_64( i, j, *hep, e, f );
+#endif
 
             // next round
             *(hep + 1) = e;
