@@ -10,6 +10,8 @@
 
 #include <stddef.h>
 
+extern size_t max_thread_count;
+
 void init_thread_pool();
 
 void exit_thread_pool();

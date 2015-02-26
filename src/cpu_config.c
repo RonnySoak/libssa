@@ -7,6 +7,7 @@
 
 #include "cpu_config.h"
 
+#include "libssa.h"
 #include "util/util.h"
 
 /*

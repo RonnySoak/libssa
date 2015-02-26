@@ -6,7 +6,6 @@
  */
 
 #include "libssa.h"
-#include "cpu_config.h"
 
 #include <stdio.h>
 
@@ -19,7 +18,7 @@ static p_alignment_list do_alignment( char * desc, p_alignment_list (*align_func
     printf( "Nr of alignments: %ld\n", alist->len );
 
     for( size_t i = 0; i < alist->len; i++ ) {
-        alignment_p a = alist->alignments[i];
+        p_alignment a = alist->alignments[i];
 
         printf( "DB-ID %ld, score: %ld, cigar: %s\n", a->db_seq.ID, a->score, a->alignment );
     }
@@ -49,7 +48,7 @@ static p_alignment_list do_alignment( char * desc, p_alignment_list (*align_func
 //}
 
 int main( int argc, char**argv ) {
-    set_max_compute_capability( COMPUTE_ON_SSE41 ); // TODO make configurable via API
+    set_simd_compute_mode( COMPUTE_ON_SSE41 );
 
     init_constant_scoring( 1, -1 );
     init_gap_penalties( 0, 1 );

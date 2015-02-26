@@ -17,6 +17,8 @@
 #include "../libssa.h"
 #include "util.h"
 
+size_t max_thread_count = -1;
+
 static pthread_t * thread_list = 0;
 static size_t current_thread_count = 0;
 
@@ -25,19 +27,19 @@ size_t get_current_thread_count() {
 }
 
 static size_t get_new_thread_count() {
-    if( !current_thread_count || (current_thread_count != _max_thread_count) ) {
-        if( _max_thread_count == -1 ) {
-            _max_thread_count = get_nprocs(); //sysconf(_SC_NPROCESSORS_ONLN);
+    if( !current_thread_count || (current_thread_count != max_thread_count) ) {
+        if( max_thread_count == -1 ) {
+            max_thread_count = get_nprocs(); //sysconf(_SC_NPROCESSORS_ONLN);
         }
 
-        current_thread_count = _max_thread_count;
+        current_thread_count = max_thread_count;
     }
     return current_thread_count;
 }
 
 void init_thread_pool() {
     if( thread_list ) {
-        if( get_current_thread_count() == _max_thread_count ) {
+        if( get_current_thread_count() == max_thread_count ) {
             return;
         }
         exit_thread_pool();
@@ -68,7 +70,7 @@ void start_threads( void *(*start_routine)( void * ) ) {
 }
 
 void wait_for_threads( void ** thread_results ) {
-    for( size_t i = 0; i < _max_thread_count; i++ ) {
+    for( size_t i = 0; i < max_thread_count; i++ ) {
         pthread_join( thread_list[i], &thread_results[i] );
     }
 }

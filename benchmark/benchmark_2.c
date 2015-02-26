@@ -14,8 +14,6 @@
 #include <time.h>
 #include <unistd.h>
 
-#include "../src/cpu_config.h"
-
 static char* concat( char * s1, char * s2 ) {
     char *result = malloc( strlen( s1 ) + strlen( s2 ) + 1 ); //+1 for the zero-terminator
     strcpy( result, s1 );

@@ -25,7 +25,7 @@ static p_search_result setup_searcher_test( int bit_width, int search_type, char
 
     s_init( search_type, bit_width, query, hit_count );
 
-    ssa_db_init_fasta( concat( "./tests/testdata/", db_file ) );
+    ssa_db_init( concat( "./tests/testdata/", db_file ) );
 
     gapO = 1;
     gapE = 1;
@@ -400,7 +400,7 @@ static p_search_result setup_BLOSUM62_test( int bit_width, int search_type, int 
 
     s_init( search_type, bit_width, query, hit_count );
 
-    ssa_db_init_fasta( concat( "./tests/testdata/", "short_AA.fas" ) );
+    ssa_db_init( concat( "./tests/testdata/", "short_AA.fas" ) );
 
     gapO = 1;
     gapE = 1;

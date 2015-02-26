@@ -23,7 +23,7 @@ static p_query setup_manager_test() {
     init_symbol_translation( NUCLEOTIDE, FORWARD_STRAND, 3, 3 );
     mat_init_constant_scoring( 1, -1 );
 
-    ssa_db_init_fasta( "./tests/testdata/test.fas" );
+    ssa_db_init( "./tests/testdata/test.fas" );
     gapO = 1;
     gapE = 1;
 
@@ -43,7 +43,7 @@ static void do_manager_test_std( p_query query, int align_type ) {
     ck_assert_int_eq( 3, alist->len );
 
     for( int i = 0; i < alist->len; i++ ) {
-        alignment_p a = alist->alignments[i];
+        p_alignment a = alist->alignments[i];
         ck_assert_ptr_ne( NULL, a );
 
         ck_assert_ptr_eq( query->nt[0].seq, a->query.seq );
@@ -128,8 +128,8 @@ static void compare_test( void (*init_func)( p_query, size_t, int, int ), size_t
     ck_assert_int_eq( hit_count, alist_16->len );
 
     for( size_t i = 0; i < hit_count; i++ ) {
-        alignment_p a64 = alist_64->alignments[i];
-        alignment_p a16 = alist_16->alignments[i];
+        p_alignment a64 = alist_64->alignments[i];
+        p_alignment a16 = alist_16->alignments[i];
 
         ck_assert_ptr_ne( NULL, a64 );
         ck_assert_ptr_ne( NULL, a16 );

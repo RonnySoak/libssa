@@ -64,6 +64,10 @@
 #define READ_FROM_STRING 1
 #define MATRIX_BUILDIN 2
 
+#define COMPUTE_ON_SSE2 0
+#define COMPUTE_ON_SSE41 1
+#define COMPUTE_ON_AVX2 2
+
 // #############################################################################
 // Data types
 // ##########
@@ -96,22 +100,10 @@ typedef struct _query* p_query;
  @field  cigarLen    length of the cigar string; cigarLen = 0 when the best
  alignment path is not available
  */
-//struct {
-//    uint16_t score1;
-//    uint16_t score2;
-//    int32_t ref_begin1;   TODO
-//    int32_t ref_end1;
-//    int32_t read_begin1;
-//    int32_t read_end1;
-//    int32_t ref_end2;
-//    uint32_t* cigar;
-//    int32_t cigarLen;
-//} alignment;
-//typedef alignment_t* p_alignment;
 typedef struct {
     char* seq;
     size_t len;
-    char* header;
+    char* header; // TODO do I need the header?
     size_t headerlen;
     unsigned long ID;
     int strand;
@@ -125,40 +117,35 @@ typedef struct {
     int frame;
 } q_seq;
 
-typedef struct { // TODO use either typedef, or struct for all!!
+struct alignment { // TODO use either typedef, or struct for all!!
     db_seq db_seq;
     q_seq query;
     char * alignment;
     size_t alignment_len;
     long score;
-//    long score_align;
-//    long align_hint;  TODO what are these
-//    long bestq;
     size_t align_q_start;
     size_t align_q_end;
     size_t align_d_start;
     size_t align_d_end;
-} alignment_t;
-typedef alignment_t * alignment_p; // TODO rename in p_alignment
+};
+typedef struct alignment * p_alignment; // TODO rename in p_alignment
 
 struct alignment_list {
-    alignment_p* alignments;
+    p_alignment* alignments;
     size_t len;
 };
 typedef struct alignment_list * p_alignment_list;
-
-// #############################################################################
-// Configuration data
-// ##################
-extern size_t _max_thread_count;
-extern int _output_mode;
 
 // #############################################################################
 // Technical initialisation
 // ########################
 void set_output_mode( int mode );
 
-void set_threads( size_t nr );
+void set_simd_compute_mode( int mode );
+
+void set_chunk_size( size_t size );
+
+void set_threads( size_t count );
 
 // #############################################################################
 // Initialisations

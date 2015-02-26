@@ -130,7 +130,7 @@ region_t init_region_for_global( sequence a_seq, sequence b_seq ) {
     return region;
 }
 
-static void fill_alignment( alignment_p alignment, region_t region, cigar_p cigar ) {
+static void fill_alignment( p_alignment alignment, region_t region, cigar_p cigar ) {
     alignment->align_q_start = region.a_begin;
     alignment->align_q_end = region.a_end;
     alignment->align_d_start = region.b_begin;
@@ -139,7 +139,7 @@ static void fill_alignment( alignment_p alignment, region_t region, cigar_p ciga
     alignment->alignment_len = cigar->len;
 }
 
-void align_nw_sellers( alignment_p alignment ) {
+void align_nw_sellers( p_alignment alignment ) {
     ffatal( "align_nw_sellers: TODO not yet implemented" );
 
     /*
@@ -147,7 +147,7 @@ void align_nw_sellers( alignment_p alignment ) {
      */
 }
 
-void align_nw( alignment_p alignment ) {
+void align_nw( p_alignment alignment ) {
     sequence a_seq = { alignment->query.seq, alignment->query.len };
     sequence b_seq = { alignment->db_seq.seq, alignment->db_seq.len };
 
@@ -160,7 +160,7 @@ void align_nw( alignment_p alignment ) {
     free_cigar( cigar );
 }
 
-void align_sw( alignment_p alignment ) {
+void align_sw( p_alignment alignment ) {
     sequence a_seq = { alignment->query.seq, alignment->query.len };
     sequence b_seq = { alignment->db_seq.seq, alignment->db_seq.len };
 

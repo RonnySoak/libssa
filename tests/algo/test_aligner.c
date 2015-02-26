@@ -37,7 +37,7 @@ static p_query setup_aligner_test( char * query_string, char * db_file, int chun
     mat_init_constant_scoring( 1, -1 );
 
     p_query query = query_read_from_string( "short query", query_string );
-    ssa_db_init_fasta( concat( "./tests/testdata/", db_file ) );
+    ssa_db_init( concat( "./tests/testdata/", db_file ) );
 
     it_init( chunk_size );
     gapO = 1;
@@ -66,7 +66,7 @@ static void exit_aligner_test( p_alignment_list alist, p_query query ) {
     mat_free();
     query_free( query );
     it_exit();
-    ssa_db_free();
+    ssa_db_close();
 }
 
 START_TEST (test_aligner_simple_sw)
@@ -80,7 +80,7 @@ START_TEST (test_aligner_simple_sw)
 
         p_alignment_list alist = do_aligner_test_step_two( SMITH_WATERMAN, query, 1, 1, elements );
 
-        alignment_p al = alist->alignments[0];
+        p_alignment al = alist->alignments[0];
 
         ck_assert_str_eq( sdb.seq, al->db_seq.seq );
         ck_assert_int_eq( sdb.len, al->db_seq.len );
@@ -113,7 +113,7 @@ START_TEST (test_aligner_simple_sw_2)
 
         p_alignment_list alist = do_aligner_test_step_two( SMITH_WATERMAN, query, 1, 1, elements );
 
-        alignment_p al = alist->alignments[0];
+        p_alignment al = alist->alignments[0];
 
         ck_assert_str_eq( "9M", al->alignment );
 
@@ -146,7 +146,7 @@ START_TEST (test_aligner_more_sequences_sw)
         p_alignment_list alist = do_aligner_test_step_two( SMITH_WATERMAN, query, 5, heap->count, heap->array );
         minheap_exit( heap );
 
-        alignment_p al = alist->alignments[0];
+        p_alignment al = alist->alignments[0];
 
         ck_assert_str_eq( sdb0.seq, al->db_seq.seq );
         ck_assert_int_eq( sdb0.len, al->db_seq.len );
@@ -181,7 +181,7 @@ START_TEST (test_aligner_simple_nw)
 
         p_alignment_list alist = do_aligner_test_step_two( NEEDLEMAN_WUNSCH, query, 1, 1, elements );
 
-        alignment_p al = alist->alignments[0];
+        p_alignment al = alist->alignments[0];
 
         ck_assert_str_eq( sdb.seq, al->db_seq.seq );
         ck_assert_int_eq( sdb.len, al->db_seq.len );

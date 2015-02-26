@@ -37,6 +37,8 @@
 #define LINE_MAX 2048
 #endif
 
+extern int output_mode;
+
 void * xmalloc( size_t size );
 void * xrealloc( void *ptr, size_t size );
 

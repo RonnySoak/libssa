@@ -57,7 +57,7 @@ struct alignment_data {
     seq_buffer queries[6];
     size_t q_count;
 
-    void (*align_function)( alignment_p );
+    void (*align_function)( p_alignment );
 };
 typedef struct alignment_data * p_alignment_data;
 

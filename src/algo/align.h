@@ -30,7 +30,7 @@ typedef struct {
 
 typedef cigar_t * cigar_p;
 
-void a_init_align_function(void (* align_function) (alignment_p));
+void a_init_align_function(void (* align_function) (p_alignment));
 
 region_t init_region_for_global(sequence a_seq, sequence b_seq);
 
@@ -42,10 +42,10 @@ cigar_p compute_cigar_for_sw(sequence a_seq, sequence b_seq, region_t region);
 
 void free_cigar(cigar_p cigar);
 
-void align_nw_sellers(alignment_p alignment);
+void align_nw_sellers(p_alignment alignment);
 
-void align_nw(alignment_p alignment);
+void align_nw(p_alignment alignment);
 
-void align_sw(alignment_p alignment);
+void align_sw(p_alignment alignment);
 
 #endif /* ALIGN_H_ */

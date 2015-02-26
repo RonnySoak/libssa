@@ -8,10 +8,6 @@
 #ifndef SRC_CPU_CONFIG_H_
 #define SRC_CPU_CONFIG_H_
 
-#define COMPUTE_ON_SSE2 0
-#define COMPUTE_ON_SSE41 1
-#define COMPUTE_ON_AVX2 2
-
 void set_max_compute_capability( int capability );
 
 void reset_compute_capability();

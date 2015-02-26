@@ -20,7 +20,6 @@
 // #############################################################################
 // Data types
 // ##########
-
 typedef struct seqinfo {
     char * header;
     char * seq;
@@ -34,7 +33,7 @@ typedef struct seqinfo* p_seqinfo;
 // #############################################################################
 // Initialisation
 // ##############
-void ssa_db_init_fasta(const char* fasta_file_name);
+void ssa_db_init( const char* db_name );
 
 // #############################################################################
 // Accessors
@@ -44,13 +43,13 @@ unsigned long ssa_db_get_sequence_count();
 /**
  * Returns the DB sequence of the specified ID.
  */
-p_seqinfo ssa_db_get_sequence(size_t id);
+p_seqinfo ssa_db_get_sequence( size_t id );
 
 /**
  * Releases the memory allocated by the function sdb_init_fasta.
  *
  * @see sdb_init_fasta
  */
-void ssa_db_free();
+void ssa_db_close();
 
 #endif /* LIBSSA_EXTERN_DB_H_ */

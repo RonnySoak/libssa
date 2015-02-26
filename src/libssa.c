@@ -22,8 +22,6 @@
 // #############################################################################
 // Configuration data
 // ##################
-size_t _max_thread_count = -1;
-int _output_mode = OUTPUT_STDOUT;
 
 // #############################################################################
 // Alignment data
@@ -35,11 +33,19 @@ uint8_t gapE = 0;
 // Technical initialisation
 // ########################
 void set_output_mode( int mode ) {
-    _output_mode = mode;
+    output_mode = mode;
+}
+
+void set_simd_compute_mode( int capability ) {
+    set_max_compute_capability( capability );
+}
+
+void set_chunk_size( size_t size ) {
+    max_chunk_size = size;
 }
 
 void set_threads( size_t nr ) {
-    _max_thread_count = nr;
+    max_thread_count = nr;
 }
 
 // #############################################################################
@@ -107,9 +113,9 @@ void init_constant_scoring( const int8_t p, const int8_t m ) {
  * @param fasta_db_file  path to a file in FASTA format
  */
 void init_db_fasta( const char* fasta_db_file ) {
-    ssa_db_free();
+    ssa_db_close();
 
-    ssa_db_init_fasta( fasta_db_file );
+    ssa_db_init( fasta_db_file );
 
     outf( "DB read %lu sequences\n", ssa_db_get_sequence_count() );
 }
@@ -272,7 +278,7 @@ void free_alignment( p_alignment_list alist ) {
 
 void ssa_exit() {
     mat_free();
-    ssa_db_free();
+    ssa_db_close();
 
     exit_thread_pool();
 }

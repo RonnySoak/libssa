@@ -33,7 +33,7 @@ static p_search_result setup_searcher_test( int bit_width, int search_type, char
     p_query query = setup_searcher_test_init( bit_width, search_type, query_string, hit_count, NUCLEOTIDE,
     FORWARD_STRAND );
 
-    ssa_db_init_fasta( concat( "./tests/testdata/", db_file ) );
+    ssa_db_init( concat( "./tests/testdata/", db_file ) );
 
     gapO = 1;
     gapE = 1;

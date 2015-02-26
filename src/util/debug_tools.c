@@ -116,17 +116,7 @@ void dbg_add_matrix_data_256_16_sw( int q_idx, int d_idx, __m256i value ) {
     ffatal( "not implemented yet" );
 }
 
-static void print_matrix( char * bit_string, char * algorithm, sequence * dseq, int x, char * qseq, int16_t * matrix ) {
-    char * file_name = xmalloc( 40 );
-    sprintf( file_name, "debug_output/matrix_%s_%s.txt", bit_string, algorithm );
-
-    FILE *f = fopen( file_name, "a" );
-    if( f == NULL ) {
-        outf( "Error opening file!\n" );
-        exit( 1 );
-    }
-
-    free( file_name );
+static void print_matrix( FILE * f, sequence * dseq, int x, char * qseq, int16_t * matrix ) {
     // first line seq1
     fprintf( f, " " );
     for( int i = 0; i < dseq[x].len; i++ ) {
@@ -147,8 +137,6 @@ static void print_matrix( char * bit_string, char * algorithm, sequence * dseq, 
     }
     fprintf( f, "\n" );
     fprintf( f, "\n" );
-
-    fclose( f );
 }
 
 void dbg_print_matrices_to_file( int bit_width, char * algorithm, char * qseq, sequence * dseq, int dseq_count ) {
@@ -171,20 +159,36 @@ void dbg_print_matrices_to_file( int bit_width, char * algorithm, char * qseq, s
         dseq_count = matrix_count;
     }
 
+    char * file_name = xmalloc( 40 );
+    sprintf( file_name, "debug_output/matrix_%s_%s.txt", bit_string, algorithm );
+
+    FILE *f = fopen( file_name, "a" );
+    if( f == NULL ) {
+        outf( "Error opening file!\n" );
+        exit( 1 );
+    }
+
+    free( file_name );
+
     for( int x = 0; x < dseq_count; ++x ) {
-        print_matrix( bit_string, algorithm, dseq, x, qseq, matrix[x] );
+        fprintf( f, "H-Matrix\n" );
+        print_matrix( f, dseq, x, qseq, matrix[x] );
 
         if( bit_width == BIT_WIDTH_64 ) {
-            print_matrix( bit_string, algorithm, dseq, x, qseq, matrix[x + 1] );
+            fprintf( f, "E-Matrix\n" );
+            print_matrix( f, dseq, x, qseq, matrix[x + 1] );
             free( matrix[x + 1] );
 
-            print_matrix( bit_string, algorithm, dseq, x, qseq, matrix[x + 2] );
+            fprintf( f, "F-Matrix\n" );
+            print_matrix( f, dseq, x, qseq, matrix[x + 2] );
             free( matrix[x + 2] );
         }
 
         free( matrix[x] );
     }
     free( matrix );
+
+    fclose( f );
 }
 
 static char * aligned_sequence_collection_desc = 0;

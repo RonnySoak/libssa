@@ -90,7 +90,7 @@ START_TEST (test_next_empty)
 
 START_TEST (test_next_one_nuc_forward)
     {
-        ssa_db_init_fasta( "tests/testdata/one_seq.fas" );
+        ssa_db_init( "tests/testdata/one_seq.fas" );
 
         symtype = NUCLEOTIDE;
         query_strands = FORWARD_STRAND;
@@ -115,13 +115,13 @@ START_TEST (test_next_one_nuc_forward)
         it_free_chunk( chunk );
 
         it_exit();
-        ssa_db_free();
+        ssa_db_close();
 
     }END_TEST
 
 START_TEST (test_next_one_nuc_both)
     {
-        ssa_db_init_fasta( "tests/testdata/one_seq.fas" );
+        ssa_db_init( "tests/testdata/one_seq.fas" );
 
         symtype = NUCLEOTIDE;
         query_strands = BOTH_STRANDS;
@@ -156,13 +156,13 @@ START_TEST (test_next_one_nuc_both)
         it_free_chunk( chunk );
 
         it_exit();
-        ssa_db_free();
+        ssa_db_close();
     }END_TEST
 
 START_TEST (test_next_one_db_translate_forward)
     {
         // test with forward strand and db translation
-        ssa_db_init_fasta( "tests/testdata/one_seq.fas" );
+        ssa_db_init( "tests/testdata/one_seq.fas" );
 
         symtype = TRANS_DB;
         query_strands = FORWARD_STRAND;
@@ -206,13 +206,13 @@ START_TEST (test_next_one_db_translate_forward)
         it_free_chunk( chunk );
 
         it_exit();
-        ssa_db_free();
+        ssa_db_close();
     }END_TEST
 
 START_TEST (test_next_one_db_translate_both)
     {
         // test with both strand and db translation
-        ssa_db_init_fasta( "tests/testdata/one_seq.fas" );
+        ssa_db_init( "tests/testdata/one_seq.fas" );
 
         symtype = TRANS_DB;
         query_strands = BOTH_STRANDS;
@@ -280,12 +280,12 @@ START_TEST (test_next_one_db_translate_both)
         it_free_chunk( chunk );
 
         it_exit();
-        ssa_db_free();
+        ssa_db_close();
     }END_TEST
 
 START_TEST (test_next_chunk)
     {
-        ssa_db_init_fasta( "tests/testdata/test.fas" );
+        ssa_db_init( "tests/testdata/test.fas" );
 
         // test with only forward strand
         symtype = NUCLEOTIDE;
@@ -320,7 +320,7 @@ START_TEST (test_next_chunk)
         it_free_chunk( chunk );
 
         it_exit();
-        ssa_db_free();
+        ssa_db_close();
     }END_TEST
 
 void addDBIteratorTC( Suite *s ) {

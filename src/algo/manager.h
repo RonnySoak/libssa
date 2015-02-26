@@ -10,6 +10,8 @@
 
 #include "../libssa_datatypes.h"
 
+extern size_t max_chunk_size;
+
 void init_for_sw( p_query query, size_t hit_count, int bit_width, int align_type );
 
 void init_for_nw( p_query query, size_t hit_count, int bit_width, int align_type );

@@ -12,7 +12,7 @@
 Suite* libssa_suite( void ) {
     Suite *s = suite_create( "libssa" );
 
-    _max_thread_count = 1;
+    set_threads( 1 );
 
     /* Core test case */
     addCPUConfigTC( s );

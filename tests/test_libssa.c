@@ -13,8 +13,6 @@
 #include "../src/algo/searcher.h"
 #include "../src/algo/gap_costs.h"
 
-extern unsigned long max_chunk_size; // TODO make it better configurable
-
 static p_query init_libssa_test( size_t thread_count, char * db_file, char * query_file) {
     init_score_matrix( MATRIX_BUILDIN, BLOSUM62 );
     init_gap_penalties( 4, 2 );
@@ -142,8 +140,7 @@ START_TEST (test_nw_multiple_threads)
 
 START_TEST (test_1000_threads)
     {
-        long prev_chunk_size = max_chunk_size;
-        max_chunk_size = 1;
+        set_chunk_size( 1 );
 
         p_query query = init_libssa_test( 1000, "tests/testdata/AF091148.fas", "tests/testdata/one_seq.fas" );
 
@@ -193,7 +190,6 @@ START_TEST (test_1000_threads)
 //        ck_assert_int_eq(1164, alist->alignments[4]->db_seq.ID);
         ck_assert_int_eq(163, alist->alignments[4]->score);
 //        ck_assert_str_eq("7M2I3MD3MD4M2D8M5I4M8I7MI5MI4M2I3MI2M", alist->alignments[4]->alignment);
-        max_chunk_size = prev_chunk_size;
 
         exit_libssa_test( alist, query );
     }END_TEST

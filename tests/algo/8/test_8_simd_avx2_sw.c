@@ -28,7 +28,7 @@ static p_search_result setup_searcher_8_test( char * query_string, char * db_fil
 
     s_init( SMITH_WATERMAN, BIT_WIDTH_8, query, hit_count );
 
-    ssa_db_init_fasta( concat( "./tests/testdata/", db_file ) );
+    ssa_db_init( concat( "./tests/testdata/", db_file ) );
 
     gapO = 1;
     gapE = 1;

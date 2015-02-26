@@ -35,7 +35,7 @@ static void exit_simd_util_test( p_s8info s ) {
     search_8_exit( s );
     it_exit();
     mat_free();
-    ssa_db_free();
+    ssa_db_close();
 
     reset_compute_capability();
 }

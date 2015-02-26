@@ -58,8 +58,8 @@ void init_for_nw_sellers( p_query query, size_t hit_count, int bit_width, int al
 }
 
 static int alignment_compare( const void * a, const void * b ) {
-    alignment_p * x = (alignment_p *) a;
-    alignment_p * y = (alignment_p *) b;
+    p_alignment * x = (p_alignment *) a;
+    p_alignment * y = (p_alignment *) b;
 
     int cmp = CMP_ASC( (*x)->score, (*y)->score );
     if( !cmp ) {
@@ -69,12 +69,12 @@ static int alignment_compare( const void * a, const void * b ) {
 }
 
 static void sort_alignment_list( p_alignment_list alist ) {
-    qsort( alist->alignments, alist->len, sizeof(alignment_p), alignment_compare );
+    qsort( alist->alignments, alist->len, sizeof(p_alignment), alignment_compare );
 }
 
 static p_alignment_list do_align( p_minheap search_results ) {
     p_alignment_list alist = xmalloc( alignment_hit_count * sizeof(struct alignment_list) );
-    alist->alignments = xmalloc( alignment_hit_count * sizeof(alignment_t) );
+    alist->alignments = xmalloc( alignment_hit_count * sizeof(struct alignment) );
     alist->len = alignment_hit_count;
 
     if( align_type == COMPUTE_SCORE ) {
@@ -118,7 +118,7 @@ p_alignment_list m_run() {
 
     start_threads( s_search );
 
-    p_search_result search_result_list[_max_thread_count];
+    p_search_result search_result_list[max_thread_count];
 
     unsigned long chunks_processed = 0;
     unsigned long db_sequences_processed = 0;
@@ -161,7 +161,7 @@ p_alignment_list m_run() {
     minheap_exit( search_results );
 
     a_free_data();
-    for( size_t i = 0; i < _max_thread_count; i++ ) {
+    for( size_t i = 0; i < max_thread_count; i++ ) {
         s_free( search_result_list[i] );
     }
 

@@ -12,8 +12,6 @@
 #include <getopt.h>
 #include <string.h>
 
-#include "../src/cpu_config.h"
-
 /*
  * Using UniProtKB/Swiss-Prot database.
  *
@@ -127,7 +125,7 @@ static void print_alignment( p_alignment_list alist ) {
     printf( "Nr of alignments: %ld\n", alist->len );
 
     for( size_t i = 0; i < alist->len; i++ ) {
-        alignment_p a = alist->alignments[i];
+        p_alignment a = alist->alignments[i];
 
         printf( "%ld, %ld, ", a->score, a->db_seq.ID );
     }
@@ -150,13 +148,13 @@ int main( int argc, char**argv ) {
     init_gap_penalties( gapO, gapE );
 
     if( simd == AVX2 ) {
-        set_max_compute_capability( COMPUTE_ON_AVX2 );
+        set_simd_compute_mode( COMPUTE_ON_AVX2 );
     }
     else if( simd == SSE41 ) {
-        set_max_compute_capability( COMPUTE_ON_SSE41 );
+        set_simd_compute_mode( COMPUTE_ON_SSE41 );
     }
     else if( simd == SSE2 ) {
-        set_max_compute_capability( COMPUTE_ON_SSE2 );
+        set_simd_compute_mode( COMPUTE_ON_SSE2 );
     }
     else {
         fprintf( stderr, "Unknown SIMD option, try --help.\n" );

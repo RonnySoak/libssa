@@ -15,6 +15,7 @@
 #include "../db_iterator.h"
 
 FILE* out_file;
+int output_mode = OUTPUT_STDOUT;
 
 void ffatal( const char * format, ... ) {
     if( format ) {
@@ -48,7 +49,7 @@ void ffatal( const char * format, ... ) {
 //}
 
 void outf( const char * format, ... ) {
-    if( _output_mode == OUTPUT_STDOUT ) {
+    if( output_mode == OUTPUT_STDOUT ) {
         va_list argptr;
         va_start(argptr, format);
         vfprintf(stdout, format, argptr);
