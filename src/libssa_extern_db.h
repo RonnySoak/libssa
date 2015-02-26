@@ -11,29 +11,22 @@
 #define LIBSSA_EXTERN_DB_H_
 
 #include <stddef.h>
-/**
- * TODO
- *
- * add functions, to get chunks of the DB
- */
 
 // #############################################################################
 // Data types
 // ##########
-typedef struct seqinfo {
-    char * header;
-    char * seq;
+struct seqinfo {
     size_t ID;
-    size_t headerlen;
     size_t seqlen;
-} seqinfo;
+    char * seq;
+};
 
-typedef struct seqinfo* p_seqinfo;
+typedef struct seqinfo * p_seqinfo;
 
 // #############################################################################
 // Initialisation
 // ##############
-void ssa_db_init( const char* db_name );
+void ssa_db_init( const char * db_name );
 
 // #############################################################################
 // Accessors

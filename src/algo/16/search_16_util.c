@@ -31,17 +31,11 @@ typedef __m128i  __mxxxi;
 static void search_16_init_query( p_s16info s, int q_count, seq_buffer * queries ) {
     s->q_count = q_count;
 
-    s->maxqlen = 0;
-
     for( int i = 0; i < q_count; ++i ) {
         p_s16query query = (p_s16query) xmalloc( sizeof(struct s16query) );
 
         query->q_len = queries[i].seq.len;
         query->seq = queries[i].seq.seq;
-
-        if( query->q_len > s->maxqlen ) {
-            s->maxqlen = query->q_len;
-        }
 
         query->q_table = (__mxxxi **) xmalloc( query->q_len * sizeof(__mxxxi *) );
 
@@ -72,6 +66,8 @@ p_s16info search_16_sse2_init( p_search_data sdp ) {
     for( int i = 0; i < 6; i++ ) {
         s->queries[i] = 0;
     }
+
+    s->maxqlen = sdp->maxqlen;
 
     s->penalty_gap_open = gapO;
     s->penalty_gap_extension = gapE;

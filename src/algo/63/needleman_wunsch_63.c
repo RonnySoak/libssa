@@ -29,7 +29,7 @@ int64_t full_nw( sequence * dseq, sequence * qseq, int64_t * hearray ) {
     for( size_t j = 0; j < dseq->len; j++ ) {
         hep = hearray;
 
-        f = 2 * -gapO + (j + 2) * -gapE;            // value in first upper cell
+        f = 2 * -gapO + (j + 2) * -gapE;        // value in first upper cell
         h = (j == 0) ? 0 : (-gapO + j * -gapE); // value in first cell of line
 
         for( size_t i = 0; i < qseq->len; i++ ) {

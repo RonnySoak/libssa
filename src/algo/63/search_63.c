@@ -53,7 +53,7 @@ unsigned long search_63_chunk( p_minheap heap, p_db_chunk chunk, p_search_data s
 }
 
 int64_t* search_63_init_hearray( p_search_data sdp ) {
-    return xmalloc( sdp->hearraylen * 32 );
+    return xmalloc( sdp->maxqlen * 32 );
 }
 
 void search_63( p_db_chunk chunk, p_search_data sdp, p_search_result res ) {

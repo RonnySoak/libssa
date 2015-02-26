@@ -33,7 +33,7 @@ p_search_data s_create_searchdata( p_query query, size_t hit_count ) {
     sdp->hit_count = hit_count;
 
     unsigned long qlen = 0;
-    unsigned long hearraylen = 0;
+    unsigned long maxqlen = 0;
 
     sdp->q_count = 0;
 
@@ -52,7 +52,7 @@ p_search_data s_create_searchdata( p_query query, size_t hit_count ) {
 
                 add_to_buffer( &sdp->queries[sdp->q_count++], query->nt[s], s, 0 );
 
-                hearraylen = qlen > hearraylen ? qlen : hearraylen;
+                maxqlen = qlen > maxqlen ? qlen : maxqlen;
             }
     }
     else if( (symtype == AMINOACID) || (symtype == TRANS_DB) ) {
@@ -60,7 +60,7 @@ p_search_data s_create_searchdata( p_query query, size_t hit_count ) {
 
         add_to_buffer( &sdp->queries[sdp->q_count++], query->aa[0], 0, 0 );
 
-        hearraylen = qlen > hearraylen ? qlen : hearraylen;
+        maxqlen = qlen > maxqlen ? qlen : maxqlen;
     }
     else if( (symtype == TRANS_QUERY) || (symtype == TRANS_BOTH) ) {
         for( int s = 0; s < 2; s++ )
@@ -70,11 +70,11 @@ p_search_data s_create_searchdata( p_query query, size_t hit_count ) {
 
                     add_to_buffer( &sdp->queries[sdp->q_count++], query->aa[3 * s + f], s, f );
 
-                    hearraylen = qlen > hearraylen ? qlen : hearraylen;
+                    maxqlen = qlen > maxqlen ? qlen : maxqlen;
                 }
     }
 
-    sdp->hearraylen = hearraylen;
+    sdp->maxqlen = maxqlen;
 
     return sdp;
 }

@@ -43,7 +43,7 @@ typedef struct {
 struct search_data {
     size_t hit_count;
 
-    size_t hearraylen; // TODO only used in the 64 bit search
+    size_t maxqlen;
 
     seq_buffer queries[6];
     int q_count; // max 6

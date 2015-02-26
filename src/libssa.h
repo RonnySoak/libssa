@@ -103,8 +103,8 @@ typedef struct _query* p_query;
 typedef struct {
     char* seq;
     size_t len;
-    char* header; // TODO do I need the header?
-    size_t headerlen;
+//    char* header; // TODO do I need the header?
+//    size_t headerlen;
     unsigned long ID;
     int strand;
     int frame;

@@ -57,7 +57,7 @@ START_TEST (test_xmalloc)
 
         p_seqinfo * arr2 = xmalloc( 5 * sizeof(p_seqinfo) );
         for( int i = 0; i < 5; ++i ) {
-            arr2[i] = xmalloc( sizeof(seqinfo) );
+            arr2[i] = xmalloc( sizeof(struct seqinfo) );
             arr2[i]->ID = i;
         }
 
@@ -72,14 +72,14 @@ START_TEST (test_xrealloc)
     {
         p_seqinfo * arr = xmalloc( 5 * sizeof(p_seqinfo) );
         for( int i = 0; i < 5; ++i ) {
-            arr[i] = xmalloc( sizeof(seqinfo) );
+            arr[i] = xmalloc( sizeof(struct seqinfo) );
             arr[i]->ID = i;
         }
 
         arr = xrealloc( arr, 10 * sizeof(p_seqinfo) );
         for( int i = 0; i < 10; ++i ) {
             if( i >= 5 ) {
-                arr[i] = xmalloc( sizeof(seqinfo) );
+                arr[i] = xmalloc( sizeof(struct seqinfo) );
                 arr[i]->ID = i;
             }
         }

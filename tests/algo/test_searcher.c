@@ -516,7 +516,7 @@ START_TEST (test_init_search_data)
 
         ck_assert_int_eq( 1, sdp->hit_count );
 
-        ck_assert_int_eq( 54, sdp->hearraylen );
+        ck_assert_int_eq( 54, sdp->maxqlen );
         // TODO test profile
 
         query_free( query );
@@ -546,7 +546,7 @@ START_TEST (test_init_search_data2)
 
         ck_assert_int_eq( 5, sdp->hit_count );
 
-        ck_assert_int_eq( 54, sdp->hearraylen );
+        ck_assert_int_eq( 54, sdp->maxqlen );
 
         query_free( query );
     }END_TEST
@@ -585,7 +585,7 @@ START_TEST (test_init_search_data3)
 
         ck_assert_int_eq( 5, sdp->hit_count );
 
-        ck_assert_int_eq( 18, sdp->hearraylen );
+        ck_assert_int_eq( 18, sdp->maxqlen );
 
         query_free( query );
     }END_TEST
@@ -638,7 +638,7 @@ START_TEST (test_init_search_data4)
 
         ck_assert_int_eq( 3, sdp->hit_count );
 
-        ck_assert_int_eq( 18, sdp->hearraylen );
+        ck_assert_int_eq( 18, sdp->maxqlen );
 
         query_free( query );
     }END_TEST
@@ -667,7 +667,7 @@ START_TEST (test_init_search_data5)
 
         ck_assert_int_eq( 1, sdp->hit_count );
 
-        ck_assert_int_eq( 54, sdp->hearraylen );
+        ck_assert_int_eq( 54, sdp->maxqlen );
 
         query_free( query );
     }END_TEST

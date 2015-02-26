@@ -13,7 +13,7 @@
 
 #include "../libssa_datatypes.h"
 
-#define DBG_COLLECT_MATRIX
+//#define DBG_COLLECT_MATRIX
 //#define DBG_COLLECT_ALIGNED_DB_SEQUENCES
 
 void dbg_init_matrix_data_collection( int bit_width, int maxdlen, int maxqlen );

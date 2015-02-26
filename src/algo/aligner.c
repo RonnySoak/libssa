@@ -73,8 +73,6 @@ static void init_alignment( p_alignment a, elem_t * e, seq_buffer* queries ) {
     a->db_seq.len = dseq.len;
     a->db_seq.strand = e->dframe;
     a->db_seq.frame = e->dstrand;
-    a->db_seq.header = info->header;
-    a->db_seq.headerlen = info->headerlen;
     a->db_seq.ID = info->ID;
 
     a->query.seq = qseq.seq.seq;
@@ -115,8 +113,6 @@ void a_free( p_alignment_list alist ) {
                 a->db_seq.len = 0;
                 a->db_seq.strand = 0;
                 a->db_seq.frame = 0;
-                a->db_seq.header = 0;
-                a->db_seq.headerlen = 0;
                 a->db_seq.ID = 0;
 
                 a->query.seq = 0;
