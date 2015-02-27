@@ -93,7 +93,7 @@ int main( int argc, char**argv ) {
             }
 
             for( int s = 0; s < 2; ++s ) {
-                set_max_compute_capability( SIMD[s] );
+                set_simd_compute_mode( SIMD[s] );
 
                 for( int b = 0; b < 2; ++b ) {
                     for( int q = 0; q < 4; ++q ) {

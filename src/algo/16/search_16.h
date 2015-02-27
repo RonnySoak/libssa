@@ -14,10 +14,6 @@
 #include "../../libssa_datatypes.h"
 #include "../../util/minheap.h"
 
-#define CDEPTH_16_BIT 4
-#define CHANNELS_16_BIT_SSE (128 / 16)
-#define CHANNELS_16_BIT_AVX (256 / 16)
-
 struct s16query;
 typedef struct s16query * p_s16query;
 

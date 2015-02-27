@@ -15,10 +15,6 @@
 #include "../../libssa_datatypes.h"
 #include "../../util/minheap.h"
 
-#define CDEPTH_8_BIT 4
-#define CHANNELS_8_BIT_SSE (128 / 8)
-#define CHANNELS_8_BIT_AVX (256 / 8)
-
 struct s8query;
 typedef struct s8query * p_s8query;
 

@@ -12,6 +12,10 @@
 
 #include "../../util/linked_list.h"
 
+#define CDEPTH_8_BIT 4
+#define CHANNELS_8_BIT_SSE (128 / 8)
+#define CHANNELS_8_BIT_AVX (256 / 8)
+
 #ifdef __AVX2__
 typedef __m256i __mxxxi;
 #define CHANNELS_8_BIT CHANNELS_8_BIT_AVX

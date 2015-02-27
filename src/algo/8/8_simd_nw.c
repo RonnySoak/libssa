@@ -80,17 +80,16 @@ static int d_idx;
  H_MIN = _mmxxx_min_epi8(H_MIN, H);                                            \
  H_MAX = _mmxxx_max_epi8(H_MAX, H);                                            \
  N = H;                               /* save H in HE-array */                 \
- HF = _mmxxx_subs_epi8(H, QR);        /* subtract gap open-extend */           \
+ HQR = _mmxxx_subs_epi8(H, QR);       /* subtract gap open-extend */           \
  F = _mmxxx_subs_epi8(F, R);          /* subtract gap extend */                \
- F = _mmxxx_max_epi8(F, HF);          /* test for gap extension, or opening */ \
- HE = _mmxxx_subs_epi8(H, QR);        /* subtract gap open-extend */           \
+ F = _mmxxx_max_epi8(F, HQR);         /* test for gap extension, or opening */ \
  E = _mmxxx_subs_epi8(E, R);          /* subtract gap extend */                \
- E = _mmxxx_max_epi8(E, HE);          /* test for gap extension, or opening */
+ E = _mmxxx_max_epi8(E, HQR);         /* test for gap extension, or opening */
 
 static void aligncolumns_first( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mxxxi gap_open_extend, __mxxxi gap_extend,
         __mxxxi h0, __mxxxi h1, __mxxxi h2, __mxxxi h3, __mxxxi f0, __mxxxi f1, __mxxxi f2, __mxxxi f3,
         __mxxxi * _h_min, __mxxxi * _h_max, __mxxxi Mm, __mxxxi M_gap_open_extend, __mxxxi M_gap_extend, size_t ql ) {
-    __mxxxi h4, h5, h6, h7, h8, E, HE, HF;
+    __mxxxi h4, h5, h6, h7, h8, E, HQR;
     __mxxxi * vp;
     /*
      * We set h_min and h_max to zero, to prevent a reuse of the previous score
@@ -162,7 +161,7 @@ static void aligncolumns_first( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mx
 static void aligncolumns_rest( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mxxxi gap_open_extend, __mxxxi gap_extend,
         __mxxxi h0, __mxxxi h1, __mxxxi h2, __mxxxi h3, __mxxxi f0, __mxxxi f1, __mxxxi f2, __mxxxi f3,
         __mxxxi * _h_min, __mxxxi * _h_max, size_t ql ) {
-    __mxxxi h4, h5, h6, h7, h8, E, HE, HF;
+    __mxxxi h4, h5, h6, h7, h8, E, HQR;
     __mxxxi * vp;
 
     f0 = _mmxxx_subs_epi8( f0, gap_open_extend );

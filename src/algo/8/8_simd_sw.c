@@ -65,23 +65,22 @@
 static int d_idx;
 #endif
 
-#define ALIGNCORE(H, N, F, V, QR, R, S, H_MAX )                                   \
+#define ALIGNCORE(H, N, F, V, QR, R, S, H_MAX )                                  \
  H = _mmxxx_adds_epi8(H, V);            /* add value of scoring matrix */        \
  H = _mmxxx_max_epi8(H, F);             /* max(H, F) */                          \
  H = _mmxxx_max_epi8(H, E);             /* max(H, E) */                          \
  S = _mmxxx_max_epi8(H, S);             /* save max score */                     \
  H_MAX = _mmxxx_max_epi8(H_MAX, H);                                              \
- N = H;                                 /* save H in HE-array */                  \
- HF = _mmxxx_subs_epi8(H, QR);          /* subtract gap open-extend */           \
+ N = H;                                 /* save H in HE-array */                 \
+ HQR = _mmxxx_subs_epi8(H, QR);         /* subtract gap open-extend */           \
  F = _mmxxx_subs_epi8(F, R);            /* subtract gap extend */                \
- F = _mmxxx_max_epi8(F, HF);            /* test for gap extension, or opening */ \
- HE = _mmxxx_subs_epi8(H, QR);          /* subtract gap open-extend */           \
+ F = _mmxxx_max_epi8(F, HQR);           /* test for gap extension, or opening */ \
  E = _mmxxx_subs_epi8(E, R);            /* subtract gap extend */                \
- E = _mmxxx_max_epi8(E, HE);            /* test for gap extension, or opening */
+ E = _mmxxx_max_epi8(E, HQR);           /* test for gap extension, or opening */
 
 static void aligncolumns_first( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mxxxi gap_open_extend, __mxxxi gap_extend,
         __mxxxi Mm, __mxxxi * _h_max, size_t ql ) {
-    __mxxxi h4, h5, h6, h7, h8, f0, f1, f2, f3, E, HE, HF;
+    __mxxxi h4, h5, h6, h7, h8, f0, f1, f2, f3, E, HQR;
     __mxxxi * vp;
 
     __mxxxi VECTOR_INT8MIN = _mmxxx_set1_epi8( INT8_MIN );
@@ -142,7 +141,7 @@ static void aligncolumns_first( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mx
 
 static void aligncolumns_rest( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mxxxi gap_open_extend, __mxxxi gap_extend,
         __mxxxi * _h_max, size_t ql ) {
-    __mxxxi h4, h5, h6, h7, h8, f0, f1, f2, f3, E, HE, HF;
+    __mxxxi h4, h5, h6, h7, h8, f0, f1, f2, f3, E, HQR;
     __mxxxi * vp;
 
     __mxxxi VECTOR_INT8MIN = _mmxxx_set1_epi8( INT8_MIN );

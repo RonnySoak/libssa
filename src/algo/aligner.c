@@ -58,7 +58,9 @@ void a_free_data() {
     free( adp );
 }
 
-static void init_alignment( p_alignment a, elem_t * e, seq_buffer* queries ) {
+static p_alignment init_alignment( elem_t * e, seq_buffer* queries ) {
+    p_alignment a = xmalloc( sizeof(struct alignment) );
+
     p_seqinfo info = ssa_db_get_sequence( e->db_id );
     if( !info ) {
         // TODO raise error, as this should not be possible
@@ -86,15 +88,13 @@ static void init_alignment( p_alignment a, elem_t * e, seq_buffer* queries ) {
     a->align_d_end = 0;
     a->alignment = 0;
     a->score = e->score;
+
+    return a;
 }
 
 void create_score_alignment_list( p_minheap search_results, p_alignment_list alist ) {
     for( int i = 0; i < search_results->count; ++i ) {
-        p_alignment a = xmalloc( sizeof(struct alignment) );
-
-        init_alignment( a, &search_results->array[i], adp->queries );
-
-        alist->alignments[i] = a;
+        alist->alignments[i] = init_alignment( &search_results->array[i], adp->queries );
     }
 }
 
@@ -172,8 +172,7 @@ void * a_align( void * unused ) {
     elem_t * chunk = 0;
     while( (chunk = get_chunk()) != 0 ) {
         // do alignment for each pair
-        p_alignment a = xmalloc( sizeof(struct alignment) );
-        init_alignment( a, chunk, adp->queries );
+        p_alignment a = init_alignment( chunk, adp->queries );
 
         adp->align_function( a );
 
