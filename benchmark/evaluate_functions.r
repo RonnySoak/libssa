@@ -12,7 +12,7 @@ read_reduced_timing <- function( file_name, suffix="", nr_desc_elements = 5 ) {
     datatiming = t(timing[idx_data:length(timing[1,])])
 
     config_reduced = configtiming[, seq( 1, ncol(datatiming), by=4 )]
-    config_labels = apply( configtiming, 2, paste, collapse="," )
+    config_labels = apply( config_reduced, 2, paste, collapse="," )
 
     timing_reduced = sapply( seq( 1, ncol(datatiming), by=4 ), function(x) rowSums(datatiming[, x:(x+3)]) )
     timing_reduced = apply( timing_reduced, c(1, 2), function(x) (x / 4))

@@ -9,14 +9,6 @@ read_reduced_timing( "results/19_02_2015_alignment_only" );
 
 set_indices()
 
-timing_simd = c( totaltiming[ idx_sse41 ], totaltiming[ idx_avx2 ])
-total = sum( timing_simd )
-
-total = total * 2 + 8 * total
-
-total / 60 / 60
-
-
 # AVX vs SSE
 compare_plot_func( idx_avx2, idx_sse41, idx_SW, meantiming, config_reduced[-(1:2),], c("AVX2", "SSE4.1"), "SW calculation: AVX vs. SSE" )
 compare_plot_func( idx_avx2, idx_sse41, idx_NW, meantiming, config_reduced[-(1:2),], c("AVX2", "SSE4.1"), "NW calculation: AVX vs. SSE" )
@@ -43,6 +35,27 @@ improvements_func( idx_64bit, idx_16bit, meantiming, config_reduced[-c(1,3),], "
 improvements_func( idx_1t, idx_4t, meantiming, config_reduced[-4,], "Improvement: 1 thread vs. 4 threads" )
 improvements_func( idx_1t, idx_8t, meantiming, config_reduced[-4,], "Improvement: 1 thread vs. 8 threads" )
 improvements_func( idx_4t, idx_8t, meantiming, config_reduced[-4,], "Improvement: 4 thread vs. 8 threads" )
+
+# get distribution of values
+print_variations_boxplot <- function( data, title, configurations ) {
+    par( mar = c( 5, 8.5, 3, 1 ) )
+    boxplot( data, main = title, horizontal = T, xlab="Time (seconds)", names = configurations, las=1 )
+}
+
+reduced_label_no_threads <- unique( apply( config_reduced[-4,], 2, paste, collapse = "," ) )
+reduced_label_no_threads <- gsub( pattern = ",", replacement = ", ", x = reduced_label_no_threads)
+reduced_label_no_threads <- gsub( pattern = "NO_SIMD, ", replacement = "", x = reduced_label_no_threads)
+reduced_label_no_threads <- gsub( pattern = "_", replacement = " ", x = reduced_label_no_threads)
+
+min_max <- cbind( c( "1t", "4t", "8t" ), matrix( maxtiming - mintiming, nrow=3, ncol=10, byrow = T ) )
+min_max <- rbind( c( NA, reduced_label_no_threads ), min_max )
+
+pdf(file='~/projects/master_thesis/tex/img/runtime_variation.pdf', width = 6, height = 10, pointsize = 12)
+par( mfrow = c(3, 1) )
+print_variations_boxplot( timing_reduced[,1:10], "Variation of timing results using 1 thread", reduced_label_no_threads )
+print_variations_boxplot( timing_reduced[,11:20], "Variation of timing results using 4 threads", reduced_label_no_threads )
+print_variations_boxplot( timing_reduced[,21:30], "Variation of timing results using 8 threads", reduced_label_no_threads )
+dev.off()
 
 # compare
 #

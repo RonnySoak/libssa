@@ -26,7 +26,7 @@ plot_per_thread_count <- function( timing, thread_key = "1_t", title, yl = c(2, 
 
     data = rbind( apply( reduced_timing_1t_rfam, 2, mean ), apply( reduced_timing_1t_uniprot, 2, mean ) )
 
-    plot( labels, data[1,], main = title, type = "o", xlab = "Chunk sizes", ylab = "Time in seconds", log = "x", ylim = yl )
+    plot( labels, data[1,], main = title, type = "o", xlab = "Chunk sizes (number of DB sequences / chunk)", ylab = "Time (seconds)", log = "x", ylim = yl )
 
     lines( labels, data[2,], col="red" )
     points( labels, data[2,], col="red" )

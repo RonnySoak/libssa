@@ -110,9 +110,9 @@ int main( int argc, char**argv ) {
                                 p_query query = init_sequence_fasta( READ_FROM_FILE, filename );
                                 free( filename );
 
-                                fprintf( f, "%s,%s,%s,%s,%d_bit,%d_t,%ld_c", dbs[d], queries[q], SIMD_DESC( SIMD[s] ),
+                                fprintf( f, "%s,%s,%s,%s,%d_bit,%d_t,%ld", dbs[d], queries[q], SIMD_DESC( SIMD[s] ),
                                         TYPE_DESC( type ), bit_width[b], threads[t], chunk_size[c] );
-                                printf( "%s,%s,%s,%s,%d_bit,%d_t,%ld_c", dbs[d], queries[q], SIMD_DESC( SIMD[s] ),
+                                printf( "%s,%s,%s,%s,%d_bit,%d_t,%ld", dbs[d], queries[q], SIMD_DESC( SIMD[s] ),
                                         TYPE_DESC( type ), bit_width[b], threads[t], chunk_size[c] );
 
                                 for( int i = 0; i < iterations; i++ ) {
