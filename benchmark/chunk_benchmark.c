@@ -57,7 +57,7 @@ static double run_alignment( p_alignment_list (*align_func)( p_query, size_t, in
 }
 
 int main( int argc, char**argv ) {
-    FILE *f = fopen( "results/22_02_2015_alignment_only", "w" );
+    FILE *f = fopen( "results/01_03_2015_chunks", "w" );
     if( f == NULL ) {
         printf( "Error opening file!\n" );
         exit( 1 );
@@ -69,17 +69,17 @@ int main( int argc, char**argv ) {
     int bit_width[2] = { 8, 16 };
     char * queries[4] = { "O74807", "P18080", "P19930", "Q3ZAI3" };
     int types[2] = { SMITH_WATERMAN, NEEDLEMAN_WUNSCH };
+    char * dbs[2] = { "uniprot_sprot", "Rfam_11_0" };
 
     size_t hit_count = 10;
 
-    int iterations = 2;
+    int iterations = 10;
 
     set_output_mode( OUTPUT_SILENT );
 
     init_score_matrix( MATRIX_BUILDIN, BLOSUM50 );
     init_gap_penalties( 3, 1 );
     init_symbol_translation( AMINOACID, FORWARD_STRAND, 3, 3 );
-    init_db_fasta( "data/uniprot_sprot.fasta" );
 
     for( int t = 0; t < 3; ++t ) {
         set_threads( threads[t] );
@@ -98,28 +98,34 @@ int main( int argc, char**argv ) {
 
                 for( int b = 0; b < 2; ++b ) {
                     for( int q = 0; q < 4; ++q ) {
-                        for( int c = 0; c < 9; ++c ) {
-                            set_chunk_size( chunk_size[c] );
-
-                            char * filename = concat( concat( "data/", queries[q] ), ".fasta" );
-                            p_query query = init_sequence_fasta( READ_FROM_FILE, filename );
+                        for( int d = 0; d < 2; ++d ) {
+                            char * filename = concat( concat( "data/", dbs[d] ), ".fasta" );
+                            init_db_fasta( filename );
                             free( filename );
 
-                            fprintf( f, "%s,%s,%s,%d_bit,%d_t,%ld_c", queries[q], SIMD_DESC( SIMD[s] ),
-                                    TYPE_DESC( type ), bit_width[b], threads[t], chunk_size[c] );
-                            printf( "%s,%s,%s,%d_bit,%d_t,%ld_c", queries[q], SIMD_DESC( SIMD[s] ), TYPE_DESC( type ),
-                                    bit_width[b], threads[t], chunk_size[c] );
+                            for( int c = 0; c < 9; ++c ) {
+                                set_chunk_size( chunk_size[c] );
 
-                            for( int i = 0; i < iterations; i++ ) {
-                                double time = run_alignment( align_func, query, hit_count, bit_width[b] );
+                                char * filename = concat( concat( "data/", queries[q] ), ".fasta" );
+                                p_query query = init_sequence_fasta( READ_FROM_FILE, filename );
+                                free( filename );
 
-                                fprintf( f, ",%lf", time );
-                                printf( ",%lf", time );
+                                fprintf( f, "%s,%s,%s,%s,%d_bit,%d_t,%ld_c", dbs[d], queries[q], SIMD_DESC( SIMD[s] ),
+                                        TYPE_DESC( type ), bit_width[b], threads[t], chunk_size[c] );
+                                printf( "%s,%s,%s,%s,%d_bit,%d_t,%ld_c", dbs[d], queries[q], SIMD_DESC( SIMD[s] ),
+                                        TYPE_DESC( type ), bit_width[b], threads[t], chunk_size[c] );
+
+                                for( int i = 0; i < iterations; i++ ) {
+                                    double time = run_alignment( align_func, query, hit_count, bit_width[b] );
+
+                                    fprintf( f, ",%lf", time );
+                                    printf( ",%lf", time );
+                                }
+                                fprintf( f, "\n" );
+                                printf( "\n" );
+
+                                free_sequence( query );
                             }
-                            fprintf( f, "\n" );
-                            printf( "\n" );
-
-                            free_sequence( query );
                         }
                     }
                 }

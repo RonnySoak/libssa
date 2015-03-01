@@ -4,10 +4,18 @@
 #library(reshape2)
 
 #read_reduced_timing( "results/14_02_2015_whole_lib" );
-read_reduced_timing( "results/18_02_2015_whole_lib" );
-#read_reduced_timing( "results/19_02_2015_alignment_only" );
+#read_reduced_timing( "results/18_02_2015_whole_lib" );
+read_reduced_timing( "results/19_02_2015_alignment_only" );
 
 set_indices()
+
+timing_simd = c( totaltiming[ idx_sse41 ], totaltiming[ idx_avx2 ])
+total = sum( timing_simd )
+
+total = total * 2 + 8 * total
+
+total / 60 / 60
+
 
 # AVX vs SSE
 compare_plot_func( idx_avx2, idx_sse41, idx_SW, meantiming, config_reduced[-(1:2),], c("AVX2", "SSE4.1"), "SW calculation: AVX vs. SSE" )

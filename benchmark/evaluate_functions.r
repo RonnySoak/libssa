@@ -3,9 +3,7 @@
 #library(plyr)
 #library(reshape2)
 
-read_reduced_timing <- function( file_name, suffix="" ) {
-    nr_desc_elements = 5
-
+read_reduced_timing <- function( file_name, suffix="", nr_desc_elements = 5 ) {
     idx_data = nr_desc_elements + 1
 
     timing = read.csv( file=file_name, header=FALSE, sep="," )
@@ -16,7 +14,7 @@ read_reduced_timing <- function( file_name, suffix="" ) {
     config_reduced = configtiming[, seq( 1, ncol(datatiming), by=4 )]
     config_labels = apply( configtiming, 2, paste, collapse="," )
 
-    timing_reduced = sapply( seq( 1, ncol(datatiming), by=4 ), function(x) rowSums(datatiming[, x:(x+4-1)]) )
+    timing_reduced = sapply( seq( 1, ncol(datatiming), by=4 ), function(x) rowSums(datatiming[, x:(x+3)]) )
     timing_reduced = apply( timing_reduced, c(1, 2), function(x) (x / 4))
 
     assign( paste( "timing", suffix, sep="" ), timing, envir = .GlobalEnv )
@@ -29,6 +27,7 @@ read_reduced_timing <- function( file_name, suffix="" ) {
     assign(  paste( "mintiming", suffix, sep="" ), apply( timing_reduced, 2, min ), envir = .GlobalEnv )
     assign(  paste( "meantiming", suffix, sep="" ), apply( timing_reduced, 2, mean ), envir = .GlobalEnv )
     assign(  paste( "mediantiming", suffix, sep="" ), apply( timing_reduced, 2, median ), envir = .GlobalEnv )
+    assign(  paste( "totaltiming", suffix, sep="" ), apply( timing_reduced, 2, sum ), envir = .GlobalEnv )
 }
 
 set_indices <- function() {

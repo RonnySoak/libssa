@@ -57,7 +57,7 @@ static double run_alignment( p_alignment_list (*align_func)( p_query, size_t, in
 }
 
 int main( int argc, char**argv ) {
-    FILE *f = fopen( "results/22_02_2015_alignment_only", "w" );
+    FILE *f = fopen( "results/28_02_2015_alignment_only", "w" );
     if( f == NULL ) {
         printf( "Error opening file!\n" );
         exit( 1 );
