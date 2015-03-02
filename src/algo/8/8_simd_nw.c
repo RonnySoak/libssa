@@ -43,7 +43,7 @@ typedef __m256i __mxxxi;
 #define dprofile_fill_8_xxx dprofile_fill_8_avx2
 #define dbg_add_matrix_data_xxx_8 dbg_add_matrix_data_256_8
 
-#else // SSE2
+#else // SSE4.1
 
 typedef __m128i  __mxxxi;
 #define _mmxxx_and_si _mm_and_si128

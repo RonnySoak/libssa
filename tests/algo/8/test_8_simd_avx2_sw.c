@@ -18,11 +18,11 @@
 #include "../../../src/algo/gap_costs.h"
 #include "../../../src/algo/searcher.h"
 
-static p_search_result setup_searcher_8_test( char * query_string, char * db_file, int hit_count ) {
+static p_search_result setup_searcher_8_test( int symbols, char * query_string, char * db_file, int hit_count ) {
     set_max_compute_capability( COMPUTE_ON_AVX2 );
 
     mat_init_constant_scoring( 1, -1 );
-    init_symbol_translation( NUCLEOTIDE, FORWARD_STRAND, 3, 3 );
+    init_symbol_translation( symbols, FORWARD_STRAND, 3, 3 );
 
     p_query query = query_read_from_string( "short query", query_string );
 
@@ -54,7 +54,7 @@ static void exit_searcher_8_test( p_search_result res ) {
 
 START_TEST (test_sw_simd_simple)
     {
-        p_search_result res = setup_searcher_8_test( "AT", "short_db.fas", 1 );
+        p_search_result res = setup_searcher_8_test( NUCLEOTIDE, "AT", "short_db.fas", 1 );
 
         p_minheap heap = res->heap;
 
@@ -80,7 +80,7 @@ START_TEST (test_sw_simd_simple_2)
 
          Cigar: 4M - ATGC
          */
-        p_search_result res = setup_searcher_8_test( "ATGCAAA", "tmp.fas", 1 );
+        p_search_result res = setup_searcher_8_test( NUCLEOTIDE, "ATGCAAA", "tmp.fas", 1 );
 
         p_minheap heap = res->heap;
 
@@ -89,10 +89,30 @@ START_TEST (test_sw_simd_simple_2)
         exit_searcher_8_test( res );
     }END_TEST
 
+START_TEST (test_sw_simd_overflow)
+    {
+        p_search_result res =
+                setup_searcher_8_test( AMINOACID,
+                        "MVQRWLYSTNAKDIAVLYFMLAIFSGMAGTAMSLIIRLELAAPGSQYLHGNSQLFNVLVVGHAVLMIFFLVMPALIGGFG\
+NYLLPLMIGATDTAFPRINNIAFWVLPMGLVCLVTSTLVESGAGTGWTVYPPLSSIQAHSGPSVDLAIFALHLTSISSLL\
+GAINFIVTTLNMRTNGMTMHKLPLFVWSIFITAFLLLLSLPVLSAGITMLLLDRNFNTSFFEVSGGGDPILYEHLFWFFG\
+HPEVYILIIPGFGIISHVVSTYSKKPVFGEISMVYAMASIGLLGFLVWSHHMYIVGLDADTRAYFTSATMIIAIPTGIKI\
+FSWLATIHGGSIRLATPMLYAIAFLFLFTMGGLTGVALANASLDVAFHDTYYVVGHFHYVLSMGAIFSLFAGYYYWSPQI\
+LGLNYNEKLAQIQFWLIFIGANVIFFPMHFLGINGMPRRIPDYPDAFAGWNYVASIGSFIATLSLFLFIYILYDQLVNGL\
+NNKVNNKSVIYNKAPDFVESNTIFNLNTVKSSSIEFLLTSPPAVHSFNTPAVQS",
+                        "NP_009305.1.fas", 1 );
+
+        p_minheap heap = res->heap;
+
+        ck_assert_int_eq( 534, heap->array[0].score );
+
+        exit_searcher_8_test( res );
+    }END_TEST
+
 START_TEST (test_sw_simd_more_sequences)
     {
-        p_search_result res = setup_searcher_8_test( "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA",
-                "test.fas", 5 );
+        p_search_result res = setup_searcher_8_test( NUCLEOTIDE,
+                "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA", "test.fas", 5 );
 
         ck_assert_int_eq( 4, res->heap->array[0].db_id );
         ck_assert_int_eq( 0, res->heap->array[0].query_id );
@@ -110,6 +130,7 @@ void add_sw_8_AVX2_TC( Suite *s ) {
     TCase *tc_core = tcase_create( "SmithWaterman_8_AVX2" );
     tcase_add_test( tc_core, test_sw_simd_simple );
     tcase_add_test( tc_core, test_sw_simd_simple_2 );
+    tcase_add_test( tc_core, test_sw_simd_overflow );
     tcase_add_test( tc_core, test_sw_simd_more_sequences );
 
     suite_add_tcase( s, tc_core );

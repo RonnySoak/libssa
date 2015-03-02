@@ -354,8 +354,8 @@ sequence us_prepare_sequence( char * seq, size_t len, int f, int s ) {
  */
 void us_revcompl( sequence orig, sequence rc ) {
     if( orig.len != rc.len ) {
-        // TODO throw error
-        return;
+        rc.seq = xrealloc( rc.seq, orig.len );
+        rc.len = orig.len;
     }
 
     for( size_t i = 0; i < orig.len; i++ ) {

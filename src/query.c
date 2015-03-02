@@ -142,7 +142,7 @@ p_query query_read_from_string( const char * header, const char * sequence ) {
         length -= unknown_count;
         unknown_symbols[unknown_count] = 0;
 
-        outf( "Unknown symbols found and omitted: %s\n", unknown_symbols );
+        outf( "Unknown symbols found and omitted: '%s'\n", unknown_symbols );
     }
     free( unknown_symbols );
 

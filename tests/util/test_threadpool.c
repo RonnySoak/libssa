@@ -13,13 +13,13 @@
 #include "../../src/libssa.h"
 #include "../../src/util/util.h"
 
-void setup_pool( int nr_of_threads ) {
+static void setup_pool( int nr_of_threads ) {
     set_threads( nr_of_threads );
 
     init_thread_pool();
 }
 
-void teardown_pool() {
+static void teardown_pool() {
     exit_thread_pool();
 
     set_threads( 1 );
@@ -29,7 +29,7 @@ struct int_result {
     int val;
 };
 
-void * simple_test_thread( void * args ) {
+static void * simple_test_thread( void * args ) {
     struct int_result * counter = xmalloc( sizeof(struct int_result) );
 
     for( int i = 0; i < 1000; ++i ) {

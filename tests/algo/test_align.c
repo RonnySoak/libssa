@@ -29,7 +29,7 @@ void fill_translated_sequence( sequence* s, char * seq, size_t len ) {
     // TODO move to test util file
 }
 
-void setup_align( char * seq_a, char * seq_b, size_t len_a, size_t len_b ) {
+static void setup_align( char * seq_a, char * seq_b, size_t len_a, size_t len_b ) {
     gapO = 1;
     gapE = 1;
     mat_init_constant_scoring( 1, -1 );
@@ -40,7 +40,7 @@ void setup_align( char * seq_a, char * seq_b, size_t len_a, size_t len_b ) {
     fill_translated_sequence( &b_seq, seq_b, len_b );
 }
 
-void teardown_align() {
+static void teardown_align() {
     mat_free();
 }
 

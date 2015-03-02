@@ -10,8 +10,11 @@ read_reduced_timing( "results/19_02_2015_alignment_only" );
 set_indices()
 
 # AVX vs SSE
+pdf(file='~/projects/master_thesis/tex/img/runtime_simd_sse_vs_avx.pdf', width = 8, height = 4, pointsize = 12)
+par( mfrow = c(1, 2) )
 compare_plot_func( idx_avx2, idx_sse41, idx_SW, meantiming, config_reduced[-(1:2),], c("AVX2", "SSE4.1"), "SW calculation: AVX vs. SSE" )
 compare_plot_func( idx_avx2, idx_sse41, idx_NW, meantiming, config_reduced[-(1:2),], c("AVX2", "SSE4.1"), "NW calculation: AVX vs. SSE" )
+dev.off()
 
 # 8 bit vs 16 bit
 compare_plot_func( idx_8bit, idx_16bit, idx_SW, meantiming, config_reduced[-(2:3),], c("8 bit", "16 bit"), "SW calculation: 8 bit vs. 16 bit" )
@@ -56,6 +59,13 @@ print_variations_boxplot( timing_reduced[,1:10], "Variation of timing results us
 print_variations_boxplot( timing_reduced[,11:20], "Variation of timing results using 4 threads", reduced_label_no_threads )
 print_variations_boxplot( timing_reduced[,21:30], "Variation of timing results using 8 threads", reduced_label_no_threads )
 dev.off()
+
+par( mar = c( 5, 5, 3, 1 ) )
+boxplot( t(matrix( maxtiming - mintiming, nrow=3, ncol=10, byrow = T )), horizontal = T, names = c( "1 thread", "4 threads", "8 threads" ), main = "Variation of timing result ranges", las = 1, xlab="Time (seconds)" )
+
+apply( timing_reduced[,1:10], 2, sd )
+apply( timing_reduced[,11:20], 2, sd )
+apply( timing_reduced[,21:30], 2, sd )
 
 # compare
 #

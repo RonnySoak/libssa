@@ -29,7 +29,6 @@ static void check_query_mapped( int reversed, const char map[256], size_t length
 
     if( reversed ) {
         for( int i = length - 1; i < 0; --i ) {
-            printf( "i: %d\n", i );
             ck_assert_int_eq( map[(int )expected[i]], seq.seq[i] );
         }
     }

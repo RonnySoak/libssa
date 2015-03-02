@@ -39,7 +39,7 @@
 #define dprofile_fill_8_xxx dprofile_fill_8_avx2
 #define dbg_add_matrix_data_xxx_8_sw dbg_add_matrix_data_256_8_sw
 
-#else // SSE2
+#else // SSE4.1
 
 #define _mmxxx_adds_epi8 _mm_adds_epi8
 #define _mmxxx_subs_epi8 _mm_subs_epi8
@@ -189,7 +189,7 @@ void search_8_sse41_sw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * o
 #endif
 
 #ifdef DBG_COLLECT_MATRIX
-    size_t maxdlen =  0;
+    size_t maxdlen = 0;
     for( int i = 0; i < chunk->fill_pointer; ++i ) {
         if( maxdlen < chunk->seq[i]->seq.len ) {
             maxdlen = chunk->seq[i]->seq.len;
@@ -280,9 +280,9 @@ void search_8_sse41_sw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * o
                     if( d_seq_ptr[c] ) {
                         /* save score */
 
-                        long score = S.a[c] + -INT8_MIN; // convert score back to range from 0 - 65535
+                        long score = S.a[c] + -INT8_MIN; // convert back to a range of 0 to 255
 
-                        if( !overflow.a[c] && (score >= 0) && (score < UINT8_MAX) ) {
+                        if( !overflow.a[c] && (score > 0) && (score < UINT8_MAX) ) {
                             /* Alignments, with a score equal to the current lowest score in the
                              heap are ignored! */
                             add_to_minheap( heap, q_id, d_seq_ptr[c], score );

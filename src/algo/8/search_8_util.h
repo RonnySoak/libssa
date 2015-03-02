@@ -19,7 +19,7 @@
 #ifdef __AVX2__
 typedef __m256i __mxxxi;
 #define CHANNELS_8_BIT CHANNELS_8_BIT_AVX
-#else
+#else // SSE4.1
 typedef __m128i  __mxxxi;
 #define CHANNELS_8_BIT CHANNELS_8_BIT_SSE
 #endif

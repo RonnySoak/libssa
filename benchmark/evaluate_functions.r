@@ -70,8 +70,13 @@ compare_plot_func <- function( idx_dim1_a, idx_dim1_b, idx_dim2, vdata, config_r
     plot_data = matrix( c( vdata_a, vdata_b ), ncol=length(vdata_a), byrow=T )
 
     x_names = get_x_labels( idx_dim1_a, idx_dim1_b, config_reduced )
+    x_names = gsub( pattern = ",", replacement = ", ", x = x_names)
+    x_names = gsub( pattern = "NO_SIMD, ", replacement = "", x = x_names)
+    x_names = gsub( pattern = "_", replacement = " ", x = x_names)
 
-    barplot( plot_data, main=title, ylab="Time in seconds", xlab="Configurations", col=c("orange","darkblue"), beside=T, names.arg = x_names, ylim=c(0, 20), las=1, space=c(0.2,0.8) )
+    x = barplot( plot_data, main=title, ylab="Time (seconds)", xlab="Configurations", col=c("orange","darkblue"), beside=T, ylim=c(0, 20), las=1, space=c(0.2,0.8) )
+
+    text( cex = 0.8, x = colMeans(x)+0.8, y = -1.25, labels = x_names, xpd = TRUE, srt = 45, pos = 2 )
 
     legend( "topright", legend=legend_text, fill=c("orange","darkblue" ), bty = 0 )
 }

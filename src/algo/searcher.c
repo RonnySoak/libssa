@@ -113,7 +113,7 @@ void s_init( int search_type, int bit_width, p_query query, size_t hit_count ) {
     sdp = s_create_searchdata( query, hit_count );
 }
 
-void s_free_search_data( p_search_data sdp ) {
+static void s_free_search_data( p_search_data sdp ) {
     if( sdp ) {
         sdp->q_count = 0;
         sdp->hit_count = 0;

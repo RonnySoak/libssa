@@ -10,7 +10,7 @@
 #include "../../src/util/util.h"
 #include "../../src/util/minheap.h"
 
-elem_t new_elem(long value, unsigned long db_id, int query_id) {
+static elem_t new_elem(long value, unsigned long db_id, int query_id) {
     elem_t e;
     e.db_id = db_id;
     e.query_id = query_id;
