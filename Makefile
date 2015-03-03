@@ -39,7 +39,7 @@ MPI_LINK := `mpicxx --showme:link`
 
 #### TODO remove from PROD code ####
 #DEBUG_LIBS := -lefence
-#DEBUG_FLAGS := -g# --coverage
+DEBUG_FLAGS := -g --coverage
 
 LIBS := -lpthread -lm -lsdb $(DEBUG_LIBS)
 TEST_LIBS := -lcheck -lrt
@@ -59,7 +59,7 @@ $(OBJS_BASE_COMPILE): CXXFLAGS := $(BASE_FLAGS) -march=native
 $(OBJS_COMPILE_SEPARATE): CXXFLAGS := $(BASE_FLAGS)
 
 # compiles all files without linking
-$(OBJS_BASE_COMPILE): %.o : %.c $(DEPS)
+$(OBJS_BASE_COMPILE): %.o : %.c $(DEPS) # TODO add flag -S to get assembly code, instead of -c and change filename to .s
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 all : init $(PROG)
