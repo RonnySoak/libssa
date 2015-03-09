@@ -501,7 +501,7 @@ START_TEST (test_init_search_data)
         // query data
         ck_assert_int_eq( 1, sdp->q_count );
 
-        seq_buffer buf = sdp->queries[0];
+        seq_buffer_t buf = sdp->queries[0];
 
         ck_assert_str_eq( &query->nt[0].seq, &buf.seq.seq );
         ck_assert_int_eq( query->nt[0].len, buf.seq.len );
@@ -532,7 +532,7 @@ START_TEST (test_init_search_data2)
         // query data
         ck_assert_int_eq( 1, sdp->q_count );
 
-        seq_buffer buf = sdp->queries[0];
+        seq_buffer_t buf = sdp->queries[0];
         ck_assert_str_eq( &query->nt[1].seq, &buf.seq.seq );
         ck_assert_int_eq( query->nt[1].len, buf.seq.len );
         ck_assert_int_eq( 0, buf.frame );
@@ -561,7 +561,7 @@ START_TEST (test_init_search_data3)
         // query data
         ck_assert_int_eq( 3, sdp->q_count );
 
-        seq_buffer buf = sdp->queries[0];
+        seq_buffer_t buf = sdp->queries[0];
         ck_assert_str_eq( &query->aa[0].seq, &buf.seq.seq );
         ck_assert_int_eq( query->aa[0].len, buf.seq.len );
         ck_assert_int_eq( 0, buf.frame );
@@ -600,7 +600,7 @@ START_TEST (test_init_search_data4)
         // query data
         ck_assert_int_eq( 6, sdp->q_count );
 
-        seq_buffer buf = sdp->queries[0];
+        seq_buffer_t buf = sdp->queries[0];
         ck_assert_str_eq( &query->aa[0].seq, &buf.seq.seq );
         ck_assert_int_eq( query->aa[0].len, buf.seq.len );
         ck_assert_int_eq( 0, buf.frame );
@@ -653,7 +653,7 @@ START_TEST (test_init_search_data5)
         // query data
         ck_assert_int_eq( 1, sdp->q_count );
 
-        seq_buffer buf = sdp->queries[0];
+        seq_buffer_t buf = sdp->queries[0];
         ck_assert_str_eq( &query->aa[0].seq, &buf.seq.seq );
         ck_assert_int_eq( query->aa[0].len, buf.seq.len );
         ck_assert_int_eq( 0, buf.frame );

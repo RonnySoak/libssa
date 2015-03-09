@@ -24,7 +24,7 @@ int query_strands = DEFAULT_STRAND;
  * @return  a pointer to the newly created query struct
  */
 static p_query init() {
-    p_query query = xmalloc( sizeof(struct _query) );
+    p_query query = xmalloc( sizeof(query_t) );
 
     query->header = 0;
     query->headerlen = 0;
@@ -85,10 +85,10 @@ void query_free( p_query query ) {
 
 static void fill_query( p_query query, char * query_sequence, size_t query_length ) {
     if( (symtype == NUCLEOTIDE) || (symtype == TRANS_QUERY) || (symtype == TRANS_BOTH) ) {
-        query->nt[0] = (sequence ) { query_sequence, query_length };
+        query->nt[0] = (sequence_t ) { query_sequence, query_length };
 
         if( query_strands & 2 ) {
-            query->nt[1] = (sequence ) { xmalloc( query_length + 1 ), query_length };
+            query->nt[1] = (sequence_t ) { xmalloc( query_length + 1 ), query_length };
 
             us_revcompl( query->nt[0], query->nt[1] );
         }
@@ -109,7 +109,7 @@ static void fill_query( p_query query, char * query_sequence, size_t query_lengt
         }
     }
     else {
-        query->aa[0] = (sequence ) { query_sequence, query_length };
+        query->aa[0] = (sequence_t ) { query_sequence, query_length };
     }
 }
 

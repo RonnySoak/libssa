@@ -15,10 +15,10 @@
 #include "../../src/util/util_sequence.h"
 #include "../../src/algo/gap_costs.h"
 
-extern void fill_translated_sequence(sequence* s, char * seq, long len);
+extern void fill_translated_sequence(sequence_t* s, char * seq, long len);
 
-sequence a_seq;
-sequence b_seq;
+sequence_t a_seq;
+sequence_t b_seq;
 
 void setup_cigar(char * seq_a, char * seq_b, long len_a, long len_b) {
     gapO = 1;

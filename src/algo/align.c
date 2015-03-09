@@ -17,7 +17,7 @@
 /*
  * TODO merge finding region and finding directions
  */
-region_t find_region_and_score_for_local( sequence a_seq, sequence b_seq ) {
+region_t find_region_and_score_for_local( sequence_t a_seq, sequence_t b_seq ) {
     region_t region;
 
     size_t size = MAX( a_seq.len, b_seq.len );
@@ -119,7 +119,7 @@ region_t find_region_and_score_for_local( sequence a_seq, sequence b_seq ) {
     return region;
 }
 
-region_t init_region_for_global( sequence a_seq, sequence b_seq ) {
+region_t init_region_for_global( sequence_t a_seq, sequence_t b_seq ) {
     region_t region;
 // TODO use it, to generalize the functions in cigar.c
     region.a_begin = 0;
@@ -148,8 +148,8 @@ void align_nw_sellers( p_alignment alignment ) {
 }
 
 void align_nw( p_alignment alignment ) {
-    sequence a_seq = { alignment->query.seq, alignment->query.len };
-    sequence b_seq = { alignment->db_seq.seq, alignment->db_seq.len };
+    sequence_t a_seq = { alignment->query.seq, alignment->query.len };
+    sequence_t b_seq = { alignment->db_seq.seq, alignment->db_seq.len };
 
     region_t region = init_region_for_global( a_seq, b_seq );
 
@@ -161,8 +161,8 @@ void align_nw( p_alignment alignment ) {
 }
 
 void align_sw( p_alignment alignment ) {
-    sequence a_seq = { alignment->query.seq, alignment->query.len };
-    sequence b_seq = { alignment->db_seq.seq, alignment->db_seq.len };
+    sequence_t a_seq = { alignment->query.seq, alignment->query.len };
+    sequence_t b_seq = { alignment->db_seq.seq, alignment->db_seq.len };
 
     region_t region = find_region_and_score_for_local( a_seq, b_seq );
 

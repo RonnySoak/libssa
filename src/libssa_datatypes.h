@@ -23,43 +23,43 @@
 typedef struct {
     char * seq;
     size_t len;
-} sequence;
+} sequence_t;
 
-struct search_result {
+typedef struct {
     p_minheap heap;
     size_t chunk_count;
     size_t seq_count;
     size_t overflow_8_bit_count;
     size_t overflow_16_bit_count;
-};
-typedef struct search_result * p_search_result;
+} search_result_t;
+typedef search_result_t * p_search_result;
 
 typedef struct {
-    sequence seq;
+    sequence_t seq;
     int strand;
     int frame;
-} seq_buffer;
+} seq_buffer_t;
 
-struct search_data {
+typedef struct {
     size_t hit_count;
 
     size_t maxqlen;
 
-    seq_buffer queries[6];
+    seq_buffer_t queries[6];
     int q_count; // max 6
-};
-typedef struct search_data * p_search_data;
+} search_data_t;
+typedef search_data_t * p_search_data;
 
-struct alignment_data {
+typedef struct {
     elem_t * result_sequence_pairs;
     size_t pair_count;
 
-    seq_buffer queries[6];
+    seq_buffer_t queries[6];
     size_t q_count;
 
     void (*align_function)( p_alignment );
-};
-typedef struct alignment_data * p_alignment_data;
+} alignment_data_t;
+typedef alignment_data_t * p_alignment_data;
 
 /** @typedef    structure of a sequence
  *
@@ -68,18 +68,18 @@ typedef struct alignment_data * p_alignment_data;
  */
 typedef struct {
     unsigned long ID;
-    sequence seq;
+    sequence_t seq;
     int strand;
     int frame;
-} sdb_sequence;
-typedef sdb_sequence* p_sdb_sequence;
+} sdb_sequence_t;
+typedef sdb_sequence_t * p_sdb_sequence;
 
-struct db_chunk {
+typedef struct {
     p_sdb_sequence * seq;
     size_t size; // TODO change to long only
     size_t fill_pointer;
-};
-typedef struct db_chunk * p_db_chunk;
+} db_chunk_t;
+typedef db_chunk_t * p_db_chunk;
 
 /** @typedef    structure of the query profile
  *
@@ -87,13 +87,13 @@ typedef struct db_chunk * p_db_chunk;
  * @field aa    reading frames of the sequence
  * @field description   TODO ...
  */
-struct _query {
-    sequence nt[2]; /* 2 strands for nucleotides */
-    sequence aa[6]; /* 6 reading frames  for amino acids */
+typedef struct _query {
+    sequence_t nt[2]; /* 2 strands for nucleotides */
+    sequence_t aa[6]; /* 6 reading frames  for amino acids */
     char * header;
     size_t headerlen;
     const char * map;
     const char * sym;
-};
+} query_t;
 
 #endif /* LIBSSA_DATATYPES_H_ */

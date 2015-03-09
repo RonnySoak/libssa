@@ -25,7 +25,7 @@ START_TEST (test_search63_simple)
 
         p_query query = query_read_from_string( "short query", "AT" );
 
-        sequence dseq = us_prepare_sequence( "AATG", 4, 0, 0 );
+        sequence_t dseq = us_prepare_sequence( "AATG", 4, 0, 0 );
 
         long *hearray = calloc( sizeof(long), 32 * query->nt[0].len );
         gapO = 1;
@@ -46,7 +46,7 @@ START_TEST (test_search63_simple_2)
 
         p_query query = query_read_from_string( "query", "ATGCAAA" );
 
-        sequence dseq = us_prepare_sequence( "ATGCCCAA", 4, 0, 0 );
+        sequence_t dseq = us_prepare_sequence( "ATGCCCAA", 4, 0, 0 );
 
         long *hearray = calloc( sizeof(long), 32 * query->nt[0].len );
         gapO = 1;

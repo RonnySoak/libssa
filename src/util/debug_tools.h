@@ -29,7 +29,7 @@ void dbg_add_matrix_data_256_16( int q_idx, int d_idx, __m256i value );
 void dbg_add_matrix_data_256_8_sw( int q_idx, int d_idx, __m256i value );
 void dbg_add_matrix_data_256_16_sw( int q_idx, int d_idx, __m256i value );
 
-void dbg_print_matrices_to_file( int bit_width, char * algorithm, char * qseq, sequence * dseq, int dseq_count );
+void dbg_print_matrices_to_file( int bit_width, char * algorithm, char * qseq, sequence_t * dseq, int dseq_count );
 
 void dbg_init_aligned_sequence_collecting( char * desc, int size );
 void dbg_add_aligned_sequence( unsigned long db_id, int query_id, long score );

@@ -28,7 +28,7 @@ typedef __m128i  __mxxxi;
 #endif
 
 
-static void search_16_init_query( p_s16info s, int q_count, seq_buffer * queries ) {
+static void search_16_init_query( p_s16info s, int q_count, seq_buffer_t * queries ) {
     s->q_count = q_count;
 
     for( int i = 0; i < q_count; ++i ) {

@@ -16,13 +16,13 @@
 #include "../../src/util/util.h"
 #include "../../src/algo/gap_costs.h"
 
-sequence a_seq;
-sequence b_seq;
+sequence_t a_seq;
+sequence_t b_seq;
 
-void fill_translated_sequence( sequence* s, char * seq, size_t len ) {
-    sequence new_seq = { seq, len };
+void fill_translated_sequence( sequence_t* s, char * seq, size_t len ) {
+    sequence_t new_seq = { seq, len };
 
-    *s = (sequence ) { xmalloc( len + 1 ), len };
+    *s = (sequence_t ) { xmalloc( len + 1 ), len };
 
     us_map_sequence( new_seq, *s, map_ncbi_nt16 );
 

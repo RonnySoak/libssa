@@ -10,7 +10,7 @@
 
 #include <stddef.h>
 
-typedef struct topscore {
+typedef struct {
     unsigned long db_id; // id of the DB sequence
     int dframe;          // strand of the DB sequence
     int dstrand;         // frame the DB sequence
@@ -18,13 +18,13 @@ typedef struct topscore {
     long score;
 } elem_t;
 
-struct minheap_t {
+typedef struct {
     size_t alloc;
     size_t count;
     elem_t * array;
-};
+} minheap_t;
 
-typedef struct minheap_t * p_minheap;
+typedef minheap_t * p_minheap;
 
 p_minheap minheap_init( size_t size );
 

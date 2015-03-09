@@ -10,7 +10,7 @@
 #include "../gap_costs.h"
 
 
-int64_t full_nw( sequence * dseq, sequence * qseq, int64_t * hearray ) {
+int64_t full_nw( sequence_t * dseq, sequence_t * qseq, int64_t * hearray ) {
     int64_t h; // current value
     int64_t n; // diagonally previous value
     int64_t e; // value in left cell
@@ -67,7 +67,7 @@ int64_t full_nw( sequence * dseq, sequence * qseq, int64_t * hearray ) {
     }
 
 #ifdef DBG_COLLECT_MATRIX
-        sequence * db_sequences = xmalloc( sizeof( sequence ) );
+        sequence_t * db_sequences = xmalloc( sizeof( sequence_t ) );
         db_sequences[0] = *dseq;
 
         dbg_print_matrices_to_file( BIT_WIDTH_64, "NW", qseq->seq, db_sequences, 1 );

@@ -15,18 +15,18 @@
 // #############################################################################
 // Data types
 // ##########
-struct seqinfo {
+typedef struct {
     size_t ID;
     size_t seqlen;
     char * seq;
-};
+} seqinfo_t;
 
-typedef struct seqinfo * p_seqinfo;
+typedef seqinfo_t * p_seqinfo;
 
 // #############################################################################
 // Initialisation
 // ##############
-void ssa_db_init( const char * db_name );
+int ssa_db_init( const char * db_name );
 
 // #############################################################################
 // Accessors

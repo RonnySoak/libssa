@@ -74,7 +74,7 @@
 
 /** @typedef    structure of the query profile  */
 struct _query;
-typedef struct _query* p_query;
+typedef struct _query * p_query;
 
 /** @typedef    structure of the alignment result
  *
@@ -103,23 +103,21 @@ typedef struct _query* p_query;
 typedef struct {
     char* seq;
     size_t len;
-//    char* header; // TODO do I need the header?
-//    size_t headerlen;
     unsigned long ID;
     int strand;
     int frame;
-} db_seq;
+} db_seq_t;
 
 typedef struct {
     char* seq;
     size_t len;
     int strand;
     int frame;
-} q_seq;
+} q_seq_t;
 
-struct alignment { // TODO use either typedef, or struct for all!!
-    db_seq db_seq;
-    q_seq query;
+typedef struct {
+    db_seq_t db_seq;
+    q_seq_t query;
     char * alignment;
     size_t alignment_len;
     long score;
@@ -127,14 +125,14 @@ struct alignment { // TODO use either typedef, or struct for all!!
     size_t align_q_end;
     size_t align_d_start;
     size_t align_d_end;
-};
-typedef struct alignment * p_alignment; // TODO rename in p_alignment
+} alignment_t;
+typedef alignment_t * p_alignment;
 
-struct alignment_list {
+typedef struct {
     p_alignment* alignments;
     size_t len;
-};
-typedef struct alignment_list * p_alignment_list;
+} alignment_list_t;
+typedef alignment_list_t * p_alignment_list;
 
 // #############################################################################
 // Technical initialisation

@@ -16,6 +16,7 @@ struct node_t {
     struct node_t * next;
     struct node_t * previous;
 };
+
 typedef struct node_t * p_node;
 
 void ll_wind_back( p_node * node );

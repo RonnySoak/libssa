@@ -35,7 +35,7 @@ static inline int elem_smaller( elem_t * a, elem_t * b ) {
 }
 
 p_minheap minheap_init( size_t size ) {
-    p_minheap m = xmalloc( sizeof(struct minheap_t) );
+    p_minheap m = xmalloc( sizeof(minheap_t) );
     m->alloc = size;
     m->array = xmalloc( size * sizeof(elem_t) );
     m->count = 0;

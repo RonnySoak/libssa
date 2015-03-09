@@ -15,7 +15,7 @@
 #include "../../util/util.h"
 #include "../../db_iterator.h"
 
-static int64_t (*search_algo)( sequence*, sequence*, int64_t* );
+static int64_t (*search_algo)( sequence_t*, sequence_t*, int64_t* );
 
 void search63_init_algo( int search_type ) {
     if( search_type == SMITH_WATERMAN ) {
@@ -36,7 +36,7 @@ unsigned long search_63_chunk( p_minheap heap, p_db_chunk chunk, p_search_data s
     unsigned long searches_done = 0;
 
     for( int q_id = 0; q_id < sdp->q_count; q_id++ ) {
-        seq_buffer query = sdp->queries[q_id];
+        seq_buffer_t query = sdp->queries[q_id];
 
         for( size_t i = 0; i < chunk->fill_pointer; i++ ) {
             p_sdb_sequence dseq = chunk->seq[i];

@@ -248,10 +248,6 @@ void search_16_sse2_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * 
     int no_sequences_ended = 0;
     while( 1 ) {
         /*
-         * TODO If there are less sequences, as channels, this loop switches constantly between
-         * the states "sequences ended" and "no sequences ended". Check if it is possible, to "disable"
-         * the "sequence ended" checks, for these unused channels.
-         *
          * TODO same for NW implementation! Check if it is possible, to merge NW and SW implementations.
          */
 

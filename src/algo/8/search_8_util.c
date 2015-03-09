@@ -27,7 +27,7 @@ typedef __m128i  __mxxxi;
 
 #endif
 
-static void search_8_init_query( p_s8info s, int q_count, seq_buffer * queries ) {
+static void search_8_init_query( p_s8info s, int q_count, seq_buffer_t * queries ) {
     s->q_count = q_count;
 
     for( int i = 0; i < q_count; ++i ) {
@@ -210,10 +210,10 @@ void dprofile_fill_8_sse41( __mxxxi * dprofile, uint16_t * dseq_search_window ) 
             int16_t a[CHANNELS_8_BIT];
         } d;
 
-        __m128i tmp = _mm_loadu_si128( (__m128i *) (dseq_search_window + (j * CHANNELS_8_BIT)) );
+        __m128i tmp = _mm_load_si128( (__m128i *) (dseq_search_window + (j * CHANNELS_8_BIT)) );
         _mm_store_si128( &d.v[0], _mm_slli_epi16( tmp, 5 ) );
 
-        tmp = _mm_loadu_si128( (__m128i *) (dseq_search_window + (j * CHANNELS_8_BIT + (CHANNELS_8_BIT / 2))) );
+        tmp = _mm_load_si128( (__m128i *) (dseq_search_window + (j * CHANNELS_8_BIT + (CHANNELS_8_BIT / 2))) );
         _mm_store_si128( &d.v[1], _mm_slli_epi16( tmp, 5 ) );
 
         for( int i = 0; i < SCORE_MATRIX_DIM; i += 16 ) {

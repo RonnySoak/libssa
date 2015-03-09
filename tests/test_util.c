@@ -27,7 +27,7 @@ void print_sequence( char* desc, int8_t* seq, size_t len ) {
     outf( "'\n" );
 }
 
-void print_sequence2( char* desc, sequence seq ) {
+void print_sequence2( char* desc, sequence_t seq ) {
     print_sequence( desc, (int8_t *) seq.seq, seq.len );
 }
 
@@ -57,7 +57,7 @@ START_TEST (test_xmalloc)
 
         p_seqinfo * arr2 = xmalloc( 5 * sizeof(p_seqinfo) );
         for( int i = 0; i < 5; ++i ) {
-            arr2[i] = xmalloc( sizeof(struct seqinfo) );
+            arr2[i] = xmalloc( sizeof(seqinfo_t) );
             arr2[i]->ID = i;
         }
 
@@ -72,14 +72,14 @@ START_TEST (test_xrealloc)
     {
         p_seqinfo * arr = xmalloc( 5 * sizeof(p_seqinfo) );
         for( int i = 0; i < 5; ++i ) {
-            arr[i] = xmalloc( sizeof(struct seqinfo) );
+            arr[i] = xmalloc( sizeof(seqinfo_t) );
             arr[i]->ID = i;
         }
 
         arr = xrealloc( arr, 10 * sizeof(p_seqinfo) );
         for( int i = 0; i < 10; ++i ) {
             if( i >= 5 ) {
-                arr[i] = xmalloc( sizeof(struct seqinfo) );
+                arr[i] = xmalloc( sizeof(seqinfo_t) );
                 arr[i]->ID = i;
             }
         }
@@ -94,7 +94,7 @@ START_TEST (test_convert_to_chunk)
     {
         int data = 42;
 
-        p_sdb_sequence db_seq = xmalloc( sizeof(sdb_sequence) );
+        p_sdb_sequence db_seq = xmalloc( sizeof(sdb_sequence_t) );
         db_seq->ID = data;
         db_seq->seq.seq = 0;
 
@@ -102,7 +102,7 @@ START_TEST (test_convert_to_chunk)
 
         int count = 5;
         for( int i = 0; i < count; ++i ) {
-            db_seq = xmalloc( sizeof(sdb_sequence) );
+            db_seq = xmalloc( sizeof(sdb_sequence_t) );
             db_seq->ID = ++data;
             db_seq->seq.seq = 0;
 
@@ -126,7 +126,7 @@ START_TEST (test_add_to_minheap)
         p_minheap heap = minheap_init( 1 );
         int query_id = 0;
 
-        p_sdb_sequence db_seq = xmalloc( sizeof(sdb_sequence) );
+        p_sdb_sequence db_seq = xmalloc( sizeof(sdb_sequence_t) );
         db_seq->ID = 42;
         db_seq->strand = 1;
         db_seq->frame = 2;

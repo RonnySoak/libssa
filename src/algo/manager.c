@@ -24,7 +24,7 @@
 static size_t alignment_hit_count = 0;
 static int align_type;
 
-size_t max_chunk_size = 1000; // TODO change and/or make it configurable
+size_t max_chunk_size = 1000;
 
 static void init( p_query query, size_t hit_count, int search_type, int bit_width, int al_type ) {
     alignment_hit_count = hit_count;
@@ -73,8 +73,8 @@ static void sort_alignment_list( p_alignment_list alist ) {
 }
 
 static p_alignment_list do_align( p_minheap search_results ) {
-    p_alignment_list alist = xmalloc( alignment_hit_count * sizeof(struct alignment_list) );
-    alist->alignments = xmalloc( alignment_hit_count * sizeof(struct alignment) );
+    p_alignment_list alist = xmalloc( alignment_hit_count * sizeof(alignment_list_t) );
+    alist->alignments = xmalloc( alignment_hit_count * sizeof(alignment_t) );
     alist->len = alignment_hit_count;
 
     if( align_type == COMPUTE_SCORE ) {

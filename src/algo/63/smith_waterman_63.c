@@ -35,7 +35,7 @@
  * rename it, if it used 64 bit numbers, or if it only used the positive bits, then let it be
  */
 
-int64_t full_sw( sequence * dseq, sequence * qseq, int64_t * hearray ) {
+int64_t full_sw( sequence_t * dseq, sequence_t * qseq, int64_t * hearray ) {
     int64_t h; // current value
     int64_t n; // diagonally previous value
     int64_t e; // value in left cell
@@ -92,7 +92,7 @@ int64_t full_sw( sequence * dseq, sequence * qseq, int64_t * hearray ) {
     }
 
 #ifdef DBG_COLLECT_MATRIX
-        sequence * db_sequences = xmalloc( sizeof( sequence ) );
+        sequence_t * db_sequences = xmalloc( sizeof( sequence_t ) );
         db_sequences[0] = *dseq;
 
         dbg_print_matrices_to_file( BIT_WIDTH_64, "SW", qseq->seq, db_sequences, 1 );
