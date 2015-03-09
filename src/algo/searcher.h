@@ -22,7 +22,7 @@ void s_free_search_data( p_search_data sdp );
 
 int s_get_query_count();
 
-seq_buffer s_get_query( int idx );
+seq_buffer_t s_get_query( int idx );
 
 void s_free();
 

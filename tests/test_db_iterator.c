@@ -13,10 +13,10 @@
 #include "../src/db_iterator.h"
 #include "../src/util/util_sequence.h"
 
-extern void ck_converted_prot_eq( char* ref, sequence seq );
+extern void ck_converted_prot_eq( char* ref, sequence_t seq );
 
-char * get_mapped_sequence( sequence orig ) {
-    sequence mapped = { xmalloc( orig.len + 1 ), orig.len };
+char * get_mapped_sequence( sequence_t orig ) {
+    sequence_t mapped = { xmalloc( orig.len + 1 ), orig.len };
     us_map_sequence( orig, mapped, sym_ncbi_nt16u );
     return mapped.seq;
 }

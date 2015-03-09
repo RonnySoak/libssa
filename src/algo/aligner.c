@@ -23,7 +23,7 @@ static size_t chunk_counter = 0;
 static pthread_mutex_t chunk_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 void a_init_data( int search_type ) {
-    adp = xmalloc( sizeof(struct alignment_data) );
+    adp = xmalloc( sizeof(alignment_data_t) );
 
     if( search_type == SMITH_WATERMAN ) {
         adp->align_function = &align_sw;
@@ -58,8 +58,8 @@ void a_free_data() {
     free( adp );
 }
 
-static p_alignment init_alignment( elem_t * e, seq_buffer* queries ) {
-    p_alignment a = xmalloc( sizeof(struct alignment) );
+static p_alignment init_alignment( elem_t * e, seq_buffer_t* queries ) {
+    p_alignment a = xmalloc( sizeof(alignment_t) );
 
     p_seqinfo info = ssa_db_get_sequence( e->db_id );
     if( !info ) {
@@ -67,9 +67,9 @@ static p_alignment init_alignment( elem_t * e, seq_buffer* queries ) {
         ffatal( "Could not get sequence from DB: %ld", e->db_id );
     }
 
-    sequence dseq = us_prepare_sequence( info->seq, info->seqlen, e->dframe, e->dstrand );
+    sequence_t dseq = us_prepare_sequence( info->seq, info->seqlen, e->dframe, e->dstrand );
 
-    seq_buffer qseq = queries[e->query_id];
+    seq_buffer_t qseq = queries[e->query_id];
 
     a->db_seq.seq = dseq.seq;
     a->db_seq.len = dseq.len;
@@ -165,8 +165,8 @@ void * a_align( void * unused ) {
         ffatal( "\n Alignment module not initialized!!\n\n" );
     }
 
-    p_alignment_list alignment_list = xmalloc( sizeof(struct alignment_list) );
-    alignment_list->alignments = xmalloc( adp->pair_count * sizeof(struct alignment) );
+    p_alignment_list alignment_list = xmalloc( sizeof(alignment_list_t) );
+    alignment_list->alignments = xmalloc( adp->pair_count * sizeof(alignment_t) );
     alignment_list->len = 0;
 
     elem_t * chunk = 0;

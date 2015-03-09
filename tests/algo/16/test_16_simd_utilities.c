@@ -38,7 +38,7 @@ static void exit_simd_util_test( p_s16info s ) {
     reset_compute_capability();
 }
 
-static void test_dprofile_16( int16_t * dprofile, int channels, sequence dseq ) {
+static void test_dprofile_16( int16_t * dprofile, int channels, sequence_t dseq ) {
     for( int i = 0; i < SCORE_MATRIX_DIM; ++i ) {
         for( int j = 0; j < CDEPTH_16_BIT; ++j ) {
             for( int k = 0; k < channels; k++ ) {
@@ -69,7 +69,7 @@ START_TEST (test_sse_simple)
         uint16_t dseq_search_window[CDEPTH_16_BIT * CHANNELS_16_BIT_SSE];
         memset( dseq_search_window, 0, sizeof(uint16_t) * CDEPTH_16_BIT * CHANNELS_16_BIT_SSE );
 
-        sequence dseq = us_prepare_sequence( "AATG", 4, 0, 0 );
+        sequence_t dseq = us_prepare_sequence( "AATG", 4, 0, 0 );
 
         for( int i = 0; i < CDEPTH_16_BIT; ++i ) {
             dseq_search_window[i * CHANNELS_16_BIT_SSE] = dseq.seq[i];
@@ -91,7 +91,7 @@ START_TEST (test_avx_simple)
         uint16_t dseq_search_window[CDEPTH_16_BIT * CHANNELS_16_BIT_AVX];
         memset( dseq_search_window, 0, sizeof(uint16_t) * CDEPTH_16_BIT * CHANNELS_16_BIT_AVX );
 
-        sequence dseq = us_prepare_sequence( "AATG", 4, 0, 0 );
+        sequence_t dseq = us_prepare_sequence( "AATG", 4, 0, 0 );
 
         for( int i = 0; i < CDEPTH_16_BIT; ++i ) {
             dseq_search_window[i * CHANNELS_16_BIT_AVX] = dseq.seq[i];

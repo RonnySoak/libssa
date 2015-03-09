@@ -12,7 +12,7 @@
 START_TEST (test_revcompl)
     {
         // test always the same
-        sequence seq;
+        sequence_t seq;
         seq.seq = xmalloc( 5 );
         seq.len = 4;
         seq.seq[0] = 1;
@@ -21,9 +21,9 @@ START_TEST (test_revcompl)
         seq.seq[3] = 4;
         seq.seq[4] = 0;
 
-        sequence rc1 = { xmalloc( seq.len + 1 ), seq.len };
+        sequence_t rc1 = { xmalloc( seq.len + 1 ), seq.len };
         us_revcompl( seq, rc1 );
-        sequence rc2 = { xmalloc( seq.len + 1 ), seq.len };
+        sequence_t rc2 = { xmalloc( seq.len + 1 ), seq.len };
         us_revcompl( seq, rc2 );
         ck_assert_str_eq( rc1.seq, rc2.seq );
         free( rc1.seq );
@@ -39,7 +39,7 @@ START_TEST (test_revcompl)
         rev_seq[2] = ntcompl[(int) (seq.seq[1])];
         rev_seq[3] = ntcompl[(int) (seq.seq[0])];
 
-        rc2 = (sequence ) { xmalloc( seq.len + 1 ), seq.len };
+        rc2 = (sequence_t ) { xmalloc( seq.len + 1 ), seq.len };
         us_revcompl( seq, rc2 );
         ck_assert_str_eq( rev_seq, rc2.seq );
         free( rc2.seq );
@@ -49,14 +49,14 @@ START_TEST (test_revcompl)
 
 START_TEST (test_map_sequence)
     {
-        sequence orig = { xmalloc( 5 ), 4 };
+        sequence_t orig = { xmalloc( 5 ), 4 };
         orig.seq[0] = 'A';
         orig.seq[1] = 'C';
         orig.seq[2] = 'A';
         orig.seq[3] = 'T';
         orig.seq[4] = 0;
 
-        sequence mapped = { xmalloc( 5 ), 4 };
+        sequence_t mapped = { xmalloc( 5 ), 4 };
 
         us_map_sequence( orig, mapped, map_ncbi_nt16 );
 
@@ -70,14 +70,14 @@ START_TEST (test_map_sequence)
 
 START_TEST (test_map_sequence_illegal_symbol)
     {
-        sequence orig = { xmalloc( 5 ), 4 };
+        sequence_t orig = { xmalloc( 5 ), 4 };
         orig.seq[0] = 'A';
         orig.seq[1] = 'X';
         orig.seq[2] = 'A';
         orig.seq[3] = '2';
         orig.seq[4] = 0;
 
-        sequence mapped = { xmalloc( 5 ), 4 };
+        sequence_t mapped = { xmalloc( 5 ), 4 };
 
         us_map_sequence( orig, mapped, map_ncbi_nt16 );
 
@@ -89,8 +89,8 @@ START_TEST (test_map_sequence_illegal_symbol)
         ck_assert_int_eq( 0, mapped.seq[4] );
     }END_TEST
 
-void ck_converted_prot_eq( char* ref, sequence seq ) {
-    sequence conv_dna;
+void ck_converted_prot_eq( char* ref, sequence_t seq ) {
+    sequence_t conv_dna;
     conv_dna.len = seq.len;
     conv_dna.seq = xmalloc( seq.len + 1 );
     for( size_t i = 0; i < seq.len; i++ ) {
@@ -107,9 +107,9 @@ START_TEST (test_translate_query_RNA)
 
         char* dna = "AUGCCCAAGCUGAAUAGCGUAGAGGGGUUUUCAUCAUUUGAGGACGAUGUAUAA";
         size_t dlen = strlen( dna );
-        sequence protp = { xmalloc( 1 ), 0 };
+        sequence_t protp = { xmalloc( 1 ), 0 };
 
-        sequence conv_dna;
+        sequence_t conv_dna;
         conv_dna.len = dlen;
         conv_dna.seq = xmalloc( dlen + 1 );
         for( size_t i = 0; i < dlen; i++ ) {
@@ -131,9 +131,9 @@ START_TEST (test_translate_query)
 
         char* dna = "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA";
         size_t dlen = strlen( dna );
-        sequence protp = { xmalloc( 1 ), 0 };
+        sequence_t protp = { xmalloc( 1 ), 0 };
 
-        sequence conv_dna;
+        sequence_t conv_dna;
         conv_dna.len = dlen;
         conv_dna.seq = xmalloc( dlen + 1 );
         for( size_t i = 0; i < dlen; i++ ) {
@@ -187,9 +187,9 @@ START_TEST (test_translate_query_DNA)
 
         char* dna = "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA";
         size_t dlen = strlen( dna );
-        sequence protp = { xmalloc( 1 ), 0 };
+        sequence_t protp = { xmalloc( 1 ), 0 };
 
-        sequence conv_dna;
+        sequence_t conv_dna;
         conv_dna.len = dlen;
         conv_dna.seq = xmalloc( dlen + 1 );
         for( size_t i = 0; i < dlen; i++ ) {
@@ -211,9 +211,9 @@ START_TEST (test_translate_db)
 
         char* dna = "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA";
         size_t dlen = strlen( dna );
-        sequence protp = { xmalloc( 1 ), 0 };
+        sequence_t protp = { xmalloc( 1 ), 0 };
 
-        sequence conv_dna;
+        sequence_t conv_dna;
         conv_dna.len = dlen;
         conv_dna.seq = xmalloc( dlen + 1 );
         for( size_t i = 0; i < dlen; i++ ) {

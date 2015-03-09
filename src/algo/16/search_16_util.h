@@ -31,6 +31,7 @@ struct s16query {
 
     char * seq;
 };
+
 struct s16info {
     __mxxxi * hearray;
     __mxxxi * dprofile;

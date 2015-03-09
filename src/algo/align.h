@@ -32,13 +32,13 @@ typedef cigar_t * cigar_p;
 
 void a_init_align_function(void (* align_function) (p_alignment));
 
-region_t init_region_for_global(sequence a_seq, sequence b_seq);
+region_t init_region_for_global(sequence_t a_seq, sequence_t b_seq);
 
-region_t find_region_and_score_for_local(sequence a_seq, sequence b_seq);
+region_t find_region_and_score_for_local(sequence_t a_seq, sequence_t b_seq);
 
-cigar_p compute_cigar_for_nw(sequence a_seq, sequence b_seq);
+cigar_p compute_cigar_for_nw(sequence_t a_seq, sequence_t b_seq);
 
-cigar_p compute_cigar_for_sw(sequence a_seq, sequence b_seq, region_t region);
+cigar_p compute_cigar_for_sw(sequence_t a_seq, sequence_t b_seq, region_t region);
 
 void free_cigar(cigar_p cigar);
 

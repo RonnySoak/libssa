@@ -27,7 +27,7 @@ const uint8_t MASK_GAP_LEFT = 2;
 const uint8_t MASK_GAP_EXT_UP = 4;
 const uint8_t MASK_GAP_EXT_LEFT = 8;
 
-static uint8_t * compute_directions_for_nw( sequence a_seq, sequence b_seq ) {
+static uint8_t * compute_directions_for_nw( sequence_t a_seq, sequence_t b_seq ) {
     uint8_t * directions = xmalloc( a_seq.len * b_seq.len );
     /*
      * Holds in the first column the scores of the previous column
@@ -104,7 +104,7 @@ static uint8_t * compute_directions_for_nw( sequence a_seq, sequence b_seq ) {
     return directions;
 }
 
-static uint8_t * compute_directions_for_sw( sequence a_seq, sequence b_seq ) {
+static uint8_t * compute_directions_for_sw( sequence_t a_seq, sequence_t b_seq ) {
     uint8_t * directions = xmalloc( a_seq.len * b_seq.len );
     /*
      * Holds in the first column the scores of the previous column
@@ -245,7 +245,7 @@ cigar_p reverse_cigar( cigar_p rev_cigar ) {
     return cigar;
 }
 
-cigar_p compute_cigar_for_nw( sequence a_seq, sequence b_seq ) {
+cigar_p compute_cigar_for_nw( sequence_t a_seq, sequence_t b_seq ) {
     /*
      * cigar operation characters:
      *
@@ -323,7 +323,7 @@ cigar_p compute_cigar_for_nw( sequence a_seq, sequence b_seq ) {
     return result;
 }
 
-cigar_p compute_cigar_for_sw( sequence a_seq, sequence b_seq, region_t region ) {
+cigar_p compute_cigar_for_sw( sequence_t a_seq, sequence_t b_seq, region_t region ) {
     /*
      * cigar operation characters:
      *

@@ -73,7 +73,7 @@ START_TEST (test_aligner_simple_sw)
     {
         p_query query = setup_aligner_test( "AT", "short_db.fas", 1 );
 
-        sequence sdb = us_prepare_sequence( "AATG", 4, 0, 0 );
+        sequence_t sdb = us_prepare_sequence( "AATG", 4, 0, 0 );
 
         elem_t e1 = new_elem( 0, 0, 0, 0, 2 );
         elem_t * elements = { &e1 };
@@ -127,7 +127,7 @@ START_TEST (test_aligner_more_sequences_sw)
         p_minheap heap = minheap_init( 5 );
 
         p_seqinfo seqInfo = ssa_db_get_sequence( 0 );
-        sequence sdb0 = us_prepare_sequence( seqInfo->seq, seqInfo->seqlen, 0, 0 );
+        sequence_t sdb0 = us_prepare_sequence( seqInfo->seq, seqInfo->seqlen, 0, 0 );
         elem_t e = new_elem( 0, 0, 0, 0, 2 );
         minheap_add( heap, &e );
 
@@ -174,7 +174,7 @@ START_TEST (test_aligner_simple_nw)
     {
         p_query query = setup_aligner_test( "AT", "short_db.fas", 1 );
 
-        sequence sdb = us_prepare_sequence( "AATG", 4, 0, 0 );
+        sequence_t sdb = us_prepare_sequence( "AATG", 4, 0, 0 );
 
         elem_t e1 = new_elem( 0, 0, 0, 0, 2 );
         elem_t * elements = { &e1 };

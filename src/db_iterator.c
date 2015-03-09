@@ -22,7 +22,7 @@ static size_t next_chunk_start = 0;
 static int buffer_max = 0;
 static pthread_mutex_t chunk_mutex = PTHREAD_MUTEX_INITIALIZER;
 
-static void realloc_sequence( sequence * seq, size_t len ) {
+static void realloc_sequence( sequence_t * seq, size_t len ) {
     seq->seq = xrealloc( seq->seq, len + 1 );
     seq->len = len;
 }
@@ -32,7 +32,7 @@ static void realloc_sequence( sequence * seq, size_t len ) {
  * complement of the forward strand, if necessary.
  */
 static void set_translated_sequences( p_seqinfo seqinfo, p_sdb_sequence * buffer ) {
-    sequence db_seq;
+    sequence_t db_seq;
     db_seq.seq = seqinfo->seq;
     db_seq.len = seqinfo->seqlen;
 
@@ -58,7 +58,7 @@ static void set_translated_sequences( p_seqinfo seqinfo, p_sdb_sequence * buffer
     }
     else if( (symtype == TRANS_DB) || (symtype == TRANS_BOTH) ) {
         // map first and then translate the sequences
-        sequence conv_seq = { xmalloc( db_seq.len + 1 ), db_seq.len };
+        sequence_t conv_seq = { xmalloc( db_seq.len + 1 ), db_seq.len };
 
         us_map_sequence( db_seq, conv_seq, map_ncbi_nt16 );
 
@@ -159,7 +159,7 @@ void it_free_chunk( p_db_chunk chunk ) {
 }
 
 p_db_chunk it_alloc_chunk( size_t size ) {
-    p_db_chunk chunk = xmalloc( sizeof(struct db_chunk) );
+    p_db_chunk chunk = xmalloc( sizeof(db_chunk_t) );
     chunk->fill_pointer = 0;
     chunk->size = size;
     chunk->seq = xmalloc( chunk->size * sizeof(p_sdb_sequence) );
@@ -171,9 +171,9 @@ p_db_chunk it_init_new_chunk() {
     p_db_chunk chunk = it_alloc_chunk( chunk_db_seq_count * buffer_max );
 
     for( size_t i = 0; i < chunk->size; ++i ) {
-        chunk->seq[i] = xmalloc( sizeof(sdb_sequence) );
+        chunk->seq[i] = xmalloc( sizeof(sdb_sequence_t) );
 
-        chunk->seq[i]->seq = (sequence ) { xmalloc( 1 ), 0 };
+        chunk->seq[i]->seq = (sequence_t ) { xmalloc( 1 ), 0 };
         chunk->seq[i]->seq.seq[0] = 0;
         chunk->seq[i]->frame = 0;
         chunk->seq[i]->strand = 0;

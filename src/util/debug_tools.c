@@ -116,7 +116,7 @@ void dbg_add_matrix_data_256_16_sw( int q_idx, int d_idx, __m256i value ) {
     ffatal( "not implemented yet" );
 }
 
-static void print_matrix( FILE * f, sequence * dseq, int x, char * qseq, int16_t * matrix ) {
+static void print_matrix( FILE * f, sequence_t * dseq, int x, char * qseq, int16_t * matrix ) {
     // first line seq1
     fprintf( f, " " );
     for( int i = 0; i < dseq[x].len; i++ ) {
@@ -139,7 +139,7 @@ static void print_matrix( FILE * f, sequence * dseq, int x, char * qseq, int16_t
     fprintf( f, "\n" );
 }
 
-void dbg_print_matrices_to_file( int bit_width, char * algorithm, char * qseq, sequence * dseq, int dseq_count ) {
+void dbg_print_matrices_to_file( int bit_width, char * algorithm, char * qseq, sequence_t * dseq, int dseq_count ) {
     char * bit_string = "";
 
     if( bit_width == BIT_WIDTH_64 ) {

@@ -234,7 +234,7 @@ void us_init_translation( int qtableno, int dtableno ) {
  * @param map   the mapping to use
  * @return      the new mapped sequence
  */
-void us_map_sequence( sequence orig, sequence mapped, const char* map ) {
+void us_map_sequence( sequence_t orig, sequence_t mapped, const char* map ) {
     char m;
     for( size_t i = 0; i < orig.len; i++ ) {
         if( (m = map[(int) orig.seq[i]]) >= 0 ) {
@@ -259,7 +259,7 @@ void us_map_sequence( sequence orig, sequence mapped, const char* map ) {
  * @param frame     the frame, that is read for translation
  * @param prot_seq  the resulting protein sequence
  */
-void us_translate_sequence( int db_sequence, sequence dna, int strand, int frame, sequence * prot_seq ) {
+void us_translate_sequence( int db_sequence, sequence_t dna, int strand, int frame, sequence_t * prot_seq ) {
     char* ttable = (db_sequence) ? d_translate : q_translate;
 
     size_t c;
@@ -309,21 +309,21 @@ void us_translate_sequence( int db_sequence, sequence dna, int strand, int frame
     prot_seq->seq[ppos] = 0;
 }
 
-sequence us_prepare_sequence( char * seq, size_t len, int f, int s ) {
-    sequence result;
+sequence_t us_prepare_sequence( char * seq, size_t len, int f, int s ) {
+    sequence_t result;
 
-    sequence db_seq;
+    sequence_t db_seq;
     db_seq.seq = seq;
     db_seq.len = len;
 
-    sequence conv_seq = { xmalloc( db_seq.len + 1 ), db_seq.len };
+    sequence_t conv_seq = { xmalloc( db_seq.len + 1 ), db_seq.len };
 
 
     if( symtype == NUCLEOTIDE ) {
         us_map_sequence( db_seq, conv_seq, map_ncbi_nt16 );
 
         if( s == 2 ) {
-            result = (sequence ) { xmalloc( db_seq.len + 1 ), db_seq.len };
+            result = (sequence_t ) { xmalloc( db_seq.len + 1 ), db_seq.len };
             us_revcompl( conv_seq, result );
         }
         else {
@@ -352,7 +352,7 @@ sequence us_prepare_sequence( char * seq, size_t len, int f, int s ) {
  * @param len   the length of the sequence
  * @return      the reverse complement or 0 in case of an empty sequence
  */
-void us_revcompl( sequence orig, sequence rc ) {
+void us_revcompl( sequence_t orig, sequence_t rc ) {
     if( orig.len != rc.len ) {
         rc.seq = xrealloc( rc.seq, orig.len );
         rc.len = orig.len;

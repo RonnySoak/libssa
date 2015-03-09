@@ -13,8 +13,8 @@
 #include "../src/query.h"
 #include "../src/util/util_sequence.h"
 
-char * get_reverse_complement( sequence orig ) {
-    sequence rc = { xmalloc( orig.len + 1 ), orig.len };
+char * get_reverse_complement( sequence_t orig ) {
+    sequence_t rc = { xmalloc( orig.len + 1 ), orig.len };
     us_revcompl( orig, rc );
     return rc.seq;
 }
@@ -23,7 +23,7 @@ char * get_reverse_complement( sequence orig ) {
  * TODO test actual read query data and conversion
  */
 
-static void check_query_mapped( int reversed, const char map[256], size_t length, char * expected, sequence seq ) {
+static void check_query_mapped( int reversed, const char map[256], size_t length, char * expected, sequence_t seq ) {
     ck_assert_ptr_ne( NULL, seq.seq );
     ck_assert_int_eq( length, seq.len );
 

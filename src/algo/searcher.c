@@ -21,14 +21,14 @@
 static p_search_data sdp = 0;
 static void (*search_func)( p_db_chunk, p_search_data, p_search_result );
 
-static void add_to_buffer( seq_buffer* buf, sequence seq, int strand, int frame ) {
+static void add_to_buffer( seq_buffer_t* buf, sequence_t seq, int strand, int frame ) {
     buf->seq = seq;
     buf->frame = frame;
     buf->strand = strand;
 }
 
 p_search_data s_create_searchdata( p_query query, size_t hit_count ) {
-    p_search_data sdp = xmalloc( sizeof(struct search_data) );
+    p_search_data sdp = xmalloc( sizeof(search_data_t) );
 
     sdp->hit_count = hit_count;
 
@@ -83,7 +83,7 @@ int s_get_query_count() {
     return sdp->q_count;
 }
 
-seq_buffer s_get_query( int idx ) {
+seq_buffer_t s_get_query( int idx ) {
     return sdp->queries[idx];
 }
 
@@ -143,7 +143,7 @@ void * s_search( void * not_used ) {
         ffatal( "\n Search module not initialized!!\n\n" );
     }
 
-    p_search_result res = xmalloc( sizeof(struct search_result) );
+    p_search_result res = xmalloc( sizeof(search_result_t) );
     res->heap = minheap_init( sdp->hit_count );
     res->chunk_count = 0;
     res->seq_count = 0;

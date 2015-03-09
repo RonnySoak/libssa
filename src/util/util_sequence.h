@@ -41,7 +41,7 @@ void us_init_translation(int qtableno, int dtableno);
  * @param map   the mapping to use
  * @return      the new mapped sequence
  */
-void us_map_sequence( sequence orig, sequence mapped, const char* map );
+void us_map_sequence( sequence_t orig, sequence_t mapped, const char* map );
 
 /**
  * Translates a DNA sequence into a protein sequence, according the strand and
@@ -55,10 +55,10 @@ void us_map_sequence( sequence orig, sequence mapped, const char* map );
  * @param frame     the frame, that is read for translation
  * @param prot_seq  the resulting protein sequence
  */
-void us_translate_sequence(int db_sequence, sequence dna,
-        int strand, int frame, sequence * prot_seq);
+void us_translate_sequence(int db_sequence, sequence_t dna,
+        int strand, int frame, sequence_t * prot_seq);
 
-sequence us_prepare_sequence( char * seq, unsigned long len, int f, int s );
+sequence_t us_prepare_sequence( char * seq, unsigned long len, int f, int s );
 
 /**
  * Computes the reverse complement of the input sequence. If the input sequence
@@ -68,6 +68,6 @@ sequence us_prepare_sequence( char * seq, unsigned long len, int f, int s );
  * @param len   the length of the sequence
  * @return      the reverse complement or 0 in case of an empty sequence
  */
-void us_revcompl( sequence orig, sequence rc );
+void us_revcompl( sequence_t orig, sequence_t rc );
 
 #endif /* UTIL_SEQUENCE_H_ */
