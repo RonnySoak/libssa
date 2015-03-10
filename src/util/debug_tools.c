@@ -20,8 +20,8 @@
 static int16_t ** matrix = 0;
 static int matrix_count = 0;
 
-static int matrix_width;
-static int matrix_height;
+static size_t matrix_width;
+static size_t matrix_height;
 
 static const char * get_symbol_translation() {
     if( (symtype == NUCLEOTIDE) ) {
@@ -30,7 +30,7 @@ static const char * get_symbol_translation() {
     return sym_ncbi_aa;
 }
 
-void dbg_init_matrix_data_collection( int bit_width, int maxdlen, int maxqlen ) {
+void dbg_init_matrix_data_collection( int bit_width, size_t maxdlen, size_t maxqlen ) {
     if( bit_width == BIT_WIDTH_64 ) {
         matrix_count = 3;
     }
@@ -58,13 +58,13 @@ void dbg_init_matrix_data_collection( int bit_width, int maxdlen, int maxqlen ) 
     }
 }
 
-void dbg_add_matrix_data_64( int q_idx, int d_idx, int h, int e, int f ) {
+void dbg_add_matrix_data_64( uint8_t q_idx, size_t d_idx, int h, int e, int f ) {
     matrix[0][q_idx * matrix_width + d_idx] = h;
     matrix[1][q_idx * matrix_width + d_idx] = e;
     matrix[2][q_idx * matrix_width + d_idx] = f;
 }
 
-void dbg_add_matrix_data_128_16( int q_idx, int d_idx, __m128i value ) {
+void dbg_add_matrix_data_128_16( uint8_t q_idx, size_t d_idx, __m128i value ) {
     int16_t data[matrix_count];
     _mm_storeu_si128( (__m128i *) data, value );
 
@@ -73,7 +73,7 @@ void dbg_add_matrix_data_128_16( int q_idx, int d_idx, __m128i value ) {
     }
 }
 
-void dbg_add_matrix_data_128_8( int q_idx, int d_idx, __m128i value ) {
+void dbg_add_matrix_data_128_8( uint8_t q_idx, size_t d_idx, __m128i value ) {
     int8_t data[matrix_count];
     _mm_storeu_si128( (__m128i *) data, value );
 
@@ -82,7 +82,7 @@ void dbg_add_matrix_data_128_8( int q_idx, int d_idx, __m128i value ) {
     }
 }
 
-void dbg_add_matrix_data_128_8_sw( int q_idx, int d_idx, __m128i value ) {
+void dbg_add_matrix_data_128_8_sw( uint8_t q_idx, size_t d_idx, __m128i value ) {
     int8_t data[matrix_count];
     _mm_storeu_si128( (__m128i *) data, value );
 
@@ -91,7 +91,7 @@ void dbg_add_matrix_data_128_8_sw( int q_idx, int d_idx, __m128i value ) {
     }
 }
 
-void dbg_add_matrix_data_128_16_sw( int q_idx, int d_idx, __m128i value ) {
+void dbg_add_matrix_data_128_16_sw( uint8_t q_idx, size_t d_idx, __m128i value ) {
     int16_t data[matrix_count];
     _mm_storeu_si128( (__m128i *) data, value );
 
@@ -100,19 +100,19 @@ void dbg_add_matrix_data_128_16_sw( int q_idx, int d_idx, __m128i value ) {
     }
 }
 
-void dbg_add_matrix_data_256_8( int q_idx, int d_idx, __m256i value ) {
+void dbg_add_matrix_data_256_8( uint8_t q_idx, size_t d_idx, __m256i value ) {
     ffatal( "not implemented yet" );
 }
 
-void dbg_add_matrix_data_256_16( int q_idx, int d_idx, __m256i value ) {
+void dbg_add_matrix_data_256_16( uint8_t q_idx, size_t d_idx, __m256i value ) {
     ffatal( "not implemented yet" );
 }
 
-void dbg_add_matrix_data_256_8_sw( int q_idx, int d_idx, __m256i value ) {
+void dbg_add_matrix_data_256_8_sw( uint8_t q_idx, size_t d_idx, __m256i value ) {
     ffatal( "not implemented yet" );
 }
 
-void dbg_add_matrix_data_256_16_sw( int q_idx, int d_idx, __m256i value ) {
+void dbg_add_matrix_data_256_16_sw( uint8_t q_idx, size_t d_idx, __m256i value ) {
     ffatal( "not implemented yet" );
 }
 
@@ -125,7 +125,7 @@ static void print_matrix( FILE * f, sequence_t * dseq, int x, char * qseq, int16
     fprintf( f, "\n" );
 
     // rest of matrix and seq2
-    for( int q_id = 0; q_id < matrix_height; q_id++ ) {
+    for( uint8_t q_id = 0; q_id < matrix_height; q_id++ ) {
         if( qseq ) {
             fprintf( f, " %c", get_symbol_translation()[(int) qseq[q_id]] );
         }
@@ -139,7 +139,7 @@ static void print_matrix( FILE * f, sequence_t * dseq, int x, char * qseq, int16
     fprintf( f, "\n" );
 }
 
-void dbg_print_matrices_to_file( int bit_width, char * algorithm, char * qseq, sequence_t * dseq, int dseq_count ) {
+void dbg_print_matrices_to_file( int bit_width, char * algorithm, char * qseq, sequence_t * dseq, size_t dseq_count ) {
     char * bit_string = "";
 
     if( bit_width == BIT_WIDTH_64 ) {
@@ -194,13 +194,13 @@ void dbg_print_matrices_to_file( int bit_width, char * algorithm, char * qseq, s
 static char * aligned_sequence_collection_desc = 0;
 static p_minheap aligned_sequences = 0;
 
-void dbg_init_aligned_sequence_collecting( char * desc, int size ) {
+void dbg_init_aligned_sequence_collecting( char * desc, size_t size ) {
     aligned_sequence_collection_desc = desc;
 
     aligned_sequences = minheap_init( size );
 }
 
-void dbg_add_aligned_sequence( unsigned long db_id, int query_id, long score ) {
+void dbg_add_aligned_sequence( size_t db_id, uint8_t query_id, long score ) {
     if( aligned_sequence_collection_desc ) {
         elem_t * e = xmalloc( sizeof(elem_t) );
         e->query_id = query_id;

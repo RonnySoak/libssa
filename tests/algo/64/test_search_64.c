@@ -1,5 +1,5 @@
 /*
- * test_search63.c
+ * test_search_64.c
  *
  *  Created on: 18 Jul 2014
  *      Author: kaos
@@ -53,7 +53,7 @@ static void exit_searcher_test( p_search_result res ) {
     mat_free();
 }
 
-START_TEST (test_searcher_more_sequences_sw)
+START_TEST (test_search_64_more_sequences_sw)
     {
         p_search_result res = setup_searcher_test( BIT_WIDTH_64, SMITH_WATERMAN,
                 "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA", "test.fas", 5 );
@@ -76,7 +76,7 @@ START_TEST (test_searcher_more_sequences_sw)
         exit_searcher_test( res );
     }END_TEST
 
-START_TEST (test_searcher_more_sequences_nw)
+START_TEST (test_search_64_more_sequences_nw)
     {
         p_search_result res = setup_searcher_test( BIT_WIDTH_64, NEEDLEMAN_WUNSCH,
                 "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA", "test.fas", 5 );
@@ -101,10 +101,10 @@ START_TEST (test_searcher_more_sequences_nw)
         exit_searcher_test( res );
     }END_TEST
 
-void addSearcher63TC( Suite *s ) {
-    TCase *tc_core = tcase_create( "searcher 63" );
-    tcase_add_test( tc_core, test_searcher_more_sequences_sw );
-    tcase_add_test( tc_core, test_searcher_more_sequences_nw );
+void addSearcher64TC( Suite *s ) {
+    TCase *tc_core = tcase_create( "searcher 64" );
+    tcase_add_test( tc_core, test_search_64_more_sequences_sw );
+    tcase_add_test( tc_core, test_search_64_more_sequences_nw );
 
     suite_add_tcase( s, tc_core );
 }

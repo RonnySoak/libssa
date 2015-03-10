@@ -20,7 +20,7 @@
 #include "../../cpu_config.h"
 #include "../16/search_16.h"
 
-static void (*search_algo)( p_s8info, p_db_chunk, p_minheap, p_node *, int );
+static void (*search_algo)( p_s8info, p_db_chunk, p_minheap, p_node *, uint8_t );
 
 void search_8_init_algo( int search_type ) {
     if( !is_sse2_enabled() ) {
@@ -42,10 +42,6 @@ void search_8_init_algo( int search_type ) {
         else if( is_sse41_enabled() ) {
             search_algo = &search_8_sse41_nw;
         }
-    }
-    else if( search_type == NEEDLEMAN_WUNSCH_SELLERS ) {
-//        search_algo = &search8_nw_sellers; TODO not yet implemented
-        ffatal( "\nnot yet implemented\n\n" );
     }
     else {
         ffatal( "\nunknown search type: %d\n\n", search_type );
@@ -91,7 +87,7 @@ static size_t search_8_chunk( p_s8info s8info, p_minheap heap, p_db_chunk chunk,
 
     p_node overflow_list = 0;
 
-    for( int q_id = 0; q_id < sdp->q_count; q_id++ ) {
+    for( uint8_t q_id = 0; q_id < sdp->q_count; q_id++ ) {
         search_algo( s8info, chunk, heap, &overflow_list, q_id );
     }
 

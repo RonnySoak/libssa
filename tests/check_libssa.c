@@ -26,7 +26,7 @@ Suite* libssa_suite( void ) {
     addDBIteratorTC( s );
     addCigarTC( s );
     addAlignTC( s );
-    add_sw_63_TC( s );
+    add_sw_64_TC( s );
     add_16_simd_utilities_TC( s );
     add_8_simd_utilities_TC( s );
     add_sw_16_SSE2_TC( s );
@@ -37,7 +37,7 @@ Suite* libssa_suite( void ) {
     add_nw_8_SSE41_TC( s );
     add_sw_8_AVX2_TC( s );
     add_nw_8_AVX2_TC( s );
-    addSearcher63TC( s );
+    addSearcher64TC( s );
     addSearcherTC( s );
     addAlignerTC( s );
     addManagerTC( s );

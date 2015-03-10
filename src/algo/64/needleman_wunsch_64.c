@@ -1,5 +1,5 @@
 /*
- * needleman_wunsch_63.c
+ * needleman_wunsch_64.c
  *
  *  Created on: Oct 18, 2014
  *      Author: Jakob Frielingsdorf

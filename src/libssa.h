@@ -103,7 +103,7 @@ typedef struct _query * p_query;
 typedef struct {
     char* seq;
     size_t len;
-    unsigned long ID;
+    size_t ID;
     int strand;
     int frame;
 } db_seq_t;

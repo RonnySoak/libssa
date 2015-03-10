@@ -1,10 +1,11 @@
 /*
- * test_search63.c
+ * test_smith_waterman_63.c
  *
  *  Created on: 18 Jul 2014
  *      Author: kaos
  */
 
+#include "../../../src/algo/64/search_64.h"
 #include "../../tests.h"
 
 #include "../../../src/util/util.h"
@@ -15,10 +16,9 @@
 #include "../../../src/query.h"
 #include "../../../src/algo/searcher.h"
 
-#include "../../../src/algo/63/search_63.h"
 #include "../../../src/algo/gap_costs.h"
 
-START_TEST (test_search63_simple)
+START_TEST (test_sw_64_simple)
     {
         init_symbol_translation( NUCLEOTIDE, FORWARD_STRAND, 3, 3 );
         mat_init_constant_scoring( 1, -1 );
@@ -39,7 +39,7 @@ START_TEST (test_search63_simple)
         query_free( query );
     }END_TEST
 
-START_TEST (test_search63_simple_2)
+START_TEST (test_sw_64_simple_2)
     {
         init_symbol_translation( NUCLEOTIDE, FORWARD_STRAND, 3, 3 );
         mat_init_constant_scoring( 1, -1 );
@@ -60,10 +60,10 @@ START_TEST (test_search63_simple_2)
         query_free( query );
     }END_TEST
 
-void add_sw_63_TC( Suite *s ) {
-    TCase *tc_core = tcase_create( "SmithWaterman_63" );
-    tcase_add_test( tc_core, test_search63_simple );
-    tcase_add_test( tc_core, test_search63_simple_2 );
+void add_sw_64_TC( Suite *s ) {
+    TCase *tc_core = tcase_create( "SmithWaterman_64" );
+    tcase_add_test( tc_core, test_sw_64_simple );
+    tcase_add_test( tc_core, test_sw_64_simple_2 );
 
     suite_add_tcase( s, tc_core );
 }

@@ -12,7 +12,6 @@
 
 #define SMITH_WATERMAN 0
 #define NEEDLEMAN_WUNSCH 1
-#define NEEDLEMAN_WUNSCH_SELLERS 2
 
 void s_init( int search_type, int bit_width, p_query query );
 

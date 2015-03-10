@@ -1,5 +1,5 @@
 /*
- * test_search63.c
+ * test_16_simd_utilities.c
  *
  *  Created on: 18 Jul 2014
  *      Author: kaos

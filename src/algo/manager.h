@@ -16,8 +16,6 @@ void init_for_sw( p_query query, int bit_width, int align_type );
 
 void init_for_nw( p_query query, int bit_width, int align_type );
 
-void init_for_nw_sellers( p_query query, int bit_width, int align_type );
-
 /**
  * Run a search for query in the database. Aligns the query sequence against
  * each sequence in the DB and returns 'hit_count' alignments. The search is

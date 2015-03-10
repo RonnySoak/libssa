@@ -53,10 +53,6 @@ void init_for_nw( p_query query, int bit_width, int align_type ) {
     init( query, NEEDLEMAN_WUNSCH, bit_width, align_type );
 }
 
-void init_for_nw_sellers( p_query query, int bit_width, int align_type ) {
-    init( query, NEEDLEMAN_WUNSCH_SELLERS, bit_width, align_type );
-}
-
 static int alignment_compare( const void * a, const void * b ) {
     p_alignment * x = (p_alignment *) a;
     p_alignment * y = (p_alignment *) b;
@@ -120,8 +116,8 @@ p_alignment_list m_run( size_t hit_count ) {
 
     p_search_result search_result_list[max_thread_count];
 
-    unsigned long chunks_processed = 0;
-    unsigned long db_sequences_processed = 0;
+    size_t chunks_processed = 0;
+    size_t db_sequences_processed = 0;
 
     wait_for_threads( (void **) &search_result_list );
 

@@ -31,9 +31,6 @@ void a_init_data( int search_type ) {
     else if( search_type == NEEDLEMAN_WUNSCH ) {
         adp->align_function = &align_nw;
     }
-    else if( search_type == NEEDLEMAN_WUNSCH_SELLERS ) {
-        adp->align_function = &align_nw_sellers;
-    }
     else {
         ffatal( "\nunknown search type: %d\n\n", search_type );
     }

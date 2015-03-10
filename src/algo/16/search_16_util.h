@@ -47,7 +47,7 @@ struct s16info {
     int16_t penalty_gap_extension;
 };
 
-static inline int move_db_sequence_window_16( int c, uint8_t * d_begin[CHANNELS_16_BIT],
+static inline int move_db_sequence_window_16( uint8_t c, uint8_t * d_begin[CHANNELS_16_BIT],
         uint8_t * d_end[CHANNELS_16_BIT], uint16_t dseq_search_window[CHANNELS_16_BIT * CDEPTH_16_BIT] ) {
     /*
      * TODO vectorize this one, using cmpgt/cmpeq intrinsics
@@ -76,12 +76,12 @@ p_s16info search_16_avx2_init( p_search_data sdp );
 void dprofile_fill_16_sse2( __mxxxi * dprofile, uint16_t * dseq_search_window );
 void dprofile_fill_16_avx2( __mxxxi * dprofile, uint16_t * dseq_search_window );
 
-void search_16_sse2_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * overflow_list, int query_id );
-void search_16_sse2_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * overflow_list, int query_id );
-void search_16_sse2_nw_sellers( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * overflow_list, int query_id );
+void search_16_sse2_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * overflow_list, uint8_t query_id );
+void search_16_sse2_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * overflow_list, uint8_t query_id );
+void search_16_sse2_nw_sellers( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * overflow_list, uint8_t query_id );
 
-void search_16_avx2_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * overflow_list, int query_id );
-void search_16_avx2_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * overflow_list, int query_id );
-void search_16_avx2_nw_sellers( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * overflow_list, int query_id );
+void search_16_avx2_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * overflow_list, uint8_t query_id );
+void search_16_avx2_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * overflow_list, uint8_t query_id );
+void search_16_avx2_nw_sellers( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * overflow_list, uint8_t query_id );
 
 #endif /* SEARCH_16_UTIL_H_ */

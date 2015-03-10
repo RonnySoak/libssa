@@ -16,23 +16,23 @@
 //#define DBG_COLLECT_MATRIX
 //#define DBG_COLLECT_ALIGNED_DB_SEQUENCES
 
-void dbg_init_matrix_data_collection( int bit_width, int maxdlen, int maxqlen );
+void dbg_init_matrix_data_collection( int bit_width, size_t maxdlen, size_t maxqlen );
 
-void dbg_add_matrix_data_64( int q_idx, int d_idx, int h, int e, int f );
-void dbg_add_matrix_data_128_8( int q_idx, int d_idx, __m128i value );
-void dbg_add_matrix_data_128_16( int q_idx, int d_idx, __m128i value );
-void dbg_add_matrix_data_128_8_sw( int q_idx, int d_idx, __m128i value );
-void dbg_add_matrix_data_128_16_sw( int q_idx, int d_idx, __m128i value );
+void dbg_add_matrix_data_64( uint8_t q_idx, size_t d_idx, int h, int e, int f );
+void dbg_add_matrix_data_128_8( uint8_t q_idx, size_t d_idx, __m128i value );
+void dbg_add_matrix_data_128_16( uint8_t q_idx, size_t d_idx, __m128i value );
+void dbg_add_matrix_data_128_8_sw( uint8_t q_idx, size_t d_idx, __m128i value );
+void dbg_add_matrix_data_128_16_sw( uint8_t q_idx, size_t d_idx, __m128i value );
 
-void dbg_add_matrix_data_256_8( int q_idx, int d_idx, __m256i value );
-void dbg_add_matrix_data_256_16( int q_idx, int d_idx, __m256i value );
-void dbg_add_matrix_data_256_8_sw( int q_idx, int d_idx, __m256i value );
-void dbg_add_matrix_data_256_16_sw( int q_idx, int d_idx, __m256i value );
+void dbg_add_matrix_data_256_8( uint8_t q_idx, size_t d_idx, __m256i value );
+void dbg_add_matrix_data_256_16( uint8_t q_idx, size_t d_idx, __m256i value );
+void dbg_add_matrix_data_256_8_sw( uint8_t q_idx, size_t d_idx, __m256i value );
+void dbg_add_matrix_data_256_16_sw( uint8_t q_idx, size_t d_idx, __m256i value );
 
-void dbg_print_matrices_to_file( int bit_width, char * algorithm, char * qseq, sequence_t * dseq, int dseq_count );
+void dbg_print_matrices_to_file( int bit_width, char * algorithm, char * qseq, sequence_t * dseq, size_t dseq_count );
 
-void dbg_init_aligned_sequence_collecting( char * desc, int size );
-void dbg_add_aligned_sequence( unsigned long db_id, int query_id, long score );
+void dbg_init_aligned_sequence_collecting( char * desc, size_t size );
+void dbg_add_aligned_sequence( size_t db_id, uint8_t query_id, long score );
 void dbg_print_aligned_sequences();
 
 void dbg_mm_print_8u( char * desc, __m128i x );

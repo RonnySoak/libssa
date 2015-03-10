@@ -1,11 +1,11 @@
 /*
- * search_63.c
+ * search_64.c
  *
  *  Created on: Jan 17, 2015
  *      Author: Jakob Frielingsdorf
  */
 
-#include "search_63.h"
+#include "../64/search_64.h"
 
 #include <stdlib.h>
 #include <assert.h>
@@ -17,25 +17,20 @@
 
 static int64_t (*search_algo)( sequence_t*, sequence_t*, int64_t* );
 
-void search63_init_algo( int search_type ) {
+void search_64_init_algo( int search_type ) {
     if( search_type == SMITH_WATERMAN ) {
         search_algo = &full_sw;
     }
     else if( search_type == NEEDLEMAN_WUNSCH ) {
         search_algo = &full_nw;
     }
-    else if( search_type == NEEDLEMAN_WUNSCH_SELLERS ) {
-        search_algo = &full_nw_sellers;
-    }
     else {
         ffatal( "\nunknown search type: %d\n\n", search_type );
     }
 }
 
-unsigned long search_63_chunk( p_minheap heap, p_db_chunk chunk, p_search_data sdp, int64_t* hearray ) {
-    unsigned long searches_done = 0;
-
-    for( int q_id = 0; q_id < sdp->q_count; q_id++ ) {
+void search_64_chunk( p_minheap heap, p_db_chunk chunk, p_search_data sdp, int64_t* hearray ) {
+    for( uint8_t q_id = 0; q_id < sdp->q_count; q_id++ ) {
         seq_buffer_t query = sdp->queries[q_id];
 
         for( size_t i = 0; i < chunk->fill_pointer; i++ ) {
@@ -44,31 +39,25 @@ unsigned long search_63_chunk( p_minheap heap, p_db_chunk chunk, p_search_data s
             long score = search_algo( &dseq->seq, &query.seq, hearray );
 
             add_to_minheap( heap, q_id, dseq, score );
-
-            searches_done++;
         }
     }
-
-    return searches_done;
 }
 
-int64_t* search_63_init_hearray( p_search_data sdp ) {
+int64_t* search_64_alloc_hearray( p_search_data sdp ) {
     return xmalloc( sdp->maxqlen * 32 );
 }
 
-void search_63( p_db_chunk chunk, p_search_data sdp, p_search_result res ) {
+void search_64( p_db_chunk chunk, p_search_data sdp, p_search_result res ) {
     if( !search_algo ) {
         ffatal( "\n 64 bit search not initialized!!\n\n" );
     }
 
-    int64_t* hearray = search_63_init_hearray( sdp );
+    int64_t* hearray = search_64_alloc_hearray( sdp );
 
     it_next_chunk( chunk );
 
     while( chunk->fill_pointer ) {
-        int searched_sequences = search_63_chunk( res->heap, chunk, sdp, hearray );
-
-        assert( searched_sequences == chunk->fill_pointer * sdp->q_count );
+        search_64_chunk( res->heap, chunk, sdp, hearray );
 
         res->chunk_count++;
         res->seq_count += chunk->fill_pointer;

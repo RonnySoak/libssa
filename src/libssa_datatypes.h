@@ -36,15 +36,15 @@ typedef search_result_t * p_search_result;
 
 typedef struct {
     sequence_t seq;
-    int strand;
-    int frame;
+    uint8_t strand;
+    uint8_t frame;
 } seq_buffer_t;
 
 typedef struct {
     size_t maxqlen;
 
     seq_buffer_t queries[6];
-    int q_count; // max 6
+    uint8_t q_count; // max 6
 } search_data_t;
 typedef search_data_t * p_search_data;
 
@@ -65,10 +65,10 @@ typedef alignment_data_t * p_alignment_data;
  * @field len   length of the sequence
  */
 typedef struct {
-    unsigned long ID;
+    size_t ID;
     sequence_t seq;
-    int strand;
-    int frame;
+    uint8_t strand;
+    uint8_t frame;
 } sdb_sequence_t;
 typedef sdb_sequence_t * p_sdb_sequence;
 

@@ -31,7 +31,7 @@ int ssa_db_init( const char * db_name );
 // #############################################################################
 // Accessors
 // #########
-unsigned long ssa_db_get_sequence_count();
+size_t ssa_db_get_sequence_count();
 
 /**
  * Returns the DB sequence of the specified ID.

@@ -13,15 +13,15 @@
 #include <assert.h>
 
 #include "../searcher.h"
-#include "../63/search_63.h"
 #include "../../util/minheap.h"
 #include "../../util/linked_list.h"
 #include "../../util/util.h"
 #include "../../db_iterator.h"
 #include "../../matrices.h"
 #include "../../cpu_config.h"
+#include "../64/search_64.h"
 
-static void (*search_algo)( p_s16info, p_db_chunk, p_minheap, p_node *, int );
+static void (*search_algo)( p_s16info, p_db_chunk, p_minheap, p_node *, uint8_t );
 
 void search_16_init_algo( int search_type ) {
     if( !is_sse2_enabled() ) {
@@ -43,10 +43,6 @@ void search_16_init_algo( int search_type ) {
         else {
             search_algo = &search_16_sse2_nw;
         }
-    }
-    else if( search_type == NEEDLEMAN_WUNSCH_SELLERS ) {
-//        search_algo = &search16_nw_sellers; TODO not yet implemented
-        ffatal( "\nnot yet implemented\n\n" );
     }
     else {
         ffatal( "\nunknown search type: %d\n\n", search_type );
@@ -84,23 +80,23 @@ void search_16_exit( p_s16info s ) {
 }
 
 size_t search_16_chunk( p_s16info s16info, p_minheap heap, p_db_chunk chunk, p_search_data sdp ) {
-    unsigned long overflown_seq_count = 0;
+    size_t overflown_seq_count = 0;
 
     p_node overflow_list = 0;
 
-    for( int q_id = 0; q_id < sdp->q_count; q_id++ ) {
+    for( uint8_t q_id = 0; q_id < sdp->q_count; q_id++ ) {
         search_algo( s16info, chunk, heap, &overflow_list, q_id );
     }
 
     if( overflow_list ) {
         if( !s16info->hearray_64 ) {
-            s16info->hearray_64 = search_63_init_hearray( sdp );
+            s16info->hearray_64 = search_64_alloc_hearray( sdp );
         }
 
         p_db_chunk overflow_chunk = convert_to_chunk( overflow_list );
         overflown_seq_count = overflow_chunk->fill_pointer;
 
-        search_63_chunk( heap, overflow_chunk, sdp, s16info->hearray_64 );
+        search_64_chunk( heap, overflow_chunk, sdp, s16info->hearray_64 );
 
         free( overflow_chunk->seq );
         free( overflow_chunk );

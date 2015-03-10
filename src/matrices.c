@@ -307,7 +307,7 @@ void mat_dump( char* outfile ) {
 /**
  * Allocates memory for storing the scoring matrices.
  *
- * score_matrix_63 is initialised with -1.
+ * score_matrix_64 is initialised with -1.
  */
 static void prepare_matrices() {
     if( score_matrix_64 ) {
@@ -322,7 +322,7 @@ static void prepare_matrices() {
 }
 
 /**
- * Copies the values read into score_matrix_63 into the other representations
+ * Copies the values read into score_matrix_64 into the other representations
  * of the scoring matrices.
  */
 static void finalize_matrices() {
@@ -356,7 +356,7 @@ static void finalize_matrices() {
 }
 
 /**
- * Reads a line into score_matrix_63
+ * Reads a line into score_matrix_64
  *
  * @param line      the line to read in
  * @param symbols   nr of read symbols

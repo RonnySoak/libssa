@@ -14,8 +14,8 @@
 #include "../matrices.h"
 #include "../query.h"
 
-#include "63/search_63.h"
 #include "16/search_16.h"
+#include "64/search_64.h"
 #include "8/search_8.h"
 
 static p_search_data sdp = 0;
@@ -30,8 +30,8 @@ static void add_to_buffer( seq_buffer_t* buf, sequence_t seq, int strand, int fr
 p_search_data s_create_searchdata( p_query query ) {
     p_search_data sdp = xmalloc( sizeof(search_data_t) );
 
-    unsigned long qlen = 0;
-    unsigned long maxqlen = 0;
+    size_t qlen = 0;
+    size_t maxqlen = 0;
 
     sdp->q_count = 0;
 
@@ -92,7 +92,7 @@ void s_init( int search_type, int bit_width, p_query query ) {
      * Although all are initialized, the main algorithm is the one specified.
      */
     if( bit_width == BIT_WIDTH_64 ) {
-        search_func = &search_63;
+        search_func = &search_64;
     }
     else if( bit_width == BIT_WIDTH_16 ) {
         search_func = &search_16;
@@ -104,7 +104,7 @@ void s_init( int search_type, int bit_width, p_query query ) {
         ffatal( "\nunknown bit width provided: %d\n\n", bit_width );
     }
 
-    search63_init_algo( search_type );
+    search_64_init_algo( search_type );
     search_16_init_algo( search_type );
     search_8_init_algo( search_type );
 

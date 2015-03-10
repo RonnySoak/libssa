@@ -75,7 +75,7 @@ void * xrealloc( void *ptr, size_t size ) {
     return t;
 }
 
-void add_to_minheap( p_minheap heap, int query_id, p_sdb_sequence db_seq, long score ) {
+void add_to_minheap( p_minheap heap, uint8_t query_id, p_sdb_sequence db_seq, long score ) {
     elem_t * e = xmalloc( sizeof(elem_t) );
     e->query_id = query_id;
 

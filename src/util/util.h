@@ -51,7 +51,7 @@ void outf( const char* format, ... );
 
 char *strdup( const char *str );
 
-void add_to_minheap( p_minheap heap, int query_id, p_sdb_sequence db_seq, long score );
+void add_to_minheap( p_minheap heap, uint8_t query_id, p_sdb_sequence db_seq, long score );
 
 p_db_chunk convert_to_chunk( p_node linked_list );
 

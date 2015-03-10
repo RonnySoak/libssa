@@ -1,5 +1,5 @@
 /*
- * test_search63.c
+ * test_16_simd_avx2_nw.c
  *
  *  Created on: 18 Jul 2014
  *      Author: kaos

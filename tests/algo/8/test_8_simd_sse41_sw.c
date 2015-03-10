@@ -1,10 +1,3 @@
-/*
- * test_search63.c
- *
- *  Created on: 18 Jul 2014
- *      Author: kaos
- */
-
 #include "../../tests.h"
 
 #include "../../../src/util/util.h"
