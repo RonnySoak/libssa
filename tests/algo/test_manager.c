@@ -37,8 +37,8 @@ static void exit_manager_test( p_alignment_list alist ) {
     reset_compute_capability();
 }
 
-static void do_manager_test_std( p_query query, int align_type ) {
-    p_alignment_list alist = m_run();
+static void do_manager_test_std( p_query query, int align_type, size_t hit_count ) {
+    p_alignment_list alist = m_run( hit_count );
 
     ck_assert_int_eq( 3, alist->len );
 
@@ -80,48 +80,48 @@ START_TEST (test_manager_simple_sw_64)
     {
         p_query query = setup_manager_test();
 
-        init_for_sw( query, 3, BIT_WIDTH_64, COMPUTE_ALIGNMENT );
+        init_for_sw( query, BIT_WIDTH_64, COMPUTE_ALIGNMENT );
 
-        do_manager_test_std( query, COMPUTE_ALIGNMENT );
+        do_manager_test_std( query, COMPUTE_ALIGNMENT, 3 );
     }END_TEST
 
 START_TEST (test_manager_simple_nw_64)
     {
         p_query query = setup_manager_test();
 
-        init_for_sw( query, 3, BIT_WIDTH_64, COMPUTE_SCORE );
+        init_for_sw( query, BIT_WIDTH_64, COMPUTE_SCORE );
 
-        do_manager_test_std( query, COMPUTE_SCORE );
+        do_manager_test_std( query, COMPUTE_SCORE, 3 );
     }END_TEST
 
 START_TEST (test_manager_simple_sw_16)
     {
         p_query query = setup_manager_test();
 
-        init_for_sw( query, 3, BIT_WIDTH_16, COMPUTE_SCORE );
+        init_for_sw( query, BIT_WIDTH_16, COMPUTE_SCORE );
 
-        do_manager_test_std( query, COMPUTE_SCORE );
+        do_manager_test_std( query, COMPUTE_SCORE, 3 );
     }END_TEST
 
 START_TEST (test_manager_simple_nw_16)
     {
         p_query query = setup_manager_test();
 
-        init_for_sw( query, 3, BIT_WIDTH_16, COMPUTE_ALIGNMENT );
+        init_for_sw( query, BIT_WIDTH_16, COMPUTE_ALIGNMENT );
 
-        do_manager_test_std( query, COMPUTE_ALIGNMENT );
+        do_manager_test_std( query, COMPUTE_ALIGNMENT, 3 );
     }END_TEST
 
-static void compare_test( void (*init_func)( p_query, size_t, int, int ), size_t hit_count ) {
+static void compare_test( void (*init_func)( p_query, int, int ), size_t hit_count ) {
     p_query query = setup_manager_test();
 
-    init_func( query, hit_count, BIT_WIDTH_64, COMPUTE_ALIGNMENT );
-    p_alignment_list alist_64 = m_run();
+    init_func( query, BIT_WIDTH_64, COMPUTE_ALIGNMENT );
+    p_alignment_list alist_64 = m_run( hit_count );
 
     it_reset_chunk_counter();
 
-    init_func( query, hit_count, BIT_WIDTH_16, COMPUTE_ALIGNMENT );
-    p_alignment_list alist_16 = m_run();
+    init_func( query, BIT_WIDTH_16, COMPUTE_ALIGNMENT );
+    p_alignment_list alist_16 = m_run( hit_count );
 
     ck_assert_int_eq( hit_count, alist_64->len );
     ck_assert_int_eq( hit_count, alist_16->len );
@@ -158,8 +158,8 @@ START_TEST (test_manager_one_hit)
     {
         p_query query = setup_manager_test();
 
-        init_for_nw( query, 1, BIT_WIDTH_64, COMPUTE_ALIGNMENT );
-        p_alignment_list alist = m_run();
+        init_for_nw( query, BIT_WIDTH_64, COMPUTE_ALIGNMENT );
+        p_alignment_list alist = m_run( 1 );
 
         ck_assert_int_eq( 1, alist->len );
 

@@ -29,10 +29,10 @@ struct int_result {
     int val;
 };
 
-static void * simple_test_thread( void * args ) {
+static void * simple_test_thread( void * size_arg ) {
     struct int_result * counter = xmalloc( sizeof(struct int_result) );
 
-    for( int i = 0; i < 1000; ++i ) {
+    for( int i = 0; i < *((size_t*) size_arg); ++i ) {
         counter->val++;
     }
 
@@ -43,7 +43,8 @@ START_TEST (test_one_thread)
     {
         setup_pool( 1 );
 
-        start_threads( &simple_test_thread );
+        size_t count = 1000;
+        start_threads( &simple_test_thread, &count );
 
         ck_assert_int_eq( 1, get_current_thread_count() );
 
@@ -51,7 +52,7 @@ START_TEST (test_one_thread)
 
         wait_for_threads( (void **) &result_list );
 
-        ck_assert_int_eq( 1000, *result_list[0] );
+        ck_assert_int_eq( count, *result_list[0] );
 
         teardown_pool();
     }END_TEST
@@ -60,7 +61,8 @@ START_TEST (test_nr_of_cores_threads)
     {
         setup_pool( -1 );
 
-        start_threads( &simple_test_thread );
+        size_t count = 1000;
+        start_threads( &simple_test_thread, &count );
 
         ck_assert_int_eq( get_nprocs(), get_current_thread_count() );
 
@@ -69,7 +71,7 @@ START_TEST (test_nr_of_cores_threads)
         wait_for_threads( (void **) &result_list );
 
         for( int i = 0; i < get_current_thread_count(); ++i ) {
-            ck_assert_int_eq( 1000, *result_list[i] );
+            ck_assert_int_eq( count, *result_list[i] );
         }
 
         teardown_pool();
@@ -80,7 +82,8 @@ START_TEST (test_20_threads)
         int n = 20;
         setup_pool( n );
 
-        start_threads( &simple_test_thread );
+        size_t count = 1000;
+        start_threads( &simple_test_thread, &count );
 
         ck_assert_int_eq( n, get_current_thread_count() );
 
@@ -89,7 +92,7 @@ START_TEST (test_20_threads)
         wait_for_threads( (void **) &result_list );
 
         for( int i = 0; i < n; ++i ) {
-            ck_assert_int_eq( 1000, *result_list[i] );
+            ck_assert_int_eq( count, *result_list[i] );
         }
 
         teardown_pool();
@@ -100,7 +103,8 @@ START_TEST (test_1000_threads)
         int n = 1000;
         setup_pool( n );
 
-        start_threads( &simple_test_thread );
+        size_t count = 1000;
+        start_threads( &simple_test_thread, &count );
 
         ck_assert_int_eq( n, get_current_thread_count() );
 
@@ -109,7 +113,7 @@ START_TEST (test_1000_threads)
         wait_for_threads( (void **) &result_list );
 
         for( int i = 0; i < n; ++i ) {
-            ck_assert_int_eq( 1000, result_list[i]->val );
+            ck_assert_int_eq( count, result_list[i]->val );
         }
 
         teardown_pool();
@@ -120,7 +124,8 @@ START_TEST (test_changing_nr_of_threads)
         int n = 2;
         setup_pool( n );
 
-        start_threads( &simple_test_thread );
+        size_t count = 1000;
+        start_threads( &simple_test_thread, &count );
 
         ck_assert_int_eq( n, get_current_thread_count() );
 
@@ -129,20 +134,20 @@ START_TEST (test_changing_nr_of_threads)
         wait_for_threads( (void **) &result_list );
 
         for( int i = 0; i < n; ++i ) {
-            ck_assert_int_eq( 1000, result_list[i]->val );
+            ck_assert_int_eq( count, result_list[i]->val );
         }
 
         n = 4;
         setup_pool( n );
 
-        start_threads( &simple_test_thread );
+        start_threads( &simple_test_thread, &count );
 
         ck_assert_int_eq( n, get_current_thread_count() );
 
         wait_for_threads( (void **) &result_list );
 
         for( int i = 0; i < n; ++i ) {
-            ck_assert_int_eq( 1000, result_list[i]->val );
+            ck_assert_int_eq( count, result_list[i]->val );
         }
 
         teardown_pool();
@@ -153,7 +158,8 @@ START_TEST (test_reuse_threadpool)
         int n = 2;
         setup_pool( n );
 
-        start_threads( &simple_test_thread );
+        size_t count = 1000;
+        start_threads( &simple_test_thread, &count );
 
         ck_assert_int_eq( n, get_current_thread_count() );
 
@@ -162,7 +168,7 @@ START_TEST (test_reuse_threadpool)
         wait_for_threads( (void **) &result_list );
 
         for( int i = 0; i < n; ++i ) {
-            ck_assert_int_eq( 1000, result_list[i]->val );
+            ck_assert_int_eq( count, result_list[i]->val );
         }
 
         exit_thread_pool();
@@ -170,14 +176,14 @@ START_TEST (test_reuse_threadpool)
         n = 4;
         setup_pool( n );
 
-        start_threads( &simple_test_thread );
+        start_threads( &simple_test_thread, &count );
 
         ck_assert_int_eq( n, get_current_thread_count() );
 
         wait_for_threads( (void **) &result_list );
 
         for( int i = 0; i < n; ++i ) {
-            ck_assert_int_eq( 1000, result_list[i]->val );
+            ck_assert_int_eq( count, result_list[i]->val );
         }
 
         teardown_pool();

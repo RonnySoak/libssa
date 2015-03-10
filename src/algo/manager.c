@@ -21,16 +21,16 @@
 #include "aligner.h"
 #include "searcher.h"
 
-static size_t alignment_hit_count = 0;
-static int align_type;
+#define MNGR_NOT_INITIALIZED -1
+
+static int align_type = MNGR_NOT_INITIALIZED;
 
 size_t max_chunk_size = 1000;
 
-static void init( p_query query, size_t hit_count, int search_type, int bit_width, int al_type ) {
-    alignment_hit_count = hit_count;
+static void init( p_query query, int search_type, int bit_width, int al_type ) {
     align_type = al_type;
 
-    s_init( search_type, bit_width, query, hit_count );
+    s_init( search_type, bit_width, query );
 
     a_init_data( search_type );
 
@@ -45,16 +45,16 @@ static void init( p_query query, size_t hit_count, int search_type, int bit_widt
 #endif
 }
 
-void init_for_sw( p_query query, size_t hit_count, int bit_width, int align_type ) {
-    init( query, hit_count, SMITH_WATERMAN, bit_width, align_type );
+void init_for_sw( p_query query, int bit_width, int align_type ) {
+    init( query, SMITH_WATERMAN, bit_width, align_type );
 }
 
-void init_for_nw( p_query query, size_t hit_count, int bit_width, int align_type ) {
-    init( query, hit_count, NEEDLEMAN_WUNSCH, bit_width, align_type );
+void init_for_nw( p_query query, int bit_width, int align_type ) {
+    init( query, NEEDLEMAN_WUNSCH, bit_width, align_type );
 }
 
-void init_for_nw_sellers( p_query query, size_t hit_count, int bit_width, int align_type ) {
-    init( query, hit_count, NEEDLEMAN_WUNSCH_SELLERS, bit_width, align_type );
+void init_for_nw_sellers( p_query query, int bit_width, int align_type ) {
+    init( query, NEEDLEMAN_WUNSCH_SELLERS, bit_width, align_type );
 }
 
 static int alignment_compare( const void * a, const void * b ) {
@@ -73,9 +73,9 @@ static void sort_alignment_list( p_alignment_list alist ) {
 }
 
 static p_alignment_list do_align( p_minheap search_results ) {
-    p_alignment_list alist = xmalloc( alignment_hit_count * sizeof(alignment_list_t) );
-    alist->alignments = xmalloc( alignment_hit_count * sizeof(alignment_t) );
-    alist->len = alignment_hit_count;
+    p_alignment_list alist = xmalloc( sizeof(alignment_list_t) );
+    alist->alignments = xmalloc( search_results->count * sizeof(alignment_t) );
+    alist->len = search_results->count;
 
     if( align_type == COMPUTE_SCORE ) {
         create_score_alignment_list( search_results, alist );
@@ -83,7 +83,7 @@ static p_alignment_list do_align( p_minheap search_results ) {
     else {
         a_set_alignment_pairs( search_results->count, search_results->array );
 
-        start_threads( a_align );
+        start_threads( a_align, NULL );
 
         p_alignment_list align_result_list[get_current_thread_count()];
 
@@ -109,14 +109,14 @@ static p_alignment_list do_align( p_minheap search_results ) {
  * each sequence in the DB and returns 'hit_count' alignments. The search is
  * configured through set bits in 'flags'.
  */
-p_alignment_list m_run() {
-    if( !alignment_hit_count ) {
+p_alignment_list m_run( size_t hit_count ) {
+    if( align_type == MNGR_NOT_INITIALIZED ) {
         ffatal( "\n Manager module not initialized!!\n\n" );
     }
 
     init_thread_pool();
 
-    start_threads( s_search );
+    start_threads( s_search, &hit_count );
 
     p_search_result search_result_list[max_thread_count];
 
@@ -132,7 +132,7 @@ p_alignment_list m_run() {
     size_t overflow_8_bit_count = 0;
     size_t overflow_16_bit_count = 0;
 
-    p_minheap search_results = minheap_init( alignment_hit_count );
+    p_minheap search_results = minheap_init( hit_count );
     for( size_t i = 0; i < get_current_thread_count(); i++ ) {
         for( size_t j = 0; j < search_result_list[i]->heap->count; j++ ) {
             minheap_add( search_results, &search_result_list[i]->heap->array[j] );

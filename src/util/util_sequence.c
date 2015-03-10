@@ -241,7 +241,7 @@ void us_map_sequence( sequence_t orig, sequence_t mapped, const char* map ) {
             mapped.seq[i] = m;
         }
         else {
-            mapped.seq[i] = 0;
+            mapped.seq[i] = 0; // TODO add warning message?!
         }
     }
     mapped.seq[orig.len] = 0;

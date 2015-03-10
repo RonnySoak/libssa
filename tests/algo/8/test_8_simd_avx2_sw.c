@@ -18,7 +18,7 @@
 #include "../../../src/algo/gap_costs.h"
 #include "../../../src/algo/searcher.h"
 
-static p_search_result setup_searcher_8_test( int symbols, char * query_string, char * db_file, int hit_count ) {
+static p_search_result setup_searcher_8_test( int symbols, char * query_string, char * db_file, size_t hit_count ) {
     set_max_compute_capability( COMPUTE_ON_AVX2 );
 
     mat_init_constant_scoring( 1, -1 );
@@ -26,7 +26,7 @@ static p_search_result setup_searcher_8_test( int symbols, char * query_string, 
 
     p_query query = query_read_from_string( "short query", query_string );
 
-    s_init( SMITH_WATERMAN, BIT_WIDTH_8, query, hit_count );
+    s_init( SMITH_WATERMAN, BIT_WIDTH_8, query );
 
     ssa_db_init( concat( "./tests/testdata/", db_file ) );
 
@@ -35,7 +35,7 @@ static p_search_result setup_searcher_8_test( int symbols, char * query_string, 
 
     it_init( hit_count );
 
-    p_search_result res = s_search( NULL );
+    p_search_result res = s_search( &hit_count );
 
     minheap_sort( res->heap );
 

@@ -18,12 +18,12 @@
 #include "../../src/algo/gap_costs.h"
 
 static p_search_result setup_searcher_test( int bit_width, int search_type, char * query_string, char * db_file,
-        int hit_count, int symtype, int strands ) {
+        size_t hit_count, int symtype, int strands ) {
     init_symbol_translation( symtype, strands, 3, 3 );
     mat_init_constant_scoring( 1, -1 );
     p_query query = query_read_from_string( "short query", query_string );
 
-    s_init( search_type, bit_width, query, hit_count );
+    s_init( search_type, bit_width, query );
 
     ssa_db_init( concat( "./tests/testdata/", db_file ) );
 
@@ -32,7 +32,7 @@ static p_search_result setup_searcher_test( int bit_width, int search_type, char
 
     it_init( hit_count );
 
-    p_search_result res = s_search( NULL );
+    p_search_result res = s_search( &hit_count );
 
     minheap_sort( res->heap );
 
@@ -121,7 +121,7 @@ START_TEST (test_searcher_simple_nw_8)
         do_searcher_test_simple( BIT_WIDTH_8, NEEDLEMAN_WUNSCH, -2 );
     }END_TEST
 
-static p_search_result init_translate_test( int bit_width, int search_type, char * query, char * db_file, int hit_count,
+static p_search_result init_translate_test( int bit_width, int search_type, char * query, char * db_file, size_t hit_count,
         int symtype, int strands ) {
     p_search_result res = setup_searcher_test( bit_width, search_type, query, db_file, hit_count, symtype, strands );
 
@@ -391,14 +391,14 @@ START_TEST (test_searcher_AA_sw_8)
         test_result( res, result, 2 );
     }END_TEST
 
-static p_search_result setup_BLOSUM62_test( int bit_width, int search_type, int hit_count ) {
+static p_search_result setup_BLOSUM62_test( int bit_width, int search_type, size_t hit_count ) {
     init_symbol_translation( AMINOACID, FORWARD_STRAND, 3, 3 );
     mat_init_buildin( BLOSUM62 );
 
     p_query query = query_read_from_string( "AA query",
             "HPEVYILIIPGFGIISHVVSTYSKKPVFGEISMVYAMASIGLLGFLVWSHHMYIVGLDADTRAYFTSATMIIAIPTGIKI" );
 
-    s_init( search_type, bit_width, query, hit_count );
+    s_init( search_type, bit_width, query );
 
     ssa_db_init( concat( "./tests/testdata/", "short_AA.fas" ) );
 
@@ -407,7 +407,7 @@ static p_search_result setup_BLOSUM62_test( int bit_width, int search_type, int 
 
     it_init( hit_count );
 
-    p_search_result res = s_search( NULL );
+    p_search_result res = s_search( &hit_count );
 
     minheap_sort( res->heap );
 
@@ -496,7 +496,7 @@ START_TEST (test_init_search_data)
         init_symbol_translation( NUCLEOTIDE, FORWARD_STRAND, 3, 3 );
         p_query query = query_read_from_string( "short query",
                 "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA" );
-        p_search_data sdp = s_create_searchdata( query, 1 );
+        p_search_data sdp = s_create_searchdata( query );
 
         // query data
         ck_assert_int_eq( 1, sdp->q_count );
@@ -514,8 +514,6 @@ START_TEST (test_init_search_data)
         ck_assert_int_eq( 0, sdp->queries[4].seq.len );
         ck_assert_int_eq( 0, sdp->queries[5].seq.len );
 
-        ck_assert_int_eq( 1, sdp->hit_count );
-
         ck_assert_int_eq( 54, sdp->maxqlen );
         // TODO test profile
 
@@ -527,7 +525,7 @@ START_TEST (test_init_search_data2)
         init_symbol_translation( NUCLEOTIDE, COMPLEMENTARY_STRAND, 3, 3 );
         p_query query = query_read_from_string( "short query",
                 "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA" );
-        p_search_data sdp = s_create_searchdata( query, 5 );
+        p_search_data sdp = s_create_searchdata( query );
 
         // query data
         ck_assert_int_eq( 1, sdp->q_count );
@@ -544,8 +542,6 @@ START_TEST (test_init_search_data2)
         ck_assert_int_eq( 0, sdp->queries[4].seq.len );
         ck_assert_int_eq( 0, sdp->queries[5].seq.len );
 
-        ck_assert_int_eq( 5, sdp->hit_count );
-
         ck_assert_int_eq( 54, sdp->maxqlen );
 
         query_free( query );
@@ -556,7 +552,7 @@ START_TEST (test_init_search_data3)
         init_symbol_translation( TRANS_QUERY, FORWARD_STRAND, 3, 3 );
         p_query query = query_read_from_string( "short query",
                 "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA" );
-        p_search_data sdp = s_create_searchdata( query, 5 );
+        p_search_data sdp = s_create_searchdata( query );
 
         // query data
         ck_assert_int_eq( 3, sdp->q_count );
@@ -583,8 +579,6 @@ START_TEST (test_init_search_data3)
         ck_assert_int_eq( 0, sdp->queries[4].seq.len );
         ck_assert_int_eq( 0, sdp->queries[5].seq.len );
 
-        ck_assert_int_eq( 5, sdp->hit_count );
-
         ck_assert_int_eq( 18, sdp->maxqlen );
 
         query_free( query );
@@ -595,7 +589,7 @@ START_TEST (test_init_search_data4)
         init_symbol_translation( TRANS_QUERY, BOTH_STRANDS, 3, 3 );
         p_query query = query_read_from_string( "short query",
                 "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA" );
-        p_search_data sdp = s_create_searchdata( query, 3 );
+        p_search_data sdp = s_create_searchdata( query );
 
         // query data
         ck_assert_int_eq( 6, sdp->q_count );
@@ -636,8 +630,6 @@ START_TEST (test_init_search_data4)
         ck_assert_int_eq( 2, buf.frame );
         ck_assert_int_eq( 1, buf.strand );
 
-        ck_assert_int_eq( 3, sdp->hit_count );
-
         ck_assert_int_eq( 18, sdp->maxqlen );
 
         query_free( query );
@@ -648,7 +640,7 @@ START_TEST (test_init_search_data5)
         init_symbol_translation( AMINOACID, BOTH_STRANDS, 3, 3 );
         p_query query = query_read_from_string( "short query",
                 "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA" );
-        p_search_data sdp = s_create_searchdata( query, 1 );
+        p_search_data sdp = s_create_searchdata( query );
 
         // query data
         ck_assert_int_eq( 1, sdp->q_count );
@@ -664,8 +656,6 @@ START_TEST (test_init_search_data5)
         ck_assert_int_eq( 0, sdp->queries[3].seq.len );
         ck_assert_int_eq( 0, sdp->queries[4].seq.len );
         ck_assert_int_eq( 0, sdp->queries[5].seq.len );
-
-        ck_assert_int_eq( 1, sdp->hit_count );
 
         ck_assert_int_eq( 54, sdp->maxqlen );
 

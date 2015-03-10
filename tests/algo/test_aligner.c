@@ -46,8 +46,9 @@ static p_query setup_aligner_test( char * query_string, char * db_file, int chun
     return query;
 }
 
-static p_alignment_list do_aligner_test_step_two( int search_type, p_query query, int hit_count, int pair_count, elem_t * result_sequence_pairs) {
-    s_init( search_type, BIT_WIDTH_64, query, hit_count );
+static p_alignment_list do_aligner_test_step_two( int search_type, p_query query, size_t hit_count, int pair_count,
+        elem_t * result_sequence_pairs ) {
+    s_init( search_type, BIT_WIDTH_64, query );
 
     a_init_data( search_type );
 
@@ -165,7 +166,6 @@ START_TEST (test_aligner_more_sequences_sw)
         ck_assert_int_eq( 10, al->align_q_start );
         ck_assert_int_eq( 34, al->align_q_end );
         ck_assert_str_eq( "20MD4M", al->alignment );
-
 
         exit_aligner_test( alist, query );
     }END_TEST

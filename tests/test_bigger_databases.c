@@ -57,7 +57,7 @@ static void exit_bigger_db_test( p_query query ) {
 
 START_TEST (test_AF091148)
     {
-        int hit_count = 10;
+        size_t hit_count = 10;
         init_constant_scoring( 2, -2 );
 
         p_query query = setup_bigger_db_test( "AF091148.fas", "one_seq.fas", 4, 2, 1, NUCLEOTIDE );
@@ -81,7 +81,7 @@ START_TEST (test_AF091148)
 
 START_TEST (test_Rfam_11_0)
     {
-        int hit_count = 10;
+        size_t hit_count = 10;
         init_constant_scoring( 5, -4 );
 
         p_query query = setup_bigger_db_test( "Rfam_11_0.fasta", "one_seq.fas", 4, 2, 1, NUCLEOTIDE );
@@ -104,7 +104,7 @@ START_TEST (test_Rfam_11_0)
 
 START_TEST (test_uniprot_sprot_sw)
     {
-        int hit_count = 10;
+        size_t hit_count = 10;
         init_score_matrix( MATRIX_BUILDIN, BLOSUM62 );
 
         p_query query = setup_bigger_db_test( "uniprot_sprot.fasta", "O74807.fasta", 4, 2, 8, AMINOACID );
@@ -123,7 +123,7 @@ START_TEST (test_uniprot_sprot_sw)
 
 START_TEST (test_uniprot_sprot_nw)
     {
-        int hit_count = 10;
+        size_t hit_count = 10;
         init_score_matrix( MATRIX_BUILDIN, BLOSUM62 );
 
         p_query query = setup_bigger_db_test( "uniprot_sprot.fasta", "O74807.fasta", 4, 2, 8, AMINOACID );

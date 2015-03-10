@@ -20,13 +20,13 @@
 #define MATCH 111
 #define MISMATCH -40
 
-static p_s16info setup_simd_util_test( char * query_string, int hit_count ) {
+static p_s16info setup_simd_util_test( char * query_string ) {
     mat_init_constant_scoring( MATCH, MISMATCH );
     init_symbol_translation( NUCLEOTIDE, FORWARD_STRAND, 3, 3 );
 
     p_query query = query_read_from_string( "short query", query_string );
 
-    p_search_data sdp = s_create_searchdata( query, hit_count );
+    p_search_data sdp = s_create_searchdata( query );
 
     return search_16_init( sdp );
 }
@@ -64,7 +64,7 @@ START_TEST (test_sse_simple)
     {
         set_max_compute_capability( COMPUTE_ON_SSE2 );
 
-        p_s16info s = setup_simd_util_test( "AT", 1 );
+        p_s16info s = setup_simd_util_test( "AT" );
 
         uint16_t dseq_search_window[CDEPTH_16_BIT * CHANNELS_16_BIT_SSE];
         memset( dseq_search_window, 0, sizeof(uint16_t) * CDEPTH_16_BIT * CHANNELS_16_BIT_SSE );
@@ -86,7 +86,7 @@ START_TEST (test_avx_simple)
     {
         set_max_compute_capability( COMPUTE_ON_AVX2 );
 
-        p_s16info s = setup_simd_util_test( "AT", 1 );
+        p_s16info s = setup_simd_util_test( "AT" );
 
         uint16_t dseq_search_window[CDEPTH_16_BIT * CHANNELS_16_BIT_AVX];
         memset( dseq_search_window, 0, sizeof(uint16_t) * CDEPTH_16_BIT * CHANNELS_16_BIT_AVX );

@@ -27,10 +27,8 @@ static void add_to_buffer( seq_buffer_t* buf, sequence_t seq, int strand, int fr
     buf->strand = strand;
 }
 
-p_search_data s_create_searchdata( p_query query, size_t hit_count ) {
+p_search_data s_create_searchdata( p_query query ) {
     p_search_data sdp = xmalloc( sizeof(search_data_t) );
-
-    sdp->hit_count = hit_count;
 
     unsigned long qlen = 0;
     unsigned long maxqlen = 0;
@@ -87,7 +85,7 @@ seq_buffer_t s_get_query( int idx ) {
     return sdp->queries[idx];
 }
 
-void s_init( int search_type, int bit_width, p_query query, size_t hit_count ) {
+void s_init( int search_type, int bit_width, p_query query ) {
     /*
      * Here we initialize all algorithms, to use them as fallbacks if one overflows.
      *
@@ -110,13 +108,12 @@ void s_init( int search_type, int bit_width, p_query query, size_t hit_count ) {
     search_16_init_algo( search_type );
     search_8_init_algo( search_type );
 
-    sdp = s_create_searchdata( query, hit_count );
+    sdp = s_create_searchdata( query );
 }
 
 static void s_free_search_data( p_search_data sdp ) {
     if( sdp ) {
         sdp->q_count = 0;
-        sdp->hit_count = 0;
 
         free( sdp );
     }
@@ -138,13 +135,13 @@ void s_free( p_search_result res ) {
     res = 0;
 }
 
-void * s_search( void * not_used ) {
-    if( !search_func || !sdp ) {
+void * s_search( void * hit_count ) {
+    if( !search_func || !sdp || !hit_count ) {
         ffatal( "\n Search module not initialized!!\n\n" );
     }
 
     p_search_result res = xmalloc( sizeof(search_result_t) );
-    res->heap = minheap_init( sdp->hit_count );
+    res->heap = minheap_init( *((size_t *) hit_count) );
     res->chunk_count = 0;
     res->seq_count = 0;
     res->overflow_8_bit_count = 0;

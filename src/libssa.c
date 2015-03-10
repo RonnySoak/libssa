@@ -212,9 +212,9 @@ static void prepare_alignment() {
 p_alignment_list sw_align( p_query p, size_t hitcount, int bit_width, int align_type /* TODO ...*/) {
     prepare_alignment();
 
-    init_for_sw( p, hitcount, bit_width, align_type );
+    init_for_sw( p, bit_width, align_type );
 
-    return m_run();
+    return m_run( hitcount );
 }
 
 /**
@@ -228,9 +228,9 @@ p_alignment_list sw_align( p_query p, size_t hitcount, int bit_width, int align_
 p_alignment_list nw_align( p_query p, size_t hitcount, int bit_width, int align_type /* TODO ...*/) {
     prepare_alignment();
 
-    init_for_nw( p, hitcount, bit_width, align_type );
+    init_for_nw( p, bit_width, align_type );
 
-    return m_run();
+    return m_run( hitcount );
 }
 
 /**

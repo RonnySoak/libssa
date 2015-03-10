@@ -63,9 +63,9 @@ void exit_thread_pool() {
     }
 }
 
-void start_threads( void *(*start_routine)( void * ) ) {
+void start_threads( void *(*start_routine)( void * ), void * arg ) {
     for( size_t i = 0; i < get_current_thread_count(); i++ ) {
-        pthread_create( &thread_list[i], NULL, start_routine, NULL );
+        pthread_create( &thread_list[i], NULL, start_routine, arg );
     }
 }
 

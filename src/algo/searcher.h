@@ -14,9 +14,9 @@
 #define NEEDLEMAN_WUNSCH 1
 #define NEEDLEMAN_WUNSCH_SELLERS 2
 
-void s_init( int search_type, int bit_width, p_query query, int hit_count );
+void s_init( int search_type, int bit_width, p_query query );
 
-p_search_data s_create_searchdata( p_query query, int hit_count );
+p_search_data s_create_searchdata( p_query query );
 
 void s_free_search_data( p_search_data sdp );
 
@@ -26,6 +26,6 @@ seq_buffer_t s_get_query( int idx );
 
 void s_free();
 
-void * s_search(void *);
+void * s_search( void * hit_count );
 
 #endif /* SEARCHER_H_ */

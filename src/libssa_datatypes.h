@@ -41,8 +41,6 @@ typedef struct {
 } seq_buffer_t;
 
 typedef struct {
-    size_t hit_count;
-
     size_t maxqlen;
 
     seq_buffer_t queries[6];

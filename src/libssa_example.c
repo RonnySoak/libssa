@@ -59,7 +59,7 @@ int main( int argc, char**argv ) {
     init_db_fasta( "tmp/3a.fas" );
     p_query query = init_sequence_fasta( READ_FROM_STRING, "TACGGGTAT" );
 
-    int hit_count = 1;
+    size_t hit_count = 1;
 
     p_alignment_list alist = do_alignment( "3.a", &nw_align, query, hit_count, BIT_WIDTH_64 );
     free_alignment( alist );

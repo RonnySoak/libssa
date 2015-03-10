@@ -16,22 +16,20 @@
 #include "../../../src/algo/searcher.h"
 #include "../../../src/algo/gap_costs.h"
 
-static p_query setup_searcher_test_init( int bit_width, int search_type, char * query_string, int hit_count,
-        int symtype, int strands ) {
+static p_query setup_searcher_test_init( int bit_width, int search_type, char * query_string, int symtype, int strands ) {
     init_symbol_translation( symtype, strands, 3, 3 );
     mat_init_constant_scoring( 1, -1 );
 
     p_query query = query_read_from_string( "short query", query_string );
 
-    s_init( search_type, bit_width, query, hit_count );
+    s_init( search_type, bit_width, query );
 
     return query;
 }
 
 static p_search_result setup_searcher_test( int bit_width, int search_type, char * query_string, char * db_file,
-        int hit_count ) {
-    p_query query = setup_searcher_test_init( bit_width, search_type, query_string, hit_count, NUCLEOTIDE,
-    FORWARD_STRAND );
+        size_t hit_count ) {
+    p_query query = setup_searcher_test_init( bit_width, search_type, query_string, NUCLEOTIDE, FORWARD_STRAND );
 
     ssa_db_init( concat( "./tests/testdata/", db_file ) );
 
@@ -40,7 +38,7 @@ static p_search_result setup_searcher_test( int bit_width, int search_type, char
 
     it_init( hit_count );
 
-    p_search_result res = s_search( NULL );
+    p_search_result res = s_search( &hit_count );
 
     minheap_sort( res->heap );
 

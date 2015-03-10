@@ -18,8 +18,8 @@ void exit_thread_pool();
 
 size_t get_current_thread_count();
 
-void start_threads(void *(*start_routine) (void *) );
+void start_threads( void *(*start_routine)( void * ), void * arg );
 
-void wait_for_threads(void ** thread_results);
+void wait_for_threads( void ** thread_results );
 
 #endif /* THREAD_POOL_H_ */
