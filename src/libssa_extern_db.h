@@ -1,10 +1,20 @@
 /*
- * libssa_extern_db.h
- *
- * Adaptor for sequence database implementations used by libssa.
- *
- *  Created on: Sep 26, 2014
- *      Author: Jakob Frielingsdorf
+ Copyright (C) 2014-2015 Jakob Frielingsdorf
+
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU Affero General Public License as
+ published by the Free Software Foundation, either version 3 of the
+ License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU Affero General Public License for more details.
+
+ You should have received a copy of the GNU Affero General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+ Contact: Jakob Frielingsdorf <jfrielingsdorf@gmail.com>
  */
 
 #ifndef LIBSSA_EXTERN_DB_H_

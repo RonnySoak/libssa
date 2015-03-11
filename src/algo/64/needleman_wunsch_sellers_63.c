@@ -1,8 +1,5 @@
 /*
- SWARM
-
-
- Copyright (C) 2012-2013 Torbjorn Rognes and Frederic Mahe
+ Copyright (C) 2014-2015 Jakob Frielingsdorf
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as
@@ -17,9 +14,7 @@
  You should have received a copy of the GNU Affero General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
- Contact: Torbjorn Rognes <torognes@ifi.uio.no>,
- Department of Informatics, University of Oslo,
- PO Box 1080 Blindern, NO-0316 Oslo, Norway
+ Contact: Jakob Frielingsdorf <jfrielingsdorf@gmail.com>
  */
 
 #include <stdio.h>

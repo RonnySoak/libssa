@@ -1,33 +1,26 @@
 /*
- * cpu_config.c
- *
- *  Created on: Feb 4, 2015
- *      Author: Jakob Frielingsdorf
+ Copyright (C) 2014-2015 Jakob Frielingsdorf
+
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU Affero General Public License as
+ published by the Free Software Foundation, either version 3 of the
+ License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU Affero General Public License for more details.
+
+ You should have received a copy of the GNU Affero General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+ Contact: Jakob Frielingsdorf <jfrielingsdorf@gmail.com>
  */
 
 #include "cpu_config.h"
 
 #include "libssa.h"
 #include "util/util.h"
-
-/*
- * We can have features, that are
- *  (a) set at compile time
- *  (b) implemented by the present CPU
- *  (c) set at runtime
- *
- * (a) have to be checked against what the current CPU has implemented
- * (a) can be changed at runtime, but cannot enable features, that have been disabled at compile time
- *
- * (b) define an initial set of features
- * (b) used features can be changed at runtime
- *
- * (c) have to be checked against what the current CPU has implemented
- * (c) cannot enable features, that have been disabled at compile time
- *
- * The following implementation chooses the SIMD implementation at runtime. At default
- * all is enabled and the user can set a max compute capability, disabling all higher ones.
- */
 
 static int sse2_enabled = 1;
 static int sse41_enabled = 1;

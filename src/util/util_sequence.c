@@ -1,10 +1,20 @@
 /*
- * util_sequence.c
- *
- * Provides utility functions for DB and query sequences.
- *
- *  Created on: Sep 18, 2014
- *      Author: Jakob Frielingsdorf
+ Copyright (C) 2014-2015 Jakob Frielingsdorf
+
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU Affero General Public License as
+ published by the Free Software Foundation, either version 3 of the
+ License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU Affero General Public License for more details.
+
+ You should have received a copy of the GNU Affero General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+ Contact: Jakob Frielingsdorf <jfrielingsdorf@gmail.com>
  */
 
 #include <stdlib.h>
@@ -56,30 +66,42 @@ const char map_ncbi_nt16[256] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
  * Descriptions of the genetic codes, available for translating genetic sequences
  * to protein sequences.
  */
-const char * gencode_names[23] = { "Standard Code", "Vertebrate Mitochondrial Code", "Yeast Mitochondrial Code",
+const char * gencode_names[23] = {
+        "Standard Code",
+        "Vertebrate Mitochondrial Code",
+        "Yeast Mitochondrial Code",
         "Mold, Protozoan, and Coelenterate Mitochondrial Code and Mycoplasma/Spiroplasma Code",
-        "Invertebrate Mitochondrial Code", "Ciliate, Dasycladacean and Hexamita Nuclear Code",
-        NULL,
-        NULL, "Echinoderm and Flatworm Mitochondrial Code", "Euplotid Nuclear Code",
-        "Bacterial, Archaeal and Plant Plastid Code", "Alternative Yeast Nuclear Code", "Ascidian Mitochondrial Code",
-        "Alternative Flatworm Mitochondrial Code", "Blepharisma Nuclear Code", "Chlorophycean Mitochondrial Code",
+        "Invertebrate Mitochondrial Code",
+        "Ciliate, Dasycladacean and Hexamita Nuclear Code",
         NULL,
         NULL,
+        "Echinoderm and Flatworm Mitochondrial Code",
+        "Euplotid Nuclear Code",
+        "Bacterial, Archaeal and Plant Plastid Code",
+        "Alternative Yeast Nuclear Code", "Ascidian Mitochondrial Code",
+        "Alternative Flatworm Mitochondrial Code",
+        "Blepharisma Nuclear Code", "Chlorophycean Mitochondrial Code",
         NULL,
-        NULL, "Trematode Mitochondrial Code", "Scenedesmus obliquus Mitochondrial Code",
+        NULL,
+        NULL,
+        NULL,
+        "Trematode Mitochondrial Code",
+        "Scenedesmus obliquus Mitochondrial Code",
         "Thraustochytrium Mitochondrial Code" };
 
 /*
  * List of genetic codes, for translating genetic sequences to protein sequences.
  */
-static const char * code[23] = { "FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
+static const char * code[23] = {
+        "FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
         "FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNKKSS**VVVVAAAADDEEGGGG",
         "FFLLSSSSYY**CCWWTTTTPPPPHHQQRRRRIIMMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
         "FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
         "FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNKKSSSSVVVVAAAADDEEGGGG",
         "FFLLSSSSYYQQCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
         NULL,
-        NULL, "FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIIMTTTTNNNKSSSSVVVVAAAADDEEGGGG",
+        NULL,
+        "FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIIMTTTTNNNKSSSSVVVVAAAADDEEGGGG",
         "FFLLSSSSYY**CCCWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
         "FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
         "FFLLSSSSYY**CC*WLLLSPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
@@ -90,7 +112,8 @@ static const char * code[23] = { "FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSS
         NULL,
         NULL,
         NULL,
-        NULL, "FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNNKSSSSVVVVAAAADDEEGGGG",
+        NULL,
+        "FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNNKSSSSVVVVAAAADDEEGGGG",
         "FFLLSS*SYY*LCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
         "FF*LSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG" };
 

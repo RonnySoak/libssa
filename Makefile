@@ -23,13 +23,13 @@ DEBUG_OUTPUT_DIR = debug_output
 -include tests/algo/subdir.mk
 -include tests/algo/8/subdir.mk
 -include tests/algo/16/subdir.mk
--include tests/algo/63/subdir.mk
+-include tests/algo/64/subdir.mk
 -include tests/util/subdir.mk
 -include src/subdir.mk
 -include src/algo/subdir.mk
 -include src/algo/8/subdir.mk
 -include src/algo/16/subdir.mk
--include src/algo/63/subdir.mk
+-include src/algo/64/subdir.mk
 -include src/util/subdir.mk
 
 MPI_COMPILE := `mpicxx --showme:compile`
@@ -45,7 +45,7 @@ LIBS := -pthread -lm -lsdb $(DEBUG_LIBS)
 TEST_LIBS := -lcheck -lrt
 
 # GNU options
-CXX := gcc
+CXX := gcc # vtcc -finstrument-functions-exclude-file-list=include
 	
 BASE_FLAGS := -Wall -O3 -std=c99 $(DEBUG_FLAGS)
 
