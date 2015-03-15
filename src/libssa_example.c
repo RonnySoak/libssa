@@ -73,77 +73,75 @@ int main( int argc, char**argv ) {
 //
     size_t hit_count = 1;
 //
-    p_alignment_list alist;// = do_alignment( "3.a", &nw_align, query, hit_count, BIT_WIDTH_64 );
-//    free_alignment( alist );
-//
-//    alist = do_alignment( "3.b", &sw_align, query, hit_count, BIT_WIDTH_64 );
-//    free_alignment( alist );
-//
-//    init_gap_penalties( 20, 1 );
-//
-//    alist = do_alignment( "3.c", &nw_align, query, hit_count, BIT_WIDTH_64 );
-//    free_alignment( alist );
-//
-//    free_sequence( query );
-//
-//
-//    init_db_fasta( "tmp/3d.fas" );
-//    query = init_sequence_fasta( READ_FROM_STRING, "AAGT" );
-//    init_gap_penalties( 1, 1 );
-//
-//    alist = do_alignment( "3.d", &nw_align, query, hit_count, BIT_WIDTH_64 );
-//    free_alignment( alist );
-//
-//    free_sequence( query );
-//
-//    init_db_fasta( "tmp/3e.fas" );
-//    init_symbol_translation( AMINOACID, FORWARD_STRAND, 3, 3 );
-//    query = init_sequence_fasta( READ_FROM_STRING, "MRWAC" );
-//
-//    init_constant_scoring( 2, 0 );
-//    init_gap_penalties( 0, 1 );
-//
-//    alist = do_alignment( "3.e", &nw_align, query, hit_count, BIT_WIDTH_64 );
-//    free_alignment( alist );
-//
-//    free_sequence( query );
-//
-//
-//    init_db_fasta( "tmp/3f.fas" );
-//    init_symbol_translation( AMINOACID, FORWARD_STRAND, 3, 3 );
-//    query = init_sequence_fasta( READ_FROM_STRING, "EGGHVLVAV" );
-//
-//    init_score_matrix( MATRIX_BUILDIN, BLOSUM62 );
-//    init_gap_penalties( 0, 5 );
-//
-//    alist = do_alignment( "3.f", &sw_align, query, hit_count, BIT_WIDTH_64 );
-//    free_alignment( alist );
-//
-//    init_gap_penalties( 4, 1 );
-//
-//    alist = do_alignment( "3.g", &sw_align, query, hit_count, BIT_WIDTH_64 );
-//    free_alignment( alist );
-//
-//    free_sequence( query );
-
-
-    init_db_fasta( "tmp/ALKB2_HUMAN.txt" );
-    init_symbol_translation( AMINOACID, FORWARD_STRAND, 1, 1 );
-    query = init_sequence_fasta( READ_FROM_FILE, "tmp/np_001264426.txt" );
-
-    init_score_matrix( MATRIX_BUILDIN, BLOSUM62 );
-    init_gap_penalties( 11, 1 );
-
-    alist = do_alignment( "home exam", &sw_align, query, hit_count, BIT_WIDTH_64 );
+    p_alignment_list alist = do_alignment( "3.a", &nw_align, query, hit_count, BIT_WIDTH_64 );
     free_alignment( alist );
 
-    alist = do_alignment( "home exam", &sw_align, query, hit_count, BIT_WIDTH_16 );
+    alist = do_alignment( "3.b", &sw_align, query, hit_count, BIT_WIDTH_64 );
     free_alignment( alist );
 
-    alist = do_alignment( "home exam", &sw_align, query, hit_count, BIT_WIDTH_8 );
+    init_gap_penalties( 20, 1 );
+
+    alist = do_alignment( "3.c", &nw_align, query, hit_count, BIT_WIDTH_64 );
     free_alignment( alist );
 
     free_sequence( query );
+
+
+    init_db_fasta( "tmp/3d.fas" );
+    query = init_sequence_fasta( READ_FROM_STRING, "AAGT" );
+    init_gap_penalties( 1, 1 );
+
+    alist = do_alignment( "3.d", &nw_align, query, hit_count, BIT_WIDTH_64 );
+    free_alignment( alist );
+
+    free_sequence( query );
+
+    init_db_fasta( "tmp/3e.fas" );
+    init_symbol_translation( AMINOACID, FORWARD_STRAND, 3, 3 );
+    query = init_sequence_fasta( READ_FROM_STRING, "MRWAC" );
+
+    init_constant_scoring( 2, 0 );
+    init_gap_penalties( 0, 1 );
+
+    alist = do_alignment( "3.e", &nw_align, query, hit_count, BIT_WIDTH_64 );
+    free_alignment( alist );
+
+    free_sequence( query );
+
+
+    init_db_fasta( "tmp/3f.fas" );
+    init_symbol_translation( AMINOACID, FORWARD_STRAND, 3, 3 );
+    query = init_sequence_fasta( READ_FROM_STRING, "EGGHVLVAV" );
+
+    init_score_matrix( MATRIX_BUILDIN, BLOSUM62 );
+    init_gap_penalties( 0, 5 );
+
+    alist = do_alignment( "3.f", &sw_align, query, hit_count, BIT_WIDTH_64 );
+    free_alignment( alist );
+
+    init_gap_penalties( 4, 1 );
+
+    alist = do_alignment( "3.g", &sw_align, query, hit_count, BIT_WIDTH_64 );
+    free_alignment( alist );
+
+    free_sequence( query );
+
+
+//    init_db_fasta( "tmp/ALKB2_HUMAN.txt" );
+//    init_symbol_translation( AMINOACID, FORWARD_STRAND, 1, 1 );
+//    query = init_sequence_fasta( READ_FROM_FILE, "tmp/np_001264426.txt" );
+//
+//    init_score_matrix( MATRIX_BUILDIN, BLOSUM62 );
+//    init_gap_penalties( 11, 1 );
+//
+//    alist = do_alignment( "home exam", &sw_align, query, hit_count, BIT_WIDTH_64 );
+//    free_alignment( alist );
+//
+//    alist = do_alignment( "home exam", &sw_align, query, hit_count, BIT_WIDTH_16 );
+//    free_alignment( alist );
+//
+//    alist = do_alignment( "home exam", &sw_align, query, hit_count, BIT_WIDTH_8 );
+//    free_alignment( alist );
 
     ssa_exit();
 

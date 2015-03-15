@@ -27,6 +27,7 @@ DEBUG_OUTPUT_DIR = debug_output
 -include tests/util/subdir.mk
 -include src/subdir.mk
 -include src/algo/subdir.mk
+-include src/algo/simd/subdir.mk
 -include src/algo/8/subdir.mk
 -include src/algo/16/subdir.mk
 -include src/algo/64/subdir.mk
@@ -39,7 +40,7 @@ MPI_LINK := `mpicxx --showme:link`
 
 #### TODO remove from PROD code ####
 #DEBUG_LIBS := -lefence
-DEBUG_FLAGS := -g# --coverage
+#DEBUG_FLAGS := -g --coverage
 
 LIBS := -pthread -lm -lsdb $(DEBUG_LIBS)
 TEST_LIBS := -lcheck -lrt
