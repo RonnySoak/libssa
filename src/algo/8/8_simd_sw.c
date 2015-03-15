@@ -51,11 +51,11 @@
 
 #endif
 /*
- * use the range from -32768 - 0 - to 32767
+ * use the range from -128 - 0 - to +127
  *
  * init with int8_min and add int8_max to max score
  *
- * add -32768 twice, to reset to zero (modify masking values)
+ * add -128 twice, to reset to zero (modify masking values)
  *
  * a biased Version adds more instructions in ALIGNCORE, than the other version
  */
@@ -64,7 +64,7 @@ static int d_idx;
 #endif
 
 #define ALIGNCORE(H, N, F, V, QR, R, S, H_MAX )                                  \
- H = _mmxxx_adds_epi8(H, V);            /* add value of scoring matrix */        \
+ H = _mmxxx_adds_epi8(H, V);            /* add value of scoring profile */        \
  H = _mmxxx_max_epi8(H, F);             /* max(H, F) */                          \
  H = _mmxxx_max_epi8(H, E);             /* max(H, E) */                          \
  S = _mmxxx_max_epi8(H, S);             /* save max score */                     \
@@ -340,7 +340,7 @@ void search_8_sse41_sw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * o
     }
 
 #ifdef DBG_COLLECT_MATRIX
-    sequence * db_sequences = xmalloc( sizeof( sequence ) * done );
+    sequence_t * db_sequences = xmalloc( sizeof( sequence_t ) * done );
 
     for (int i = 0; i < done; ++i) {
         db_sequences[i] = chunk->seq[i]->seq;

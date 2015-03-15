@@ -64,7 +64,7 @@ static int d_idx;
 #endif
 
 #define ALIGNCORE(H, N, F, V, QR, R, S, H_MAX )                         	   \
- H = _mmxxx_adds_epi16(H, V);         /* add value of scoring matrix */        \
+ H = _mmxxx_adds_epi16(H, V);         /* add value of scoring profile */        \
  H = _mmxxx_max_epi16(H, F);          /* max(H, F) */                          \
  H = _mmxxx_max_epi16(H, E);          /* max(H, E) */                          \
  S = _mmxxx_max_epi16(H, S);          /* save max score */                     \
@@ -103,14 +103,14 @@ static void aligncolumns_first( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mx
          * To set both to INT16_MIN, we simply subtract INT16_MIN twice.
          *
          * Mm is set to INT16_MIN on all channels, where new database sequences begin,
-         * the other channels are set to zero.
+         * the other channels are not affected.
          */
-        h4 = _mmxxx_subs_epi16( h4, Mm );
-        h4 = _mmxxx_subs_epi16( h4, Mm );
+        h4 = _mmxxx_adds_epi16( h4, Mm );
+        h4 = _mmxxx_adds_epi16( h4, Mm );
 
         E = hep[2 * i + 1];
-        E = _mmxxx_subs_epi16( E, Mm );
-        E = _mmxxx_subs_epi16( E, Mm );
+        E = _mmxxx_adds_epi16( E, Mm );
+        E = _mmxxx_adds_epi16( E, Mm );
 
         ALIGNCORE( h0, h5, f0, vp[0], gap_open_extend, gap_extend, *Sm, h_max );
         ALIGNCORE( h1, h6, f1, vp[1], gap_open_extend, gap_extend, *Sm, h_max );
@@ -186,7 +186,7 @@ void search_16_sse2_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * 
 #endif
 
 #ifdef DBG_COLLECT_MATRIX
-    size_t maxdlen =  0;
+    size_t maxdlen = 0;
     for( int i = 0; i < chunk->fill_pointer; ++i ) {
         if( maxdlen < chunk->seq[i]->seq.len ) {
             maxdlen = chunk->seq[i]->seq.len;
@@ -245,10 +245,6 @@ void search_16_sse2_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * 
 
     int no_sequences_ended = 0;
     while( 1 ) {
-        /*
-         * TODO same for NW implementation! Check if it is possible, to merge NW and SW implementations.
-         */
-
         if( no_sequences_ended ) {
             /* fill all channels with symbols from the database sequences */
 
@@ -276,7 +272,7 @@ void search_16_sse2_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * 
                 else {
                     /* sequence in channel c ended. change of sequence */
 
-                    M.a[c] = INT16_MAX;
+                    M.a[c] = INT16_MIN;
 
                     if( d_seq_ptr[c] ) {
                         /* save score */
@@ -343,7 +339,7 @@ void search_16_sse2_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * 
     }
 
 #ifdef DBG_COLLECT_MATRIX
-    sequence * db_sequences = xmalloc( sizeof( sequence ) * done );
+    sequence_t * db_sequences = xmalloc( sizeof( sequence_t ) * done );
 
     for (int i = 0; i < done; ++i) {
         db_sequences[i] = chunk->seq[i]->seq;

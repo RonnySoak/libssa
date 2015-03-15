@@ -25,8 +25,8 @@
 
 typedef struct {
     size_t db_id;        // id of the DB sequence
-    uint8_t dframe;      // strand of the DB sequence
-    uint8_t dstrand;     // frame the DB sequence
+    uint8_t db_frame;      // strand of the DB sequence
+    uint8_t db_strand;     // frame the DB sequence
     uint8_t query_id;    // id of the compared query in seq_buffer of search_data
     long score;          // score of the alignment
 } elem_t;

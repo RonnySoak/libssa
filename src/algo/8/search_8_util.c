@@ -71,6 +71,8 @@ p_s8info search_8_sse41_init( p_search_data sdp ) {
 #endif
     p_s8info s = (p_s8info) xmalloc( sizeof(struct s8info) );
 
+    s->s16info = 0;
+    
     s->q_count = 0;
     for( int i = 0; i < 6; i++ ) {
         s->queries[i] = 0;
@@ -80,8 +82,6 @@ p_s8info search_8_sse41_init( p_search_data sdp ) {
 
     s->penalty_gap_open = gapO;
     s->penalty_gap_extension = gapE;
-
-    s->s16info = 0;
 
     s->dprofile = (__mxxxi *) xmalloc( sizeof(int8_t) * CDEPTH_8_BIT * CHANNELS_8_BIT * SCORE_MATRIX_DIM );
 

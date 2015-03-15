@@ -83,7 +83,7 @@ region_t find_region_and_score_for_local( sequence_t a_seq, sequence_t b_seq ) {
 
     long cost = 0;
 
-    for( long i = region.b_end; i >= 0; i-- ) { // TODO change long to size_t
+    for( long i = region.b_end; i >= 0; i-- ) { // TODO change long to size_t (be careful because of the down-counting ...)
         long h = -1;
         long f = -1;
         long p;
@@ -92,7 +92,7 @@ region_t find_region_and_score_for_local( sequence_t a_seq, sequence_t b_seq ) {
         else
             p = -1;
 
-        for( long j = region.a_end; j >= 0; j-- ) { // TODO change long to size_t
+        for( long j = region.a_end; j >= 0; j-- ) { // TODO change long to size_t (be careful because of the down-counting ...)
             f = MAX(f, h - gapO) - gapE;
             EE[j] = MAX(EE[j], HH[j] - gapO) - gapE;
 
@@ -149,14 +149,6 @@ static void fill_alignment( p_alignment alignment, region_t region, cigar_p ciga
     alignment->align_d_end = region.b_end;
     alignment->alignment = cigar->cigar;
     alignment->alignment_len = cigar->len;
-}
-
-void align_nw_sellers( p_alignment alignment ) {
-    ffatal( "align_nw_sellers: TODO not yet implemented" );
-
-    /*
-     * TODO implement this
-     */
 }
 
 void align_nw( p_alignment alignment ) {

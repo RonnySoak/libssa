@@ -149,8 +149,8 @@ START_TEST (test_add_to_minheap)
 
         ck_assert_int_eq( 1, heap->count );
         ck_assert_int_eq( db_seq->ID, heap->array[0].db_id );
-        ck_assert_int_eq( db_seq->strand, heap->array[0].dstrand );
-        ck_assert_int_eq( db_seq->frame, heap->array[0].dframe );
+        ck_assert_int_eq( db_seq->strand, heap->array[0].db_strand );
+        ck_assert_int_eq( db_seq->frame, heap->array[0].db_frame );
         ck_assert_int_eq( query_id, heap->array[0].query_id );
 
         minheap_exit( heap );

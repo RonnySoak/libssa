@@ -24,43 +24,42 @@
 #include <string.h>
 
 #include "../../util/util.h"
+
 #ifdef __AVX2__
 
-typedef __m256i __mxxxi;
 #define _mmxxx_and_si _mm256_and_si256
 #define _mmxxx_adds_epi8 _mm256_adds_epi8
 #define _mmxxx_subs_epi8 _mm256_subs_epi8
 #define _mmxxx_subs_epu8 _mm256_subs_epu8
-#define _mmxxx_max_epi8 _mm256_max_epi8
 #define _mmxxx_min_epi8 _mm256_min_epi8
+#define _mmxxx_max_epi8 _mm256_max_epi8
 #define _mmxxx_set1_epi8 _mm256_set1_epi8
 #define _mmxxx_setzero_si _mm256_setzero_si256
-#define _mmxxx_cmpgt_epi8 _mm256_cmpgt_epi8
 #define _mmxxx_or_si _mm256_or_si256
 #define _mmxxx_cmpeq_epi8 _mm256_cmpeq_epi8
+#define _mmxxx_cmpgt_epi8 _mm256_cmpgt_epi8
 #define dprofile_fill_8_xxx dprofile_fill_8_avx2
 #define dbg_add_matrix_data_xxx_8 dbg_add_matrix_data_256_8
 
 #else // SSE4.1
 
-typedef __m128i  __mxxxi;
 #define _mmxxx_and_si _mm_and_si128
 #define _mmxxx_adds_epi8 _mm_adds_epi8
 #define _mmxxx_subs_epi8 _mm_subs_epi8
 #define _mmxxx_subs_epu8 _mm_subs_epu8
-#define _mmxxx_max_epi8 _mm_max_epi8
 #define _mmxxx_min_epi8 _mm_min_epi8
+#define _mmxxx_max_epi8 _mm_max_epi8
 #define _mmxxx_set1_epi8 _mm_set1_epi8
 #define _mmxxx_setzero_si _mm_setzero_si128
-#define _mmxxx_cmpgt_epi8 _mm_cmpgt_epi8
 #define _mmxxx_or_si _mm_or_si128
 #define _mmxxx_cmpeq_epi8 _mm_cmpeq_epi8
+#define _mmxxx_cmpgt_epi8 _mm_cmpgt_epi8
 #define dprofile_fill_8_xxx dprofile_fill_8_sse41
 #define dbg_add_matrix_data_xxx_8 dbg_add_matrix_data_128_8
 
 #endif
 /*
- Using 8-bit signed values, from -32768 to +32767.
+ Using 8-bit signed values, from -128 to +127.
  match: positive
  mismatch: negative
  gap penalties: positive (open, extend)
@@ -72,7 +71,7 @@ static int d_idx;
 #endif
 
 #define ALIGNCORE(H, N, F, V, QR, R, H_MIN, H_MAX)                             \
- H = _mmxxx_adds_epi8(H, V);          /* add value of scoring matrix */        \
+ H = _mmxxx_adds_epi8(H, V);          /* add value of scoring profile */       \
  H = _mmxxx_max_epi8(H, F);           /* max(H, F) */                          \
  H = _mmxxx_max_epi8(H, E);           /* max(H, E) */                          \
  H_MIN = _mmxxx_min_epi8(H_MIN, H);                                            \
@@ -312,7 +311,7 @@ void search_8_sse41_nw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * o
                 else {
                     /* sequence in channel c ended. change of sequence */
 
-                    M.a[c] = 0xff;
+                    M.a[c] = UINT8_MAX;
 
                     if( d_seq_ptr[c] ) {
                         /* save score */
@@ -426,7 +425,7 @@ void search_8_sse41_nw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * o
     }
 
 #ifdef DBG_COLLECT_MATRIX
-    sequence * db_sequences = xmalloc( sizeof( sequence ) * done );
+    sequence_t * db_sequences = xmalloc( sizeof( sequence_t ) * done );
 
     for (int i = 0; i < done; ++i) {
         db_sequences[i] = chunk->seq[i]->seq;

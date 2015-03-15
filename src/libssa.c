@@ -244,36 +244,6 @@ p_alignment_list nw_align( p_query p, size_t hitcount, int bit_width, int align_
 }
 
 /**
- * Aligns the query sequence against all sequences in the database using the
- * Needleman-Wunsch Algorithm as described by Sellers (TODO ref).
- *
- * TODO This function might call nw_align in the background.
- *
- * @param  p   pointer to the query profile structure
- * ...
- * @return pointer to the alignment structure
- */
-p_alignment_list nw_sellers_align( p_query p, size_t hitcount, int bit_width, int align_type /* TODO ...*/) {
-    prepare_alignment();
-
-    return NULL; // TODO
-}
-
-/**
- * Aligns the query sequence against all sequences in the database using the
- * Needleman-Wunsch Algorithm ignoring gaps in the beginning and/or end.
- *
- * @param  p   pointer to the query profile structure
- * ...
- * @return pointer to the alignment structure
- */
-p_alignment_list nw_ignore_gaps_align( p_query p, size_t hitcount, int bit_width, int align_type /* TODO ... ignored gaps...*/) {
-    prepare_alignment();
-
-    return NULL; // TODO
-}
-
-/**
  * Release the memory allocated by the functions sw_align, nw_align,
  * nw_sellers_align and nw_ignore_gaps_align.
  *

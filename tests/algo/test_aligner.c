@@ -36,8 +36,8 @@
 static elem_t new_elem( int ID, int frame, int strand, int qid, long score ) {
     elem_t e;
     e.db_id = ID;
-    e.dframe = frame;
-    e.dstrand = strand;
+    e.db_frame = frame;
+    e.db_strand = strand;
     e.query_id = qid;
     e.score = score;
 

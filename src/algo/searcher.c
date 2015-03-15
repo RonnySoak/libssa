@@ -147,6 +147,11 @@ void s_free( p_search_result res ) {
     res = 0;
 }
 
+/*
+ * Performs a database search.
+ *
+ * @param hit_count (type: size_t) number of expected results
+ */
 void * s_search( void * hit_count ) {
     if( !search_func || !sdp || !hit_count ) {
         ffatal( "\n Search module not initialized!!\n\n" );

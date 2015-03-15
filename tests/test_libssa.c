@@ -208,6 +208,13 @@ START_TEST (test_1000_threads)
 
 START_TEST (test_init_functions)
     {
+        set_output_mode( OUTPUT_SILENT );
+        set_output_mode( OUTPUT_STDOUT );
+
+        set_simd_compute_mode( COMPUTE_ON_AVX2 );
+        set_simd_compute_mode( COMPUTE_ON_SSE41 );
+        set_simd_compute_mode( COMPUTE_ON_SSE2 );
+
         init_score_matrix( MATRIX_BUILDIN, BLOSUM45 );
         init_score_matrix( MATRIX_BUILDIN, BLOSUM50 );
         init_score_matrix( MATRIX_BUILDIN, BLOSUM62 );

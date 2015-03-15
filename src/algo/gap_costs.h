@@ -22,7 +22,7 @@
 
 #include <stdint.h>
 
-// both are filled from libssa.c
+// both are filled in libssa.c
 extern uint8_t gapO;
 extern uint8_t gapE;
 

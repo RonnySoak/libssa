@@ -26,7 +26,6 @@
 
 #include "../db_iterator.h"
 
-FILE* out_file;
 int output_mode = OUTPUT_STDOUT;
 
 void ffatal( const char * format, ... ) {
@@ -37,28 +36,6 @@ void ffatal( const char * format, ... ) {
     }
     exit( 1 );
 }
-
-//void init_out( int mode ) {
-//    if(  ) {
-//        out_file = stdout;
-//        outf( "Writing to stdout\n" );
-//    }
-//    else {
-//        FILE * f = fopen( filename, "w" );
-//        if( !f ) {
-//            ffatal( "Unable to open output file for writing." );
-//        }
-//        out_file = f;
-//    }
-//}
-
-//void close_out() {
-//    if( out_file && (out_file != stdout) ) {
-//        if( fclose( out_file ) ) {
-//            ffatal( "Could not close output file." );
-//        }
-//    }
-//}
 
 void outf( const char * format, ... ) {
     if( output_mode == OUTPUT_STDOUT ) {
@@ -92,8 +69,8 @@ void add_to_minheap( p_minheap heap, uint8_t query_id, p_sdb_sequence db_seq, lo
     e->query_id = query_id;
 
     e->db_id = db_seq->ID;
-    e->dframe = db_seq->frame;
-    e->dstrand = db_seq->strand;
+    e->db_frame = db_seq->frame;
+    e->db_strand = db_seq->strand;
     e->score = score;
 
 #ifdef DBG_COLLECT_ALIGNED_DB_SEQUENCES

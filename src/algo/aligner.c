@@ -67,7 +67,7 @@ void a_free_data() {
     free( adp );
 }
 
-static p_alignment init_alignment( elem_t * e, seq_buffer_t* queries ) {
+static p_alignment init_alignment( elem_t * e ) {
     p_alignment a = xmalloc( sizeof(alignment_t) );
 
     p_seqinfo info = ssa_db_get_sequence( e->db_id );
@@ -76,14 +76,14 @@ static p_alignment init_alignment( elem_t * e, seq_buffer_t* queries ) {
         ffatal( "Could not get sequence from DB: %ld", e->db_id );
     }
 
-    sequence_t dseq = us_prepare_sequence( info->seq, info->seqlen, e->dframe, e->dstrand );
+    sequence_t dseq = us_prepare_sequence( info->seq, info->seqlen, e->db_frame, e->db_strand );
 
-    seq_buffer_t qseq = queries[e->query_id];
+    seq_buffer_t qseq = adp->queries[e->query_id];
 
     a->db_seq.seq = dseq.seq;
     a->db_seq.len = dseq.len;
-    a->db_seq.strand = e->dframe;
-    a->db_seq.frame = e->dstrand;
+    a->db_seq.strand = e->db_frame;
+    a->db_seq.frame = e->db_strand;
     a->db_seq.ID = info->ID;
 
     a->query.seq = qseq.seq.seq;
@@ -103,7 +103,7 @@ static p_alignment init_alignment( elem_t * e, seq_buffer_t* queries ) {
 
 void create_score_alignment_list( p_minheap search_results, p_alignment_list alist ) {
     for( int i = 0; i < search_results->count; ++i ) {
-        alist->alignments[i] = init_alignment( &search_results->array[i], adp->queries );
+        alist->alignments[i] = init_alignment( &search_results->array[i] );
     }
 }
 
@@ -181,7 +181,7 @@ void * a_align( void * unused ) {
     elem_t * chunk = 0;
     while( (chunk = get_chunk()) != 0 ) {
         // do alignment for each pair
-        p_alignment a = init_alignment( chunk, adp->queries );
+        p_alignment a = init_alignment( chunk );
 
         adp->align_function( a );
 
