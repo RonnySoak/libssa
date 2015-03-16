@@ -336,7 +336,7 @@ void search_YY_XXX_sw( p_sYYinfo s, p_db_chunk chunk, p_minheap heap, p_node * o
 
             M.v = _mmxxx_setzero_si();
             for( int c = 0; c < CHANNELS; c++ ) {
-                if( d_begin[c] < d_end[c] ) {
+                if( !overflow.a[c] && (d_begin[c] < d_end[c]) ) {
                     /* the sequence in this channel is not finished yet */
 
                     no_sequences_ended &= move_db_sequence_window_YY( c, d_begin, d_end, dseq_search_window );
@@ -404,6 +404,20 @@ void search_YY_XXX_sw( p_sYYinfo s, p_db_chunk chunk, p_minheap heap, p_node * o
             aligncolumns_first( &S.v, hep, s->queries[q_id]->q_table, gap_open_extend, gap_extend, M.v, &h_max, qlen );
         }
         overflow.v = _mmxxx_or_si( _mmxxx_cmpeq_epiYY( h_max, score_max ), overflow.v );
+
+#ifdef SEARCH_8_BIT
+        /*
+         * An overflow a sequence change in the corresponding channel, since
+         * this sequence has to be re-aligned anyway.
+         */
+#ifdef __AVX2__
+        no_sequences_ended &= _mm256_testz_si256( overflow.v, _mm256_set1_epi8( 1 ) );
+
+#else
+        no_sequences_ended &= _mm_testz_si128( overflow.v, _mm_set1_epi8( 1 ) );
+#endif
+#endif
+
 
 #ifdef DBG_COLLECT_MATRIX
         d_idx += 4;
