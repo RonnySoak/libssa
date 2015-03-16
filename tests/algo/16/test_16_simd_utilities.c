@@ -78,8 +78,8 @@ START_TEST (test_sse_simple)
 
         p_s16info s = setup_simd_util_test( "AT" );
 
-        uint16_t dseq_search_window[CDEPTH_16_BIT * CHANNELS_16_BIT_SSE];
-        memset( dseq_search_window, 0, sizeof(uint16_t) * CDEPTH_16_BIT * CHANNELS_16_BIT_SSE );
+        uint8_t dseq_search_window[CDEPTH_16_BIT * CHANNELS_16_BIT_SSE];
+        memset( dseq_search_window, 0, sizeof(uint8_t) * CDEPTH_16_BIT * CHANNELS_16_BIT_SSE );
 
         sequence_t dseq = us_prepare_sequence( "AATG", 4, 0, 0 );
 
@@ -100,8 +100,8 @@ START_TEST (test_avx_simple)
 
         p_s16info s = setup_simd_util_test( "AT" );
 
-        uint16_t dseq_search_window[CDEPTH_16_BIT * CHANNELS_16_BIT_AVX];
-        memset( dseq_search_window, 0, sizeof(uint16_t) * CDEPTH_16_BIT * CHANNELS_16_BIT_AVX );
+        uint8_t dseq_search_window[CDEPTH_16_BIT * CHANNELS_16_BIT_AVX];
+        memset( dseq_search_window, 0, sizeof(uint8_t) * CDEPTH_16_BIT * CHANNELS_16_BIT_AVX );
 
         sequence_t dseq = us_prepare_sequence( "AATG", 4, 0, 0 );
 

@@ -101,15 +101,15 @@ p_s16info search_16_sse2_init( p_search_data sdp ) {
  *      corresponding score matrix line
  */
 #ifdef __AVX2__
-void dprofile_fill_16_avx2( __mxxxi * dprofile, uint16_t * dseq_search_window ) {
+void dprofile_fill_16_avx2( __mxxxi * dprofile, uint8_t * dseq_search_window ) {
     __m256i ymm[CHANNELS_16_BIT];
     __m256i ymm_t[CHANNELS_16_BIT];
 
     /*
-     * Approximately 4*(5+2*6*16)=788 instructions.
+     * Approximately 4*(8+2*6*16)=791 instructions.
      *
      * TODO:
-     * Could be reduced to 4*(5+1*6*16)=404 instructions, if we would use a 16x16 matrix only.
+     * Could be reduced to 4*(8+1*6*16)=407 instructions, if we would use a 16x16 matrix only.
      * So in case of nucleotide sequences, we could reduce the number of instructions here.
      */
 #if 0
@@ -129,7 +129,12 @@ void dprofile_fill_16_avx2( __mxxxi * dprofile, uint16_t * dseq_search_window ) 
             int16_t a[CHANNELS_16_BIT];
         } d;
 
+        // load 8 bit integers and unpack to 16 bit
         __m256i tmp = _mm256_loadu_si256( (__m256i *) (dseq_search_window + (j * CHANNELS_16_BIT)) );
+
+        tmp = _mm256_permute4x64_epi64( tmp, (1 << 4) | 0 );
+        tmp = _mm256_unpacklo_epi8( tmp, _mm256_setzero_si256() );
+
         _mm256_store_si256( &d.v, _mm256_slli_epi16( tmp, 5 ) );
 
         for( int i = 0; i < SCORE_MATRIX_DIM; i += 16 ) {
@@ -196,15 +201,15 @@ void dprofile_fill_16_avx2( __mxxxi * dprofile, uint16_t * dseq_search_window ) 
 #endif
 }
 #else
-void dprofile_fill_16_sse2( __mxxxi * dprofile, uint16_t * dseq_search_window ) {
+void dprofile_fill_16_sse2( __mxxxi * dprofile, uint8_t * dseq_search_window ) {
     __m128i xmm[CHANNELS_16_BIT_SSE];
     __m128i xmm_t[CHANNELS_16_BIT_SSE];
 
     /*
-     * Approximately 4*(5+4*5*8)=660 instructions.
+     * Approximately 4*(7+4*5*8)=662 instructions.
      *
      * TODO:
-     * Could be reduced to 4*(5+2*5*8)=340 instructions, if we would use a 16x16 matrix only.
+     * Could be reduced to 4*(7+2*5*8)=342 instructions, if we would use a 16x16 matrix only.
      * So in case of nucleotide sequences, we could reduce the number of instructions here.
      */
 
@@ -233,11 +238,11 @@ void dprofile_fill_16_sse2( __mxxxi * dprofile, uint16_t * dseq_search_window ) 
          *
          * TODO _mm_loadu_si128, since we do not explicitly align it
          */
-        __m128i tmp = _mm_loadu_si128( (__m128i *) (dseq_search_window + (j * CHANNELS_16_BIT)) );
-        _mm_store_si128( &d.v, _mm_slli_epi16( tmp, 5 ) );
 
-//        for( int z = 0; z < CHANNELS_16_BIT; z++ )
-//            d[z] = dseq_search_window[j * CHANNELS_16_BIT + z] << 5;
+        // unpack 8 bit integers to 16 bit
+        __m128i tmp = _mm_loadu_si128( (__m128i *) (dseq_search_window + (j * CHANNELS_16_BIT)) );
+        tmp = _mm_unpacklo_epi8( tmp, _mm_setzero_si128() );
+        _mm_store_si128( &d.v, _mm_slli_epi16( tmp, 5 ) );
 
         for( int i = 0; i < SCORE_MATRIX_DIM; i += 8 ) {
             for( int x = 0; x < CHANNELS_16_BIT_SSE; ++x ) {

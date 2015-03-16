@@ -324,7 +324,7 @@ void search_YY_XXX_nw( p_sYYinfo s, p_db_chunk chunk, p_minheap heap, p_node * o
 
     overflow.v = _mmxxx_setzero_si();
 
-    uint16_t dseq_search_window[CDEPTH * CHANNELS];
+    uint8_t dseq_search_window[CDEPTH * CHANNELS];
 
     size_t next_id = 0;
     size_t done = 0;
