@@ -25,11 +25,11 @@
 
 #include <assert.h>
 
+#include "../db_adapter.h"
 #include "../util/minheap.h"
 #include "../util/thread_pool.h"
 #include "../util/util.h"
 #include "../libssa_datatypes.h"
-#include "../db_iterator.h"
 #include "aligner.h"
 #include "searcher.h"
 
@@ -46,7 +46,7 @@ static void init( p_query query, int search_type, int bit_width, int al_type ) {
 
     a_init_data( search_type );
 
-    it_init( max_chunk_size );
+    adp_init( max_chunk_size );
 
 #ifdef DBG_COLLECT_ALIGNED_DB_SEQUENCES
     char * desc = xmalloc( 14 );
@@ -162,7 +162,7 @@ p_alignment_list m_run( size_t hit_count ) {
     assert( ceil( ssa_db_get_sequence_count() / (double ) max_chunk_size ) == chunks_processed );
 
     minheap_sort( search_results );
-    it_exit();
+    adp_exit();
 
     p_alignment_list alist = do_align( search_results );
 

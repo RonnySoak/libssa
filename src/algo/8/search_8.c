@@ -27,9 +27,9 @@
 #include "../searcher.h"
 #include "../../util/util.h"
 #include "../../util/linked_list.h"
-#include "../../db_iterator.h"
 #include "../../matrices.h"
 #include "../../cpu_config.h"
+#include "../../db_adapter.h"
 #include "../16/search_16.h"
 
 static void (*search_algo)( p_s8info, p_db_chunk, p_minheap, p_node *, uint8_t );
@@ -139,7 +139,7 @@ void search_8( p_db_chunk chunk, p_search_data sdp, p_search_result res ) {
 
     p_s8info s8info = search_8_init( sdp );
 
-    it_next_chunk( chunk );
+    adp_next_chunk( chunk );
 
     while( chunk->fill_pointer ) {
         size_t overflown_seq_count = search_8_chunk( s8info, res->heap, chunk, sdp );
@@ -148,7 +148,7 @@ void search_8( p_db_chunk chunk, p_search_data sdp, p_search_result res ) {
         res->seq_count += chunk->fill_pointer;
         res->overflow_8_bit_count += overflown_seq_count;
 
-        it_next_chunk( chunk );
+        adp_next_chunk( chunk );
     }
 
     search_8_exit( s8info );

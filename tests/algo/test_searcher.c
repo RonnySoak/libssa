@@ -24,10 +24,10 @@
 #include "../../src/util/minheap.h"
 #include "../../src/matrices.h"
 #include "../../src/cpu_config.h"
-#include "../../src/db_iterator.h"
 #include "../../src/query.h"
 #include "../../src/algo/searcher.h"
 #include "../../src/algo/gap_costs.h"
+#include "../../src/db_adapter.h"
 
 static p_search_result setup_searcher_test( int bit_width, int search_type, char * query_string, char * db_file,
         size_t hit_count, int symtype, int strands ) {
@@ -42,7 +42,7 @@ static p_search_result setup_searcher_test( int bit_width, int search_type, char
     gapO = 1;
     gapE = 1;
 
-    it_init( hit_count );
+    adp_init( hit_count );
 
     p_search_result res = s_search( &hit_count );
 
@@ -55,7 +55,7 @@ static p_search_result setup_searcher_test( int bit_width, int search_type, char
 
 static void exit_searcher_test( p_search_result res ) {
     s_free( res );
-    it_exit();
+    adp_exit();
     mat_free();
 
     reset_compute_capability();
@@ -417,7 +417,7 @@ static p_search_result setup_BLOSUM62_test( int bit_width, int search_type, size
     gapO = 1;
     gapE = 1;
 
-    it_init( hit_count );
+    adp_init( hit_count );
 
     p_search_result res = s_search( &hit_count );
 

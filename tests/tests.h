@@ -34,7 +34,7 @@ void addThreadPoolTC( Suite *s );
 void addQueryTC( Suite *s );
 void addMatricesTC( Suite *s );
 void addUtilSequenceTC( Suite *s );
-void addDBIteratorTC( Suite *s );
+void addDBAdapterTC( Suite *s );
 void addCigarTC( Suite *s );
 void addAlignTC( Suite *s );
 void add_sw_64_TC( Suite *s );

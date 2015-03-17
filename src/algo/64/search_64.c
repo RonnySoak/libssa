@@ -22,10 +22,10 @@
 #include <stdlib.h>
 #include <assert.h>
 
+#include "../../db_adapter.h"
 #include "../searcher.h"
 #include "../../util/minheap.h"
 #include "../../util/util.h"
-#include "../../db_iterator.h"
 
 static int64_t (*search_algo)( sequence_t*, sequence_t*, int64_t* );
 
@@ -66,7 +66,7 @@ void search_64( p_db_chunk chunk, p_search_data sdp, p_search_result res ) {
 
     int64_t* hearray = search_64_alloc_hearray( sdp );
 
-    it_next_chunk( chunk );
+    adp_next_chunk( chunk );
 
     while( chunk->fill_pointer ) {
         search_64_chunk( res->heap, chunk, sdp, hearray );
@@ -74,7 +74,7 @@ void search_64( p_db_chunk chunk, p_search_data sdp, p_search_result res ) {
         res->chunk_count++;
         res->seq_count += chunk->fill_pointer;
 
-        it_next_chunk( chunk );
+        adp_next_chunk( chunk );
     }
 
     free( hearray );

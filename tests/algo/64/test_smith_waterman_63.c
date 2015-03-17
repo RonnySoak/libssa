@@ -24,11 +24,11 @@
 #include "../../../src/util/util_sequence.h"
 #include "../../../src/libssa.h"
 #include "../../../src/matrices.h"
-#include "../../../src/db_iterator.h"
 #include "../../../src/query.h"
 #include "../../../src/algo/searcher.h"
 
 #include "../../../src/algo/gap_costs.h"
+#include "../../../src/db_adapter.h"
 
 START_TEST (test_sw_64_simple)
     {

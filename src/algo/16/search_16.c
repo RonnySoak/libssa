@@ -28,9 +28,9 @@
 #include "../../util/minheap.h"
 #include "../../util/linked_list.h"
 #include "../../util/util.h"
-#include "../../db_iterator.h"
 #include "../../matrices.h"
 #include "../../cpu_config.h"
+#include "../../db_adapter.h"
 #include "../64/search_64.h"
 
 static void (*search_algo)( p_s16info, p_db_chunk, p_minheap, p_node *, uint8_t );
@@ -124,7 +124,7 @@ void search_16( p_db_chunk chunk, p_search_data sdp, p_search_result res ) {
 
     p_s16info s16info = search_16_init( sdp );
 
-    it_next_chunk( chunk );
+    adp_next_chunk( chunk );
 
     while( chunk->fill_pointer ) {
         size_t overflown_seq_count = search_16_chunk( s16info, res->heap, chunk, sdp );
@@ -133,7 +133,7 @@ void search_16( p_db_chunk chunk, p_search_data sdp, p_search_result res ) {
         res->seq_count += chunk->fill_pointer;
         res->overflow_16_bit_count += overflown_seq_count;
 
-        it_next_chunk( chunk );
+        adp_next_chunk( chunk );
     }
 
     search_16_exit( s16info );

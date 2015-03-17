@@ -2,7 +2,7 @@ OBJS += \
 ./src/matrices.o \
 ./src/query.o \
 ./src/libssa.o \
-./src/db_iterator.o \
+./src/db_adapter.o \
 ./src/cpu_config.o
 
 USER_OBJS += \
@@ -12,7 +12,7 @@ USER_OBJS += \
 ./src/internal_datatypes.h \
 ./src/matrices.h \
 ./src/query.h \
-./src/db_iterator.h \
+./src/db_adapter.h \
 ./src/cpu_config.h
 
 TO_CLEAN +=

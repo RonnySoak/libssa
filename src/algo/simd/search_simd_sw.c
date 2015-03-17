@@ -351,7 +351,7 @@ void search_YY_XXX_sw( p_sYYinfo s, p_db_chunk chunk, p_minheap heap, p_node * o
 
                         long score = S.a[c] + -I_MIN; // convert score back to range from 0 - 65535
 
-                        if( !overflow.a[c] && (score >= 0) && (score < UI_MAX) ) {
+                        if( !overflow.a[c] && (score < UI_MAX) ) {
                             /* Alignments, with a score equal to the current lowest score in the
                              heap are ignored! */
                             add_to_minheap( heap, q_id, d_seq_ptr[c], score );
@@ -405,19 +405,16 @@ void search_YY_XXX_sw( p_sYYinfo s, p_db_chunk chunk, p_minheap heap, p_node * o
         }
         overflow.v = _mmxxx_or_si( _mmxxx_cmpeq_epiYY( h_max, score_max ), overflow.v );
 
-#ifdef SEARCH_8_BIT
         /*
-         * An overflow a sequence change in the corresponding channel, since
-         * this sequence has to be re-aligned anyway.
+         * An overflow enforces a sequence change in the corresponding channel,
+         * since this sequence has to be re-aligned anyway.
          */
 #ifdef __AVX2__
-        no_sequences_ended &= _mm256_testz_si256( overflow.v, _mm256_set1_epi8( 1 ) );
+        no_sequences_ended &= _mm256_movemask_epi8( overflow.v );
 
 #else
-        no_sequences_ended &= _mm_testz_si128( overflow.v, _mm_set1_epi8( 1 ) );
+        no_sequences_ended &= _mm_movemask_epi8( overflow.v );
 #endif
-#endif
-
 
 #ifdef DBG_COLLECT_MATRIX
         d_idx += 4;

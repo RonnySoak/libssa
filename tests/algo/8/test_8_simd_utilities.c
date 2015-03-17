@@ -22,10 +22,10 @@
 #include "../../../src/cpu_config.h"
 #include "../../../src/matrices.h"
 #include "../../../src/query.h"
-#include "../../../src/db_iterator.h"
 #include "../../../src/algo/searcher.h"
 #include "../../../src/algo/8/search_8.h"
 #include "../../../src/algo/8/search_8_util.h"
+#include "../../../src/db_adapter.h"
 #include "../../../src/util/debug_tools.h"
 #include "../../../src/util/util_sequence.h"
 
@@ -45,7 +45,7 @@ static p_s8info setup_simd_util_test( char * query_string ) {
 
 static void exit_simd_util_test( p_s8info s ) {
     search_8_exit( s );
-    it_exit();
+    adp_exit();
     mat_free();
     ssa_db_close();
 

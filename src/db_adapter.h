@@ -17,24 +17,24 @@
  Contact: Jakob Frielingsdorf <jfrielingsdorf@gmail.com>
  */
 
-#ifndef DB_ITERATOR_H_
-#define DB_ITERATOR_H_
+#ifndef DB_ADAPTER_H_
+#define DB_ADAPTER_H_
 
 #include "libssa_datatypes.h"
 
-void it_exit();
+void adp_exit();
 
-void it_init( size_t size );
+void adp_init( size_t size );
 
-void it_free_sequence( p_sdb_sequence seq );
+void adp_free_sequence( p_sdb_sequence seq );
 
-p_db_chunk it_alloc_chunk( size_t size );
-p_db_chunk it_init_new_chunk();
+p_db_chunk adp_alloc_chunk( size_t size );
+p_db_chunk adp_init_new_chunk();
 
-void it_next_chunk( p_db_chunk chunk );
+void adp_next_chunk( p_db_chunk chunk );
 
-void it_free_chunk( p_db_chunk chunk );
+void adp_free_chunk( p_db_chunk chunk );
 
-void it_reset_chunk_counter();
+void adp_reset_chunk_counter();
 
-#endif /* DB_ITERATOR_H_ */
+#endif /* DB_ADAPTER_H_ */

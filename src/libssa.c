@@ -26,12 +26,8 @@
 #include "algo/aligner.h"
 #include "query.h"
 #include "util/thread_pool.h"
-#include "db_iterator.h"
 #include "cpu_config.h"
-
-// #############################################################################
-// Configuration data
-// ##################
+#include "db_adapter.h"
 
 // #############################################################################
 // Alignment data
@@ -208,7 +204,7 @@ static void test_configuration() {
 static void prepare_alignment() {
     test_configuration();
 
-    it_reset_chunk_counter();
+    adp_reset_chunk_counter();
 }
 
 /**
@@ -219,7 +215,7 @@ static void prepare_alignment() {
  * ...
  * @return pointer to the alignment structure
  */
-p_alignment_list sw_align( p_query p, size_t hitcount, int bit_width, int align_type /* TODO ...*/) {
+p_alignment_list sw_align( p_query p, size_t hitcount, int bit_width, int align_type ) {
     prepare_alignment();
 
     init_for_sw( p, bit_width, align_type );
@@ -235,7 +231,7 @@ p_alignment_list sw_align( p_query p, size_t hitcount, int bit_width, int align_
  * ...
  * @return pointer to the alignment structure
  */
-p_alignment_list nw_align( p_query p, size_t hitcount, int bit_width, int align_type /* TODO ...*/) {
+p_alignment_list nw_align( p_query p, size_t hitcount, int bit_width, int align_type ) {
     prepare_alignment();
 
     init_for_nw( p, bit_width, align_type );

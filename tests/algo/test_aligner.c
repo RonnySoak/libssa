@@ -28,10 +28,10 @@
 #include "../../src/libssa.h"
 #include "../../src/util/minheap.h"
 #include "../../src/matrices.h"
-#include "../../src/db_iterator.h"
 #include "../../src/query.h"
 #include "../../src/algo/searcher.h"
 #include "../../src/algo/gap_costs.h"
+#include "../../src/db_adapter.h"
 
 static elem_t new_elem( int ID, int frame, int strand, int qid, long score ) {
     elem_t e;
@@ -51,7 +51,7 @@ static p_query setup_aligner_test( char * query_string, char * db_file, int chun
     p_query query = query_read_from_string( "short query", query_string );
     ssa_db_init( concat( "./tests/testdata/", db_file ) );
 
-    it_init( chunk_size );
+    adp_init( chunk_size );
     gapO = 1;
     gapE = 1;
 
@@ -78,7 +78,7 @@ static void exit_aligner_test( p_alignment_list alist, p_query query ) {
 
     mat_free();
     query_free( query );
-    it_exit();
+    adp_exit();
     ssa_db_close();
 }
 

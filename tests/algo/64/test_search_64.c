@@ -23,10 +23,10 @@
 #include "../../../src/libssa.h"
 #include "../../../src/util/minheap.h"
 #include "../../../src/matrices.h"
-#include "../../../src/db_iterator.h"
 #include "../../../src/query.h"
 #include "../../../src/algo/searcher.h"
 #include "../../../src/algo/gap_costs.h"
+#include "../../../src/db_adapter.h"
 
 static p_query setup_searcher_test_init( int bit_width, int search_type, char * query_string, int symtype, int strands ) {
     init_symbol_translation( symtype, strands, 3, 3 );
@@ -48,7 +48,7 @@ static p_search_result setup_searcher_test( int bit_width, int search_type, char
     gapO = 1;
     gapE = 1;
 
-    it_init( hit_count );
+    adp_init( hit_count );
 
     p_search_result res = s_search( &hit_count );
 
@@ -61,7 +61,7 @@ static p_search_result setup_searcher_test( int bit_width, int search_type, char
 
 static void exit_searcher_test( p_search_result res ) {
     s_free( res );
-    it_exit();
+    adp_exit();
     mat_free();
 }
 

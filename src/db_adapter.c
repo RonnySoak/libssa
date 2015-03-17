@@ -17,7 +17,7 @@
  Contact: Jakob Frielingsdorf <jfrielingsdorf@gmail.com>
  */
 
-#include "db_iterator.h"
+#include "db_adapter.h"
 
 #include <stdlib.h>
 #include <pthread.h>
@@ -108,16 +108,16 @@ static void set_translated_sequences( p_seqinfo seqinfo, p_sdb_sequence * buffer
     }
 }
 
-void it_exit() {
+void adp_exit() {
     buffer_max = 0;
     chunk_db_seq_count = 0;
     next_chunk_start = 0;
 }
 
-void it_init( size_t size ) {
+void adp_init( size_t size ) {
     chunk_db_seq_count = size;
 
-    // set buffer size according symtype: 1, 2 oder 6
+    // set buffer size according symtype: 1, 2, 3 oder 6
     if( symtype == NUCLEOTIDE ) {
         if( query_strands & 2 )
             buffer_max = 2;
@@ -135,7 +135,7 @@ void it_init( size_t size ) {
     }
 }
 
-void it_free_sequence( p_sdb_sequence seq ) {
+void adp_free_sequence( p_sdb_sequence seq ) {
     if( !seq ) {
         return;
     }
@@ -154,10 +154,10 @@ void it_free_sequence( p_sdb_sequence seq ) {
     seq = 0;
 }
 
-void it_free_chunk( p_db_chunk chunk ) {
+void adp_free_chunk( p_db_chunk chunk ) {
     if( chunk ) {
         for( size_t i = 0; i < chunk->size; i++ ) {
-            it_free_sequence( chunk->seq[i] );
+            adp_free_sequence( chunk->seq[i] );
             chunk->seq[i] = 0;
         }
 
@@ -170,7 +170,7 @@ void it_free_chunk( p_db_chunk chunk ) {
     }
 }
 
-p_db_chunk it_alloc_chunk( size_t size ) {
+p_db_chunk adp_alloc_chunk( size_t size ) {
     p_db_chunk chunk = xmalloc( sizeof(db_chunk_t) );
     chunk->fill_pointer = 0;
     chunk->size = size;
@@ -179,8 +179,8 @@ p_db_chunk it_alloc_chunk( size_t size ) {
     return chunk;
 }
 
-p_db_chunk it_init_new_chunk() {
-    p_db_chunk chunk = it_alloc_chunk( chunk_db_seq_count * buffer_max );
+p_db_chunk adp_init_new_chunk() {
+    p_db_chunk chunk = adp_alloc_chunk( chunk_db_seq_count * buffer_max );
 
     for( size_t i = 0; i < chunk->size; ++i ) {
         chunk->seq[i] = xmalloc( sizeof(sdb_sequence_t) );
@@ -195,11 +195,11 @@ p_db_chunk it_init_new_chunk() {
     return chunk;
 }
 
-void it_reset_chunk_counter() {
+void adp_reset_chunk_counter() {
     next_chunk_start = 0;
 }
 
-void it_next_chunk( p_db_chunk chunk ) {
+void adp_next_chunk( p_db_chunk chunk ) {
     if( !chunk ) {
         ffatal( "Chunk not initialized" );
     }

@@ -35,7 +35,7 @@ Suite* libssa_suite( void ) {
     addUtilSequenceTC( s );
     addMatricesTC( s );
     addQueryTC( s );
-    addDBIteratorTC( s );
+    addDBAdapterTC( s );
     addCigarTC( s );
     addAlignTC( s );
     add_sw_64_TC( s );

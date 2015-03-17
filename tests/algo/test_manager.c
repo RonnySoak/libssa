@@ -25,9 +25,9 @@
 #include "../../src/util/util.h"
 #include "../../src/libssa.h"
 #include "../../src/cpu_config.h"
+#include "../../src/db_adapter.h"
 #include "../../src/matrices.h"
 #include "../../src/query.h"
-#include "../../src/db_iterator.h"
 
 static p_query setup_manager_test() {
     set_max_compute_capability( COMPUTE_ON_SSE41 );
@@ -130,7 +130,7 @@ static void compare_test( void (*init_func)( p_query, int, int ), size_t hit_cou
     init_func( query, BIT_WIDTH_64, COMPUTE_ALIGNMENT );
     p_alignment_list alist_64 = m_run( hit_count );
 
-    it_reset_chunk_counter();
+    adp_reset_chunk_counter();
 
     init_func( query, BIT_WIDTH_16, COMPUTE_ALIGNMENT );
     p_alignment_list alist_16 = m_run( hit_count );

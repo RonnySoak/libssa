@@ -23,12 +23,12 @@
 #include "../../../src/cpu_config.h"
 #include "../../../src/libssa.h"
 #include "../../../src/matrices.h"
-#include "../../../src/db_iterator.h"
 #include "../../../src/query.h"
 #include "../../../src/util/minheap.h"
 #include "../../../src/algo/8/search_8.h"
 #include "../../../src/algo/gap_costs.h"
 #include "../../../src/algo/searcher.h"
+#include "../../../src/db_adapter.h"
 
 static p_search_result setup_searcher_8_test( int symbols, char * query_string, char * db_file, size_t hit_count ) {
     set_max_compute_capability( COMPUTE_ON_AVX2 );
@@ -45,7 +45,7 @@ static p_search_result setup_searcher_8_test( int symbols, char * query_string, 
     gapO = 1;
     gapE = 1;
 
-    it_init( hit_count );
+    adp_init( hit_count );
 
     p_search_result res = s_search( &hit_count );
 
@@ -58,7 +58,7 @@ static p_search_result setup_searcher_8_test( int symbols, char * query_string, 
 
 static void exit_searcher_8_test( p_search_result res ) {
     s_free( res );
-    it_exit();
+    adp_exit();
     mat_free();
 
     reset_compute_capability();

@@ -24,9 +24,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "../src/db_adapter.h"
 #include "../src/util/util.h"
 #include "../src/libssa_extern_db.h"
-#include "../src/db_iterator.h"
 
 /**
  * A small helper, to print sequences in decimal representation.
@@ -130,7 +130,7 @@ START_TEST (test_convert_to_chunk)
         }
 
         ll_clear( &node );
-        it_free_chunk( chunk );
+        adp_free_chunk( chunk );
     }END_TEST
 
 START_TEST (test_add_to_minheap)

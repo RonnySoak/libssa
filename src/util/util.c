@@ -24,7 +24,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "../db_iterator.h"
+#include "../db_adapter.h"
 
 int output_mode = OUTPUT_STDOUT;
 
@@ -65,13 +65,13 @@ void * xrealloc( void *ptr, size_t size ) {
 }
 
 void add_to_minheap( p_minheap heap, uint8_t query_id, p_sdb_sequence db_seq, long score ) {
-    elem_t * e = xmalloc( sizeof(elem_t) );
-    e->query_id = query_id;
+    elem_t e;// = xmalloc( sizeof(elem_t) );
+    e.query_id = query_id;
 
-    e->db_id = db_seq->ID;
-    e->db_frame = db_seq->frame;
-    e->db_strand = db_seq->strand;
-    e->score = score;
+    e.db_id = db_seq->ID;
+    e.db_frame = db_seq->frame;
+    e.db_strand = db_seq->strand;
+    e.score = score;
 
 #ifdef DBG_COLLECT_ALIGNED_DB_SEQUENCES
     dbg_add_aligned_sequence( db_seq->ID, query_id, score );
@@ -79,7 +79,7 @@ void add_to_minheap( p_minheap heap, uint8_t query_id, p_sdb_sequence db_seq, lo
 
     /* Alignments, with a score equal to the current lowest score in the
      heap are ignored! */
-    minheap_add( heap, e );
+    minheap_add( heap, &e );
 
     /*
      * minheap_add dereferences e and stores a copy of e, if its score
@@ -87,7 +87,7 @@ void add_to_minheap( p_minheap heap, uint8_t query_id, p_sdb_sequence db_seq, lo
      *
      * This means, we can and should free e here!
      */
-    free( e );
+    //free( e );
 }
 
 p_db_chunk convert_to_chunk( p_node linked_list ) {
@@ -95,7 +95,7 @@ p_db_chunk convert_to_chunk( p_node linked_list ) {
 
     size_t size = ll_size( node );
 
-    p_db_chunk chunk = it_alloc_chunk( size );
+    p_db_chunk chunk = adp_alloc_chunk( size );
 
     while( node ) {
         chunk->seq[chunk->fill_pointer++] = ll_pop( &node );

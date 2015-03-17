@@ -10,7 +10,7 @@ read_reduced_timing( "results/19_02_2015_alignment_only" );
 set_indices()
 
 # AVX vs SSE
-pdf(file='~/projects/master_thesis/tex/img/runtime_simd_sse_vs_avx.pdf', width = 8, height = 4, pointsize = 12)
+pdf(file='~/projects/master_thesis/tex/img/runtime_simd_sse_vs_avx_new.pdf', width = 8, height = 4, pointsize = 12)
 par( mfrow = c(1, 2) )
 compare_plot_func( idx_avx2, idx_sse41, idx_SW, meantiming, config_reduced[-(1:2),], c("AVX2", "SSE4.1"), "SW calculation: AVX vs. SSE" )
 compare_plot_func( idx_avx2, idx_sse41, idx_NW, meantiming, config_reduced[-(1:2),], c("AVX2", "SSE4.1"), "NW calculation: AVX vs. SSE" )
@@ -53,7 +53,7 @@ reduced_label_no_threads <- gsub( pattern = "_", replacement = " ", x = reduced_
 min_max <- cbind( c( "1t", "4t", "8t" ), matrix( maxtiming - mintiming, nrow=3, ncol=10, byrow = T ) )
 min_max <- rbind( c( NA, reduced_label_no_threads ), min_max )
 
-pdf(file='~/projects/master_thesis/tex/img/runtime_variation.pdf', width = 6, height = 10, pointsize = 12)
+pdf(file='~/projects/master_thesis/tex/img/runtime_variation_new.pdf', width = 6, height = 10, pointsize = 12)
 par( mfrow = c(3, 1) )
 print_variations_boxplot( timing_reduced[,1:10], "Variation of timing results using 1 thread", reduced_label_no_threads )
 print_variations_boxplot( timing_reduced[,11:20], "Variation of timing results using 4 threads", reduced_label_no_threads )

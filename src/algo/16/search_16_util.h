@@ -49,15 +49,15 @@ struct s16info {
     __mxxxi * hearray;
     __mxxxi * dprofile;
 
-    int64_t * hearray_64;
-
     size_t maxqlen;
+
+    uint16_t penalty_gap_open;
+    uint16_t penalty_gap_extension;
 
     uint8_t q_count;
     p_s16query queries[6];
 
-    int16_t penalty_gap_open;
-    int16_t penalty_gap_extension;
+    int64_t * hearray_64;
 };
 
 static inline uint8_t move_db_sequence_window_16( uint8_t c, uint8_t * d_begin[CHANNELS_16_BIT],

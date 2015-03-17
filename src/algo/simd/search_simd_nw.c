@@ -463,17 +463,15 @@ void search_YY_XXX_nw( p_sYYinfo s, p_db_chunk chunk, p_minheap heap, p_node * o
         overflow.v = _mmxxx_or_si( _mmxxx_cmpgt_epiYY( score_min, h_min ), overflow.v );
         overflow.v = _mmxxx_or_si( _mmxxx_cmpeq_epiYY( h_max, score_max ), overflow.v );
 
-#ifdef SEARCH_8_BIT
         /*
-         * An overflow a sequence change in the corresponding channel, since
-         * this sequence has to be re-aligned anyway.
+         * An overflow enforces a sequence change in the corresponding channel,
+         * since this sequence has to be re-aligned anyway.
          */
 #ifdef __AVX2__
-        no_sequences_ended &= _mm256_testz_si256( overflow.v, _mm256_set1_epi8( 1 ) );
+        no_sequences_ended &= _mm256_movemask_epi8( overflow.v );
 
 #else
-        no_sequences_ended &= _mm_testz_si128( overflow.v, _mm_set1_epi8( 1 ) );
-#endif
+        no_sequences_ended &= _mm_movemask_epi8( overflow.v );
 #endif
 
 #ifdef DBG_COLLECT_MATRIX

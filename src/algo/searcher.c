@@ -20,9 +20,9 @@
 #include <stdlib.h>
 #include <assert.h>
 
+#include "../db_adapter.h"
 #include "../util/util.h"
 #include "../util/minheap.h"
-#include "../db_iterator.h"
 #include "../matrices.h"
 #include "../query.h"
 
@@ -164,11 +164,11 @@ void * s_search( void * hit_count ) {
     res->overflow_8_bit_count = 0;
     res->overflow_16_bit_count = 0;
 
-    p_db_chunk chunk = it_init_new_chunk();
+    p_db_chunk chunk = adp_init_new_chunk();
 
     search_func( chunk, sdp, res );
 
-    it_free_chunk( chunk );
+    adp_free_chunk( chunk );
 
     return res;
 }

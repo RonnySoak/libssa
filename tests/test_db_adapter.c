@@ -17,12 +17,12 @@
  Contact: Jakob Frielingsdorf <jfrielingsdorf@gmail.com>
  */
 
+#include "../src/db_adapter.h"
 #include "tests.h"
 
 #include "../src/util/util.h"
 #include "../src/libssa_extern_db.h"
 #include "../src/query.h"
-#include "../src/db_iterator.h"
 #include "../src/util/util_sequence.h"
 
 extern void ck_converted_prot_eq( char* ref, sequence_t seq );
@@ -64,40 +64,40 @@ char* revcompl( char* seq, size_t len ) {
 START_TEST (test_init)
     {
         // should return doing nothing
-        it_exit();
+        adp_exit();
 
         symtype = NUCLEOTIDE;
-        it_init( 1 );
-        it_exit();
+        adp_init( 1 );
+        adp_exit();
 
         symtype = TRANS_QUERY;
-        it_init( 1 );
-        it_exit();
+        adp_init( 1 );
+        adp_exit();
 
         symtype = TRANS_DB;
-        it_init( 1 );
-        it_exit();
+        adp_init( 1 );
+        adp_exit();
 
         symtype = TRANS_BOTH;
-        it_init( 1 );
-        it_exit();
+        adp_init( 1 );
+        adp_exit();
 
         symtype = AMINOACID;
-        it_init( 1 );
-        it_exit();
+        adp_init( 1 );
+        adp_exit();
     }END_TEST
 
 START_TEST (test_next_empty)
     {
         symtype = TRANS_DB;
 
-        it_init( 1 );
+        adp_init( 1 );
 
-        p_db_chunk chunk = it_init_new_chunk();
-        it_next_chunk( chunk );
+        p_db_chunk chunk = adp_init_new_chunk();
+        adp_next_chunk( chunk );
         ck_assert_int_eq( 0, chunk->fill_pointer );
 
-        it_exit();
+        adp_exit();
     }END_TEST
 
 START_TEST (test_next_one_nuc_forward)
@@ -107,10 +107,10 @@ START_TEST (test_next_one_nuc_forward)
         symtype = NUCLEOTIDE;
         query_strands = FORWARD_STRAND;
 
-        it_init( 1 );
+        adp_init( 1 );
 
-        p_db_chunk chunk = it_init_new_chunk();
-        it_next_chunk( chunk );
+        p_db_chunk chunk = adp_init_new_chunk();
+        adp_next_chunk( chunk );
         ck_assert_int_eq( 1, chunk->fill_pointer );
 
         p_sdb_sequence seq = chunk->seq[0];
@@ -121,12 +121,12 @@ START_TEST (test_next_one_nuc_forward)
         ck_assert_int_eq( 0, seq->frame );
 
         // check for the end of sequences
-        it_next_chunk( chunk );
+        adp_next_chunk( chunk );
         ck_assert_int_eq( 0, chunk->fill_pointer );
 
-        it_free_chunk( chunk );
+        adp_free_chunk( chunk );
 
-        it_exit();
+        adp_exit();
         ssa_db_close();
 
     }END_TEST
@@ -137,10 +137,10 @@ START_TEST (test_next_one_nuc_both)
 
         symtype = NUCLEOTIDE;
         query_strands = BOTH_STRANDS;
-        it_init( 1 );
+        adp_init( 1 );
 
-        p_db_chunk chunk = it_init_new_chunk();
-        it_next_chunk( chunk );
+        p_db_chunk chunk = adp_init_new_chunk();
+        adp_next_chunk( chunk );
 
         ck_assert_int_eq( 2, chunk->fill_pointer );
 
@@ -162,12 +162,12 @@ START_TEST (test_next_one_nuc_both)
         ck_assert_int_eq( 0, seq->frame );
 
         // check for the end of sequences
-        it_next_chunk( chunk );
+        adp_next_chunk( chunk );
         ck_assert_int_eq( 0, chunk->fill_pointer );
 
-        it_free_chunk( chunk );
+        adp_free_chunk( chunk );
 
-        it_exit();
+        adp_exit();
         ssa_db_close();
     }END_TEST
 
@@ -181,10 +181,10 @@ START_TEST (test_next_one_db_translate_forward)
 
         us_init_translation( 1, 3 );
 
-        it_init( 3 );
+        adp_init( 3 );
 
-        p_db_chunk chunk = it_init_new_chunk();
-        it_next_chunk( chunk );
+        p_db_chunk chunk = adp_init_new_chunk();
+        adp_next_chunk( chunk );
 
         ck_assert_int_eq( 3, chunk->fill_pointer );
 
@@ -212,12 +212,12 @@ START_TEST (test_next_one_db_translate_forward)
         ck_assert_int_eq( 2, seq->frame );
 
         // check for the end of sequences
-        it_next_chunk( chunk );
+        adp_next_chunk( chunk );
         ck_assert_int_eq( 0, chunk->fill_pointer );
 
-        it_free_chunk( chunk );
+        adp_free_chunk( chunk );
 
-        it_exit();
+        adp_exit();
         ssa_db_close();
     }END_TEST
 
@@ -231,10 +231,10 @@ START_TEST (test_next_one_db_translate_both)
 
         us_init_translation( 1, 3 );
 
-        it_init( 6 );
+        adp_init( 6 );
 
-        p_db_chunk chunk = it_init_new_chunk();
-        it_next_chunk( chunk );
+        p_db_chunk chunk = adp_init_new_chunk();
+        adp_next_chunk( chunk );
 
         ck_assert_int_eq( 6, chunk->fill_pointer );
 
@@ -286,12 +286,12 @@ START_TEST (test_next_one_db_translate_both)
         ck_assert_int_eq( 2, seq->frame );
 
         // check for the end of sequences
-        it_next_chunk( chunk );
+        adp_next_chunk( chunk );
         ck_assert_int_eq( 0, chunk->fill_pointer );
 
-        it_free_chunk( chunk );
+        adp_free_chunk( chunk );
 
-        it_exit();
+        adp_exit();
         ssa_db_close();
     }END_TEST
 
@@ -305,11 +305,11 @@ START_TEST (test_next_chunk)
 
         int chunk_size = 3;
 
-        it_init( chunk_size );
+        adp_init( chunk_size );
 
-        p_db_chunk chunk = it_init_new_chunk();
+        p_db_chunk chunk = adp_init_new_chunk();
 
-        it_next_chunk( chunk );
+        adp_next_chunk( chunk );
 
         // 1.
         ck_assert_int_eq( chunk_size, (int )chunk->fill_pointer );
@@ -318,25 +318,25 @@ START_TEST (test_next_chunk)
         ck_assert_int_eq( 2, chunk->seq[2]->ID );
 
         // 2.
-        it_next_chunk( chunk );
+        adp_next_chunk( chunk );
 
         ck_assert_int_eq( 2, (int )chunk->fill_pointer );
         ck_assert_int_eq( 3, chunk->seq[0]->ID );
         ck_assert_int_eq( 4, chunk->seq[1]->ID );
 
         // check for the end of sequences
-        it_next_chunk( chunk );
+        adp_next_chunk( chunk );
 
         ck_assert_int_eq( 0, chunk->fill_pointer );
 
-        it_free_chunk( chunk );
+        adp_free_chunk( chunk );
 
-        it_exit();
+        adp_exit();
         ssa_db_close();
     }END_TEST
 
-void addDBIteratorTC( Suite *s ) {
-    TCase *tc_core = tcase_create( "db_iterator" );
+void addDBAdapterTC( Suite *s ) {
+    TCase *tc_core = tcase_create( "db_adapter" );
     tcase_add_test( tc_core, test_init );
     tcase_add_test( tc_core, test_next_empty );
     tcase_add_test( tc_core, test_next_one_db_translate_both );
