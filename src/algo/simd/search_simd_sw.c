@@ -43,11 +43,13 @@
 
 #define _mmxxx_or_si _mm256_or_si256
 #define _mmxxx_setzero_si _mm256_setzero_si256
+#define _mmxxx_movemask_epi8 _mm256_movemask_epi8
 
 #else // SSE4.1
 
 #define _mmxxx_or_si _mm_or_si128
 #define _mmxxx_setzero_si _mm_setzero_si128
+#define _mmxxx_movemask_epi8 _mm_movemask_epi8
 
 #endif
 
@@ -153,7 +155,7 @@ static int d_idx;
  E = _mmxxx_max_epiYY(E, HQR);        /* test for gap extension, or opening */
 
 static void aligncolumns_first( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mxxxi gap_open_extend, __mxxxi gap_extend,
-        __mxxxi Mm, __mxxxi * _h_max, size_t ql ) {
+        __mxxxi M, __mxxxi * _h_max, size_t ql ) {
     __mxxxi h4, h5, h6, h7, h8, f0, f1, f2, f3, E, HQR;
     __mxxxi * vp;
 
@@ -181,12 +183,12 @@ static void aligncolumns_first( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mx
          * Mm is set to INT16_MIN on all channels, where new database sequences begin,
          * the other channels are not affected.
          */
-        h4 = _mmxxx_adds_epiYY( h4, Mm );
-        h4 = _mmxxx_adds_epiYY( h4, Mm );
+        h4 = _mmxxx_adds_epiYY( h4, M );
+        h4 = _mmxxx_adds_epiYY( h4, M );
 
         E = hep[2 * i + 1];
-        E = _mmxxx_adds_epiYY( E, Mm );
-        E = _mmxxx_adds_epiYY( E, Mm );
+        E = _mmxxx_adds_epiYY( E, M );
+        E = _mmxxx_adds_epiYY( E, M );
 
         ALIGNCORE( h0, h5, f0, vp[0], gap_open_extend, gap_extend, *Sm, h_max );
         ALIGNCORE( h1, h6, f1, vp[1], gap_open_extend, gap_extend, *Sm, h_max );
@@ -363,8 +365,6 @@ void search_YY_XXX_sw( p_sYYinfo s, p_db_chunk chunk, p_minheap heap, p_node * o
                             else {
                                 *overflow_list = ll_init( d_seq_ptr[c] );
                             }
-
-                            overflow.a[c] = 0;
                         }
 
                         done++;
@@ -403,18 +403,13 @@ void search_YY_XXX_sw( p_sYYinfo s, p_db_chunk chunk, p_minheap heap, p_node * o
 
             aligncolumns_first( &S.v, hep, s->queries[q_id]->q_table, gap_open_extend, gap_extend, M.v, &h_max, qlen );
         }
-        overflow.v = _mmxxx_or_si( _mmxxx_cmpeq_epiYY( h_max, score_max ), overflow.v );
 
         /*
          * An overflow enforces a sequence change in the corresponding channel,
          * since this sequence has to be re-aligned anyway.
          */
-#ifdef __AVX2__
-        no_sequences_ended &= _mm256_movemask_epi8( overflow.v );
-
-#else
-        no_sequences_ended &= _mm_movemask_epi8( overflow.v );
-#endif
+        overflow.v = _mmxxx_cmpeq_epiYY( h_max, score_max );
+        no_sequences_ended &= _mmxxx_movemask_epi8( overflow.v );
 
 #ifdef DBG_COLLECT_MATRIX
         d_idx += 4;

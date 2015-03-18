@@ -35,12 +35,14 @@
 #define _mmxxx_and_si _mm256_and_si256
 #define _mmxxx_or_si _mm256_or_si256
 #define _mmxxx_setzero_si _mm256_setzero_si256
+#define _mmxxx_movemask_epi8 _mm256_movemask_epi8
 
 #else // SSE2
 
 #define _mmxxx_and_si _mm_and_si128
 #define _mmxxx_or_si _mm_or_si128
 #define _mmxxx_setzero_si _mm_setzero_si128
+#define _mmxxx_movemask_epi8 _mm_movemask_epi8
 
 #endif
 
@@ -166,7 +168,7 @@ static int d_idx;
 
 static void aligncolumns_first( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mxxxi gap_open_extend, __mxxxi gap_extend,
         __mxxxi h0, __mxxxi h1, __mxxxi h2, __mxxxi h3, __mxxxi f0, __mxxxi f1, __mxxxi f2, __mxxxi f3,
-        __mxxxi * _h_min, __mxxxi * _h_max, __mxxxi Mm, __mxxxi M_gap_open_extend, __mxxxi M_gap_extend, size_t ql ) {
+        __mxxxi * _h_min, __mxxxi * _h_max, __mxxxi M, size_t ql ) {
     __mxxxi h4, h5, h6, h7, h8, E, HQR;
     __mxxxi * vp;
     /*
@@ -175,6 +177,10 @@ static void aligncolumns_first( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mx
      */
     *_h_min = _mmxxx_setzero_si();
     *_h_max = _mmxxx_setzero_si();
+
+    /* make masked versions of QR, R and E0 */
+    __mxxxi M_gap_open_extend = _mmxxx_and_si( M, gap_open_extend );
+    __mxxxi M_gap_extend = _mmxxx_and_si( M, gap_extend );
 
     __mxxxi M_gap_extension = M_gap_open_extend;
 
@@ -200,10 +206,10 @@ static void aligncolumns_first( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mx
          * M_gap_open_extend is initialized with the gap open extend costs and
          * each round the extend costs are subtracted.
          */
-        h4 = _mmxxx_subs_epuYY( h4, Mm );
+        h4 = _mmxxx_subs_epuYY( h4, M );
         h4 = _mmxxx_subs_epiYY( h4, M_gap_extension );
 
-        E = _mmxxx_subs_epuYY( E, Mm );
+        E = _mmxxx_subs_epuYY( E, M );
         E = _mmxxx_subs_epiYY( E, M_gap_extension );
         E = _mmxxx_subs_epiYY( E, M_gap_open_extend );
 
@@ -297,8 +303,6 @@ void search_YY_XXX_nw( p_sYYinfo s, p_db_chunk chunk, p_minheap heap, p_node * o
 #endif
 
     size_t qlen = s->queries[q_id]->q_len;
-
-    __mxxxi M_gap_open_extend, M_gap_extend;
 
     __mxxxi gap_open_extend, gap_extend;
 
@@ -407,8 +411,6 @@ void search_YY_XXX_nw( p_sYYinfo s, p_db_chunk chunk, p_minheap heap, p_node * o
                             else {
                                 *overflow_list = ll_init( d_seq_ptr[c] );
                             }
-
-                            overflow.a[c] = 0;
                         }
 
                         done++;
@@ -451,28 +453,19 @@ void search_YY_XXX_nw( p_sYYinfo s, p_db_chunk chunk, p_minheap heap, p_node * o
             if( done == chunk->fill_pointer )
                 break;
 
-            /* make masked versions of QR, R and E0 */
-            M_gap_open_extend = _mmxxx_and_si( M.v, gap_open_extend );
-            M_gap_extend = _mmxxx_and_si( M.v, gap_extend );
-
             dprofile_fill_YY_xxx( s->dprofile, dseq_search_window );
 
-            aligncolumns_first( S.v, hep, s->queries[q_id]->q_table, gap_open_extend, gap_extend, H0, H1, H2, H3,
-                    F0, F1, F2, F3, &h_min, &h_max, M.v, M_gap_open_extend, M_gap_extend, qlen );
+            aligncolumns_first( S.v, hep, s->queries[q_id]->q_table, gap_open_extend, gap_extend, H0, H1, H2, H3, F0,
+                    F1, F2, F3, &h_min, &h_max, M.v, qlen );
         }
-        overflow.v = _mmxxx_or_si( _mmxxx_cmpgt_epiYY( score_min, h_min ), overflow.v );
-        overflow.v = _mmxxx_or_si( _mmxxx_cmpeq_epiYY( h_max, score_max ), overflow.v );
 
         /*
          * An overflow enforces a sequence change in the corresponding channel,
          * since this sequence has to be re-aligned anyway.
          */
-#ifdef __AVX2__
-        no_sequences_ended &= _mm256_movemask_epi8( overflow.v );
-
-#else
-        no_sequences_ended &= _mm_movemask_epi8( overflow.v );
-#endif
+        overflow.v = _mmxxx_cmpgt_epiYY( score_min, h_min );
+        overflow.v = _mmxxx_or_si( _mmxxx_cmpeq_epiYY( h_max, score_max ), overflow.v );
+        no_sequences_ended &= _mmxxx_movemask_epi8( overflow.v );
 
 #ifdef DBG_COLLECT_MATRIX
         d_idx += 4;
