@@ -166,23 +166,23 @@ static int d_idx;
  * H_MIN: min score of this block
  * H_MAX: max score of this block
  */
-#define ALIGNCORE(H, N, E, F, V, QR, R, H_MIN, H_MAX)                             \
+#define ALIGNCORE(H, N, E, F, V, QR, R, H_MIN, H_MAX)                          \
  H = _mmxxx_adds_epiYY(H, V);         /* add value of scoring profile */       \
  H = _mmxxx_max_epiYY(H, F);          /* max(H, F) */                          \
  H = _mmxxx_max_epiYY(H, E);          /* max(H, E) */                          \
  H_MIN = _mmxxx_min_epiYY(H_MIN, H);                                           \
  H_MAX = _mmxxx_max_epiYY(H_MAX, H);                                           \
  N = H;                               /* save H in HE-array */                 \
- HQR = _mmxxx_subs_epiYY(H, QR);      /* subtract gap open-extend */           \
+ H = _mmxxx_subs_epiYY(H, QR);        /* subtract gap open-extend */           \
  F = _mmxxx_subs_epiYY(F, R);         /* subtract gap extend */                \
- F = _mmxxx_max_epiYY(F, HQR);        /* test for gap extension, or opening */ \
+ F = _mmxxx_max_epiYY(F, H);          /* test for gap extension, or opening */ \
  E = _mmxxx_subs_epiYY(E, R);         /* subtract gap extend */                \
- E = _mmxxx_max_epiYY(E, HQR);        /* test for gap extension, or opening */
+ E = _mmxxx_max_epiYY(E, H);          /* test for gap extension, or opening */
 
 static void aligncolumns_first( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mxxxi gap_open_extend, __mxxxi gap_extend,
         __mxxxi h0, __mxxxi h1, __mxxxi h2, __mxxxi h3, __mxxxi f0, __mxxxi f1, __mxxxi f2, __mxxxi f3,
         __mxxxi * _h_min, __mxxxi * _h_max, __mxxxi M, size_t ql ) {
-    __mxxxi h4, h5, h6, h7, h8, E, HQR;
+    __mxxxi h4, h5, h6, h7, h8, E;
     __mxxxi * vp;
     /*
      * We set h_min and h_max to zero, to prevent a reuse of the previous score
@@ -258,7 +258,7 @@ static void aligncolumns_first( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mx
 static void aligncolumns_rest( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mxxxi gap_open_extend, __mxxxi gap_extend,
         __mxxxi h0, __mxxxi h1, __mxxxi h2, __mxxxi h3, __mxxxi f0, __mxxxi f1, __mxxxi f2, __mxxxi f3,
         __mxxxi * _h_min, __mxxxi * _h_max, size_t ql ) {
-    __mxxxi h4, h5, h6, h7, h8, E, HQR;
+    __mxxxi h4, h5, h6, h7, h8, E;
     __mxxxi * vp;
 
     f0 = _mmxxx_subs_epiYY( f0, gap_open_extend );

@@ -40,13 +40,13 @@ MPI_LINK := `mpicxx --showme:link`
 
 #### TODO remove from PROD code ####
 #DEBUG_LIBS := -lefence
-#DEBUG_FLAGS := -g --coverage
+#DEBUG_FLAGS := -g# --coverage
 
 LIBS := -pthread -lm -lsdb $(DEBUG_LIBS)
 TEST_LIBS := -lcheck -lrt
 
 # GNU options
-CXX := gcc # vtcc -finstrument-functions-exclude-file-list=include
+CXX := gcc #vtcc -finstrument-functions-exclude-file-list=include
 	
 BASE_FLAGS := -Wall -O3 -std=c99 $(DEBUG_FLAGS)
 

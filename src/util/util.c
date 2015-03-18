@@ -26,6 +26,11 @@
 
 #include "../db_adapter.h"
 
+/*
+ * For AVX2 instructions memory needs to be 32 byte aligned.
+ */
+#define ALIGNMENT 32
+
 int output_mode = OUTPUT_STDOUT;
 
 void ffatal( const char * format, ... ) {
@@ -47,9 +52,8 @@ void outf( const char * format, ... ) {
 }
 
 void * xmalloc( size_t size ) {
-    const size_t alignment = 32; // TODO AVX2 code needs a 32 bit alignment ...
     void * t;
-    if( posix_memalign( &t, alignment, size ) != 0 ) {
+    if( posix_memalign( &t, ALIGNMENT, size ) != 0 ) {
         ffatal( "Unable to allocate enough memory." );
     }
 
@@ -65,9 +69,8 @@ void * xrealloc( void *ptr, size_t size ) {
 }
 
 void add_to_minheap( p_minheap heap, uint8_t query_id, p_sdb_sequence db_seq, long score ) {
-    elem_t e;// = xmalloc( sizeof(elem_t) );
+    elem_t e;
     e.query_id = query_id;
-
     e.db_id = db_seq->ID;
     e.db_frame = db_seq->frame;
     e.db_strand = db_seq->strand;
@@ -77,17 +80,10 @@ void add_to_minheap( p_minheap heap, uint8_t query_id, p_sdb_sequence db_seq, lo
     dbg_add_aligned_sequence( db_seq->ID, query_id, score );
 #endif
 
-    /* Alignments, with a score equal to the current lowest score in the
-     heap are ignored! */
-    minheap_add( heap, &e );
-
     /*
-     * minheap_add dereferences e and stores a copy of e, if its score
-     * is higher than the lowest score in the heap.
-     *
-     * This means, we can and should free e here!
+     * Alignments, with a score equal to the current lowest score in the heap are ignored
      */
-    //free( e );
+    minheap_add( heap, &e );
 }
 
 p_db_chunk convert_to_chunk( p_node linked_list ) {
