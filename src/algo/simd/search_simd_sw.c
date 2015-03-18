@@ -141,12 +141,23 @@ typedef int16_t intYY_t;
 static int d_idx;
 #endif
 
-#define ALIGNCORE(H, N, F, V, QR, R, S, H_MAX )                         	   \
+/*
+ * All parameters are vectors of the type __mxxxi
+ *
+ * H: diagonal alignment score
+ * N: alignment score of the current cell, saved for computing the cell in the next row
+ * E: gaps in the query sequence
+ * F: gaps in the database sequences
+ * V: substitution scores from the db profile
+ * QR: gap open extend costs
+ * R: gap extension costs
+ * S: max score of this alignment
+ */
+#define ALIGNCORE(H, N, E, F, V, QR, R, S )                         	   \
  H = _mmxxx_adds_epiYY(H, V);         /* add value of scoring profile */        \
  H = _mmxxx_max_epiYY(H, F);          /* max(H, F) */                          \
  H = _mmxxx_max_epiYY(H, E);          /* max(H, E) */                          \
  S = _mmxxx_max_epiYY(H, S);          /* save max score */                     \
- H_MAX = _mmxxx_max_epiYY(H_MAX, H);                                           \
  N = H;                               /* save H in HE-array */                 \
  HQR = _mmxxx_subs_epiYY(H, QR);      /* subtract gap open-extend */           \
  F = _mmxxx_subs_epiYY(F, R);         /* subtract gap extend */                \
@@ -155,7 +166,7 @@ static int d_idx;
  E = _mmxxx_max_epiYY(E, HQR);        /* test for gap extension, or opening */
 
 static void aligncolumns_first( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mxxxi gap_open_extend, __mxxxi gap_extend,
-        __mxxxi M, __mxxxi * _h_max, size_t ql ) {
+        __mxxxi M, size_t ql ) {
     __mxxxi h4, h5, h6, h7, h8, f0, f1, f2, f3, E, HQR;
     __mxxxi * vp;
 
@@ -165,8 +176,6 @@ static void aligncolumns_first( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mx
     __mxxxi h1 = VECTOR_INT__MIN;
     __mxxxi h2 = VECTOR_INT__MIN;
     __mxxxi h3 = VECTOR_INT__MIN;
-
-    __mxxxi h_max = VECTOR_INT__MIN;
 
     f0 = f1 = f2 = f3 = VECTOR_INT__MIN;
 
@@ -190,10 +199,10 @@ static void aligncolumns_first( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mx
         E = _mmxxx_adds_epiYY( E, M );
         E = _mmxxx_adds_epiYY( E, M );
 
-        ALIGNCORE( h0, h5, f0, vp[0], gap_open_extend, gap_extend, *Sm, h_max );
-        ALIGNCORE( h1, h6, f1, vp[1], gap_open_extend, gap_extend, *Sm, h_max );
-        ALIGNCORE( h2, h7, f2, vp[2], gap_open_extend, gap_extend, *Sm, h_max );
-        ALIGNCORE( h3, h8, f3, vp[3], gap_open_extend, gap_extend, *Sm, h_max );
+        ALIGNCORE( h0, h5, E, f0, vp[0], gap_open_extend, gap_extend, *Sm );
+        ALIGNCORE( h1, h6, E, f1, vp[1], gap_open_extend, gap_extend, *Sm );
+        ALIGNCORE( h2, h7, E, f2, vp[2], gap_open_extend, gap_extend, *Sm );
+        ALIGNCORE( h3, h8, E, f3, vp[3], gap_open_extend, gap_extend, *Sm );
 
 #ifdef DBG_COLLECT_MATRIX
         dbg_add_matrix_data_xxx_YY_sw( i, d_idx + 0, h5 );
@@ -210,12 +219,10 @@ static void aligncolumns_first( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mx
         h2 = h6;
         h3 = h7;
     }
-
-    *_h_max = h_max;
 }
 
 static void aligncolumns_rest( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mxxxi gap_open_extend, __mxxxi gap_extend,
-        __mxxxi * _h_max, size_t ql ) {
+        size_t ql ) {
     __mxxxi h4, h5, h6, h7, h8, f0, f1, f2, f3, E, HQR;
     __mxxxi * vp;
 
@@ -235,10 +242,10 @@ static void aligncolumns_rest( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mxx
 
         E = hep[2 * i + 1];
 
-        ALIGNCORE( h0, h5, f0, vp[0], gap_open_extend, gap_extend, *Sm, *_h_max );
-        ALIGNCORE( h1, h6, f1, vp[1], gap_open_extend, gap_extend, *Sm, *_h_max );
-        ALIGNCORE( h2, h7, f2, vp[2], gap_open_extend, gap_extend, *Sm, *_h_max );
-        ALIGNCORE( h3, h8, f3, vp[3], gap_open_extend, gap_extend, *Sm, *_h_max );
+        ALIGNCORE( h0, E, h5, f0, vp[0], gap_open_extend, gap_extend, *Sm );
+        ALIGNCORE( h1, E, h6, f1, vp[1], gap_open_extend, gap_extend, *Sm );
+        ALIGNCORE( h2, E, h7, f2, vp[2], gap_open_extend, gap_extend, *Sm );
+        ALIGNCORE( h3, E, h8, f3, vp[3], gap_open_extend, gap_extend, *Sm );
 
 #ifdef DBG_COLLECT_MATRIX
         dbg_add_matrix_data_xxx_YY_sw( i, d_idx + 0, h5 );
@@ -315,8 +322,6 @@ void search_YY_XXX_sw( p_sYYinfo s, p_db_chunk chunk, p_minheap heap, p_node * o
 
     __mxxxi score_max = _mmxxx_set1_epiYY( I_MAX );
 
-    __mxxxi h_max;
-
     int no_sequences_ended = 0;
     while( 1 ) {
         if( no_sequences_ended ) {
@@ -329,7 +334,7 @@ void search_YY_XXX_sw( p_sYYinfo s, p_db_chunk chunk, p_minheap heap, p_node * o
 
             dprofile_fill_YY_xxx( s->dprofile, dseq_search_window );
 
-            aligncolumns_rest( &S.v, hep, s->queries[q_id]->q_table, gap_open_extend, gap_extend, &h_max, qlen );
+            aligncolumns_rest( &S.v, hep, s->queries[q_id]->q_table, gap_open_extend, gap_extend, qlen );
         }
         else {
             /* One or more sequences ended in the previous block.
@@ -401,14 +406,14 @@ void search_YY_XXX_sw( p_sYYinfo s, p_db_chunk chunk, p_minheap heap, p_node * o
 
             dprofile_fill_YY_xxx( s->dprofile, dseq_search_window );
 
-            aligncolumns_first( &S.v, hep, s->queries[q_id]->q_table, gap_open_extend, gap_extend, M.v, &h_max, qlen );
+            aligncolumns_first( &S.v, hep, s->queries[q_id]->q_table, gap_open_extend, gap_extend, M.v, qlen );
         }
 
         /*
          * An overflow enforces a sequence change in the corresponding channel,
          * since this sequence has to be re-aligned anyway.
          */
-        overflow.v = _mmxxx_cmpeq_epiYY( h_max, score_max );
+        overflow.v = _mmxxx_cmpeq_epiYY( S.v, score_max );
         no_sequences_ended &= _mmxxx_movemask_epi8( overflow.v );
 
 #ifdef DBG_COLLECT_MATRIX

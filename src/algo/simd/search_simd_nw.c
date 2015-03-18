@@ -153,7 +153,20 @@ typedef int16_t intYY_t;
 static int d_idx;
 #endif
 
-#define ALIGNCORE(H, N, F, V, QR, R, H_MIN, H_MAX)                             \
+/*
+ * All parameters are vectors of the type __mxxxi
+ *
+ * H: diagonal alignment score
+ * N: alignment score of the current cell, saved for computing the cell in the next row
+ * E: gaps in the query sequence
+ * F: gaps in the database sequences
+ * V: substitution scores from the db profile
+ * QR: gap open extend costs
+ * R: gap extension costs
+ * H_MIN: min score of this block
+ * H_MAX: max score of this block
+ */
+#define ALIGNCORE(H, N, E, F, V, QR, R, H_MIN, H_MAX)                             \
  H = _mmxxx_adds_epiYY(H, V);         /* add value of scoring profile */       \
  H = _mmxxx_max_epiYY(H, F);          /* max(H, F) */                          \
  H = _mmxxx_max_epiYY(H, E);          /* max(H, E) */                          \
@@ -215,10 +228,10 @@ static void aligncolumns_first( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mx
 
         M_gap_extension = _mmxxx_adds_epiYY( M_gap_extension, M_gap_extend );
 
-        ALIGNCORE( h0, h5, f0, vp[0], gap_open_extend, gap_extend, *_h_min, *_h_max );
-        ALIGNCORE( h1, h6, f1, vp[1], gap_open_extend, gap_extend, *_h_min, *_h_max );
-        ALIGNCORE( h2, h7, f2, vp[2], gap_open_extend, gap_extend, *_h_min, *_h_max );
-        ALIGNCORE( h3, h8, f3, vp[3], gap_open_extend, gap_extend, *_h_min, *_h_max );
+        ALIGNCORE( h0, h5, E, f0, vp[0], gap_open_extend, gap_extend, *_h_min, *_h_max );
+        ALIGNCORE( h1, h6, E, f1, vp[1], gap_open_extend, gap_extend, *_h_min, *_h_max );
+        ALIGNCORE( h2, h7, E, f2, vp[2], gap_open_extend, gap_extend, *_h_min, *_h_max );
+        ALIGNCORE( h3, h8, E, f3, vp[3], gap_open_extend, gap_extend, *_h_min, *_h_max );
 
 #ifdef DBG_COLLECT_MATRIX
         dbg_add_matrix_data_xxx_YY( i, d_idx + 0, h5 );
@@ -260,10 +273,10 @@ static void aligncolumns_rest( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mxx
 
         E = hep[2 * i + 1];
 
-        ALIGNCORE( h0, h5, f0, vp[0], gap_open_extend, gap_extend, *_h_min, *_h_max );
-        ALIGNCORE( h1, h6, f1, vp[1], gap_open_extend, gap_extend, *_h_min, *_h_max );
-        ALIGNCORE( h2, h7, f2, vp[2], gap_open_extend, gap_extend, *_h_min, *_h_max );
-        ALIGNCORE( h3, h8, f3, vp[3], gap_open_extend, gap_extend, *_h_min, *_h_max );
+        ALIGNCORE( h0, h5, E, f0, vp[0], gap_open_extend, gap_extend, *_h_min, *_h_max );
+        ALIGNCORE( h1, h6, E, f1, vp[1], gap_open_extend, gap_extend, *_h_min, *_h_max );
+        ALIGNCORE( h2, h7, E, f2, vp[2], gap_open_extend, gap_extend, *_h_min, *_h_max );
+        ALIGNCORE( h3, h8, E, f3, vp[3], gap_open_extend, gap_extend, *_h_min, *_h_max );
 
 #ifdef DBG_COLLECT_MATRIX
         dbg_add_matrix_data_xxx_YY( i, d_idx + 0, h5 );
@@ -345,7 +358,7 @@ void search_YY_XXX_nw( p_sYYinfo s, p_db_chunk chunk, p_minheap heap, p_node * o
         d_seq_ptr[c] = 0;
     }
 
-    __mxxxi score_min = _mmxxx_set1_epiYY( I_MIN + s->penalty_gap_open + s->penalty_gap_extension -1 );
+    __mxxxi score_min = _mmxxx_set1_epiYY( I_MIN + s->penalty_gap_open + s->penalty_gap_extension -1 ); // TODO why + Q + R ???
     __mxxxi score_max = _mmxxx_set1_epiYY( I_MAX );
 
     __mxxxi H0 = _mmxxx_setzero_si();
