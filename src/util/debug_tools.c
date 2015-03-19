@@ -25,7 +25,6 @@
 
 #include "util_sequence.h"
 #include "util.h"
-#include "linked_list.h"
 #include "../matrices.h"
 #include "../query.h"
 

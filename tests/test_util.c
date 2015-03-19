@@ -102,37 +102,6 @@ START_TEST (test_xrealloc)
         free( arr );
     }END_TEST
 
-START_TEST (test_convert_to_chunk)
-    {
-        int data = 42;
-
-        p_sdb_sequence db_seq = xmalloc( sizeof(sdb_sequence_t) );
-        db_seq->ID = data;
-        db_seq->seq.seq = 0;
-
-        p_node node = ll_init( db_seq );
-
-        int count = 5;
-        for( int i = 0; i < count; ++i ) {
-            db_seq = xmalloc( sizeof(sdb_sequence_t) );
-            db_seq->ID = ++data;
-            db_seq->seq.seq = 0;
-
-            ll_push( &node, db_seq );
-        }
-
-        p_db_chunk chunk = convert_to_chunk( node );
-
-        ck_assert_int_eq( count + 1, chunk->fill_pointer );
-
-        for( size_t i = 0; i < chunk->fill_pointer; ++i ) {
-            ck_assert_int_eq( data--, chunk->seq[i]->ID );
-        }
-
-        ll_clear( &node );
-        adp_free_chunk( chunk );
-    }END_TEST
-
 START_TEST (test_add_to_minheap)
     {
         p_minheap heap = minheap_init( 1 );
@@ -161,7 +130,6 @@ void addUtilTC( Suite *s ) {
     tcase_add_test( tc_core, test_xmalloc );
     tcase_add_test( tc_core, test_xrealloc );
     tcase_add_test( tc_core, test_add_to_minheap );
-    tcase_add_test( tc_core, test_convert_to_chunk );
 
     suite_add_tcase( s, tc_core );
 }

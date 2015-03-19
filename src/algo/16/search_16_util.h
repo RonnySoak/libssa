@@ -22,7 +22,6 @@
 
 #include "search_16.h"
 
-#include "../../util/linked_list.h"
 #include "../../util/util.h"
 
 #define CDEPTH_16_BIT 4
@@ -82,10 +81,10 @@ p_s16info search_16_avx2_init( p_search_data sdp );
 void dprofile_fill_16_sse2( __mxxxi * dprofile, uint8_t * dseq_search_window );
 void dprofile_fill_16_avx2( __mxxxi * dprofile, uint8_t * dseq_search_window );
 
-void search_16_sse2_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * overflow_list, uint8_t query_id );
-void search_16_sse2_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * overflow_list, uint8_t query_id );
+void search_16_sse2_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_db_chunk overflow_chunk, uint8_t query_id );
+void search_16_sse2_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_db_chunk overflow_chunk, uint8_t query_id );
 
-void search_16_avx2_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * overflow_list, uint8_t query_id );
-void search_16_avx2_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_node * overflow_list, uint8_t query_id );
+void search_16_avx2_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_db_chunk overflow_chunk, uint8_t query_id );
+void search_16_avx2_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_db_chunk overflow_chunk, uint8_t query_id );
 
 #endif /* SEARCH_16_UTIL_H_ */

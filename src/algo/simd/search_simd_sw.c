@@ -223,7 +223,7 @@ static void aligncolumns_first( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mx
 
 static void aligncolumns_rest( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mxxxi gap_open_extend, __mxxxi gap_extend,
         size_t ql ) {
-    __mxxxi h4, h5, h6, h7, h8, f0, f1, f2, f3, E, HQR;
+    __mxxxi h4, h5, h6, h7, h8, f0, f1, f2, f3, E;
     __mxxxi * vp;
 
     __mxxxi VECTOR_INT_MIN = _mmxxx_set1_epiYY( I_MIN );
@@ -264,7 +264,7 @@ static void aligncolumns_rest( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mxx
     }
 }
 
-void search_YY_XXX_sw( p_sYYinfo s, p_db_chunk chunk, p_minheap heap, p_node * overflow_list, uint8_t q_id ) {
+void search_YY_XXX_sw( p_sYYinfo s, p_db_chunk chunk, p_minheap heap, p_db_chunk overflow_chunk, uint8_t q_id ) {
 
 #ifdef DBG_COLLECT_MATRIX
     size_t maxdlen = 0;
@@ -359,17 +359,10 @@ void search_YY_XXX_sw( p_sYYinfo s, p_db_chunk chunk, p_minheap heap, p_node * o
                         long score = S.a[c] + -I_MIN; // convert score back to range from 0 - 65535
 
                         if( !overflow.a[c] && (score < UI_MAX) ) {
-                            /* Alignments, with a score equal to the current lowest score in the
-                             heap are ignored! */
                             add_to_minheap( heap, q_id, d_seq_ptr[c], score );
                         }
                         else {
-                            if( *overflow_list ) {
-                                ll_push( overflow_list, d_seq_ptr[c] );
-                            }
-                            else {
-                                *overflow_list = ll_init( d_seq_ptr[c] );
-                            }
+                            overflow_chunk->seq[overflow_chunk->fill_pointer++] = d_seq_ptr[c];
                         }
 
                         done++;

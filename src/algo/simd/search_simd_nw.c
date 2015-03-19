@@ -300,7 +300,7 @@ static void aligncolumns_rest( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mxx
     Sm[3] = hep[2 * (ql - 1) + 0];
 }
 
-void search_YY_XXX_nw( p_sYYinfo s, p_db_chunk chunk, p_minheap heap, p_node * overflow_list, uint8_t q_id ) {
+void search_YY_XXX_nw( p_sYYinfo s, p_db_chunk chunk, p_minheap heap, p_db_chunk overflow_chunk, uint8_t q_id ) {
 
 #ifdef DBG_COLLECT_MATRIX
     size_t maxdlen =  0;
@@ -413,17 +413,10 @@ void search_YY_XXX_nw( p_sYYinfo s, p_db_chunk chunk, p_minheap heap, p_node * o
                         long score = S.a[z * CHANNELS + c];
 
                         if( !overflow.a[c] && (score > I_MIN) && (score < I_MAX) ) {
-                            /* Alignments, with a score equal to the current lowest score in the
-                             heap are ignored! */
                             add_to_minheap( heap, q_id, d_seq_ptr[c], score );
                         }
                         else {
-                            if( *overflow_list ) {
-                                ll_push( overflow_list, d_seq_ptr[c] );
-                            }
-                            else {
-                                *overflow_list = ll_init( d_seq_ptr[c] );
-                            }
+                            overflow_chunk->seq[overflow_chunk->fill_pointer++] = d_seq_ptr[c];
                         }
 
                         done++;

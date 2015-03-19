@@ -26,13 +26,12 @@
 
 #include "../searcher.h"
 #include "../../util/util.h"
-#include "../../util/linked_list.h"
 #include "../../matrices.h"
 #include "../../cpu_config.h"
 #include "../../db_adapter.h"
 #include "../16/search_16.h"
 
-static void (*search_algo)( p_s8info, p_db_chunk, p_minheap, p_node *, uint8_t );
+static void (*search_algo)( p_s8info, p_db_chunk, p_minheap, p_db_chunk, uint8_t );
 
 void search_8_init_algo( int search_type ) {
     if( !is_sse2_enabled() ) {
@@ -97,13 +96,13 @@ void search_8_exit( p_s8info s ) {
 static size_t search_8_chunk( p_s8info s8info, p_minheap heap, p_db_chunk chunk, p_search_data sdp ) {
     size_t overflown_seq_count = 0;
 
-    p_node overflow_list = 0;
+    p_db_chunk overflow_chunk = adp_alloc_chunk( chunk->size * sdp->q_count );
 
     for( uint8_t q_id = 0; q_id < sdp->q_count; q_id++ ) {
-        search_algo( s8info, chunk, heap, &overflow_list, q_id );
+        search_algo( s8info, chunk, heap, overflow_chunk, q_id );
     }
 
-    if( overflow_list ) {
+    if( overflow_chunk->fill_pointer ) {
         /*
          * XXX
          * Re-aligning sequences with 16 bit might result in a different order of the sequences in the heap.
@@ -120,14 +119,12 @@ static size_t search_8_chunk( p_s8info s8info, p_minheap heap, p_db_chunk chunk,
             s8info->s16info = search_16_init( sdp );
         }
 
-        p_db_chunk overflow_chunk = convert_to_chunk( overflow_list );
         overflown_seq_count = overflow_chunk->fill_pointer;
 
         search_16_chunk( s8info->s16info, heap, overflow_chunk, sdp );
-
-        free( overflow_chunk->seq );
-        free( overflow_chunk );
     }
+
+    adp_free_chunk_no_sequences( overflow_chunk );
 
     return overflown_seq_count;
 }

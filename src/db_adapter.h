@@ -33,6 +33,7 @@ p_db_chunk adp_init_new_chunk();
 
 void adp_next_chunk( p_db_chunk chunk );
 
+void adp_free_chunk_no_sequences( p_db_chunk chunk );
 void adp_free_chunk( p_db_chunk chunk );
 
 void adp_reset_chunk_counter();

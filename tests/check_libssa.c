@@ -30,7 +30,6 @@ Suite* libssa_suite( void ) {
     addCPUConfigTC( s );
     addUtilTC( s );
     addMinHeapTC( s );
-    addLinkedListTC( s );
     addThreadPoolTC( s );
     addUtilSequenceTC( s );
     addMatricesTC( s );

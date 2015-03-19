@@ -154,6 +154,17 @@ void adp_free_sequence( p_sdb_sequence seq ) {
     seq = 0;
 }
 
+void adp_free_chunk_no_sequences( p_db_chunk chunk ) {
+    if( chunk ) {
+        if( chunk->seq ) {
+            free( chunk->seq );
+            chunk->seq = 0;
+        }
+        free( chunk );
+        chunk = 0;
+    }
+}
+
 void adp_free_chunk( p_db_chunk chunk ) {
     if( chunk ) {
         for( size_t i = 0; i < chunk->size; i++ ) {

@@ -62,69 +62,82 @@ static p_alignment_list do_alignment( char * desc, p_alignment_list (*align_func
 int main( int argc, char**argv ) {
     set_simd_compute_mode( COMPUTE_ON_SSE41 );
 
-    init_constant_scoring( 1, -1 );
-    init_gap_penalties( 0, 1 );
     init_symbol_translation( NUCLEOTIDE, FORWARD_STRAND, 3, 3 );
 
     set_threads( 1 );
 
-//    init_db_fasta( "tmp/3a.fas" );
-    p_query query = init_sequence_fasta( READ_FROM_STRING, "TACGGGTAT" );
+//    set_output_mode( OUTPUT_SILENT );
+
+    init_score_matrix( MATRIX_BUILDIN, "blosum62" );
+    init_gap_penalties( 3, 1 );
+    init_db_fasta( "tests/testdata/uniprot_sprot.fasta" );
+
+    p_query query = init_sequence_fasta( READ_FROM_FILE, "tests/testdata/P18080.fasta" );
+    size_t hit_count = 10;
+
+    p_alignment_list alist = do_alignment( "overflow test", &nw_align, query, hit_count, BIT_WIDTH_8 );
+    free_alignment( alist );
+
+    free_sequence( query );
+
+//    init_constant_scoring( 1, -1 );
+//    init_gap_penalties( 0, 1 );
+////    init_db_fasta( "tmp/3a.fas" );
+//    p_query query = init_sequence_fasta( READ_FROM_STRING, "TACGGGTAT" );
+////
+//    size_t hit_count = 1;
+////
+//    free_alignment( alist );
 //
-    size_t hit_count = 1;
+//    alist = do_alignment( "3.b", &sw_align, query, hit_count, BIT_WIDTH_64 );
+//    free_alignment( alist );
 //
-    p_alignment_list alist = do_alignment( "3.a", &nw_align, query, hit_count, BIT_WIDTH_64 );
-    free_alignment( alist );
-
-    alist = do_alignment( "3.b", &sw_align, query, hit_count, BIT_WIDTH_64 );
-    free_alignment( alist );
-
-    init_gap_penalties( 20, 1 );
-
-    alist = do_alignment( "3.c", &nw_align, query, hit_count, BIT_WIDTH_64 );
-    free_alignment( alist );
-
-    free_sequence( query );
-
-
-    init_db_fasta( "tmp/3d.fas" );
-    query = init_sequence_fasta( READ_FROM_STRING, "AAGT" );
-    init_gap_penalties( 1, 1 );
-
-    alist = do_alignment( "3.d", &nw_align, query, hit_count, BIT_WIDTH_64 );
-    free_alignment( alist );
-
-    free_sequence( query );
-
-    init_db_fasta( "tmp/3e.fas" );
-    init_symbol_translation( AMINOACID, FORWARD_STRAND, 3, 3 );
-    query = init_sequence_fasta( READ_FROM_STRING, "MRWAC" );
-
-    init_constant_scoring( 2, 0 );
-    init_gap_penalties( 0, 1 );
-
-    alist = do_alignment( "3.e", &nw_align, query, hit_count, BIT_WIDTH_64 );
-    free_alignment( alist );
-
-    free_sequence( query );
-
-
-    init_db_fasta( "tmp/3f.fas" );
-    init_symbol_translation( AMINOACID, FORWARD_STRAND, 3, 3 );
-    query = init_sequence_fasta( READ_FROM_STRING, "EGGHVLVAV" );
-
-    init_score_matrix( MATRIX_BUILDIN, BLOSUM62 );
-    init_gap_penalties( 0, 5 );
-
-    alist = do_alignment( "3.f", &sw_align, query, hit_count, BIT_WIDTH_64 );
-    free_alignment( alist );
-
-    init_gap_penalties( 4, 1 );
-
-    alist = do_alignment( "3.g", &sw_align, query, hit_count, BIT_WIDTH_64 );
-    free_alignment( alist );
-
-    free_sequence( query );
+//    init_gap_penalties( 20, 1 );
+//
+//    alist = do_alignment( "3.c", &nw_align, query, hit_count, BIT_WIDTH_64 );
+//    free_alignment( alist );
+//
+//    free_sequence( query );
+//
+//
+//    init_db_fasta( "tmp/3d.fas" );
+//    query = init_sequence_fasta( READ_FROM_STRING, "AAGT" );
+//    init_gap_penalties( 1, 1 );
+//
+//    alist = do_alignment( "3.d", &nw_align, query, hit_count, BIT_WIDTH_64 );
+//    free_alignment( alist );
+//
+//    free_sequence( query );
+//
+//    init_db_fasta( "tmp/3e.fas" );
+//    init_symbol_translation( AMINOACID, FORWARD_STRAND, 3, 3 );
+//    query = init_sequence_fasta( READ_FROM_STRING, "MRWAC" );
+//
+//    init_constant_scoring( 2, 0 );
+//    init_gap_penalties( 0, 1 );
+//
+//    alist = do_alignment( "3.e", &nw_align, query, hit_count, BIT_WIDTH_64 );
+//    free_alignment( alist );
+//
+//    free_sequence( query );
+//
+//
+//    init_db_fasta( "tmp/3f.fas" );
+//    init_symbol_translation( AMINOACID, FORWARD_STRAND, 3, 3 );
+//    query = init_sequence_fasta( READ_FROM_STRING, "EGGHVLVAV" );
+//
+//    init_score_matrix( MATRIX_BUILDIN, BLOSUM62 );
+//    init_gap_penalties( 0, 5 );
+//
+//    alist = do_alignment( "3.f", &sw_align, query, hit_count, BIT_WIDTH_64 );
+//    free_alignment( alist );
+//
+//    init_gap_penalties( 4, 1 );
+//
+//    alist = do_alignment( "3.g", &sw_align, query, hit_count, BIT_WIDTH_64 );
+//    free_alignment( alist );
+//
+//    free_sequence( query );
 
 
 //    init_db_fasta( "tmp/ALKB2_HUMAN.txt" );

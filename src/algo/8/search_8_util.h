@@ -22,8 +22,6 @@
 
 #include "search_8.h"
 
-#include "../../util/linked_list.h"
-
 #define CDEPTH_8_BIT 4
 #define CHANNELS_8_BIT_SSE (128 / 8)
 #define CHANNELS_8_BIT_AVX (256 / 8)
@@ -82,10 +80,10 @@ p_s8info search_8_avx2_init( p_search_data sdp );
 void dprofile_fill_8_sse41( __mxxxi * dprofile, uint8_t * dseq_search_window );
 void dprofile_fill_8_avx2( __mxxxi * dprofile, uint8_t * dseq_search_window );
 
-void search_8_sse41_sw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * overflow_list, uint8_t query_id );
-void search_8_sse41_nw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * overflow_list, uint8_t query_id );
+void search_8_sse41_sw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_db_chunk overflow_chunk, uint8_t query_id );
+void search_8_sse41_nw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_db_chunk overflow_chunk, uint8_t query_id );
 
-void search_8_avx2_sw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * overflow_list, uint8_t query_id );
-void search_8_avx2_nw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_node * overflow_list, uint8_t query_id );
+void search_8_avx2_sw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_db_chunk overflow_chunk, uint8_t query_id );
+void search_8_avx2_nw( p_s8info s, p_db_chunk chunk, p_minheap heap, p_db_chunk overflow_chunk, uint8_t query_id );
 
 #endif /* SEARCH_8_UTIL_H_ */

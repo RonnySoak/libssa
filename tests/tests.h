@@ -29,7 +29,6 @@
 void addCPUConfigTC( Suite *s );
 void addUtilTC( Suite *s );
 void addMinHeapTC( Suite *s );
-void addLinkedListTC( Suite *s );
 void addThreadPoolTC( Suite *s );
 void addQueryTC( Suite *s );
 void addMatricesTC( Suite *s );

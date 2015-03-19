@@ -85,17 +85,3 @@ void add_to_minheap( p_minheap heap, uint8_t query_id, p_sdb_sequence db_seq, lo
      */
     minheap_add( heap, &e );
 }
-
-p_db_chunk convert_to_chunk( p_node linked_list ) {
-    p_node node = linked_list;
-
-    size_t size = ll_size( node );
-
-    p_db_chunk chunk = adp_alloc_chunk( size );
-
-    while( node ) {
-        chunk->seq[chunk->fill_pointer++] = ll_pop( &node );
-    }
-
-    return chunk;
-}
