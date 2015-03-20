@@ -170,14 +170,12 @@ static void aligncolumns_first( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mx
     __mxxxi h4, h5, h6, h7, h8, f0, f1, f2, f3, E;
     __mxxxi * vp;
 
-    __mxxxi VECTOR_INT__MIN = _mmxxx_set1_epiYY( I_MIN );
+    __mxxxi VECTOR_INT_MIN = _mmxxx_set1_epiYY( I_MIN );
 
-    __mxxxi h0 = VECTOR_INT__MIN;
-    __mxxxi h1 = VECTOR_INT__MIN;
-    __mxxxi h2 = VECTOR_INT__MIN;
-    __mxxxi h3 = VECTOR_INT__MIN;
+    __mxxxi h0, h1, h2, h3;
 
-    f0 = f1 = f2 = f3 = VECTOR_INT__MIN;
+    h0 = h1 = h2 = h3 = VECTOR_INT_MIN;
+    f0 = f1 = f2 = f3 = VECTOR_INT_MIN;
 
     for( size_t i = 0; i < ql; i++ ) {
         vp = qp[i + 0];
@@ -228,11 +226,9 @@ static void aligncolumns_rest( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mxx
 
     __mxxxi VECTOR_INT_MIN = _mmxxx_set1_epiYY( I_MIN );
 
-    __mxxxi h0 = VECTOR_INT_MIN;
-    __mxxxi h1 = VECTOR_INT_MIN;
-    __mxxxi h2 = VECTOR_INT_MIN;
-    __mxxxi h3 = VECTOR_INT_MIN;
+    __mxxxi h0, h1, h2, h3;
 
+    h0 = h1 = h2 = h3 = VECTOR_INT_MIN;
     f0 = f1 = f2 = f3 = VECTOR_INT_MIN;
 
     for( size_t i = 0; i < ql; i++ ) {
@@ -407,7 +403,7 @@ void search_YY_XXX_sw( p_sYYinfo s, p_db_chunk chunk, p_minheap heap, p_db_chunk
          * since this sequence has to be re-aligned anyway.
          */
         overflow.v = _mmxxx_cmpeq_epiYY( S.v, score_max );
-        no_sequences_ended &= _mmxxx_movemask_epi8( overflow.v );
+        no_sequences_ended |= _mmxxx_movemask_epi8( overflow.v );
 
 #ifdef DBG_COLLECT_MATRIX
         d_idx += 4;

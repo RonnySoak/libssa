@@ -471,7 +471,7 @@ void search_YY_XXX_nw( p_sYYinfo s, p_db_chunk chunk, p_minheap heap, p_db_chunk
          */
         overflow.v = _mmxxx_cmpgt_epiYY( score_min, h_min );
         overflow.v = _mmxxx_or_si( _mmxxx_cmpeq_epiYY( h_max, score_max ), overflow.v );
-        no_sequences_ended &= _mmxxx_movemask_epi8( overflow.v );
+        no_sequences_ended |= _mmxxx_movemask_epi8( overflow.v );
 
 #ifdef DBG_COLLECT_MATRIX
         d_idx += 4;

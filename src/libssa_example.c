@@ -66,16 +66,16 @@ int main( int argc, char**argv ) {
 
     set_threads( 1 );
 
-//    set_output_mode( OUTPUT_SILENT );
+    set_output_mode( OUTPUT_SILENT );
 
     init_score_matrix( MATRIX_BUILDIN, "blosum62" );
     init_gap_penalties( 3, 1 );
     init_db_fasta( "tests/testdata/uniprot_sprot.fasta" );
 
-    p_query query = init_sequence_fasta( READ_FROM_FILE, "tests/testdata/P18080.fasta" );
+    p_query query = init_sequence_fasta( READ_FROM_FILE, "tests/testdata/O74807.fasta" );
     size_t hit_count = 10;
 
-    p_alignment_list alist = do_alignment( "overflow test", &nw_align, query, hit_count, BIT_WIDTH_8 );
+    p_alignment_list alist = do_alignment( "overflow test", &sw_align, query, hit_count, BIT_WIDTH_8 );
     free_alignment( alist );
 
     free_sequence( query );

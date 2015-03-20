@@ -93,6 +93,9 @@ START_TEST (test_AF091148)
 
 START_TEST (test_Rfam_11_0)
     {
+        /*
+         * Test requires the Rfam database version 11
+         */
         size_t hit_count = 10;
         init_constant_scoring( 5, -4 );
 
@@ -116,13 +119,16 @@ START_TEST (test_Rfam_11_0)
 
 START_TEST (test_uniprot_sprot_sw)
     {
+        /*
+         * Test requires the UniprotKB/Swiss-Prot database revision 2015_03
+         */
         size_t hit_count = 10;
         init_score_matrix( MATRIX_BUILDIN, BLOSUM62 );
 
         p_query query = setup_bigger_db_test( "uniprot_sprot.fasta", "O74807.fasta", 4, 2, 8, AMINOACID );
 
-        long exp_al_sw_16[] = { 567, 231811, 144, 57600, 135, 57599, 130, 57596, 129, 57597, 128, 57598, 112, 231810, 104, 535981, 98, 538642, 98, 57604, };
-        long exp_al_sw__8[] = { 567, 231811, 144, 57600, 135, 57599, 130, 57596, 129, 57597, 128, 57598, 112, 231810, 104, 535981, 98, 538642, 98, 57604, };
+        long exp_al_sw_16[] = { 567, 232080, 144, 57785, 135, 57784, 130, 57781, 129, 57782, 128, 57783, 112, 232079, 104, 536355, 98, 539010, 98, 57789, };
+        long exp_al_sw__8[] = { 567, 232080, 144, 57785, 135, 57784, 130, 57781, 129, 57782, 128, 57783, 112, 232079, 104, 536355, 98, 539010, 98, 57789, };
 
         /*
          * We cannot run the test with this DB and 64 bit, since it takes to long, and we run into a timeout
@@ -135,13 +141,16 @@ START_TEST (test_uniprot_sprot_sw)
 
 START_TEST (test_uniprot_sprot_nw)
     {
+        /*
+         * Test requires the UniprotKB/Swiss-Prot database revision 2015_03
+         */
         size_t hit_count = 10;
         init_score_matrix( MATRIX_BUILDIN, BLOSUM62 );
 
         p_query query = setup_bigger_db_test( "uniprot_sprot.fasta", "O74807.fasta", 4, 2, 8, AMINOACID );
 
-        long exp_al_nw_16[] = { 567, 231811, 101, 57600, 93, 57596, 82, 57598, 77, 57599, 77, 57597, 69, 231810, 53, 117276, 51, 231812, 49, 186429, };
-        long exp_al_nw__8[] = { 567, 231811, 101, 57600, 93, 57596, 82, 57598, 77, 57599, 77, 57597, 69, 231810, 53, 117276, 51, 231812, 49, 186429, };
+        long exp_al_nw_16[] = { 567, 232080, 101, 57785, 93, 57781, 82, 57783, 77, 57784, 77, 57782, 69, 232079, 53, 117510, 51, 232081, 49, 186660, };
+        long exp_al_nw__8[] = { 567, 232080, 101, 57785, 93, 57781, 82, 57783, 77, 57784, 77, 57782, 69, 232079, 53, 117510, 51, 232081, 49, 186660, };
 
         /*
          * We cannot run the test with this DB and 64 bit, since it takes to long, and we run into a timeout
