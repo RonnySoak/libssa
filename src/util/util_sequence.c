@@ -183,7 +183,6 @@ static char d_translate[16 * 16 * 16];
 static void init_translate_table( int tableno, char * table ) {
     char remap[] = { 2, 1, 3, 0 };
 
-    // TODO understand this !!!!
     for( int a = 0; a < 16; a++ ) {
         for( int b = 0; b < 16; b++ ) {
             for( int c = 0; c < 16; c++ ) {

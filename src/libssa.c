@@ -32,8 +32,8 @@
 // #############################################################################
 // Alignment data
 // ##################
-uint8_t gapO = 0;
-uint8_t gapE = 0;
+int8_t gapO = 0;
+int8_t gapE = 0;
 
 // #############################################################################
 // Technical initialisation
@@ -95,6 +95,13 @@ void init_score_matrix( int mode, const char* matrix ) {
  * @param  gapE  penalty for extending a gap
  */
 void init_gap_penalties( const uint8_t gap_open, const uint8_t gap_extend ) {
+    if( gap_open > 127 ) {
+        ffatal( "Gap open opening costs out of range (> 127): %d\n", gap_open );
+    }
+    if( gap_extend > 127 ) {
+        ffatal( "Gap open extension costs out of range (> 127): %d\n", gap_extend );
+    }
+
     gapO = gap_open;
     gapE = gap_extend;
 }
@@ -192,7 +199,8 @@ static void test_configuration() {
     test_cpu_features();
 
     if( !gapO && !gapE ) {
-        ffatal( "Gap opening and gap extension cost set to zero. Possible error." );
+        // TODO add warning kind for messages
+        outf( "WARNING: Gap opening and gap extension cost set to zero. Possible error." );
     }
     if( !score_matrix_64 ) {
         ffatal( "Scoring not initialized." );

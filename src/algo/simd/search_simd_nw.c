@@ -374,14 +374,14 @@ void search_YY_XXX_nw( p_sYYinfo s, p_db_chunk chunk, p_minheap heap, p_db_chunk
     __mxxxi h_min;
     __mxxxi h_max;
 
-    int no_sequences_ended = 0;
+    int change_sequences = 1;
     while( 1 ) {
-        if( no_sequences_ended ) {
+        if( !change_sequences ) {
             /* fill all channels with symbols from the database sequences */
 
             for( int c = 0; c < CHANNELS; c++ ) {
                 if( d_seq_ptr[c] )
-                    no_sequences_ended &= move_db_sequence_window_YY( c, d_begin, d_end, dseq_search_window );
+                    change_sequences |= move_db_sequence_window_YY( c, d_begin, d_end, dseq_search_window );
             }
 
             dprofile_fill_YY_xxx( s->dprofile, dseq_search_window );
@@ -392,14 +392,14 @@ void search_YY_XXX_nw( p_sYYinfo s, p_db_chunk chunk, p_minheap heap, p_db_chunk
         else {
             /* One or more sequences ended in the previous block.
              We have to switch over to a new sequence           */
-            no_sequences_ended = 1;
+            change_sequences = 0;
 
             M.v = _mmxxx_setzero_si();
             for( int c = 0; c < CHANNELS; c++ ) {
                 if( !overflow.a[c] && (d_begin[c] < d_end[c]) ) {
                     /* the sequence in this channel is not finished yet */
 
-                    no_sequences_ended &= move_db_sequence_window_YY( c, d_begin, d_end, dseq_search_window );
+                    change_sequences |= move_db_sequence_window_YY( c, d_begin, d_end, dseq_search_window );
                 }
                 else {
                     /* sequence in channel c ended. change of sequence */
@@ -441,7 +441,7 @@ void search_YY_XXX_nw( p_sYYinfo s, p_db_chunk chunk, p_minheap heap, p_db_chunk
                         ((intYY_t*) &F2)[c] = -s->penalty_gap_open - 3 * s->penalty_gap_extension;
                         ((intYY_t*) &F3)[c] = -s->penalty_gap_open - 4 * s->penalty_gap_extension;
 
-                        no_sequences_ended &= move_db_sequence_window_YY( c, d_begin, d_end, dseq_search_window );
+                        change_sequences |= move_db_sequence_window_YY( c, d_begin, d_end, dseq_search_window );
                     }
                     else {
                         /* no more sequences, empty channel */
@@ -471,7 +471,7 @@ void search_YY_XXX_nw( p_sYYinfo s, p_db_chunk chunk, p_minheap heap, p_db_chunk
          */
         overflow.v = _mmxxx_cmpgt_epiYY( score_min, h_min );
         overflow.v = _mmxxx_or_si( _mmxxx_cmpeq_epiYY( h_max, score_max ), overflow.v );
-        no_sequences_ended |= _mmxxx_movemask_epi8( overflow.v );
+        change_sequences |= _mmxxx_movemask_epi8( overflow.v );
 
 #ifdef DBG_COLLECT_MATRIX
         d_idx += 4;

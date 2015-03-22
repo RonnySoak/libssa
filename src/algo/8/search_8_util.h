@@ -49,8 +49,8 @@ struct s8info {
 
     size_t maxqlen;
 
-    uint8_t penalty_gap_open;
-    uint8_t penalty_gap_extension;
+    int8_t penalty_gap_open;
+    int8_t penalty_gap_extension;
 
     uint8_t q_count;
     p_s8query queries[6];
@@ -70,8 +70,8 @@ static inline uint8_t move_db_sequence_window_8( uint8_t c, uint8_t * d_begin[CH
     }
 
     if( d_begin[c] == d_end[c] )
-        return 0;
-    return 1;
+        return 1;
+    return 0;
 }
 
 p_s8info search_8_sse41_init( p_search_data sdp );

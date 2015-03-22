@@ -24,9 +24,11 @@
 Suite* libssa_suite( void ) {
     Suite *s = suite_create( "libssa" );
 
+    /*
+     * All test should run in one thread, except some threading test cases.
+     */
     set_threads( 1 );
 
-    /* Core test case */
     addCPUConfigTC( s );
     addUtilTC( s );
     addMinHeapTC( s );
@@ -34,6 +36,7 @@ Suite* libssa_suite( void ) {
     addUtilSequenceTC( s );
     addMatricesTC( s );
     addQueryTC( s );
+    addLibSSAExternDBTC( s );
     addDBAdapterTC( s );
     addCigarTC( s );
     addAlignTC( s );
@@ -59,6 +62,9 @@ Suite* libssa_suite( void ) {
 }
 
 int main( void ) {
+    printf( "Using Check unit testing framework version %d.%d.%d\n", CHECK_MAJOR_VERSION, CHECK_MINOR_VERSION,
+            CHECK_MICRO_VERSION );
+
     int number_failed;
     Suite *s = libssa_suite();
     SRunner *sr = srunner_create( s );

@@ -17,8 +17,8 @@
  Contact: Jakob Frielingsdorf <jfrielingsdorf@gmail.com>
  */
 
-#ifndef CHECK_LIBORSA_H_
-#define CHECK_LIBORSA_H_
+#ifndef CHECK_LIBSSA_H_
+#define CHECK_LIBSSA_H_
 
 #include <check.h>
 #include <stdlib.h>
@@ -33,6 +33,7 @@ void addThreadPoolTC( Suite *s );
 void addQueryTC( Suite *s );
 void addMatricesTC( Suite *s );
 void addUtilSequenceTC( Suite *s );
+void addLibSSAExternDBTC( Suite *s );
 void addDBAdapterTC( Suite *s );
 void addCigarTC( Suite *s );
 void addAlignTC( Suite *s );
@@ -60,5 +61,5 @@ void print_sequence( char* desc, int8_t* seq, size_t len );
 void print_sequence2( char* desc, sequence_t seq );
 char* concat( char *s1, char *s2 );
 
-#endif /* CHECK_LIBORSA_H_ */
+#endif /* CHECK_LIBSSA_H_ */
 

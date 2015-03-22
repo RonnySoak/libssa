@@ -50,8 +50,8 @@ struct s16info {
 
     size_t maxqlen;
 
-    uint16_t penalty_gap_open;
-    uint16_t penalty_gap_extension;
+    int16_t penalty_gap_open;
+    int16_t penalty_gap_extension;
 
     uint8_t q_count;
     p_s16query queries[6];
@@ -71,8 +71,8 @@ static inline uint8_t move_db_sequence_window_16( uint8_t c, uint8_t * d_begin[C
     }
 
     if( d_begin[c] == d_end[c] )
-        return 0;
-    return 1;
+        return 1;
+    return 0;
 }
 
 p_s16info search_16_sse2_init( p_search_data sdp );

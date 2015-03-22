@@ -213,14 +213,12 @@ void dbg_init_aligned_sequence_collecting( char * desc, size_t size ) {
 
 void dbg_add_aligned_sequence( size_t db_id, uint8_t query_id, long score ) {
     if( aligned_sequence_collection_desc ) {
-        elem_t * e = xmalloc( sizeof(elem_t) );
-        e->query_id = query_id;
-        e->db_id = db_id;
-        e->score = score;
+        elem_t e;
+        e.query_id = query_id;
+        e.db_id = db_id;
+        e.score = score;
 
-        minheap_add( aligned_sequences, e );
-
-        free( e );
+        minheap_add( aligned_sequences, &e );
     }
 }
 

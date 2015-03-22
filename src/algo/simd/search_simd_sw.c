@@ -79,6 +79,7 @@ typedef int8_t intYY_t;
 #define search_YY_XXX_sw search_8_avx2_sw
 #define dprofile_fill_YY_xxx dprofile_fill_8_avx2
 #define dbg_add_matrix_data_xxx_YY_sw dbg_add_matrix_data_256_8_sw
+#define dbg_mmxxx_print_YYs dbg_mm256_print_8s
 
 #else // SSE4.1
 
@@ -91,6 +92,7 @@ typedef int8_t intYY_t;
 #define search_YY_XXX_sw search_8_sse41_sw
 #define dprofile_fill_YY_xxx dprofile_fill_8_sse41
 #define dbg_add_matrix_data_xxx_YY_sw dbg_add_matrix_data_128_8_sw
+#define dbg_mmxxx_print_YYs dbg_mm_print_8s
 
 #endif
 
@@ -120,6 +122,7 @@ typedef int16_t intYY_t;
 #define search_YY_XXX_sw search_16_avx2_sw
 #define dprofile_fill_YY_xxx dprofile_fill_16_avx2
 #define dbg_add_matrix_data_xxx_YY_sw dbg_add_matrix_data_256_16_sw
+#define dbg_mmxxx_print_YYs dbg_mm256_print_16s
 
 #else // SSE2
 
@@ -132,6 +135,7 @@ typedef int16_t intYY_t;
 #define search_YY_XXX_sw search_16_sse2_sw
 #define dprofile_fill_YY_xxx dprofile_fill_16_sse2
 #define dbg_add_matrix_data_xxx_YY_sw dbg_add_matrix_data_128_16_sw
+#define dbg_mmxxx_print_YYs dbg_mm_print_16s
 
 #endif
 
@@ -165,7 +169,7 @@ static int d_idx;
  E = _mmxxx_subs_epiYY(E, R);         /* subtract gap extend */                \
  E = _mmxxx_max_epiYY(E, H);          /* test for gap extension, or opening */
 
-static void aligncolumns_first( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mxxxi gap_open_extend, __mxxxi gap_extend,
+static void aligncolumns_first( __mxxxi * S, __mxxxi * hep, __mxxxi ** qp, __mxxxi gap_open_extend, __mxxxi gap_extend,
         __mxxxi M, size_t ql ) {
     __mxxxi h4, h5, h6, h7, h8, f0, f1, f2, f3, E;
     __mxxxi * vp;
@@ -197,10 +201,10 @@ static void aligncolumns_first( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mx
         E = _mmxxx_adds_epiYY( E, M );
         E = _mmxxx_adds_epiYY( E, M );
 
-        ALIGNCORE( h0, h5, E, f0, vp[0], gap_open_extend, gap_extend, *Sm );
-        ALIGNCORE( h1, h6, E, f1, vp[1], gap_open_extend, gap_extend, *Sm );
-        ALIGNCORE( h2, h7, E, f2, vp[2], gap_open_extend, gap_extend, *Sm );
-        ALIGNCORE( h3, h8, E, f3, vp[3], gap_open_extend, gap_extend, *Sm );
+        ALIGNCORE( h0, h5, E, f0, vp[0], gap_open_extend, gap_extend, *S );
+        ALIGNCORE( h1, h6, E, f1, vp[1], gap_open_extend, gap_extend, *S );
+        ALIGNCORE( h2, h7, E, f2, vp[2], gap_open_extend, gap_extend, *S );
+        ALIGNCORE( h3, h8, E, f3, vp[3], gap_open_extend, gap_extend, *S );
 
 #ifdef DBG_COLLECT_MATRIX
         dbg_add_matrix_data_xxx_YY_sw( i, d_idx + 0, h5 );
@@ -219,7 +223,7 @@ static void aligncolumns_first( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mx
     }
 }
 
-static void aligncolumns_rest( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mxxxi gap_open_extend, __mxxxi gap_extend,
+static void aligncolumns_rest( __mxxxi * S, __mxxxi * hep, __mxxxi ** qp, __mxxxi gap_open_extend, __mxxxi gap_extend,
         size_t ql ) {
     __mxxxi h4, h5, h6, h7, h8, f0, f1, f2, f3, E;
     __mxxxi * vp;
@@ -238,10 +242,10 @@ static void aligncolumns_rest( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mxx
 
         E = hep[2 * i + 1];
 
-        ALIGNCORE( h0, E, h5, f0, vp[0], gap_open_extend, gap_extend, *Sm );
-        ALIGNCORE( h1, E, h6, f1, vp[1], gap_open_extend, gap_extend, *Sm );
-        ALIGNCORE( h2, E, h7, f2, vp[2], gap_open_extend, gap_extend, *Sm );
-        ALIGNCORE( h3, E, h8, f3, vp[3], gap_open_extend, gap_extend, *Sm );
+        ALIGNCORE( h0, h5, E, f0, vp[0], gap_open_extend, gap_extend, *S );
+        ALIGNCORE( h1, h6, E, f1, vp[1], gap_open_extend, gap_extend, *S );
+        ALIGNCORE( h2, h7, E, f2, vp[2], gap_open_extend, gap_extend, *S );
+        ALIGNCORE( h3, h8, E, f3, vp[3], gap_open_extend, gap_extend, *S );
 
 #ifdef DBG_COLLECT_MATRIX
         dbg_add_matrix_data_xxx_YY_sw( i, d_idx + 0, h5 );
@@ -318,14 +322,14 @@ void search_YY_XXX_sw( p_sYYinfo s, p_db_chunk chunk, p_minheap heap, p_db_chunk
 
     __mxxxi score_max = _mmxxx_set1_epiYY( I_MAX );
 
-    int no_sequences_ended = 0;
+    int change_sequences = 1;
     while( 1 ) {
-        if( no_sequences_ended ) {
+        if( !change_sequences ) {
             /* fill all channels with symbols from the database sequences */
 
             for( int c = 0; c < CHANNELS; c++ ) {
                 if( d_seq_ptr[c] )
-                    no_sequences_ended &= move_db_sequence_window_YY( c, d_begin, d_end, dseq_search_window );
+                    change_sequences |= move_db_sequence_window_YY( c, d_begin, d_end, dseq_search_window );
             }
 
             dprofile_fill_YY_xxx( s->dprofile, dseq_search_window );
@@ -335,14 +339,15 @@ void search_YY_XXX_sw( p_sYYinfo s, p_db_chunk chunk, p_minheap heap, p_db_chunk
         else {
             /* One or more sequences ended in the previous block.
              We have to switch over to a new sequence           */
-            no_sequences_ended = 1;
+            change_sequences = 0;
 
             M.v = _mmxxx_setzero_si();
             for( int c = 0; c < CHANNELS; c++ ) {
+
                 if( !overflow.a[c] && (d_begin[c] < d_end[c]) ) {
                     /* the sequence in this channel is not finished yet */
 
-                    no_sequences_ended &= move_db_sequence_window_YY( c, d_begin, d_end, dseq_search_window );
+                    change_sequences |= move_db_sequence_window_YY( c, d_begin, d_end, dseq_search_window );
                 }
                 else {
                     /* sequence in channel c ended. change of sequence */
@@ -352,7 +357,7 @@ void search_YY_XXX_sw( p_sYYinfo s, p_db_chunk chunk, p_minheap heap, p_db_chunk
                     if( d_seq_ptr[c] ) {
                         /* save score */
 
-                        long score = S.a[c] + -I_MIN; // convert score back to range from 0 - 65535
+                        long score = S.a[c] + -I_MIN; // convert score back to range from 0 - I_MAX
 
                         if( !overflow.a[c] && (score < UI_MAX) ) {
                             add_to_minheap( heap, q_id, d_seq_ptr[c], score );
@@ -375,7 +380,7 @@ void search_YY_XXX_sw( p_sYYinfo s, p_db_chunk chunk, p_minheap heap, p_db_chunk
                         d_begin[c] = (unsigned char*) d_seq_ptr[c]->seq.seq;
                         d_end[c] = (unsigned char*) d_seq_ptr[c]->seq.seq + d_seq_ptr[c]->seq.len;
 
-                        no_sequences_ended &= move_db_sequence_window_YY( c, d_begin, d_end, dseq_search_window );
+                        change_sequences |= move_db_sequence_window_YY( c, d_begin, d_end, dseq_search_window );
                     }
                     else {
                         /* no more sequences, empty channel */
@@ -403,7 +408,7 @@ void search_YY_XXX_sw( p_sYYinfo s, p_db_chunk chunk, p_minheap heap, p_db_chunk
          * since this sequence has to be re-aligned anyway.
          */
         overflow.v = _mmxxx_cmpeq_epiYY( S.v, score_max );
-        no_sequences_ended |= _mmxxx_movemask_epi8( overflow.v );
+        change_sequences |= _mmxxx_movemask_epi8( overflow.v );
 
 #ifdef DBG_COLLECT_MATRIX
         d_idx += 4;

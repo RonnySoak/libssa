@@ -30,10 +30,10 @@
 #include "../../../src/algo/searcher.h"
 #include "../../../src/db_adapter.h"
 
-static p_search_result setup_searcher_8_test( int symbols, char * query_string, char * db_file, size_t hit_count ) {
+static p_search_result setup_searcher_8_test( int match, int symbols, char * query_string, char * db_file, size_t hit_count ) {
     set_max_compute_capability( COMPUTE_ON_SSE41 );
 
-    mat_init_constant_scoring( 1, -1 );
+    mat_init_constant_scoring( match, -1 );
     init_symbol_translation( symbols, FORWARD_STRAND, 3, 3 );
 
     p_query query = query_read_from_string( "short query", query_string );
@@ -66,7 +66,7 @@ static void exit_searcher_8_test( p_search_result res ) {
 
 START_TEST (test_sw_simd_simple)
     {
-        p_search_result res = setup_searcher_8_test( NUCLEOTIDE, "AT", "short_db.fas", 1 );
+        p_search_result res = setup_searcher_8_test( 1, NUCLEOTIDE, "AT", "short_db.fas", 1 );
 
         p_minheap heap = res->heap;
 
@@ -92,7 +92,7 @@ START_TEST (test_sw_simd_simple_2)
 
          Cigar: 4M - ATGC
          */
-        p_search_result res = setup_searcher_8_test( NUCLEOTIDE, "ATGCAAA", "tmp.fas", 1 );
+        p_search_result res = setup_searcher_8_test( 1, NUCLEOTIDE, "ATGCAAA", "tmp.fas", 1 );
 
         p_minheap heap = res->heap;
 
@@ -103,27 +103,18 @@ START_TEST (test_sw_simd_simple_2)
 
 START_TEST (test_sw_simd_overflow)
     {
-        p_search_result res =
-                setup_searcher_8_test( AMINOACID,
-                        "MVQRWLYSTNAKDIAVLYFMLAIFSGMAGTAMSLIIRLELAAPGSQYLHGNSQLFNVLVVGHAVLMIFFLVMPALIGGFG\
-    NYLLPLMIGATDTAFPRINNIAFWVLPMGLVCLVTSTLVESGAGTGWTVYPPLSSIQAHSGPSVDLAIFALHLTSISSLL\
-    GAINFIVTTLNMRTNGMTMHKLPLFVWSIFITAFLLLLSLPVLSAGITMLLLDRNFNTSFFEVSGGGDPILYEHLFWFFG\
-    HPEVYILIIPGFGIISHVVSTYSKKPVFGEISMVYAMASIGLLGFLVWSHHMYIVGLDADTRAYFTSATMIIAIPTGIKI\
-    FSWLATIHGGSIRLATPMLYAIAFLFLFTMGGLTGVALANASLDVAFHDTYYVVGHFHYVLSMGAIFSLFAGYYYWSPQI\
-    LGLNYNEKLAQIQFWLIFIGANVIFFPMHFLGINGMPRRIPDYPDAFAGWNYVASIGSFIATLSLFLFIYILYDQLVNGL\
-    NNKVNNKSVIYNKAPDFVESNTIFNLNTVKSSSIEFLLTSPPAVHSFNTPAVQS",
-                        "NP_009305.1.fas", 1 );
+        p_search_result res = setup_searcher_8_test( 30, AMINOACID, "MVQRWLYSTN", "short_AA.fas", 1 );
 
         p_minheap heap = res->heap;
 
-        ck_assert_int_eq( 534, heap->array[0].score );
+        ck_assert_int_eq( 300, heap->array[0].score );
 
         exit_searcher_8_test( res );
     }END_TEST
 
 START_TEST (test_sw_simd_more_sequences)
     {
-        p_search_result res = setup_searcher_8_test( NUCLEOTIDE, "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA",
+        p_search_result res = setup_searcher_8_test( 1, NUCLEOTIDE, "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA",
                 "test.fas", 5 );
 
         ck_assert_int_eq( 4, res->heap->array[0].db_id );

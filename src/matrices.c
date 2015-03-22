@@ -413,9 +413,6 @@ static void read_line( char line[LINE_MAX], int* symbols, char* order ) {
             char b = order[i];
 
             if( (a >= 0) && (b >= 0) && (a < SCORE_MATRIX_DIM) && (b < SCORE_MATRIX_DIM) ) {
-                /* a line is 32 elements wide and the first element of the first
-                 * symbol (aa or nt) starts at index 33.
-                 */
                 SCORE_MATRIX_64(a, b) = sc;
             }
 

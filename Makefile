@@ -36,17 +36,15 @@ DEBUG_OUTPUT_DIR = debug_output
 MPI_COMPILE := `mpicxx --showme:compile`
 MPI_LINK := `mpicxx --showme:link`
 
-# add "-fprofile-arcs -ftest-coverage" to COMMON for code coverage
-
 #### TODO remove from PROD code ####
 #DEBUG_LIBS := -lefence
-#DEBUG_FLAGS := -g# --coverage
+DEBUG_FLAGS := -g# --coverage
 
 LIBS := -pthread -lm -lsdb $(DEBUG_LIBS)
 TEST_LIBS := -lcheck -lrt
 
 # GNU options
-CXX := gcc #vtcc -finstrument-functions-exclude-file-list=include
+CXX := gcc#vtcc -finstrument-functions-exclude-file-list=include
 	
 BASE_FLAGS := -Wall -O3 -std=c99 $(DEBUG_FLAGS)
 
@@ -82,7 +80,7 @@ libssa_check : init libssa $(TESTS)
 	
 libssa_example : init libssa ./src/libssa_example.o
 	@echo 'Building target: $@'
-	$(CXX) $(BASE_FLAGS) -march=native -o $@ ./src/libssa_example.c -L. -lssa $(LIBS)
+	$(CXX) $(BASE_FLAGS) -march=native -o $@ ./src/libssa_example.o -L. -lssa $(LIBS)
 	@echo 'Finished building target: $@'
 
 # clean created files
