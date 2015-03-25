@@ -57,7 +57,6 @@ void search_8_init_algo( int search_type ) {
     else {
         ffatal( "\nunknown search type: %d\n\n", search_type );
     }
-
 }
 
 p_s8info search_8_init( p_search_data sdp ) {
@@ -68,7 +67,6 @@ p_s8info search_8_init( p_search_data sdp ) {
 }
 
 void search_8_exit( p_s8info s ) {
-    /* free mem for dprofile, hearray, dir, qtable */
     if( s->hearray )
         free( s->hearray );
     if( s->dprofile )
@@ -93,9 +91,7 @@ void search_8_exit( p_s8info s ) {
     free( s );
 }
 
-static size_t search_8_chunk( p_s8info s8info, p_minheap heap, p_db_chunk chunk, p_search_data sdp ) {
-    size_t overflown_seq_count = 0;
-
+static void search_8_chunk( p_s8info s8info, p_minheap heap, p_db_chunk chunk, p_search_data sdp, p_search_result res ) {
     p_db_chunk overflow_chunk = adp_alloc_chunk( chunk->size * sdp->q_count );
 
     for( uint8_t q_id = 0; q_id < sdp->q_count; q_id++ ) {
@@ -119,14 +115,12 @@ static size_t search_8_chunk( p_s8info s8info, p_minheap heap, p_db_chunk chunk,
             s8info->s16info = search_16_init( sdp );
         }
 
-        overflown_seq_count = overflow_chunk->fill_pointer;
+        res->overflow_8_bit_count += overflow_chunk->fill_pointer;
 
-        search_16_chunk( s8info->s16info, heap, overflow_chunk, sdp );
+        res->overflow_16_bit_count += search_16_chunk( s8info->s16info, heap, overflow_chunk, sdp );
     }
 
     adp_free_chunk_no_sequences( overflow_chunk );
-
-    return overflown_seq_count;
 }
 
 void search_8( p_db_chunk chunk, p_search_data sdp, p_search_result res ) {
@@ -138,12 +132,14 @@ void search_8( p_db_chunk chunk, p_search_data sdp, p_search_result res ) {
 
     adp_next_chunk( chunk );
 
+    res->overflow_8_bit_count = 0;
+    res->overflow_16_bit_count = 0;
+
     while( chunk->fill_pointer ) {
-        size_t overflown_seq_count = search_8_chunk( s8info, res->heap, chunk, sdp );
+        search_8_chunk( s8info, res->heap, chunk, sdp, res );
 
         res->chunk_count++;
         res->seq_count += chunk->fill_pointer;
-        res->overflow_8_bit_count += overflown_seq_count;
 
         adp_next_chunk( chunk );
     }

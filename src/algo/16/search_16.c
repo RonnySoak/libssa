@@ -68,7 +68,6 @@ p_s16info search_16_init( p_search_data sdp ) {
 }
 
 void search_16_exit( p_s16info s ) {
-    /* free mem for dprofile, hearray, dir, qtable */
     if( s->hearray )
         free( s->hearray );
     if( s->hearray_64 )
