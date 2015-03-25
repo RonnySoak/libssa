@@ -56,7 +56,7 @@ void search_64_chunk( p_minheap heap, p_db_chunk chunk, p_search_data sdp, int64
 }
 
 int64_t* search_64_alloc_hearray( p_search_data sdp ) {
-    return xmalloc( sdp->maxqlen * 32 );
+    return xmalloc( 2 * sizeof(int64_t) * sdp->maxqlen );
 }
 
 void search_64( p_db_chunk chunk, p_search_data sdp, p_search_result res ) {

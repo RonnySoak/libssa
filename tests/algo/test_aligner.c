@@ -48,7 +48,7 @@ static p_query setup_aligner_test( char * query_string, char * db_file, int chun
     init_symbol_translation( NUCLEOTIDE, FORWARD_STRAND, 3, 3 );
     mat_init_constant_scoring( 1, -1 );
 
-    p_query query = query_read_from_string( "short query", query_string );
+    p_query query = query_read_from_string( query_string );
     ssa_db_init( concat( "./tests/testdata/", db_file ) );
 
     adp_init( chunk_size );

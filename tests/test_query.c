@@ -51,18 +51,124 @@ static void check_query_mapped( int reversed, const char map[256], size_t length
     }
 }
 
+START_TEST (test_read_from_string)
+    {
+        query_strands = COMPLEMENTARY_STRAND;
+        symtype = NUCLEOTIDE;
+
+        char * sequence = "AATTTCGGCTATCTGCTAGCTAGCCTAGCT";
+
+        p_query query = query_read_from_string( sequence );
+
+        check_query_mapped( 0, map_ncbi_nt16, 30, sequence, query->nt[0] );
+        check_query_mapped( 1, map_ncbi_nt16, 30, sequence, query->nt[1] );
+
+        // as defined for strands == 2
+        ck_assert_str_eq( query->nt[1].seq, get_reverse_complement( query->nt[0] ) );
+
+        ck_assert_ptr_eq( NULL, query->aa[0].seq );
+        ck_assert_ptr_eq( NULL, query->aa[1].seq );
+        ck_assert_ptr_eq( NULL, query->aa[2].seq );
+        ck_assert_ptr_eq( NULL, query->aa[3].seq );
+        ck_assert_ptr_eq( NULL, query->aa[4].seq );
+        ck_assert_ptr_eq( NULL, query->aa[5].seq );
+
+        ck_assert_str_eq( sym_ncbi_nt16, query->sym );
+        ck_assert_str_eq( map_ncbi_nt16, query->map );
+
+        query_free( query );
+    }END_TEST
+
+START_TEST (test_all_allowed_symbols)
+    {
+        query_strands = BOTH_STRANDS;
+        symtype = TRANS_QUERY;
+
+        char * sequence = "-acmgrsvtwyhkdbn";
+        char * expected = "-acmgrsvtwyhkdbn";
+
+        p_query query = query_read_from_string( sequence );
+        check_query_mapped( 0, map_ncbi_nt16, 16, expected, query->nt[0] );
+        check_query_mapped( 1, map_ncbi_nt16, 16, expected, query->nt[1] );
+
+        // as defined for strands == 2
+        ck_assert_str_eq( query->nt[1].seq, get_reverse_complement( query->nt[0] ) );
+
+        ck_assert_ptr_ne( NULL, query->aa[0].seq );
+        ck_assert_ptr_ne( NULL, query->aa[1].seq );
+        ck_assert_ptr_ne( NULL, query->aa[2].seq );
+        ck_assert_ptr_ne( NULL, query->aa[3].seq );
+        ck_assert_ptr_ne( NULL, query->aa[4].seq );
+        ck_assert_ptr_ne( NULL, query->aa[5].seq );
+
+        sequence = "-ACMGRSVTWYHKDBN";
+        expected = "-ACMGRSVTWYHKDBN";
+        query_free( query );
+
+        query = query_read_from_string( sequence );
+        check_query_mapped( 0, map_ncbi_nt16, 16, expected, query->nt[0] );
+        check_query_mapped( 1, map_ncbi_nt16, 16, expected, query->nt[1] );
+
+        // as defined for strands == 2
+        ck_assert_str_eq( query->nt[1].seq, get_reverse_complement( query->nt[0] ) );
+
+        ck_assert_ptr_ne( NULL, query->aa[0].seq );
+        ck_assert_ptr_ne( NULL, query->aa[1].seq );
+        ck_assert_ptr_ne( NULL, query->aa[2].seq );
+        ck_assert_ptr_ne( NULL, query->aa[3].seq );
+        ck_assert_ptr_ne( NULL, query->aa[4].seq );
+        ck_assert_ptr_ne( NULL, query->aa[5].seq );
+
+        query_strands = BOTH_STRANDS;
+        symtype = AMINOACID;
+
+        sequence = "-ABCDEFGHIKLMNPQRSTVWXYZU*OJ";
+        expected = "ABCDEFGHIKLMNPQRSTVWXYZU*OJ";
+        query_free( query );
+
+        query = query_read_from_string( sequence );
+        ck_assert_ptr_eq( NULL, query->nt[0].seq );
+        ck_assert_ptr_eq( NULL, query->nt[1].seq );
+
+        check_query_mapped( 0, map_ncbi_aa, 27, expected, query->aa[0] );
+        ck_assert_ptr_eq( NULL, query->aa[1].seq );
+        ck_assert_ptr_eq( NULL, query->aa[2].seq );
+        ck_assert_ptr_eq( NULL, query->aa[3].seq );
+        ck_assert_ptr_eq( NULL, query->aa[4].seq );
+        ck_assert_ptr_eq( NULL, query->aa[5].seq );
+
+        query_free( query );
+    }END_TEST
+
+START_TEST (test_not_allowed_symbols)
+    {
+        query_strands = FORWARD_STRAND;
+        symtype = NUCLEOTIDE;
+
+        char * sequence = "BEX234";
+
+        p_query query = query_read_from_string( sequence );
+        check_query_mapped( 0, map_ncbi_nt16, 1, "B", query->nt[0] );
+
+        ck_assert_ptr_eq( NULL, query->nt[1].seq );
+
+        ck_assert_ptr_eq( NULL, query->aa[0].seq );
+        ck_assert_ptr_eq( NULL, query->aa[1].seq );
+        ck_assert_ptr_eq( NULL, query->aa[2].seq );
+        ck_assert_ptr_eq( NULL, query->aa[3].seq );
+        ck_assert_ptr_eq( NULL, query->aa[4].seq );
+        ck_assert_ptr_eq( NULL, query->aa[5].seq );
+
+        query_free( query );
+    }END_TEST
+
 START_TEST (test_read_from_file_sym0)
     {
         query_strands = COMPLEMENTARY_STRAND;
         symtype = AMINOACID;
 
-        char * sequence = "MVQRWLYSTNAKDIAVLYFMLAIFSGMAGTAMSLIIRLELAAPGSQYLHGNSQLFNVLVVGHAVLMIFFLVMPALIGGFG\
-NYLLPLMIGATDTAFPRINNIAFWVLPMGLVCLVTSTLVESGAGTGWTVYPPLSSIQAHSGPSVDLAIFALHLTSISSLL\
-GAINFIVTTLNMRTNGMTMHKLPLFVWSIFITAFLLLLSLPVLSAGITMLLLDRNFNTSFFEVSGGGDPILYEHLFWFFG\
-HPEVYILIIPGFGIISHVVSTYSKKPVFGEISMVYAMASIGLLGFLVWSHHMYIVGLDADTRAYFTSATMIIAIPTGIKI\
-FSWLATIHGGSIRLATPMLYAIAFLFLFTMGGLTGVALANASLDVAFHDTYYVVGHFHYVLSMGAIFSLFAGYYYWSPQI\
-LGLNYNEKLAQIQFWLIFIGANVIFFPMHFLGINGMPRRIPDYPDAFAGWNYVASIGSFIATLSLFLFIYILYDQLVNGL\
-NNKVNNKSVIYNKAPDFVESNTIFNLNTVKSSSIEFLLTSPPAVHSFNTPAVQS";
+        char * sequence =
+                "MVQRWLYSTNAKDIAVLYFMLAIFSGMAGTAMSLIIRLELAAPGSQYLHGNSQLFNVLVVGHAVLMIFFLVMPALIGGFGNYLLPLMIGATDTAFPRINNIAFWVLPMGLVCLVTSTLVESGAGTGWTVYPPLSSIQAHSGPSVDLAIFALHLTSISSLLGAINFIVTTLNMRTNGMTMHKLPLFVWSIFITAFLLLLSLPVLSAGITMLLLDRNFNTSFFEVSGGGDPILYEHLFWFFGHPEVYILIIPGFGIISHVVSTYSKKPVFGEISMVYAMASIGLLGFLVWSHHMYIVGLDADTRAYFTSATMIIAIPTGIKIFSWLATIHGGSIRLATPMLYAIAFLFLFTMGGLTGVALANASLDVAFHDTYYVVGHFHYVLSMGAIFSLFAGYYYWSPQILGLNYNEKLAQIQFWLIFIGANVIFFPMHFLGINGMPRRIPDYPDAFAGWNYVASIGSFIATLSLFLFIYILYDQLVNGLNNKVNNKSVIYNKAPDFVESNTIFNLNTVKSSSIEFLLTSPPAVHSFNTPAVQS";
 
         p_query query = query_read_from_file( "./tests/testdata/NP_009305.1.fas" );
         ck_assert_ptr_eq( NULL, query->nt[0].seq );
@@ -84,120 +190,6 @@ NNKVNNKSVIYNKAPDFVESNTIFNLNTVKSSSIEFLLTSPPAVHSFNTPAVQS";
 
         ck_assert_str_eq( sym_ncbi_aa, query->sym );
         ck_assert_str_eq( map_ncbi_aa, query->map );
-
-        query_free( query );
-    }END_TEST
-
-START_TEST (test_read_from_string)
-    {
-        query_strands = COMPLEMENTARY_STRAND;
-        symtype = NUCLEOTIDE;
-
-        char * sequence = "AATTTCGGCTATCTGCTAGCTAGCCTAGCT";
-
-        p_query query = query_read_from_string( "some header", sequence );
-
-        check_query_mapped( 0, map_ncbi_nt16, 30, sequence, query->nt[0] );
-        check_query_mapped( 1, map_ncbi_nt16, 30, sequence, query->nt[1] );
-
-        // as defined for strands == 2
-        ck_assert_str_eq( query->nt[1].seq, get_reverse_complement( query->nt[0] ) );
-
-        ck_assert_ptr_eq( NULL, query->aa[0].seq );
-        ck_assert_ptr_eq( NULL, query->aa[1].seq );
-        ck_assert_ptr_eq( NULL, query->aa[2].seq );
-        ck_assert_ptr_eq( NULL, query->aa[3].seq );
-        ck_assert_ptr_eq( NULL, query->aa[4].seq );
-        ck_assert_ptr_eq( NULL, query->aa[5].seq );
-
-        ck_assert_int_eq( 11, (int )query->headerlen );
-        ck_assert_str_eq( "some header", query->header );
-
-        ck_assert_str_eq( sym_ncbi_nt16, query->sym );
-        ck_assert_str_eq( map_ncbi_nt16, query->map );
-
-        query_free( query );
-    }END_TEST
-
-START_TEST (test_all_allowed_symbols)
-    {
-        query_strands = BOTH_STRANDS;
-        symtype = TRANS_QUERY;
-
-        char * sequence = "-acmgrsvtwyhkdbn";
-        char * expected = "acmgrsvtwyhkdbn";
-
-        p_query query = query_read_from_string( "some header", sequence );
-        check_query_mapped( 0, map_ncbi_nt16, 15, expected, query->nt[0] );
-        check_query_mapped( 1, map_ncbi_nt16, 15, expected, query->nt[1] );
-
-        // as defined for strands == 2
-        ck_assert_str_eq( query->nt[1].seq, get_reverse_complement( query->nt[0] ) );
-
-        ck_assert_ptr_ne( NULL, query->aa[0].seq );
-        ck_assert_ptr_ne( NULL, query->aa[1].seq );
-        ck_assert_ptr_ne( NULL, query->aa[2].seq );
-        ck_assert_ptr_ne( NULL, query->aa[3].seq );
-        ck_assert_ptr_ne( NULL, query->aa[4].seq );
-        ck_assert_ptr_ne( NULL, query->aa[5].seq );
-
-        sequence = "-ACMGRSVTWYHKDBN";
-        expected = "ACMGRSVTWYHKDBN";
-        query_free( query );
-
-        query = query_read_from_string( "some header", sequence );
-        check_query_mapped( 0, map_ncbi_nt16, 15, expected, query->nt[0] );
-        check_query_mapped( 1, map_ncbi_nt16, 15, expected, query->nt[1] );
-
-        // as defined for strands == 2
-        ck_assert_str_eq( query->nt[1].seq, get_reverse_complement( query->nt[0] ) );
-
-        ck_assert_ptr_ne( NULL, query->aa[0].seq );
-        ck_assert_ptr_ne( NULL, query->aa[1].seq );
-        ck_assert_ptr_ne( NULL, query->aa[2].seq );
-        ck_assert_ptr_ne( NULL, query->aa[3].seq );
-        ck_assert_ptr_ne( NULL, query->aa[4].seq );
-        ck_assert_ptr_ne( NULL, query->aa[5].seq );
-
-        query_strands = BOTH_STRANDS;
-        symtype = AMINOACID;
-
-        sequence = "-ABCDEFGHIKLMNPQRSTVWXYZU*OJ";
-        expected = "-ABCDEFGHIKLMNPQRSTVWXYZU*OJ";
-        query_free( query );
-
-        query = query_read_from_string( "some header", sequence );
-        ck_assert_ptr_eq( NULL, query->nt[0].seq );
-        ck_assert_ptr_eq( NULL, query->nt[1].seq );
-
-        check_query_mapped( 0, map_ncbi_aa, 28, expected, query->aa[0] );
-        ck_assert_ptr_eq( NULL, query->aa[1].seq );
-        ck_assert_ptr_eq( NULL, query->aa[2].seq );
-        ck_assert_ptr_eq( NULL, query->aa[3].seq );
-        ck_assert_ptr_eq( NULL, query->aa[4].seq );
-        ck_assert_ptr_eq( NULL, query->aa[5].seq );
-
-        query_free( query );
-    }END_TEST
-
-START_TEST (test_not_allowed_symbols)
-    {
-        query_strands = FORWARD_STRAND;
-        symtype = NUCLEOTIDE;
-
-        char * sequence = "BEX234";
-
-        p_query query = query_read_from_string( "some header", sequence );
-        check_query_mapped( 0, map_ncbi_nt16, 1, "B", query->nt[0] );
-
-        ck_assert_ptr_eq( NULL, query->nt[1].seq );
-
-        ck_assert_ptr_eq( NULL, query->aa[0].seq );
-        ck_assert_ptr_eq( NULL, query->aa[1].seq );
-        ck_assert_ptr_eq( NULL, query->aa[2].seq );
-        ck_assert_ptr_eq( NULL, query->aa[3].seq );
-        ck_assert_ptr_eq( NULL, query->aa[4].seq );
-        ck_assert_ptr_eq( NULL, query->aa[5].seq );
 
         query_free( query );
     }END_TEST
@@ -235,7 +227,7 @@ START_TEST (test_read_from_file_sym2)
 
         us_init_translation( 3, 3 );
 
-        p_query query = query_read_from_file( "./tests/testdata/NP_009305.1.fas" );
+        p_query query = query_read_from_file( "./tests/testdata/one_seq.fas" );
 
         ck_assert_ptr_ne( NULL, query->nt[0].seq );
         ck_assert_ptr_ne( NULL, query->nt[1].seq );
@@ -250,8 +242,8 @@ START_TEST (test_read_from_file_sym2)
         ck_assert_ptr_ne( NULL, query->aa[4].seq );
         ck_assert_ptr_ne( NULL, query->aa[5].seq );
 
-        ck_assert_int_eq( 65, (int )query->headerlen );
-        ck_assert_str_eq( "gi|6226519|ref|NP_009305.1| cytochrome-c oxidase subunit I; Cox1p", query->header );
+        ck_assert_int_eq( 32, (int )query->headerlen );
+        ck_assert_str_eq( "97485665bcded44c4d86c131ca714848", query->header );
 
         ck_assert_str_eq( sym_ncbi_nt16, query->sym );
         ck_assert_str_eq( map_ncbi_nt16, query->map );
@@ -292,7 +284,7 @@ START_TEST (test_read_from_file_sym4)
 
         us_init_translation( 3, 3 );
 
-        p_query query = query_read_from_file( "./tests/testdata/NP_009305.1.fas" );
+        p_query query = query_read_from_file( "./tests/testdata/one_seq.fas" );
 
         ck_assert_ptr_ne( NULL, query->nt[0].seq );
         ck_assert_ptr_ne( NULL, query->nt[1].seq );
@@ -307,8 +299,8 @@ START_TEST (test_read_from_file_sym4)
         ck_assert_ptr_ne( NULL, query->aa[4].seq );
         ck_assert_ptr_ne( NULL, query->aa[5].seq );
 
-        ck_assert_int_eq( 65, (int )query->headerlen );
-        ck_assert_str_eq( "gi|6226519|ref|NP_009305.1| cytochrome-c oxidase subunit I; Cox1p", query->header );
+        ck_assert_int_eq( 32, (int )query->headerlen );
+        ck_assert_str_eq( "97485665bcded44c4d86c131ca714848", query->header );
 
         ck_assert_str_eq( sym_ncbi_nt16, query->sym );
         ck_assert_str_eq( map_ncbi_nt16, query->map );
@@ -324,7 +316,7 @@ START_TEST (test_strands_param)
 
         us_init_translation( 3, 3 );
 
-        p_query query = query_read_from_file( "./tests/testdata/NP_009305.1.fas" );
+        p_query query = query_read_from_file( "./tests/testdata/one_seq.fas" );
 
         ck_assert_ptr_ne( NULL, query->nt[0].seq );
         ck_assert_ptr_eq( NULL, query->nt[1].seq );
@@ -341,7 +333,7 @@ START_TEST (test_strands_param)
         // minus
         query_strands = COMPLEMENTARY_STRAND;
 
-        query = query_read_from_file( "./tests/testdata/NP_009305.1.fas" );
+        query = query_read_from_file( "./tests/testdata/one_seq.fas" );
 
         ck_assert_ptr_ne( NULL, query->nt[0].seq );
         ck_assert_ptr_ne( NULL, query->nt[1].seq );
@@ -361,7 +353,7 @@ START_TEST (test_strands_param)
         // both
         query_strands = BOTH_STRANDS;
 
-        query = query_read_from_file( "./tests/testdata/NP_009305.1.fas" );
+        query = query_read_from_file( "./tests/testdata/one_seq.fas" );
 
         ck_assert_ptr_ne( NULL, query->nt[0].seq );
         ck_assert_ptr_ne( NULL, query->nt[1].seq );

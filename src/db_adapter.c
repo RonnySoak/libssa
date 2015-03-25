@@ -115,6 +115,8 @@ void adp_exit() {
 }
 
 void adp_init( size_t size ) {
+    next_chunk_start = 0;
+
     chunk_db_seq_count = size;
 
     // set buffer size according symtype: 1, 2, 3 oder 6
@@ -204,10 +206,6 @@ p_db_chunk adp_init_new_chunk() {
     }
 
     return chunk;
-}
-
-void adp_reset_chunk_counter() {
-    next_chunk_start = 0;
 }
 
 void adp_next_chunk( p_db_chunk chunk ) {

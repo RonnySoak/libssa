@@ -36,7 +36,7 @@ static p_s16info setup_simd_util_test( char * query_string ) {
     mat_init_constant_scoring( MATCH, MISMATCH );
     init_symbol_translation( NUCLEOTIDE, FORWARD_STRAND, 3, 3 );
 
-    p_query query = query_read_from_string( "short query", query_string );
+    p_query query = query_read_from_string( query_string );
 
     p_search_data sdp = s_create_searchdata( query );
 

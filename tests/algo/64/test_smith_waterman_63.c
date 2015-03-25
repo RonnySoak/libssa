@@ -35,7 +35,7 @@ START_TEST (test_sw_64_simple)
         init_symbol_translation( NUCLEOTIDE, FORWARD_STRAND, 3, 3 );
         mat_init_constant_scoring( 1, -1 );
 
-        p_query query = query_read_from_string( "short query", "AT" );
+        p_query query = query_read_from_string( "AT" );
 
         sequence_t dseq = us_prepare_sequence( "AATG", 4, 0, 0 );
 
@@ -56,7 +56,7 @@ START_TEST (test_sw_64_simple_2)
         init_symbol_translation( NUCLEOTIDE, FORWARD_STRAND, 3, 3 );
         mat_init_constant_scoring( 1, -1 );
 
-        p_query query = query_read_from_string( "query", "ATGCAAA" );
+        p_query query = query_read_from_string( "ATGCAAA" );
 
         sequence_t dseq = us_prepare_sequence( "ATGCCCAA", 4, 0, 0 );
 

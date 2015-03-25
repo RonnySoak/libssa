@@ -28,7 +28,7 @@ extern const char map_ncbi_aa[256];
 extern const char map_ncbi_nt16[256];
 
 // TODO provide to the user of the lib
-extern const char * gencode_names[23];
+extern const char * gencode_names[25];
 
 extern const char * sym_ncbi_nt16;
 extern const char * sym_ncbi_nt16u;

@@ -34,7 +34,7 @@
 const char map_ncbi_aa[256] = {
   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 25, -1, -1,  0, -1, -1,
+  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 25, -1, -1, -1, -1, -1,
   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
   -1,  1,  2,  3,  4,  5,  6,  7,  8,  9, 27, 10, 11, 12, 13, 26,
   14, 15, 16, 17, 18, 24, 19, 20, 21, 22, 23, -1, -1, -1, -1, -1,
@@ -61,7 +61,7 @@ const char map_ncbi_aa[256] = {
 const char map_ncbi_nt16[256] = {
   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  0, -1, -1,
   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
   -1,  1, 14,  2, 13, -1, -1,  4, 11, -1, -1, 12, -1,  3, 15, -1,
   -1, -1,  5,  6,  8,  8,  7,  9, -1, 10, -1, -1, -1, -1, -1, -1,
@@ -83,7 +83,7 @@ const char map_ncbi_nt16[256] = {
  * Descriptions of the genetic codes, available for translating genetic sequences
  * to protein sequences.
  */
-const char * gencode_names[23] = {
+const char * gencode_names[25] = {
         "Standard Code",
         "Vertebrate Mitochondrial Code",
         "Yeast Mitochondrial Code",
@@ -95,21 +95,25 @@ const char * gencode_names[23] = {
         "Echinoderm and Flatworm Mitochondrial Code",
         "Euplotid Nuclear Code",
         "Bacterial, Archaeal and Plant Plastid Code",
-        "Alternative Yeast Nuclear Code", "Ascidian Mitochondrial Code",
+        "Alternative Yeast Nuclear Code",
+        "Ascidian Mitochondrial Code",
         "Alternative Flatworm Mitochondrial Code",
-        "Blepharisma Nuclear Code", "Chlorophycean Mitochondrial Code",
+        "Blepharisma Nuclear Code",
+        "Chlorophycean Mitochondrial Code",
         NULL,
         NULL,
         NULL,
         NULL,
         "Trematode Mitochondrial Code",
         "Scenedesmus obliquus Mitochondrial Code",
-        "Thraustochytrium Mitochondrial Code" };
+        "Thraustochytrium Mitochondrial Code",
+        "Pterobranchia Mitochondrial Code",
+        "Candidate Division SR1 and Gracilibacteria Code" };
 
 /*
  * List of genetic codes, for translating genetic sequences to protein sequences.
  */
-static const char * code[23] = {
+static const char * code[25] = {
         "FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
         "FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNKKSS**VVVVAAAADDEEGGGG",
         "FFLLSSSSYY**CCWWTTTTPPPPHHQQRRRRIIMMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
@@ -132,7 +136,9 @@ static const char * code[23] = {
         NULL,
         "FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNNKSSSSVVVVAAAADDEEGGGG",
         "FFLLSS*SYY*LCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
-        "FF*LSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG" };
+        "FF*LSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
+        "FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSSKVVVVAAAADDEEGGGG",
+        "FFLLSSSSYY**CCGWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG" };
 
 /*
  * Maps the numerical representation of nucleotides back to symbols in lower case.
@@ -194,7 +200,7 @@ static void init_translate_table( int tableno, char * table ) {
                             if( (a & (1 << i)) && (b & (1 << j)) && (c & (1 << k)) ) {
                                 int codon = remap[i] * 16 + remap[j] * 4 + remap[k];
 
-                                char x = code[tableno - 1][codon];
+                                char x = code[tableno][codon];
 
                                 if( aa == '-' ) {
                                     aa = x;
@@ -261,8 +267,12 @@ static void init_translate_table( int tableno, char * table ) {
  * @param dtableno  the genetic code of the DB sequences
  */
 void us_init_translation( int qtableno, int dtableno ) {
-    init_translate_table( qtableno, q_translate );
-    init_translate_table( dtableno, d_translate );
+    /*
+     * The codes start at number 1, therefore do we subtract 1 here.
+     * http://www.ncbi.nlm.nih.gov/Taxonomy/Utils/wprintgc.cgi
+     */
+    init_translate_table( qtableno - 1, q_translate );
+    init_translate_table( dtableno - 1, d_translate );
 }
 
 /**
@@ -274,16 +284,29 @@ void us_init_translation( int qtableno, int dtableno ) {
  * @return      the new mapped sequence
  */
 void us_map_sequence( sequence_t orig, sequence_t mapped, const char* map ) {
+    char unknown_symbols[orig.len];
+    size_t unknown_count = 0;
+
     char m;
     for( size_t i = 0; i < orig.len; i++ ) {
         if( (m = map[(int) orig.seq[i]]) >= 0 ) {
             mapped.seq[i] = m;
         }
         else {
-            mapped.seq[i] = 0; // TODO add warning message?!
+            if( orig.seq[i] != '\n' && orig.seq[i] != ' ' && orig.seq[i] != '\t' ) {
+                unknown_symbols[unknown_count++] = orig.seq[i];
+            }
+            mapped.seq[i] = 0;
         }
     }
-    mapped.seq[orig.len] = 0;
+
+    if( unknown_count > 0 ) {
+        unknown_symbols[unknown_count] = 0;
+
+        outf( "Unknown symbols found and omitted: '%s'\n", unknown_symbols );
+    }
+
+    mapped.seq[mapped.len] = 0;
 }
 
 /**

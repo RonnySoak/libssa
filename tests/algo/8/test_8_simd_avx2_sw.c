@@ -36,7 +36,7 @@ static p_search_result setup_searcher_8_test( int symbols, char * query_string, 
     mat_init_constant_scoring( 1, -1 );
     init_symbol_translation( symbols, FORWARD_STRAND, 3, 3 );
 
-    p_query query = query_read_from_string( "short query", query_string );
+    p_query query = query_read_from_string( query_string );
 
     s_init( SMITH_WATERMAN, BIT_WIDTH_8, query );
 

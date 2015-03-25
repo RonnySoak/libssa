@@ -39,7 +39,7 @@ static p_query setup_manager_test() {
     gapO = 1;
     gapE = 1;
 
-    return query_read_from_string( "query", "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA" );
+    return query_read_from_string( "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA" );
 }
 
 static void exit_manager_test( p_alignment_list alist ) {
@@ -129,8 +129,6 @@ static void compare_test( void (*init_func)( p_query, int, int ), size_t hit_cou
 
     init_func( query, BIT_WIDTH_64, COMPUTE_ALIGNMENT );
     p_alignment_list alist_64 = m_run( hit_count );
-
-    adp_reset_chunk_counter();
 
     init_func( query, BIT_WIDTH_16, COMPUTE_ALIGNMENT );
     p_alignment_list alist_16 = m_run( hit_count );

@@ -95,9 +95,44 @@ void query_free( p_query query ) {
     query = 0;
 }
 
-static void fill_query( p_query query, char * query_sequence, size_t query_length ) {
+static void map_sequence( const char * orig, sequence_t * mapped, p_query query ) {
+    char * unknown_symbols = xmalloc( mapped->len );
+    size_t unknown_count = 0;
+
+    size_t added_symbol_count = 0;
+
+    char m;
+    for( int i = 0; i < mapped->len; ++i ) {
+        if( (m = query->map[(int )orig[i]]) >= 0 ) {
+            mapped->seq[added_symbol_count++] = m;
+        }
+        else {
+            if( orig[i] != '\n' && orig[i] != ' ' && orig[i] != '\t' ) {
+                unknown_symbols[unknown_count++] = orig[i];
+            }
+        }
+    }
+    if( unknown_count > 0 ) {
+        unknown_symbols[unknown_count] = 0;
+
+        outf( "Unknown symbols found and omitted: %ld - '%s'\n", unknown_count, unknown_symbols );
+    }
+    free( unknown_symbols );
+
+    mapped->seq[added_symbol_count] = 0;
+
+    mapped->len = added_symbol_count;
+
+    mapped->seq = xrealloc( mapped->seq, mapped->len + 1 );
+}
+
+static void fill_and_map_query( p_query query, char * query_sequence, size_t query_length ) {
+    sequence_t orig = (sequence_t ) { xmalloc( query_length + 1 ), query_length };
+
+    map_sequence( query_sequence, &orig, query );
+
     if( (symtype == NUCLEOTIDE) || (symtype == TRANS_QUERY) || (symtype == TRANS_BOTH) ) {
-        query->nt[0] = (sequence_t ) { query_sequence, query_length };
+        query->nt[0] = orig;
 
         if( query_strands & 2 ) {
             query->nt[1] = (sequence_t ) { xmalloc( query_length + 1 ), query_length };
@@ -121,46 +156,21 @@ static void fill_query( p_query query, char * query_sequence, size_t query_lengt
         }
     }
     else {
-        query->aa[0] = (sequence_t ) { query_sequence, query_length };
+        query->aa[0] = orig;
     }
 }
 
-p_query query_read_from_string( const char * header, const char * sequence ) {
+p_query query_read_from_string( const char * sequence ) {
     p_query query = init();
 
-    query->headerlen = strlen( header );
-    query->header = xmalloc( query->headerlen + 1 );
-    strcpy( query->header, header );
+    size_t len = strlen( sequence );
 
-    size_t length = strlen( sequence );
-    char * query_sequence = xmalloc( length + 1 );
-    char * unknown_symbols = xmalloc( length + 1 );
-    size_t unknown_count = 0;
+    char * query_sequence = xmalloc( len );
+    strncpy( query_sequence, sequence, len );
 
-    char m;
-    const char * p = sequence;
-    char * p_q = query_sequence;
-    int8_t c = *p++;
-    while( c ) {
-        if( (m = query->map[c]) >= 0 ) {
-            (*p_q++) = m;
-        }
-        else {
-            unknown_symbols[unknown_count++] = c;
-        }
-        c = *p++;
-    }
-    if( unknown_count > 0 ) {
-        length -= unknown_count;
-        unknown_symbols[unknown_count] = 0;
+    fill_and_map_query( query, query_sequence, len );
 
-        outf( "Unknown symbols found and omitted: '%s'\n", unknown_symbols );
-    }
-    free( unknown_symbols );
-
-    query_sequence[length] = 0;
-
-    fill_query( query, query_sequence, length );
+    free( query_sequence );
 
     return query;
 }
@@ -210,40 +220,31 @@ p_query query_read_from_file( const char * filename ) {
             ffatal( "Could not read first line from query sequence" );
         }
     }
-    else {
-        query->header = xmalloc( 1 );
-        query->header[0] = 0;
-        query->headerlen = 0;
-    }
 
     // read sequence
     size_t size = LINE_MAX;
     char * query_sequence = xmalloc( size );
-    query_sequence[0] = 0;
+
     size_t query_length = 0;
 
-    char m;
     while( query_line[0] && (query_line[0] != '>') ) {
-        char * p = query_line;
-        int8_t c = *p++;
-        while( c ) {
-            if( (m = query->map[c]) >= 0 ) {
-                if( query_length + 1 >= size ) {
-                    size += LINE_MAX;
-                    query_sequence = xrealloc( query_sequence, size );
-                }
-                query_sequence[query_length++] = m;
+
+        for( int i = 0; query_line[i]; ++i ) {
+            if( query_length + 1 >= size ) {
+                size += LINE_MAX;
+                query_sequence = xrealloc( query_sequence, size );
             }
-            c = *p++;
+            query_sequence[query_length++] = query_line[i];
         }
-        query_line[0] = 0;
+
         if( NULL == fgets( query_line, LINE_MAX, query_fp ) ) {
             break;
         }
     }
     query_sequence[query_length] = 0;
 
-    fill_query( query, query_sequence, query_length );
+    fill_and_map_query( query, query_sequence, query_length );
+    free( query_sequence );
 
     // close the file pointer
     if( query_fp && (query_fp != stdin) )

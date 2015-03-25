@@ -172,7 +172,7 @@ p_query init_sequence_fasta( int mode, const char* fasta_sequence ) {
     }
     else if( READ_FROM_STRING == mode ) {
         // TODO do we need the header here?
-        query = query_read_from_string( "\0", fasta_sequence );
+        query = query_read_from_string( fasta_sequence );
     }
     else {
         ffatal( "Unknown mode for reading query sequences: %d", mode );
@@ -195,7 +195,7 @@ void free_sequence( p_query p ) {
 // #############################################################################
 // Alignment
 // #########
-static void test_configuration() {
+static void test_configuration( p_query query ) {
     test_cpu_features();
 
     if( !gapO && !gapE ) {
@@ -205,14 +205,15 @@ static void test_configuration() {
     if( !score_matrix_64 ) {
         ffatal( "Scoring not initialized." );
     }
+    if( !query ) {
+        ffatal( "Query not initialized." );
+    }
+
+    if( ssa_db_get_sequence_count() == 0 ) {
+        outf( "WARNING: Database contains zero sequences. Possible error." );
+    }
 
     // TODO extend these checks
-}
-
-static void prepare_alignment() {
-    test_configuration();
-
-    adp_reset_chunk_counter();
 }
 
 /**
@@ -223,10 +224,10 @@ static void prepare_alignment() {
  * ...
  * @return pointer to the alignment structure
  */
-p_alignment_list sw_align( p_query p, size_t hitcount, int bit_width, int align_type ) {
-    prepare_alignment();
+p_alignment_list sw_align( p_query query, size_t hitcount, int bit_width, int align_type ) {
+    test_configuration( query );
 
-    init_for_sw( p, bit_width, align_type );
+    init_for_sw( query, bit_width, align_type );
 
     return m_run( hitcount );
 }
@@ -239,10 +240,10 @@ p_alignment_list sw_align( p_query p, size_t hitcount, int bit_width, int align_
  * ...
  * @return pointer to the alignment structure
  */
-p_alignment_list nw_align( p_query p, size_t hitcount, int bit_width, int align_type ) {
-    prepare_alignment();
+p_alignment_list nw_align( p_query query, size_t hitcount, int bit_width, int align_type ) {
+    test_configuration( query );
 
-    init_for_nw( p, bit_width, align_type );
+    init_for_nw( query, bit_width, align_type );
 
     return m_run( hitcount );
 }

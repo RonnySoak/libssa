@@ -101,18 +101,6 @@ START_TEST (test_map_sequence_illegal_symbol)
         ck_assert_int_eq( 0, mapped.seq[4] );
     }END_TEST
 
-void ck_converted_prot_eq( char* ref, sequence_t seq ) {
-    sequence_t conv_dna;
-    conv_dna.len = seq.len;
-    conv_dna.seq = xmalloc( seq.len + 1 );
-    for( size_t i = 0; i < seq.len; i++ ) {
-        conv_dna.seq[i] = sym_ncbi_aa[(int) seq.seq[i]];
-    }
-    conv_dna.seq[seq.len] = 0;
-
-    ck_assert_str_eq( ref, conv_dna.seq );
-}
-
 START_TEST (test_translate_query_RNA)
     {
         us_init_translation( 3, 1 );

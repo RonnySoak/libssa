@@ -32,7 +32,7 @@ static p_query setup_searcher_test_init( int bit_width, int search_type, char * 
     init_symbol_translation( symtype, strands, 3, 3 );
     mat_init_constant_scoring( 1, -1 );
 
-    p_query query = query_read_from_string( "short query", query_string );
+    p_query query = query_read_from_string( query_string );
 
     s_init( search_type, bit_width, query );
 

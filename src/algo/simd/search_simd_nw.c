@@ -377,7 +377,7 @@ void search_YY_XXX_nw( p_sYYinfo s, p_db_chunk chunk, p_minheap heap, p_db_chunk
     int change_sequences = 1;
     while( 1 ) {
         if( !change_sequences ) {
-            /* fill all channels with symbols from the database sequences */
+            /* Fill all channels with symbols from the database sequences */
 
             for( int c = 0; c < CHANNELS; c++ ) {
                 if( d_seq_ptr[c] )
@@ -390,8 +390,8 @@ void search_YY_XXX_nw( p_sYYinfo s, p_db_chunk chunk, p_minheap heap, p_db_chunk
                     F2, F3, &h_min, &h_max, qlen );
         }
         else {
-            /* One or more sequences ended in the previous block.
-             We have to switch over to a new sequence           */
+            /* One or more sequences ended in the previous block. We have to switch over to a new sequence */
+
             change_sequences = 0;
 
             M.v = _mmxxx_setzero_si();

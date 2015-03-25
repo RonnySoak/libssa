@@ -36,7 +36,7 @@ static p_search_result setup_searcher_16_test( char * query_string, char * db_fi
     mat_init_constant_scoring( 1, -1 );
     init_symbol_translation( NUCLEOTIDE, FORWARD_STRAND, 3, 3 );
 
-    p_query query = query_read_from_string( "short query", query_string );
+    p_query query = query_read_from_string( query_string );
 
     s_init( NEEDLEMAN_WUNSCH, BIT_WIDTH_16, query );
 

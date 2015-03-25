@@ -33,7 +33,7 @@ static p_search_result setup_searcher_test( int bit_width, int search_type, char
         size_t hit_count, int symtype, int strands ) {
     init_symbol_translation( symtype, strands, 3, 3 );
     mat_init_constant_scoring( 1, -1 );
-    p_query query = query_read_from_string( "short query", query_string );
+    p_query query = query_read_from_string( query_string );
 
     s_init( search_type, bit_width, query );
 
@@ -62,7 +62,8 @@ static void exit_searcher_test( p_search_result res ) {
 }
 
 static void do_searcher_test_simple( int bit_width, int search_type, long score ) {
-    p_search_result res = setup_searcher_test( bit_width, search_type, "AT", "short_db.fas", 1, NUCLEOTIDE, FORWARD_STRAND );
+    p_search_result res = setup_searcher_test( bit_width, search_type, "AT", "short_db.fas", 1, NUCLEOTIDE,
+    FORWARD_STRAND );
 
     ck_assert_int_eq( 1, res->chunk_count );
     ck_assert_int_eq( 1, res->seq_count );
@@ -133,8 +134,8 @@ START_TEST (test_searcher_simple_nw_8)
         do_searcher_test_simple( BIT_WIDTH_8, NEEDLEMAN_WUNSCH, -2 );
     }END_TEST
 
-static p_search_result init_translate_test( int bit_width, int search_type, char * query, char * db_file, size_t hit_count,
-        int symtype, int strands ) {
+static p_search_result init_translate_test( int bit_width, int search_type, char * query, char * db_file,
+        size_t hit_count, int symtype, int strands ) {
     p_search_result res = setup_searcher_test( bit_width, search_type, query, db_file, hit_count, symtype, strands );
 
     ck_assert_int_eq( hit_count, res->heap->count );
@@ -407,7 +408,7 @@ static p_search_result setup_BLOSUM62_test( int bit_width, int search_type, size
     init_symbol_translation( AMINOACID, FORWARD_STRAND, 3, 3 );
     mat_init_buildin( BLOSUM62 );
 
-    p_query query = query_read_from_string( "AA query",
+    p_query query = query_read_from_string(
             "HPEVYILIIPGFGIISHVVSTYSKKPVFGEISMVYAMASIGLLGFLVWSHHMYIVGLDADTRAYFTSATMIIAIPTGIKI" );
 
     s_init( search_type, bit_width, query );
@@ -496,18 +497,51 @@ START_TEST (test_searcher_AA_BLOSUM_nw_8)
     {
         set_max_compute_capability( COMPUTE_ON_SSE41 );
 
-        int result[12] = { 82, 0 };
+        int result[2] = { 82, 0 };
 
         p_search_result res = setup_BLOSUM62_test( BIT_WIDTH_8, NEEDLEMAN_WUNSCH, 1 );
 // TODO test correct handling of overflow
         test_result( res, result, 2 );
     }END_TEST
 
+START_TEST (test_searcher_zeroed_sequences_sw)
+    {
+        set_max_compute_capability( COMPUTE_ON_AVX2 );
+
+        init_symbol_translation( AMINOACID, FORWARD_STRAND, 3, 3 );
+        mat_init_buildin( BLOSUM62 );
+
+        p_query query = query_read_from_string( "AA" );
+        query->aa[0].seq = (char [6]) { 0, 0, 0, 0, 0, 0 };
+        query->aa[0].len = 6;
+
+        s_init( SMITH_WATERMAN, BIT_WIDTH_16, query );
+
+        ssa_db_init( concat( "./tests/testdata/", "short_AA.fas" ) );
+
+        gapO = 1;
+        gapE = 1;
+
+        int hit_count = 1;
+        adp_init( hit_count );
+
+        p_search_result res = s_search( &hit_count );
+
+        minheap_sort( res->heap );
+
+        query_free( query );
+
+        ck_assert_int_eq( hit_count, res->heap->count );
+
+        int result[2] = { 6, 0 };
+
+        test_result( res, result, 2 );
+    }END_TEST
+
 START_TEST (test_init_search_data)
     {
         init_symbol_translation( NUCLEOTIDE, FORWARD_STRAND, 3, 3 );
-        p_query query = query_read_from_string( "short query",
-                "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA" );
+        p_query query = query_read_from_string( "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA" );
         p_search_data sdp = s_create_searchdata( query );
 
         // query data
@@ -535,8 +569,7 @@ START_TEST (test_init_search_data)
 START_TEST (test_init_search_data2)
     {
         init_symbol_translation( NUCLEOTIDE, COMPLEMENTARY_STRAND, 3, 3 );
-        p_query query = query_read_from_string( "short query",
-                "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA" );
+        p_query query = query_read_from_string( "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA" );
         p_search_data sdp = s_create_searchdata( query );
 
         // query data
@@ -562,8 +595,7 @@ START_TEST (test_init_search_data2)
 START_TEST (test_init_search_data3)
     {
         init_symbol_translation( TRANS_QUERY, FORWARD_STRAND, 3, 3 );
-        p_query query = query_read_from_string( "short query",
-                "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA" );
+        p_query query = query_read_from_string( "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA" );
         p_search_data sdp = s_create_searchdata( query );
 
         // query data
@@ -599,8 +631,7 @@ START_TEST (test_init_search_data3)
 START_TEST (test_init_search_data4)
     {
         init_symbol_translation( TRANS_QUERY, BOTH_STRANDS, 3, 3 );
-        p_query query = query_read_from_string( "short query",
-                "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA" );
+        p_query query = query_read_from_string( "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA" );
         p_search_data sdp = s_create_searchdata( query );
 
         // query data
@@ -650,8 +681,7 @@ START_TEST (test_init_search_data4)
 START_TEST (test_init_search_data5)
     {
         init_symbol_translation( AMINOACID, BOTH_STRANDS, 3, 3 );
-        p_query query = query_read_from_string( "short query",
-                "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA" );
+        p_query query = query_read_from_string( "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA" );
         p_search_data sdp = s_create_searchdata( query );
 
         // query data
@@ -701,6 +731,7 @@ void addSearcherTC( Suite *s ) {
     tcase_add_test( tc_core, test_searcher_AA_BLOSUM_sw_8 );
     tcase_add_test( tc_core, test_searcher_AA_BLOSUM_sw_8_avx );
     tcase_add_test( tc_core, test_searcher_AA_BLOSUM_nw_8 );
+    tcase_add_test( tc_core, test_searcher_zeroed_sequences_sw );
     tcase_add_test( tc_core, test_searcher_AA_nw_64 );
     tcase_add_test( tc_core, test_searcher_AA_sw_64 );
     tcase_add_test( tc_core, test_searcher_AA_nw_16 );

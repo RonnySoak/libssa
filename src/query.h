@@ -39,7 +39,7 @@ extern int query_strands;
  */
 void query_free(p_query query);
 
-p_query query_read_from_string( const char * header, const char * sequence );
+p_query query_read_from_string( const char * sequence );
 
 /**
  * Reads in a query from a file and returns a pointer to a struct holding the

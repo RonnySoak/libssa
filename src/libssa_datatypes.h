@@ -86,7 +86,7 @@ typedef sdb_sequence_t * p_sdb_sequence;
 
 typedef struct {
     p_sdb_sequence * seq;
-    size_t size; // TODO change to long only
+    size_t size;
     size_t fill_pointer;
 } db_chunk_t;
 typedef db_chunk_t * p_db_chunk;

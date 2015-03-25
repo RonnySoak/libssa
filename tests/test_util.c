@@ -26,6 +26,7 @@
 
 #include "../src/db_adapter.h"
 #include "../src/util/util.h"
+#include "../src/util/util_sequence.h"
 #include "../src/libssa_extern_db.h"
 
 /**
@@ -58,6 +59,18 @@ char* concat( char *s1, char *s2 ) {
     strcpy( result, s1 );
     strcat( result, s2 );
     return result;
+}
+
+void ck_converted_prot_eq( char* ref, sequence_t seq ) {
+    sequence_t conv_dna;
+    conv_dna.len = seq.len;
+    conv_dna.seq = xmalloc( seq.len + 1 );
+    for( size_t i = 0; i < seq.len; i++ ) {
+        conv_dna.seq[i] = sym_ncbi_aa[(int) seq.seq[i]];
+    }
+    conv_dna.seq[seq.len] = 0;
+
+    ck_assert_str_eq( ref, conv_dna.seq );
 }
 
 START_TEST (test_xmalloc)

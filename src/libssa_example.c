@@ -70,7 +70,8 @@ int main( int argc, char**argv ) {
 
     init_score_matrix( MATRIX_BUILDIN, "blosum62" );
     init_gap_penalties( 3, 1 );
-    init_db_fasta( "tests/testdata/uniprot_sprot.fasta" );
+//    init_db_fasta( "tests/testdata/uniprot_sprot.fasta" );
+    init_db_fasta( "tests/testdata/AF091148.fas" );
 
     p_query query = init_sequence_fasta( READ_FROM_FILE, "tests/testdata/O74807.fasta" );
     size_t hit_count = 10;
