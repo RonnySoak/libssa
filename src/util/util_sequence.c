@@ -284,7 +284,11 @@ void us_init_translation( int qtableno, int dtableno ) {
  * @return      the new mapped sequence
  */
 void us_map_sequence( sequence_t orig, sequence_t mapped, const char* map ) {
-    char unknown_symbols[orig.len];
+    /*
+     * TODO here always allocate memory for the unknown symbols ...
+     * maybe add some verbose flag, to omit the output and collection in some cases
+     */
+    char * unknown_symbols = xmalloc( orig.len );
     size_t unknown_count = 0;
 
     char m;
@@ -305,6 +309,7 @@ void us_map_sequence( sequence_t orig, sequence_t mapped, const char* map ) {
 
         outf( "Unknown symbols found and omitted: '%s'\n", unknown_symbols );
     }
+    free( unknown_symbols );
 
     mapped.seq[mapped.len] = 0;
 }

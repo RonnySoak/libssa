@@ -112,6 +112,7 @@ static void map_sequence( const char * orig, sequence_t * mapped, p_query query 
             }
         }
     }
+
     if( unknown_count > 0 ) {
         unknown_symbols[unknown_count] = 0;
 
@@ -119,10 +120,8 @@ static void map_sequence( const char * orig, sequence_t * mapped, p_query query 
     }
     free( unknown_symbols );
 
-    mapped->seq[added_symbol_count] = 0;
-
     mapped->len = added_symbol_count;
-
+    mapped->seq[mapped->len] = 0;
     mapped->seq = xrealloc( mapped->seq, mapped->len + 1 );
 }
 
@@ -131,7 +130,7 @@ static void fill_and_map_query( p_query query, char * query_sequence, size_t que
 
     map_sequence( query_sequence, &orig, query );
 
-    if( (symtype == NUCLEOTIDE) || (symtype == TRANS_QUERY) || (symtype == TRANS_BOTH) ) {
+    if( (symtype == NUCLEOTIDE) ) {
         query->nt[0] = orig;
 
         if( query_strands & 2 ) {
@@ -139,18 +138,17 @@ static void fill_and_map_query( p_query query, char * query_sequence, size_t que
 
             us_revcompl( query->nt[0], query->nt[1] );
         }
-
-        if( (symtype == TRANS_QUERY) || (symtype == TRANS_BOTH) ) {
-            for( int s = 0; s < 2; s++ ) {
-                if( (s + 1) & query_strands ) {
-                    for( int f = 0; f < 3; f++ ) {
-                        // it always takes the first sequence and reverses it, if necessary, in the translate method
-                        us_translate_sequence( 0, // query sequence
-                                query->nt[0], // DNA
-                                s, // strand
-                                f, // frame
-                                &query->aa[3 * s + f] ); // Protein
-                    }
+    }
+    else if( (symtype == TRANS_QUERY) || (symtype == TRANS_BOTH) ) {
+        for( int s = 0; s < 2; s++ ) {
+            if( (s + 1) & query_strands ) {
+                for( int f = 0; f < 3; f++ ) {
+                    // it always takes the first sequence and reverses it, if necessary, in the translate method
+                    us_translate_sequence( 0, // query sequence
+                            orig, // DNA
+                            s, // strand
+                            f, // frame
+                            &query->aa[3 * s + f] ); // Protein
                 }
             }
         }
@@ -212,7 +210,7 @@ p_query query_read_from_file( const char * filename ) {
 
     if( query_line[0] == '>' ) {
         query->header = xmalloc( len );
-        strcpy( query->header, query_line + 1 );
+        strncpy( query->header, query_line + 1, len );
         query->headerlen = len - 1;
 
         query_line[0] = 0;
