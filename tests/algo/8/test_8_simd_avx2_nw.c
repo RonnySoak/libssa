@@ -42,8 +42,8 @@ static p_search_result setup_searcher_8_test( char * query_string, char * db_fil
 
     ssa_db_init( concat( "./tests/testdata/", db_file ) );
 
-    gapO = 1;
-    gapE = 1;
+    gapO = -1;
+    gapE = -1;
 
     adp_init( hit_count );
 
@@ -83,6 +83,7 @@ START_TEST (test_nw_simd_more_sequences)
         p_minheap heap = res->heap;
 
         ck_assert_int_eq( 4, res->overflow_8_bit_count );
+        ck_assert_int_eq( 0, res->overflow_16_bit_count );
 
         ck_assert_int_eq( -43, heap->array[0].score );
         ck_assert_int_eq( -50, heap->array[1].score );

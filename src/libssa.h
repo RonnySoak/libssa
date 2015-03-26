@@ -198,7 +198,7 @@ void init_constant_scoring( const int8_t p, const int8_t m );
  * @param  gapO  penalty for opening a gap
  * @param  gapE  penalty for extending a gap
  */
-void init_gap_penalties( const uint8_t gapO, const uint8_t gapE );
+void init_gap_penalties( const int8_t gapO, const int8_t gapE );
 
 /**
  * Initialises the symbol type translation for the alignment. Depending on the

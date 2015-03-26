@@ -30,7 +30,7 @@
 #include "../../../src/algo/gap_costs.h"
 #include "../../../src/db_adapter.h"
 
-START_TEST (test_sw_64_simple)
+START_TEST (test_sw_63_simple)
     {
         init_symbol_translation( NUCLEOTIDE, FORWARD_STRAND, 3, 3 );
         mat_init_constant_scoring( 1, -1 );
@@ -40,8 +40,8 @@ START_TEST (test_sw_64_simple)
         sequence_t dseq = us_prepare_sequence( "AATG", 4, 0, 0 );
 
         long *hearray = calloc( sizeof(long), 32 * query->nt[0].len );
-        gapO = 1;
-        gapE = 1;
+        gapO = -1;
+        gapE = -1;
 
         int score = full_sw( &dseq, &query->nt[0], hearray );
 
@@ -51,7 +51,7 @@ START_TEST (test_sw_64_simple)
         query_free( query );
     }END_TEST
 
-START_TEST (test_sw_64_simple_2)
+START_TEST (test_sw_63_simple_2)
     {
         init_symbol_translation( NUCLEOTIDE, FORWARD_STRAND, 3, 3 );
         mat_init_constant_scoring( 1, -1 );
@@ -61,8 +61,8 @@ START_TEST (test_sw_64_simple_2)
         sequence_t dseq = us_prepare_sequence( "ATGCCCAA", 4, 0, 0 );
 
         long *hearray = calloc( sizeof(long), 32 * query->nt[0].len );
-        gapO = 1;
-        gapE = 1;
+        gapO = -1;
+        gapE = -1;
 
         int score = full_sw( &dseq, &query->nt[0], hearray );
 
@@ -74,8 +74,8 @@ START_TEST (test_sw_64_simple_2)
 
 void add_sw_64_TC( Suite *s ) {
     TCase *tc_core = tcase_create( "SmithWaterman_64" );
-    tcase_add_test( tc_core, test_sw_64_simple );
-    tcase_add_test( tc_core, test_sw_64_simple_2 );
+    tcase_add_test( tc_core, test_sw_63_simple );
+    tcase_add_test( tc_core, test_sw_63_simple_2 );
 
     suite_add_tcase( s, tc_core );
 }

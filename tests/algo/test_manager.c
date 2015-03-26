@@ -36,8 +36,8 @@ static p_query setup_manager_test() {
     mat_init_constant_scoring( 1, -1 );
 
     ssa_db_init( "./tests/testdata/test.fas" );
-    gapO = 1;
-    gapE = 1;
+    gapO = -1;
+    gapE = -1;
 
     return query_read_from_string( "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA" );
 }

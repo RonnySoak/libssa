@@ -42,8 +42,8 @@ static p_search_result setup_searcher_8_test( int symbols, char * query_string, 
 
     ssa_db_init( concat( "./tests/testdata/", db_file ) );
 
-    gapO = 1;
-    gapE = 1;
+    gapO = -1;
+    gapE = -1;
 
     adp_init( hit_count );
 
@@ -117,6 +117,8 @@ NNKVNNKSVIYNKAPDFVESNTIFNLNTVKSSSIEFLLTSPPAVHSFNTPAVQS",
         p_minheap heap = res->heap;
 
         ck_assert_int_eq( 534, heap->array[0].score );
+        ck_assert_int_eq( 1, res->overflow_8_bit_count );
+        ck_assert_int_eq( 0, res->overflow_16_bit_count );
 
         exit_searcher_8_test( res );
     }END_TEST

@@ -45,8 +45,8 @@ static p_search_result setup_searcher_test( int bit_width, int search_type, char
 
     ssa_db_init( concat( "./tests/testdata/", db_file ) );
 
-    gapO = 1;
-    gapE = 1;
+    gapO = -1;
+    gapE = -1;
 
     adp_init( hit_count );
 

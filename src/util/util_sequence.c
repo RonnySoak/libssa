@@ -288,8 +288,8 @@ void us_map_sequence( sequence_t orig, sequence_t mapped, const char* map ) {
      * TODO here always allocate memory for the unknown symbols ...
      * maybe add some verbose flag, to omit the output and collection in some cases
      */
-    char * unknown_symbols = xmalloc( orig.len );
-    size_t unknown_count = 0;
+//    char * unknown_symbols = xmalloc( orig.len );
+//    size_t unknown_count = 0;
 
     char m;
     for( size_t i = 0; i < orig.len; i++ ) {
@@ -297,19 +297,19 @@ void us_map_sequence( sequence_t orig, sequence_t mapped, const char* map ) {
             mapped.seq[i] = m;
         }
         else {
-            if( orig.seq[i] != '\n' && orig.seq[i] != ' ' && orig.seq[i] != '\t' ) {
-                unknown_symbols[unknown_count++] = orig.seq[i];
-            }
+//            if( orig.seq[i] != '\n' && orig.seq[i] != ' ' && orig.seq[i] != '\t' ) {
+//                unknown_symbols[unknown_count++] = orig.seq[i];
+//            }
             mapped.seq[i] = 0;
         }
     }
 
-    if( unknown_count > 0 ) {
-        unknown_symbols[unknown_count] = 0;
-
-        outf( "Unknown symbols found and omitted: '%s'\n", unknown_symbols );
-    }
-    free( unknown_symbols );
+//    if( unknown_count > 0 ) {
+//        unknown_symbols[unknown_count] = 0;
+//
+//        outf( "Unknown symbols found and omitted: '%s'\n", unknown_symbols );
+//    }
+//    free( unknown_symbols );
 
     mapped.seq[mapped.len] = 0;
 }
@@ -353,7 +353,7 @@ void us_translate_sequence( int db_sequence, sequence_t dna, int strand, int fra
             prot_seq->seq[ppos++] = ttable[c];
         }
     }
-    // complement strand, done in reverse complement
+    // complementary strand, done in reverse complement
     else {
         pos = dna.len - 1 - frame;
 

@@ -42,8 +42,8 @@ static p_search_result setup_searcher_16_test( char * query_string, char * db_fi
 
     ssa_db_init( concat( "./tests/testdata/", db_file ) );
 
-    gapO = 1;
-    gapE = 1;
+    gapO = -1;
+    gapE = -1;
 
     adp_init( hit_count );
 
@@ -105,6 +105,9 @@ START_TEST (test_sw_simd_more_sequences)
     {
         p_search_result res = setup_searcher_16_test( "ATGCCCAAGCTGAATAGCGTAGAGGGGTTTTCATCATTTGAGGACGATGTATAA",
                 "test.fas", 5 );
+
+        ck_assert_int_eq( 0, res->overflow_8_bit_count );
+        ck_assert_int_eq( 0, res->overflow_16_bit_count );
 
         ck_assert_int_eq( 4, res->heap->array[0].db_id );
         ck_assert_int_eq( 0, res->heap->array[0].query_id );

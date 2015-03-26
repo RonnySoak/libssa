@@ -52,8 +52,8 @@ static p_query setup_aligner_test( char * query_string, char * db_file, int chun
     ssa_db_init( concat( "./tests/testdata/", db_file ) );
 
     adp_init( chunk_size );
-    gapO = 1;
-    gapE = 1;
+    gapO = -1;
+    gapE = -1;
 
     return query;
 }

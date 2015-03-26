@@ -54,7 +54,7 @@ void outf( const char * format, ... ) {
 void * xmalloc( size_t size ) {
     void * t;
     if( posix_memalign( &t, ALIGNMENT, size ) != 0 ) {
-        ffatal( "Unable to allocate enough memory." );
+        ffatal( "Unable to allocate enough memory: %ld.", size );
     }
 
     return t;
@@ -63,7 +63,7 @@ void * xmalloc( size_t size ) {
 void * xrealloc( void *ptr, size_t size ) {
     void * t = realloc( ptr, size );
     if( !t ) {
-        ffatal( "Unable to allocate enough memory." );
+        ffatal( "Unable to re-allocate enough memory: %ld.", size );
     }
     return t;
 }

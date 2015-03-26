@@ -71,7 +71,6 @@ typedef int8_t intYY_t;
 #ifdef __AVX2__
 
 #define _mmxxx_adds_epiYY _mm256_adds_epi8
-#define _mmxxx_subs_epiYY _mm256_subs_epi8
 #define _mmxxx_max_epiYY _mm256_max_epi8
 #define _mmxxx_set1_epiYY _mm256_set1_epi8
 #define _mmxxx_cmpeq_epiYY _mm256_cmpeq_epi8
@@ -84,7 +83,6 @@ typedef int8_t intYY_t;
 #else // SSE4.1
 
 #define _mmxxx_adds_epiYY _mm_adds_epi8
-#define _mmxxx_subs_epiYY _mm_subs_epi8
 #define _mmxxx_max_epiYY _mm_max_epi8
 #define _mmxxx_set1_epiYY _mm_set1_epi8
 #define _mmxxx_cmpeq_epiYY _mm_cmpeq_epi8
@@ -114,7 +112,6 @@ typedef int16_t intYY_t;
 #ifdef __AVX2__
 
 #define _mmxxx_adds_epiYY _mm256_adds_epi16
-#define _mmxxx_subs_epiYY _mm256_subs_epi16
 #define _mmxxx_max_epiYY _mm256_max_epi16
 #define _mmxxx_set1_epiYY _mm256_set1_epi16
 #define _mmxxx_cmpeq_epiYY _mm256_cmpeq_epi16
@@ -127,7 +124,6 @@ typedef int16_t intYY_t;
 #else // SSE2
 
 #define _mmxxx_adds_epiYY _mm_adds_epi16
-#define _mmxxx_subs_epiYY _mm_subs_epi16
 #define _mmxxx_max_epiYY _mm_max_epi16
 #define _mmxxx_set1_epiYY _mm_set1_epi16
 #define _mmxxx_cmpeq_epiYY _mm_cmpeq_epi16
@@ -159,14 +155,14 @@ static int d_idx;
  */
 #define ALIGNCORE(H, N, E, F, V, QR, R, S )                                	   \
  H = _mmxxx_adds_epiYY(H, V);         /* add value of scoring profile */       \
- H = _mmxxx_max_epiYY(H, F);          /* max(H, F) */                          \
- H = _mmxxx_max_epiYY(H, E);          /* max(H, E) */                          \
+ H = _mmxxx_max_epiYY(H, F);          /* MAX(H, F) */                          \
+ H = _mmxxx_max_epiYY(H, E);          /* MAX(H, E) */                          \
  S = _mmxxx_max_epiYY(H, S);          /* save max score */                     \
  N = H;                               /* save H in HE-array */                 \
- H = _mmxxx_subs_epiYY(H, QR);        /* subtract gap open-extend */           \
- F = _mmxxx_subs_epiYY(F, R);         /* subtract gap extend */                \
+ H = _mmxxx_adds_epiYY(H, QR);        /* subtract gap open-extend */           \
+ F = _mmxxx_adds_epiYY(F, R);         /* subtract gap extend */                \
  F = _mmxxx_max_epiYY(F, H);          /* test for gap extension, or opening */ \
- E = _mmxxx_subs_epiYY(E, R);         /* subtract gap extend */                \
+ E = _mmxxx_adds_epiYY(E, R);         /* subtract gap extend */                \
  E = _mmxxx_max_epiYY(E, H);          /* test for gap extension, or opening */
 
 static void aligncolumns_first( __mxxxi * S, __mxxxi * hep, __mxxxi ** qp, __mxxxi gap_open_extend, __mxxxi gap_extend,

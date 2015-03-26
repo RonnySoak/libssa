@@ -27,7 +27,7 @@
 
 static p_query init_libssa_test( size_t thread_count, char * db_file, char * query_file) {
     init_score_matrix( MATRIX_BUILDIN, BLOSUM62 );
-    init_gap_penalties( 4, 2 );
+    init_gap_penalties( -4, -2 );
     init_symbol_translation( NUCLEOTIDE, FORWARD_STRAND, 3, 3 );
 
     set_threads( thread_count );
@@ -228,9 +228,9 @@ START_TEST (test_init_functions)
 
         init_score_matrix( READ_FROM_STRING, mat_blosum80 );
 
-        init_gap_penalties( 8, 5 );
-        ck_assert_int_eq( 8, gapO );
-        ck_assert_int_eq( 5, gapE );
+        init_gap_penalties( -8, -5 );
+        ck_assert_int_eq( -8, gapO );
+        ck_assert_int_eq( -5, gapE );
 
         init_constant_scoring( 3, 6 );
 

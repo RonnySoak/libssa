@@ -39,8 +39,8 @@ static p_search_result setup_searcher_test( int bit_width, int search_type, char
 
     ssa_db_init( concat( "./tests/testdata/", db_file ) );
 
-    gapO = 1;
-    gapE = 1;
+    gapO = -1;
+    gapE = -1;
 
     adp_init( hit_count );
 
@@ -415,8 +415,8 @@ static p_search_result setup_BLOSUM62_test( int bit_width, int search_type, size
 
     ssa_db_init( concat( "./tests/testdata/", "short_AA.fas" ) );
 
-    gapO = 1;
-    gapE = 1;
+    gapO = -1;
+    gapE = -1;
 
     adp_init( hit_count );
 
@@ -500,42 +500,49 @@ START_TEST (test_searcher_AA_BLOSUM_nw_8)
         int result[2] = { 82, 0 };
 
         p_search_result res = setup_BLOSUM62_test( BIT_WIDTH_8, NEEDLEMAN_WUNSCH, 1 );
-// TODO test correct handling of overflow
+
         test_result( res, result, 2 );
     }END_TEST
 
-START_TEST (test_searcher_zeroed_sequences_sw)
+static void test_searcher_overflow_to_64bit( int search_type ) {
+    init_constant_scoring( 127, -1 );
+    init_symbol_translation( AMINOACID, FORWARD_STRAND, 3, 3 );
+    p_query query = query_read_from_file( "./tests/testdata/NP_009305.1.fas" );
+
+    s_init( search_type, BIT_WIDTH_8, query );
+
+    ssa_db_init( "./tests/testdata/NP_009305.1.fas" );
+
+    gapO = -1;
+    gapE = -1;
+
+    size_t hit_count = 1;
+    adp_init( hit_count );
+
+    p_search_result res = s_search( &hit_count );
+
+    minheap_sort( res->heap );
+
+    query_free( query );
+
+    ck_assert_int_eq( hit_count, res->heap->count );
+
+    ck_assert_int_eq( 1, res->overflow_8_bit_count );
+    ck_assert_int_eq( 1, res->overflow_16_bit_count );
+
+    int result[2] = { 67818, 0 };
+
+    test_result( res, result, 2 );
+}
+
+START_TEST (test_searcher_overflow_to_64bit_sw)
     {
-        set_max_compute_capability( COMPUTE_ON_AVX2 );
+        test_searcher_overflow_to_64bit( SMITH_WATERMAN );
+    }END_TEST
 
-        init_symbol_translation( AMINOACID, FORWARD_STRAND, 3, 3 );
-        mat_init_buildin( BLOSUM62 );
-
-        p_query query = query_read_from_string( "AA" );
-        query->aa[0].seq = (char [6]) { 0, 0, 0, 0, 0, 0 };
-        query->aa[0].len = 6;
-
-        s_init( SMITH_WATERMAN, BIT_WIDTH_16, query );
-
-        ssa_db_init( concat( "./tests/testdata/", "short_AA.fas" ) );
-
-        gapO = 1;
-        gapE = 1;
-
-        int hit_count = 1;
-        adp_init( hit_count );
-
-        p_search_result res = s_search( &hit_count );
-
-        minheap_sort( res->heap );
-
-        query_free( query );
-
-        ck_assert_int_eq( hit_count, res->heap->count );
-
-        int result[2] = { 6, 0 };
-
-        test_result( res, result, 2 );
+START_TEST (test_searcher_overflow_to_64bit_nw)
+    {
+        test_searcher_overflow_to_64bit( NEEDLEMAN_WUNSCH );
     }END_TEST
 
 START_TEST (test_init_search_data)
@@ -731,7 +738,8 @@ void addSearcherTC( Suite *s ) {
     tcase_add_test( tc_core, test_searcher_AA_BLOSUM_sw_8 );
     tcase_add_test( tc_core, test_searcher_AA_BLOSUM_sw_8_avx );
     tcase_add_test( tc_core, test_searcher_AA_BLOSUM_nw_8 );
-    tcase_add_test( tc_core, test_searcher_zeroed_sequences_sw );
+    tcase_add_test( tc_core, test_searcher_overflow_to_64bit_sw );
+    tcase_add_test( tc_core, test_searcher_overflow_to_64bit_nw );
     tcase_add_test( tc_core, test_searcher_AA_nw_64 );
     tcase_add_test( tc_core, test_searcher_AA_sw_64 );
     tcase_add_test( tc_core, test_searcher_AA_nw_16 );

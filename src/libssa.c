@@ -94,14 +94,7 @@ void init_score_matrix( int mode, const char* matrix ) {
  * @param  gapO  penalty for opening a gap
  * @param  gapE  penalty for extending a gap
  */
-void init_gap_penalties( const uint8_t gap_open, const uint8_t gap_extend ) {
-    if( gap_open > 127 ) {
-        ffatal( "Gap open opening costs out of range (> 127): %d\n", gap_open );
-    }
-    if( gap_extend > 127 ) {
-        ffatal( "Gap open extension costs out of range (> 127): %d\n", gap_extend );
-    }
-
+void init_gap_penalties( const int8_t gap_open, const int8_t gap_extend ) {
     gapO = gap_open;
     gapE = gap_extend;
 }

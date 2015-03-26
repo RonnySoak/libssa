@@ -56,14 +56,14 @@ static uint8_t * compute_directions_for_nw( sequence_t a_seq, sequence_t b_seq )
     memset( directions, 0, a_seq.len * b_seq.len );
 
     for( size_t i = 0; i < a_seq.len; i++ ) {
-        hearray[2 * i] = -gapO + (i + 1) * -gapE; // H (N)    scores in previous column
+        hearray[2 * i] = gapO + (i + 1) * gapE; // H (N)    scores in previous column
         hearray[2 * i + 1] = hearray[2 * i]; // E    gap values in previous column
     }
 
     for( size_t j = 0; j < b_seq.len; j++ ) {
         hep = hearray;
-        f = -gapO + (j + 1) * -gapE;          	// value in first upper cell
-        h = (j == 0) ? 0 : (-gapO + j * -gapE); // value in first cell of line
+        f = gapO + (j + 1) * gapE;          	// value in first upper cell
+        h = (j == 0) ? 0 : (gapO + j * gapE); // value in first cell of line
 
         for( size_t i = 0; i < a_seq.len; i++ ) {
             size_t index = a_seq.len * j + i;
@@ -84,11 +84,11 @@ static uint8_t * compute_directions_for_nw( sequence_t a_seq, sequence_t b_seq )
 
             *hep = h;
 
-            h += -gapO + -gapE;
+            h += gapO + gapE;
 
             // test for gap extensions
-            e += -gapE;
-            f += -gapE;
+            e += gapE;
+            f += gapE;
 
             if( f > h ) {
                 directions[index] |= MASK_GAP_EXT_UP;
@@ -160,11 +160,10 @@ static uint8_t * compute_directions_for_sw( sequence_t a_seq, sequence_t b_seq )
 
             *hep = h;
 
-            h += -gapO + -gapE;
-
             // test for gap extensions
-            e += -gapE;
-            f += -gapE;
+            h += gapO + gapE;
+            e += gapE;
+            f += gapE;
 
             if( f > h ) {
                 directions[index] |= MASK_GAP_EXT_UP;

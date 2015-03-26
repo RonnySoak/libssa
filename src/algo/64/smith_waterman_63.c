@@ -72,9 +72,9 @@ int64_t full_sw( sequence_t * dseq, sequence_t * qseq, int64_t * hearray ) {
                 s = h;
 
             *hep = h;
-            e -= gapE;
-            f -= gapE;
-            h += -gapO + -gapE;
+            e += gapE;
+            f += gapE;
+            h += gapO + gapE;
 
             if( h > e )
                 e = h;

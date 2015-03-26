@@ -25,7 +25,7 @@
 #include "../src/algo/searcher.h"
 #include "../src/cpu_config.h"
 
-static p_query setup_bigger_db_test( char * db_file, char * query_file, uint8_t gapO, uint8_t gapE,
+static p_query setup_bigger_db_test( char * db_file, char * query_file, int8_t gapO, int8_t gapE,
         size_t thread_count, int symtype ) {
     set_max_compute_capability( COMPUTE_ON_AVX2 );
 
@@ -72,7 +72,7 @@ START_TEST (test_AF091148)
         size_t hit_count = 10;
         init_constant_scoring( 2, -2 );
 
-        p_query query = setup_bigger_db_test( "AF091148.fas", "one_seq.fas", 4, 2, 1, NUCLEOTIDE );
+        p_query query = setup_bigger_db_test( "AF091148.fas", "one_seq.fas", -4, -2, 1, NUCLEOTIDE );
 
         long exp_al_nw_64[] = { -88, 908, -92, 1050, -94, 938, -98, 378, -102, 75, -104, 23, -106, 1229, -110, 1148, -110, 612, -112, 1016, };
         long exp_al_nw_16[] = { -88, 908, -92, 1050, -94, 938, -98, 378, -102, 75, -104, 23, -106, 1229, -110, 1148, -110, 612, -112, 1016, };
@@ -99,7 +99,7 @@ START_TEST (test_Rfam_11_0)
         size_t hit_count = 10;
         init_constant_scoring( 5, -4 );
 
-        p_query query = setup_bigger_db_test( "Rfam_11_0.fasta", "one_seq.fas", 4, 2, 1, NUCLEOTIDE );
+        p_query query = setup_bigger_db_test( "Rfam_11_0.fasta", "one_seq.fas", -4, -2, 1, NUCLEOTIDE );
 
         long exp_al_nw_16[] = { 102, 335336, 95, 117010, 90, 190314, 90, 106501, 89, 106713, 89, 78465, 88, 101449, 87, 364612, 87, 103759, 85, 101161, };
         long exp_al_nw__8[] = { 102, 335336, 95, 117010, 90, 190314, 90, 106501, 89, 106713, 89, 78465, 88, 101449, 87, 364612, 87, 103759, 85, 101161, };
@@ -125,7 +125,7 @@ START_TEST (test_uniprot_sprot_sw)
         size_t hit_count = 10;
         init_score_matrix( MATRIX_BUILDIN, BLOSUM62 );
 
-        p_query query = setup_bigger_db_test( "uniprot_sprot.fasta", "O74807.fasta", 4, 2, 8, AMINOACID );
+        p_query query = setup_bigger_db_test( "uniprot_sprot.fasta", "O74807.fasta", -4, -2, 8, AMINOACID );
 
         long exp_al_sw_16[] = { 567, 232080, 144, 57785, 135, 57784, 130, 57781, 129, 57782, 128, 57783, 112, 232079, 104, 536355, 98, 539010, 98, 57789, };
         long exp_al_sw__8[] = { 567, 232080, 144, 57785, 135, 57784, 130, 57781, 129, 57782, 128, 57783, 112, 232079, 104, 536355, 98, 539010, 98, 57789, };
@@ -147,7 +147,7 @@ START_TEST (test_uniprot_sprot_nw)
         size_t hit_count = 10;
         init_score_matrix( MATRIX_BUILDIN, BLOSUM62 );
 
-        p_query query = setup_bigger_db_test( "uniprot_sprot.fasta", "O74807.fasta", 4, 2, 8, AMINOACID );
+        p_query query = setup_bigger_db_test( "uniprot_sprot.fasta", "O74807.fasta", -4, -2, 8, AMINOACID );
 
         long exp_al_nw_16[] = { 567, 232080, 101, 57785, 93, 57781, 82, 57783, 77, 57784, 77, 57782, 69, 232079, 53, 117510, 51, 232081, 49, 186660, };
         long exp_al_nw__8[] = { 567, 232080, 101, 57785, 93, 57781, 82, 57783, 77, 57784, 77, 57782, 69, 232079, 53, 117510, 51, 232081, 49, 186660, };

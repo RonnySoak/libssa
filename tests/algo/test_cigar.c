@@ -33,8 +33,8 @@ sequence_t a_seq;
 sequence_t b_seq;
 
 void setup_cigar(char * seq_a, char * seq_b, long len_a, long len_b) {
-    gapO = 1;
-    gapE = 1;
+    gapO = -1;
+    gapE = -1;
     mat_init_constant_scoring(1, -1);
 
     us_init_translation(3, 3);

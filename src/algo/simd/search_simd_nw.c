@@ -168,15 +168,15 @@ static int d_idx;
  */
 #define ALIGNCORE(H, N, E, F, V, QR, R, H_MIN, H_MAX)                          \
  H = _mmxxx_adds_epiYY(H, V);         /* add value of scoring profile */       \
- H = _mmxxx_max_epiYY(H, F);          /* max(H, F) */                          \
- H = _mmxxx_max_epiYY(H, E);          /* max(H, E) */                          \
+ H = _mmxxx_max_epiYY(H, F);          /* MAX(H, F) */                          \
+ H = _mmxxx_max_epiYY(H, E);          /* MAX(H, E) */                          \
  H_MIN = _mmxxx_min_epiYY(H_MIN, H);                                           \
  H_MAX = _mmxxx_max_epiYY(H_MAX, H);                                           \
  N = H;                               /* save H in HE-array */                 \
- H = _mmxxx_subs_epiYY(H, QR);        /* subtract gap open-extend */           \
- F = _mmxxx_subs_epiYY(F, R);         /* subtract gap extend */                \
+ H = _mmxxx_adds_epiYY(H, QR);        /* subtract gap open-extend */           \
+ F = _mmxxx_adds_epiYY(F, R);         /* subtract gap extend */                \
  F = _mmxxx_max_epiYY(F, H);          /* test for gap extension, or opening */ \
- E = _mmxxx_subs_epiYY(E, R);         /* subtract gap extend */                \
+ E = _mmxxx_adds_epiYY(E, R);         /* subtract gap extend */                \
  E = _mmxxx_max_epiYY(E, H);          /* test for gap extension, or opening */
 
 static void aligncolumns_first( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mxxxi gap_open_extend, __mxxxi gap_extend,
@@ -197,10 +197,10 @@ static void aligncolumns_first( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mx
 
     __mxxxi M_gap_extension = M_gap_open_extend;
 
-    f0 = _mmxxx_subs_epiYY( f0, gap_open_extend );
-    f1 = _mmxxx_subs_epiYY( f1, gap_open_extend );
-    f2 = _mmxxx_subs_epiYY( f2, gap_open_extend );
-    f3 = _mmxxx_subs_epiYY( f3, gap_open_extend );
+    f0 = _mmxxx_adds_epiYY( f0, gap_open_extend );
+    f1 = _mmxxx_adds_epiYY( f1, gap_open_extend );
+    f2 = _mmxxx_adds_epiYY( f2, gap_open_extend );
+    f3 = _mmxxx_adds_epiYY( f3, gap_open_extend );
 
     for( size_t i = 0; i < ql; i++ ) {
         vp = qp[i + 0];
@@ -220,11 +220,11 @@ static void aligncolumns_first( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mx
          * each round the extend costs are subtracted.
          */
         h4 = _mmxxx_subs_epuYY( h4, M );
-        h4 = _mmxxx_subs_epiYY( h4, M_gap_extension );
+        h4 = _mmxxx_adds_epiYY( h4, M_gap_extension );
 
         E = _mmxxx_subs_epuYY( E, M );
-        E = _mmxxx_subs_epiYY( E, M_gap_extension );
-        E = _mmxxx_subs_epiYY( E, M_gap_open_extend );
+        E = _mmxxx_adds_epiYY( E, M_gap_extension );
+        E = _mmxxx_adds_epiYY( E, M_gap_open_extend );
 
         M_gap_extension = _mmxxx_adds_epiYY( M_gap_extension, M_gap_extend );
 
@@ -261,10 +261,10 @@ static void aligncolumns_rest( __mxxxi * Sm, __mxxxi * hep, __mxxxi ** qp, __mxx
     __mxxxi h4, h5, h6, h7, h8, E;
     __mxxxi * vp;
 
-    f0 = _mmxxx_subs_epiYY( f0, gap_open_extend );
-    f1 = _mmxxx_subs_epiYY( f1, gap_open_extend );
-    f2 = _mmxxx_subs_epiYY( f2, gap_open_extend );
-    f3 = _mmxxx_subs_epiYY( f3, gap_open_extend );
+    f0 = _mmxxx_adds_epiYY( f0, gap_open_extend );
+    f1 = _mmxxx_adds_epiYY( f1, gap_open_extend );
+    f2 = _mmxxx_adds_epiYY( f2, gap_open_extend );
+    f3 = _mmxxx_adds_epiYY( f3, gap_open_extend );
 
     for( size_t i = 0; i < ql; i++ ) {
         vp = qp[i + 0];
@@ -358,7 +358,7 @@ void search_YY_XXX_nw( p_sYYinfo s, p_db_chunk chunk, p_minheap heap, p_db_chunk
         d_seq_ptr[c] = 0;
     }
 
-    __mxxxi score_min = _mmxxx_set1_epiYY( I_MIN + s->penalty_gap_open + s->penalty_gap_extension -1 ); // TODO why + Q + R ???
+    __mxxxi score_min = _mmxxx_set1_epiYY( I_MIN - s->penalty_gap_open - s->penalty_gap_extension -1 ); // TODO why + Q + R ???
     __mxxxi score_max = _mmxxx_set1_epiYY( I_MAX );
 
     __mxxxi H0 = _mmxxx_setzero_si();
@@ -432,14 +432,14 @@ void search_YY_XXX_nw( p_sYYinfo s, p_db_chunk chunk, p_minheap heap, p_db_chunk
                         d_end[c] = (unsigned char*) d_seq_ptr[c]->seq.seq + d_seq_ptr[c]->seq.len;
 
                         ((intYY_t*) &H0)[c] = 0;
-                        ((intYY_t*) &H1)[c] = -s->penalty_gap_open - 1 * s->penalty_gap_extension;
-                        ((intYY_t*) &H2)[c] = -s->penalty_gap_open - 2 * s->penalty_gap_extension;
-                        ((intYY_t*) &H3)[c] = -s->penalty_gap_open - 3 * s->penalty_gap_extension;
+                        ((intYY_t*) &H1)[c] = s->penalty_gap_open + 1 * s->penalty_gap_extension;
+                        ((intYY_t*) &H2)[c] = s->penalty_gap_open + 2 * s->penalty_gap_extension;
+                        ((intYY_t*) &H3)[c] = s->penalty_gap_open + 3 * s->penalty_gap_extension;
 
-                        ((intYY_t*) &F0)[c] = -s->penalty_gap_open - 1 * s->penalty_gap_extension;
-                        ((intYY_t*) &F1)[c] = -s->penalty_gap_open - 2 * s->penalty_gap_extension;
-                        ((intYY_t*) &F2)[c] = -s->penalty_gap_open - 3 * s->penalty_gap_extension;
-                        ((intYY_t*) &F3)[c] = -s->penalty_gap_open - 4 * s->penalty_gap_extension;
+                        ((intYY_t*) &F0)[c] = s->penalty_gap_open + 1 * s->penalty_gap_extension;
+                        ((intYY_t*) &F1)[c] = s->penalty_gap_open + 2 * s->penalty_gap_extension;
+                        ((intYY_t*) &F2)[c] = s->penalty_gap_open + 3 * s->penalty_gap_extension;
+                        ((intYY_t*) &F3)[c] = s->penalty_gap_open + 4 * s->penalty_gap_extension;
 
                         change_sequences |= move_db_sequence_window_YY( c, d_begin, d_end, dseq_search_window );
                     }
@@ -480,15 +480,15 @@ void search_YY_XXX_nw( p_sYYinfo s, p_db_chunk chunk, p_minheap heap, p_db_chunk
         /*
          * Before calling it again, we need to add CDEPTH * gap_extend to f0, to move it to the new column.
          */
-        F0 = _mmxxx_subs_epiYY( F3, gap_extend );
-        F1 = _mmxxx_subs_epiYY( F0, gap_extend );
-        F2 = _mmxxx_subs_epiYY( F1, gap_extend );
-        F3 = _mmxxx_subs_epiYY( F2, gap_extend );
+        F0 = _mmxxx_adds_epiYY( F3, gap_extend );
+        F1 = _mmxxx_adds_epiYY( F0, gap_extend );
+        F2 = _mmxxx_adds_epiYY( F1, gap_extend );
+        F3 = _mmxxx_adds_epiYY( F2, gap_extend );
 
-        H0 = _mmxxx_subs_epiYY( H3, gap_extend );
-        H1 = _mmxxx_subs_epiYY( H0, gap_extend );
-        H2 = _mmxxx_subs_epiYY( H1, gap_extend );
-        H3 = _mmxxx_subs_epiYY( H2, gap_extend );
+        H0 = _mmxxx_adds_epiYY( H3, gap_extend );
+        H1 = _mmxxx_adds_epiYY( H0, gap_extend );
+        H2 = _mmxxx_adds_epiYY( H1, gap_extend );
+        H3 = _mmxxx_adds_epiYY( H2, gap_extend );
     }
 
 #ifdef DBG_COLLECT_MATRIX

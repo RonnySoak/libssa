@@ -23,7 +23,7 @@
 #include <stdint.h>
 
 // both are filled in libssa.c
-extern uint8_t gapO;
-extern uint8_t gapE;
+extern int8_t gapO;
+extern int8_t gapE;
 
 #endif /* GAP_COSTS_H_ */

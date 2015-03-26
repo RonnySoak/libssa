@@ -42,17 +42,17 @@ region_t find_region_and_score_for_local( sequence_t a_seq, sequence_t b_seq ) {
     // Forward pass
     for( size_t j = 0; j < a_seq.len; j++ ) {
         HH[j] = 0;
-        EE[j] = -gapO;
+        EE[j] = gapO;
     }
 
     for( size_t i = 0; i < b_seq.len; i++ ) {
         long h = 0;
         long p = 0;
-        long f = -gapO;
+        long f = gapO;
 
         for( size_t j = 0; j < a_seq.len; j++ ) {
-            f = MAX(f, h - gapO) - gapE;
-            EE[j] = MAX(EE[j], HH[j] - gapO) - gapE;
+            f = MAX(f, h + gapO) + gapE;
+            EE[j] = MAX(EE[j], HH[j] + gapO) + gapE;
 
             h = p + SCORE_MATRIX_64( a_seq.seq[j], b_seq.seq[i] );
 
@@ -93,8 +93,8 @@ region_t find_region_and_score_for_local( sequence_t a_seq, sequence_t b_seq ) {
             p = -1;
 
         for( long j = region.a_end; j >= 0; j-- ) { // TODO change long to size_t (be careful because of the down-counting ...)
-            f = MAX(f, h - gapO) - gapE;
-            EE[j] = MAX(EE[j], HH[j] - gapO) - gapE;
+            f = MAX(f, h + gapO) + gapE;
+            EE[j] = MAX(EE[j], HH[j] + gapO) + gapE;
 
             h = p + SCORE_MATRIX_64( a_seq.seq[j], b_seq.seq[i] );
 
