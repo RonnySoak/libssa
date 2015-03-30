@@ -7,8 +7,8 @@ COUNT=10
 LOG_FILE="results/$(date +%d.%m.%y_%H_%M)_whole_lib"
 
 DATABASE="uniprot_sprot.fasta"
-GAP_O=3
-GAP_E=1
+GAP_O=-3
+GAP_E=-1
 MATRIX="BLOSUM50"
 
 declare -a THREADS_ARR=("1" "4" "8")

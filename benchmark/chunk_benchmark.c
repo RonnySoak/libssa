@@ -74,7 +74,7 @@ int main( int argc, char**argv ) {
     set_output_mode( OUTPUT_SILENT );
 
     init_score_matrix( MATRIX_BUILDIN, BLOSUM50 );
-    init_gap_penalties( 3, 1 );
+    init_gap_penalties( -3, -1 );
     init_symbol_translation( AMINOACID, FORWARD_STRAND, 3, 3 );
 
     for( int t = 0; t < 3; ++t ) {

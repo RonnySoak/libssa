@@ -9,7 +9,7 @@ CXX := gcc# vtcc -finstrument-functions-exclude-file-list=include
 LIBS := -L.. -lssa -pthread -lm -lsdb
 BASE_FLAGS := -Wall -O3 -std=c99 -march=native
 
-PROG := wholelib alignmentonly chunks
+PROG := wholelib alignmentonly chunks threads
 
 all : init $(PROG)
 
@@ -30,6 +30,11 @@ alignmentonly : init benchmark_alignment_only.c $(DEPS)
 chunks : init chunk_benchmark.c $(DEPS)
 	@echo 'Building target: $@'
 	$(CXX) $(BASE_FLAGS) -march=native -o $@ chunk_benchmark.c $(LIBS)
+	@echo 'Finished building target: $@'
+
+threads : init benchmark_threads.c $(DEPS)
+	@echo 'Building target: $@'
+	$(CXX) $(BASE_FLAGS) -march=native -o $@ benchmark_threads.c $(LIBS)
 	@echo 'Finished building target: $@'
 
 clean:

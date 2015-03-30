@@ -52,23 +52,20 @@ static double run_alignment( p_alignment_list (*align_func)( p_query, size_t, in
     return elapsed;
 }
 
-#define T_COUNT 3
-#define S_COUNT 2
+#define T_COUNT 6
 #define B_COUNT 2
-#define Q_COUNT 4
 #define A_COUNT 2
 
 int main( int argc, char**argv ) {
-    FILE *f = fopen( "results/30_03_2015_alignment_only", "w" );
+    FILE *f = fopen( "results/30_03_2015_threads", "w" );
     if( f == NULL ) {
         printf( "Error opening file!\n" );
         exit( 1 );
     }
 
-    int threads[T_COUNT] = { 1, 4, 8 };
-    int SIMD[S_COUNT] = { COMPUTE_ON_SSE41, COMPUTE_ON_AVX2 };
+    int threads[T_COUNT] = { 2, 3, 5, 6, 7, 10 };
     int bit_width[B_COUNT] = { 8, 16 };
-    char * queries[Q_COUNT] = { "O74807", "P18080", "P19930", "Q3ZAI3" };
+    char * query = "P18080";
 
     size_t hit_count = 10;
 
@@ -93,45 +90,20 @@ int main( int argc, char**argv ) {
                 align_func = &nw_align;
             }
 
-            for( int s = 0; s < S_COUNT; ++s ) {
-                set_simd_compute_mode( SIMD[s] );
+            set_simd_compute_mode( COMPUTE_ON_AVX2 );
 
-                for( int b = 0; b < B_COUNT; ++b ) {
-                    for( int q = 0; q < Q_COUNT; ++q ) {
-                        char * filename = concat( concat( "data/", queries[q] ), ".fasta" );
-                        p_query query = init_sequence_fasta( READ_FROM_FILE, filename );
-                        free( filename );
-
-                        fprintf( f, "%s,%s,%s,%d_bit,%d_t", queries[q], SIMD_DESC( SIMD[s] ), TYPE_DESC( type ),
-                                bit_width[b], threads[t] );
-                        printf( "%s,%s,%s,%d_bit,%d_t", queries[q], SIMD_DESC( SIMD[s] ), TYPE_DESC( type ),
-                                bit_width[b], threads[t] );
-
-                        for( int i = 0; i < iterations; i++ ) {
-                            double time = run_alignment( align_func, query, hit_count, bit_width[b] );
-
-                            fprintf( f, ",%lf", time );
-                            printf( ",%lf", time );
-                        }
-                        fprintf( f, "\n" );
-                        printf( "\n" );
-
-                        free_sequence( query );
-                    }
-                }
-            }
-
-            // 64 bit
-            for( int q = 0; q < Q_COUNT; ++q ) {
-                char * filename = concat( concat( "data/", queries[q] ), ".fasta" );
-                p_query query = init_sequence_fasta( READ_FROM_FILE, filename );
+            for( int b = 0; b < B_COUNT; ++b ) {
+                char * filename = concat( concat( "data/", query ), ".fasta" );
+                p_query query_profile = init_sequence_fasta( READ_FROM_FILE, filename );
                 free( filename );
 
-                fprintf( f, "%s,NO_SIMD,%s,%d_bit,%d_t", queries[q], TYPE_DESC( type ), 64, threads[t] );
-                printf( "%s,NO_SIMD,%s,%d_bit,%d_t", queries[q], TYPE_DESC( type ), 64, threads[t] );
+                fprintf( f, "%s,%s,%s,%d_bit,%d_t", query, SIMD_DESC( COMPUTE_ON_AVX2 ), TYPE_DESC( type ),
+                        bit_width[b], threads[t] );
+                printf( "%s,%s,%s,%d_bit,%d_t", query, SIMD_DESC( COMPUTE_ON_AVX2 ), TYPE_DESC( type ),
+                        bit_width[b], threads[t] );
 
                 for( int i = 0; i < iterations; i++ ) {
-                    double time = run_alignment( align_func, query, hit_count, 64 );
+                    double time = run_alignment( align_func, query_profile, hit_count, bit_width[b] );
 
                     fprintf( f, ",%lf", time );
                     printf( ",%lf", time );
@@ -139,8 +111,27 @@ int main( int argc, char**argv ) {
                 fprintf( f, "\n" );
                 printf( "\n" );
 
-                free_sequence( query );
+                free_sequence( query_profile );
             }
+
+            // 64 bit
+            char * filename = concat( concat( "data/", query ), ".fasta" );
+            p_query query_profile = init_sequence_fasta( READ_FROM_FILE, filename );
+            free( filename );
+
+            fprintf( f, "%s,NO_SIMD,%s,%d_bit,%d_t", query, TYPE_DESC( type ), 64, threads[t] );
+            printf( "%s,NO_SIMD,%s,%d_bit,%d_t", query, TYPE_DESC( type ), 64, threads[t] );
+
+            for( int i = 0; i < iterations; i++ ) {
+                double time = run_alignment( align_func, query_profile, hit_count, 64 );
+
+                fprintf( f, ",%lf", time );
+                printf( ",%lf", time );
+            }
+            fprintf( f, "\n" );
+            printf( "\n" );
+
+            free_sequence( query_profile );
         }
     }
 

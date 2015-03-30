@@ -69,7 +69,7 @@ int main( int argc, char**argv ) {
 //    set_output_mode( OUTPUT_SILENT );
 
     init_score_matrix( MATRIX_BUILDIN, "blosum62" );
-    init_gap_penalties( 3, 1 );
+    init_gap_penalties( -3, -1 );
     init_db_fasta( "tests/testdata/uniprot_sprot.fasta" );
 //    init_db_fasta( "tests/testdata/AF091148.fas" );
 

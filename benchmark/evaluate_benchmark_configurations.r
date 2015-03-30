@@ -6,6 +6,7 @@
 #read_reduced_timing( "results/14_02_2015_whole_lib" );
 #read_reduced_timing( "results/18_02_2015_whole_lib" );
 read_reduced_timing( "results/19_02_2015_alignment_only", nr_desc_elements = 5 );
+#read_reduced_timing( "results/30_03_2015_alignment_only", nr_desc_elements = 5 );
 
 total_runtime_func( timing, 5 )
 
@@ -54,7 +55,7 @@ reduced_label_no_threads <- gsub( pattern = "_", replacement = " ", x = reduced_
 
 reduced_label_no_threads_no_64bit <- reduced_label_no_threads[c(-5,-10)]
 
-pdf(file='~/projects/master_thesis/tex/img/runtime_variation_8_16_bit.pdf', width = 7, height = 10, pointsize = 12)
+pdf(file='~/projects/master_thesis/tex/img/runtime_variation_8_16_bit_old.pdf', width = 7, height = 10, pointsize = 12)
 par( mfrow = c(3, 1) )
 print_variations_boxplot( timing_reduced[,c(1:4,6:9)], "Variation of timing results using 1 thread", reduced_label_no_threads_no_64bit )
 print_variations_boxplot( timing_reduced[,c(11:14,16:19)], "Variation of timing results using 4 threads", reduced_label_no_threads_no_64bit )
@@ -66,7 +67,7 @@ reduced_label_no_threads_64bit <- gsub( pattern = ",", replacement = ", ", x = r
 reduced_label_no_threads_64bit <- gsub( pattern = "_t", replacement = " threads", x = reduced_label_no_threads_64bit)
 reduced_label_no_threads_64bit <- gsub( pattern = "1 threads", replacement = "1 thread", x = reduced_label_no_threads_64bit)
 
-pdf(file='~/projects/master_thesis/tex/img/runtime_variation_64_bit.pdf', width = 8, height = 4, pointsize = 10)
+pdf(file='~/projects/master_thesis/tex/img/runtime_variation_64_bit_old.pdf', width = 8, height = 4, pointsize = 10)
 print_variations_boxplot( timing_reduced[,c(5,10,15,20,25,30)], "Variation of timing results in the 64 bit searches", reduced_label_no_threads_64bit )
 dev.off()
 
