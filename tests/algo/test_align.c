@@ -28,18 +28,8 @@
 #include "../../src/util/util.h"
 #include "../../src/algo/gap_costs.h"
 
-sequence_t a_seq;
-sequence_t b_seq;
-
-void fill_translated_sequence( sequence_t* s, char * seq, size_t len ) {
-    sequence_t new_seq = { seq, len };
-
-    *s = (sequence_t ) { xmalloc( len + 1 ), len };
-
-    us_map_sequence( new_seq, *s, map_ncbi_nt16 );
-
-    // TODO move to test util file
-}
+static sequence_t a_seq;
+static sequence_t b_seq;
 
 static void setup_align( char * seq_a, char * seq_b, size_t len_a, size_t len_b ) {
     gapO = -1;
@@ -60,7 +50,7 @@ START_TEST (test_find_region_for_local)
     {
         setup_align( "AATC", "AT", 4, 2 );
 
-        region_t region = find_region_and_score_for_local( a_seq, b_seq );
+        region_t region = find_region_for_local( a_seq, b_seq );
 
         ck_assert_int_eq( 1, region.a_begin );
         ck_assert_int_eq( 2, region.a_end );

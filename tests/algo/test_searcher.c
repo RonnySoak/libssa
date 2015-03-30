@@ -568,7 +568,6 @@ START_TEST (test_init_search_data)
         ck_assert_int_eq( 0, sdp->queries[5].seq.len );
 
         ck_assert_int_eq( 54, sdp->maxqlen );
-        // TODO test profile
 
         query_free( query );
     }END_TEST

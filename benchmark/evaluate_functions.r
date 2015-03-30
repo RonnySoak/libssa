@@ -38,9 +38,9 @@ set_indices <- function() {
     assign( "idx_SW", which( config_reduced == "SW", arr.ind=T )[,2], envir = .GlobalEnv )
     assign( "idx_NW", which( config_reduced == "NW", arr.ind=T )[,2], envir = .GlobalEnv )
 
-    assign( "idx_8bit", which( config_reduced == "8_b", arr.ind=T )[,2], envir = .GlobalEnv )
-    assign( "idx_16bit", which( config_reduced == "16_b", arr.ind=T )[,2], envir = .GlobalEnv )
-    assign( "idx_64bit", which( config_reduced == "64_b", arr.ind=T )[,2], envir = .GlobalEnv )
+    assign( "idx_8bit", which( config_reduced == "8_bit", arr.ind=T )[,2], envir = .GlobalEnv )
+    assign( "idx_16bit", which( config_reduced == "16_bit", arr.ind=T )[,2], envir = .GlobalEnv )
+    assign( "idx_64bit", which( config_reduced == "64_bit", arr.ind=T )[,2], envir = .GlobalEnv )
 
     assign( "idx_1t", which( config_reduced == "1_t", arr.ind=T )[,2], envir = .GlobalEnv )
     assign( "idx_4t", which( config_reduced == "4_t", arr.ind=T )[,2], envir = .GlobalEnv )
@@ -73,7 +73,7 @@ compare_plot_func <- function( idx_dim1_a, idx_dim1_b, idx_dim2, vdata, config_r
     x_names = gsub( pattern = ",", replacement = ", ", x = x_names)
     x_names = gsub( pattern = "NO_SIMD, ", replacement = "", x = x_names)
     x_names = gsub( pattern = "_", replacement = " ", x = x_names)
-
+print( x_names )
     x = barplot( plot_data, main=title, ylab="Time (seconds)", xlab="Configurations", col=c("orange","darkblue"), beside=T, ylim=c(0, 20), las=1, space=c(0.2,0.8) )
 
     text( cex = 0.8, x = colMeans(x)+0.8, y = -1.25, labels = x_names, xpd = TRUE, srt = 45, pos = 2 )
@@ -93,4 +93,13 @@ improvements_func <- function( idx_a, idx_b, vdata, config_reduced, title ) {
 
     print( title )
     print( improvement )
+}
+
+total_runtime_func <- function( timing, nr_desc_element = 5 ) {
+    runtime = sum( timing[,(nr_desc_element+1):15] )
+
+    hours = as.integer( runtime / 3600 )
+    minutes = as.integer( runtime %% 3600 / 60 )
+
+    cat( 'Total runtime: ', hours, ':', minutes, 'hours' )
 }

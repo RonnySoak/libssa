@@ -24,16 +24,13 @@ static char* concat( char * s1, char * s2 ) {
  * Using UniProtKB/Swiss-Prot database.
  *
  * Can be downloaded from here: http://www.uniprot.org/downloads
- *
- * Compile it with:
- * gcc -O3 -std=c99 -mavx2 -o benchmark_2 benchmark_2.c -L.. -lssa -lpthread -lm -lsdb
  */
 
-#define SMITH_WATERMAN 0
-#define NEEDLEMAN_WUNSCH 1
+#define SW 0
+#define NW 1
 
 #define SIMD_DESC(s) ( (s == COMPUTE_ON_AVX2) ? "AVX2" : "SSE41" )
-#define TYPE_DESC(t) ( (t == SMITH_WATERMAN) ? "SW" : "NW" )
+#define TYPE_DESC(t) ( (t == SW) ? "SW" : "NW" )
 
 static double run_alignment( p_alignment_list (*align_func)( p_query, size_t, int, int ), p_query query, size_t hit_count,
         int bit_width ) {
@@ -89,7 +86,7 @@ int main( int argc, char**argv ) {
 
         for( int type = 0; type < A_COUNT; ++type ) {
             p_alignment_list (*align_func)( p_query, size_t, int, int );
-            if( type == SMITH_WATERMAN ) {
+            if( type == SW ) {
                 align_func = &sw_align;
             }
             else {

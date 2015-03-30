@@ -23,16 +23,6 @@
 #include <stdint.h>
 #include <stddef.h>
 
-/*
- *
- * TODO do SWIPE and SWARM prepare the DB and query or do we read them from a
- * standard FASTA/BLAST file?
- *
- * banded alignments: do we provide separate functions for these, or
- *      do we add some init-function or parameters for these?
- *
- */
-
 // #############################################################################
 // Constants
 // #########
@@ -87,29 +77,8 @@
 struct _query;
 typedef struct _query * p_query;
 
-/** @typedef    structure of the alignment result
- *
- *  @field  score1  the best alignment score
- *  @field  score2  sub-optimal alignment score
- *
- *  TODO How do we return the alignments? like SSW or different?
+/**
  *  cigar: http://genome.sph.umich.edu/wiki/SAM#What_is_a_CIGAR.3F
- *
- *  SSW:
- @field  ref_begin1  0-based best alignment beginning position on reference;
- ref_begin1 = -1 when the best alignment beginning
- position is not available
- @field  ref_end1    0-based best alignment ending position on reference
- @field  read_begin1 0-based best alignment beginning position on read;
- read_begin1 = -1 when the best alignment beginning
- position is not available
- @field  read_end1   0-based best alignment ending position on read
- @field  read_end2   0-based sub-optimal alignment ending position on read
- @field  cigar   best alignment cigar; stored the same as that in BAM format,
- high 28 bits: length, low 4 bits: M/I/D (0/1/2);
- cigar = 0 when the best alignment path is not available
- @field  cigarLen    length of the cigar string; cigarLen = 0 when the best
- alignment path is not available
  */
 typedef struct {
     char* seq;

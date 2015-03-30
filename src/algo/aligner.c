@@ -37,15 +37,7 @@ static pthread_mutex_t chunk_mutex = PTHREAD_MUTEX_INITIALIZER;
 void a_init_data( int search_type ) {
     adp = xmalloc( sizeof(alignment_data_t) );
 
-    if( search_type == SMITH_WATERMAN ) {
-        adp->align_function = &align_sw;
-    }
-    else if( search_type == NEEDLEMAN_WUNSCH ) {
-        adp->align_function = &align_nw;
-    }
-    else {
-        ffatal( "\nunknown search type: %d\n\n", search_type );
-    }
+    adp->search_type = search_type;
 
     adp->q_count = s_get_query_count();
     for( int i = 0; i < s_get_query_count(); i++ ) {
@@ -59,7 +51,6 @@ void a_free_data() {
     }
 
     adp->q_count = 0;
-    adp->align_function = 0;
     adp->result_sequence_pairs = 0;
 
     chunk_counter = 0;
@@ -72,7 +63,6 @@ static p_alignment init_alignment( elem_t * e ) {
 
     p_seqinfo info = ssa_db_get_sequence( e->db_id );
     if( !info ) {
-        // TODO raise error, as this should not be possible
         ffatal( "Could not get sequence from DB: %ld", e->db_id );
     }
 
@@ -183,7 +173,7 @@ void * a_align( void * unused ) {
         // do alignment for each pair
         p_alignment a = init_alignment( chunk );
 
-        adp->align_function( a );
+        align_sequences( adp->search_type, a );
 
         alignment_list->alignments[alignment_list->len++] = a;
     }

@@ -25,7 +25,7 @@ static p_alignment_list do_alignment( char * desc, p_alignment_list (*align_func
         size_t hit_count, int bit_width ) {
 
     printf( "%s: \n", desc );
-    p_alignment_list alist = align_func( query, hit_count, bit_width, COMPUTE_ALIGNMENT );
+    p_alignment_list alist = align_func( query, hit_count, bit_width, COMPUTE_SCORE );
 
     printf( "Nr of alignments: %ld\n", alist->len );
 
@@ -62,16 +62,16 @@ static p_alignment_list do_alignment( char * desc, p_alignment_list (*align_func
 int main( int argc, char**argv ) {
     set_simd_compute_mode( COMPUTE_ON_SSE41 );
 
-    init_symbol_translation( NUCLEOTIDE, FORWARD_STRAND, 3, 3 );
+    init_symbol_translation( AMINOACID, FORWARD_STRAND, 3, 3 );
 
     set_threads( 1 );
 
-    set_output_mode( OUTPUT_SILENT );
+//    set_output_mode( OUTPUT_SILENT );
 
     init_score_matrix( MATRIX_BUILDIN, "blosum62" );
     init_gap_penalties( 3, 1 );
-//    init_db_fasta( "tests/testdata/uniprot_sprot.fasta" );
-    init_db_fasta( "tests/testdata/AF091148.fas" );
+    init_db_fasta( "tests/testdata/uniprot_sprot.fasta" );
+//    init_db_fasta( "tests/testdata/AF091148.fas" );
 
     p_query query = init_sequence_fasta( READ_FROM_FILE, "tests/testdata/O74807.fasta" );
     size_t hit_count = 10;

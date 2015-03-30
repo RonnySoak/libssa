@@ -21,3 +21,6 @@
 /filter.mem.spec
 /benchmark.uctl
 /pin-log.txt
+/alignmentonly
+/wholelib
+/chunks

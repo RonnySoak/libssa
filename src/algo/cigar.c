@@ -30,14 +30,10 @@
 
 #define CIGAR_ALLOC_STEP_SIZE 64;
 
-/*
- * Const here, instead of a define, since we want to have them in size of 1 byte.
- * XXX maybe a define works as well
- */
-const uint8_t MASK_GAP_UP = 1;
-const uint8_t MASK_GAP_LEFT = 2;
-const uint8_t MASK_GAP_EXT_UP = 4;
-const uint8_t MASK_GAP_EXT_LEFT = 8;
+#define MASK_GAP_UP 1
+#define MASK_GAP_LEFT 2
+#define MASK_GAP_EXT_UP 4
+#define MASK_GAP_EXT_LEFT 8
 
 static uint8_t * compute_directions_for_nw( sequence_t a_seq, sequence_t b_seq ) {
     uint8_t * directions = xmalloc( a_seq.len * b_seq.len );
@@ -56,13 +52,13 @@ static uint8_t * compute_directions_for_nw( sequence_t a_seq, sequence_t b_seq )
     memset( directions, 0, a_seq.len * b_seq.len );
 
     for( size_t i = 0; i < a_seq.len; i++ ) {
-        hearray[2 * i] = gapO + (i + 1) * gapE; // H (N)    scores in previous column
-        hearray[2 * i + 1] = hearray[2 * i]; // E    gap values in previous column
+        hearray[2 * i] = gapO + (i + 1) * gapE;         // H (N) scores in previous column
+        hearray[2 * i + 1] = 2 * gapO + (i + 2) * gapE; // E gap values in previous column
     }
 
     for( size_t j = 0; j < b_seq.len; j++ ) {
         hep = hearray;
-        f = gapO + (j + 1) * gapE;          	// value in first upper cell
+        f = 2 * gapO + (j + 2) * gapE;        // value in first upper cell
         h = (j == 0) ? 0 : (gapO + j * gapE); // value in first cell of line
 
         for( size_t i = 0; i < a_seq.len; i++ ) {
@@ -218,7 +214,7 @@ static inline void add_to_cigar( char op, size_t op_count, cigar_p cigar ) {
     }
     cigar->cigar[cigar->len++] = op;
 
-    check_allocated_size( cigar ); // TODO call this only once
+    check_allocated_size( cigar );
 
     if( op_count > 1 ) {
         uint64_t insert_pos = cigar->len;
@@ -256,7 +252,7 @@ cigar_p reverse_cigar( cigar_p rev_cigar ) {
     return cigar;
 }
 
-cigar_p compute_cigar_for_nw( sequence_t a_seq, sequence_t b_seq ) {
+cigar_p compute_cigar_string( int search_type, sequence_t a_seq, sequence_t b_seq, region_t region ) {
     /*
      * cigar operation characters:
      *
@@ -279,85 +275,16 @@ cigar_p compute_cigar_for_nw( sequence_t a_seq, sequence_t b_seq ) {
     rev_cigar->len = 0;
     rev_cigar->cigar = xmalloc( rev_cigar->allocated_size * sizeof(char) );
 
-    uint8_t * directions = compute_directions_for_nw( a_seq, b_seq );
-
-    size_t i = a_seq.len;
-    size_t j = b_seq.len;
-
-    char prev_op = 0, op = 0;
-    size_t op_count = 0;
-    while( (i > 0) && (j > 0) ) {
-        uint8_t d = directions[a_seq.len * (j - 1) + (i - 1)];
-
-        if( (d & MASK_GAP_LEFT) || (d & MASK_GAP_EXT_LEFT) ) {
-            j--;
-            op = 'I';
-        }
-        else if( (d & MASK_GAP_UP) || (d & MASK_GAP_EXT_UP) ) {
-            i--;
-            op = 'D';
-        }
-        else {
-            i--;
-            j--;
-            op = 'M';
-        }
-
-        if( op == prev_op ) {
-            op_count++;
-        }
-        else {
-            add_to_cigar( prev_op, op_count, rev_cigar );
-
-            prev_op = op;
-            op_count = 1;
-        }
+    uint8_t * directions = 0;
+    if( search_type == SMITH_WATERMAN ) {
+        directions = compute_directions_for_sw( a_seq, b_seq );
     }
-    add_to_cigar( prev_op, op_count, rev_cigar );
-
-    if( i > 0 ) {
-        op = 'D';
-        op_count = i;
+    else if( search_type == NEEDLEMAN_WUNSCH ) {
+        directions = compute_directions_for_nw( a_seq, b_seq );
     }
     else {
-        op = 'I';
-        op_count = j;
+        ffatal( "\nUnknown search type: %d\n\n", search_type  );
     }
-    add_to_cigar( op, op_count, rev_cigar );
-
-    cigar_p result = reverse_cigar( rev_cigar );
-
-    free( rev_cigar->cigar );
-    free( rev_cigar );
-    free( directions );
-
-    return result;
-}
-
-cigar_p compute_cigar_for_sw( sequence_t a_seq, sequence_t b_seq, region_t region ) {
-    /*
-     * cigar operation characters:
-     *
-     * 'M': alignment match (can be a sequence match or mismatch
-     * 'I': insertion to the reference
-     * 'D': deletion from the reference
-     * 'N': skipped region from the reference
-     * 'S': soft clipping (clipped sequences present in SEQ)
-     * 'H': hard clipping (clipped sequences NOT present in SEQ)
-     * 'P': padding (silent deletion from padded reference)
-     * '=': sequence match
-     * 'X': sequence mismatch
-     *
-     * TODO at the moment are only 'M', 'I' and 'D' implemented.
-     *  Do we need the rest as well?
-     */
-
-    cigar_p rev_cigar = xmalloc( sizeof(cigar_t) );
-    rev_cigar->allocated_size = CIGAR_ALLOC_STEP_SIZE;
-    rev_cigar->len = 0;
-    rev_cigar->cigar = xmalloc( rev_cigar->allocated_size * sizeof(char) );
-
-    uint8_t * directions = compute_directions_for_sw( a_seq, b_seq );
 
     size_t i = region.a_end;
     size_t j = region.b_end;
@@ -368,6 +295,9 @@ cigar_p compute_cigar_for_sw( sequence_t a_seq, sequence_t b_seq, region_t regio
     while( (i + 1 > 0) && (j + 1 > 0) && (i >= region.a_begin) && (j >= region.b_begin) ) {
         uint8_t d = directions[a_seq.len * j + i];
 
+        /*
+         * Follows a gap to the end, before following a match or mismatch
+         */
         if( (d & MASK_GAP_LEFT) || (d & MASK_GAP_EXT_LEFT) ) {
             j--;
             op = 'I';
@@ -398,13 +328,9 @@ cigar_p compute_cigar_for_sw( sequence_t a_seq, sequence_t b_seq, region_t regio
 
     free( rev_cigar->cigar );
     free( rev_cigar );
-    free( directions );
+
+    if( directions )
+        free( directions );
 
     return result;
-}
-
-void free_cigar( cigar_p cigar ) {
-    if( cigar ) {
-        free( cigar );
-    }
 }

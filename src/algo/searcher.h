@@ -22,9 +22,6 @@
 
 #include "../libssa_datatypes.h"
 
-#define SMITH_WATERMAN 0
-#define NEEDLEMAN_WUNSCH 1
-
 void s_init( int search_type, int bit_width, p_query query );
 
 p_search_data s_create_searchdata( p_query query );

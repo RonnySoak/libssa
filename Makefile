@@ -33,9 +33,6 @@ DEBUG_OUTPUT_DIR = debug_output
 -include src/algo/64/subdir.mk
 -include src/util/subdir.mk
 
-MPI_COMPILE := `mpicxx --showme:compile`
-MPI_LINK := `mpicxx --showme:link`
-
 #### TODO remove from PROD code ####
 #DEBUG_LIBS := -lefence
 #DEBUG_FLAGS := -g# --coverage

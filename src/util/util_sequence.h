@@ -34,6 +34,15 @@ extern const char * sym_ncbi_nt16;
 extern const char * sym_ncbi_nt16u;
 extern const char * sym_ncbi_aa;
 
+/* Describes, if the DB sequences should be translated prior to the alignments.
+ * One of: 0 - 4
+ * @see sdb_init_symbol_translation in libsdb.h */
+extern int symtype;
+/* Describes which strands are used in the alignments
+ * One of: 1 - 3
+ * @see sdb_init_symbol_translation in libsdb.h */
+extern int query_strands;
+
 /**
  * Initialises the translation tables for query and DB sequences, using the
  * provided genetic codes.

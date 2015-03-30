@@ -295,7 +295,7 @@ int64_t * score_matrix_64 = NULL; // long
  * @param outfile   the file, where to print the matrix
  */
 void mat_dump( char* outfile ) {
-    // TODO dumps to stdout
+    // dumps to stdout
     outf( "     " );
     for( int i = 0; i < SCORE_MATRIX_DIM; i++ )
         outf( "%2d", i );

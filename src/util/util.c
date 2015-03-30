@@ -35,9 +35,11 @@ int output_mode = OUTPUT_STDOUT;
 
 void ffatal( const char * format, ... ) {
     if( format ) {
-        va_list arg;
-        fprintf( stderr, format, arg );
-        fprintf( stderr, "\n" );
+        va_list argptr;
+        va_start(argptr, format);
+        vfprintf(stderr, format, argptr);
+        vfprintf( stderr, "\n", 0 );
+        va_end(argptr);
     }
     exit( 1 );
 }

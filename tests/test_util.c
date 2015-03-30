@@ -73,6 +73,14 @@ void ck_converted_prot_eq( char* ref, sequence_t seq ) {
     ck_assert_str_eq( ref, conv_dna.seq );
 }
 
+void fill_translated_sequence( sequence_t* s, char * seq, size_t len ) {
+    sequence_t new_seq = { seq, len };
+
+    *s = (sequence_t ) { xmalloc( len + 1 ), len };
+
+    us_map_sequence( new_seq, *s, map_ncbi_nt16 );
+}
+
 START_TEST (test_xmalloc)
     {
         uint8_t * arr = xmalloc( 5 );

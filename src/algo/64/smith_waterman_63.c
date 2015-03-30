@@ -29,12 +29,6 @@
 #include "../../matrices.h"
 #include "../gap_costs.h"
 
-/*
- * TODO why is called 63, instead of 64? we use an int64_t and not a 63bit type ...
- *
- * rename it, if it used 64 bit numbers, or if it only used the positive bits, then let it be
- */
-
 int64_t full_sw( sequence_t * dseq, sequence_t * qseq, int64_t * hearray ) {
     int64_t h; // current value
     int64_t n; // diagonally previous value

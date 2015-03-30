@@ -7,37 +7,39 @@
 #read_reduced_timing( "results/18_02_2015_whole_lib" );
 read_reduced_timing( "results/19_02_2015_alignment_only", nr_desc_elements = 5 );
 
+total_runtime_func( timing, 5 )
+
 set_indices()
 
 # AVX vs SSE
 pdf(file='~/projects/master_thesis/tex/img/runtime_simd_sse_vs_avx_new.pdf', width = 8, height = 4, pointsize = 12)
 par( mfrow = c(1, 2) )
-compare_plot_func( idx_avx2, idx_sse41, idx_SW, meantiming, configtiming[-(1:2),], c("AVX2", "SSE4.1"), "SW calculation: AVX vs. SSE" )
-compare_plot_func( idx_avx2, idx_sse41, idx_NW, meantiming, configtiming[-(1:2),], c("AVX2", "SSE4.1"), "NW calculation: AVX vs. SSE" )
+compare_plot_func( idx_avx2, idx_sse41, idx_SW, meantiming, config_reduced[-(1:2),], c("AVX2", "SSE4.1"), "SW calculation: AVX vs. SSE" )
+compare_plot_func( idx_avx2, idx_sse41, idx_NW, meantiming, config_reduced[-(1:2),], c("AVX2", "SSE4.1"), "NW calculation: AVX vs. SSE" )
 dev.off()
 
 # 8 bit vs 16 bit
-compare_plot_func( idx_8bit, idx_16bit, idx_SW, meantiming, configtiming[-(2:3),], c("8 bit", "16 bit"), "SW calculation: 8 bit vs. 16 bit" )
-compare_plot_func( idx_8bit, idx_16bit, idx_NW, meantiming, configtiming[-(2:3),], c("8 bit", "16 bit"), "NW calculation: 8 bit vs. 16 bit" )
+compare_plot_func( idx_8bit, idx_16bit, idx_SW, meantiming, config_reduced[-(2:3),], c("8 bit", "16 bit"), "SW calculation: 8 bit vs. 16 bit" )
+compare_plot_func( idx_8bit, idx_16bit, idx_NW, meantiming, config_reduced[-(2:3),], c("8 bit", "16 bit"), "NW calculation: 8 bit vs. 16 bit" )
 
 # 1 thread vs 4 threads
-compare_plot_func( idx_1t, idx_4t, idx_SW, meantiming, configtiming[-c(2,4),], c("1 thread", "4 threads"), "SW calculation: 1 thread vs. 4 threads" )
-compare_plot_func( idx_1t, idx_4t, idx_NW, meantiming, configtiming[-c(2,4),], c("1 thread", "4 threads"), "NW calculation: 1 thread vs. 4 threads" )
+compare_plot_func( idx_1t, idx_4t, idx_SW, meantiming, config_reduced[-c(2,4),], c("1 thread", "4 threads"), "SW calculation: 1 thread vs. 4 threads" )
+compare_plot_func( idx_1t, idx_4t, idx_NW, meantiming, config_reduced[-c(2,4),], c("1 thread", "4 threads"), "NW calculation: 1 thread vs. 4 threads" )
 
 # 1 thread vs 8 threads
-compare_plot_func( idx_1t, idx_8t, idx_SW, meantiming, configtiming[-c(2,4),], c("1 thread", "8 threads"), "SW calculation: 1 thread vs. 4 threads" )
-compare_plot_func( idx_1t, idx_8t, idx_NW, meantiming, configtiming[-c(2,4),], c("1 thread", "8 threads"), "NW calculation: 1 thread vs. 4 threads" )
+compare_plot_func( idx_1t, idx_8t, idx_SW, meantiming, config_reduced[-c(2,4),], c("1 thread", "8 threads"), "SW calculation: 1 thread vs. 4 threads" )
+compare_plot_func( idx_1t, idx_8t, idx_NW, meantiming, config_reduced[-c(2,4),], c("1 thread", "8 threads"), "NW calculation: 1 thread vs. 4 threads" )
 
 # 4 thread vs 8 threads
-compare_plot_func( idx_4t, idx_8t, idx_SW, meantiming, configtiming[-c(2,4),], c("4 thread", "8 threads"), "SW calculation: 1 thread vs. 4 threads" )
-compare_plot_func( idx_4t, idx_8t, idx_NW, meantiming, configtiming[-c(2,4),], c("4 thread", "8 threads"), "NW calculation: 1 thread vs. 4 threads" )
+compare_plot_func( idx_4t, idx_8t, idx_SW, meantiming, config_reduced[-c(2,4),], c("4 thread", "8 threads"), "SW calculation: 1 thread vs. 4 threads" )
+compare_plot_func( idx_4t, idx_8t, idx_NW, meantiming, config_reduced[-c(2,4),], c("4 thread", "8 threads"), "NW calculation: 1 thread vs. 4 threads" )
 
-improvements_func( idx_sse41, idx_avx2, meantiming, configtiming[-1,], "Improvement: SSE vs. AVX" )
-improvements_func( idx_16bit, idx_8bit, meantiming, configtiming[-3,], "Improvement: 8 bit vs. 16 bit" )
-improvements_func( idx_64bit, idx_16bit, meantiming, configtiming[-c(1,3),], "Improvement: 16 bit vs. 64 bit" ) # TODO incorrect ...
-improvements_func( idx_1t, idx_4t, meantiming, configtiming[-4,], "Improvement: 1 thread vs. 4 threads" )
-improvements_func( idx_1t, idx_8t, meantiming, configtiming[-4,], "Improvement: 1 thread vs. 8 threads" )
-improvements_func( idx_4t, idx_8t, meantiming, configtiming[-4,], "Improvement: 4 thread vs. 8 threads" )
+improvements_func( idx_sse41, idx_avx2, meantiming, config_reduced[-1,], "Improvement: SSE vs. AVX" )
+improvements_func( idx_16bit, idx_8bit, meantiming, config_reduced[-3,], "Improvement: 8 bit vs. 16 bit" )
+improvements_func( idx_64bit, idx_16bit, meantiming, config_reduced[-c(1,3),], "Improvement: 16 bit vs. 64 bit" ) # TODO incorrect ...
+improvements_func( idx_1t, idx_4t, meantiming, config_reduced[-4,], "Improvement: 1 thread vs. 4 threads" )
+improvements_func( idx_1t, idx_8t, meantiming, config_reduced[-4,], "Improvement: 1 thread vs. 8 threads" )
+improvements_func( idx_4t, idx_8t, meantiming, config_reduced[-4,], "Improvement: 4 thread vs. 8 threads" )
 
 # get distribution of values
 print_variations_boxplot <- function( data, title, configurations ) {
@@ -45,19 +47,27 @@ print_variations_boxplot <- function( data, title, configurations ) {
     boxplot( data, main = title, horizontal = T, xlab="Time (seconds)", names = configurations, las=1 )
 }
 
-reduced_label_no_threads <- unique( apply( configtiming[-4,], 2, paste, collapse = "," ) )
+reduced_label_no_threads <- unique( apply( config_reduced[-4,], 2, paste, collapse = "," ) )
 reduced_label_no_threads <- gsub( pattern = ",", replacement = ", ", x = reduced_label_no_threads)
 reduced_label_no_threads <- gsub( pattern = "NO_SIMD, ", replacement = "", x = reduced_label_no_threads)
 reduced_label_no_threads <- gsub( pattern = "_", replacement = " ", x = reduced_label_no_threads)
 
-min_max <- cbind( c( "1t", "4t", "8t" ), matrix( maxtiming - mintiming, nrow=3, ncol=10, byrow = T ) )
-min_max <- rbind( c( NA, reduced_label_no_threads ), min_max )
+reduced_label_no_threads_no_64bit <- reduced_label_no_threads[c(-5,-10)]
 
-pdf(file='~/projects/master_thesis/tex/img/runtime_variation_new.pdf', width = 6, height = 10, pointsize = 12)
+pdf(file='~/projects/master_thesis/tex/img/runtime_variation_8_16_bit.pdf', width = 7, height = 10, pointsize = 12)
 par( mfrow = c(3, 1) )
-print_variations_boxplot( timing_reduced[,1:10], "Variation of timing results using 1 thread", reduced_label_no_threads )
-print_variations_boxplot( timing_reduced[,11:20], "Variation of timing results using 4 threads", reduced_label_no_threads )
-print_variations_boxplot( timing_reduced[,21:30], "Variation of timing results using 8 threads", reduced_label_no_threads )
+print_variations_boxplot( timing_reduced[,c(1:4,6:9)], "Variation of timing results using 1 thread", reduced_label_no_threads_no_64bit )
+print_variations_boxplot( timing_reduced[,c(11:14,16:19)], "Variation of timing results using 4 threads", reduced_label_no_threads_no_64bit )
+print_variations_boxplot( timing_reduced[,c(21:24,26:29)], "Variation of timing results using 8 threads", reduced_label_no_threads_no_64bit )
+dev.off()
+
+reduced_label_no_threads_64bit <- unique( apply( config_reduced[c(-1,-3),], 2, paste, collapse = "," ) )
+reduced_label_no_threads_64bit <- gsub( pattern = ",", replacement = ", ", x = reduced_label_no_threads_64bit)
+reduced_label_no_threads_64bit <- gsub( pattern = "_t", replacement = " threads", x = reduced_label_no_threads_64bit)
+reduced_label_no_threads_64bit <- gsub( pattern = "1 threads", replacement = "1 thread", x = reduced_label_no_threads_64bit)
+
+pdf(file='~/projects/master_thesis/tex/img/runtime_variation_64_bit.pdf', width = 8, height = 4, pointsize = 10)
+print_variations_boxplot( timing_reduced[,c(5,10,15,20,25,30)], "Variation of timing results in the 64 bit searches", reduced_label_no_threads_64bit )
 dev.off()
 
 par( mar = c( 5, 5, 3, 1 ) )

@@ -19,14 +19,16 @@ plot_per_thread_count <- function( timing, thread_key = "1_t", title, yl = c(2, 
     timing_t = timing[,which( timing == thread_key, arr.ind=T )[,2]]
     timing_t = timing_t[-2,]
 
-    reduced_timing_1t_rfam = get_reduced_timing( timing_t, "Rfam_11_0" )
-    reduced_timing_1t_uniprot = get_reduced_timing( timing_t, "uniprot_sprot" )
+    reduced_timing_rfam = get_reduced_timing( timing_t, "Rfam_11_0" )
+    reduced_timing_uniprot = get_reduced_timing( timing_t, "uniprot_sprot" )
 
     labels = c( 10, 100, 500, 1000, 1500, 2500, 5000, 10000, 25000 )
 
-    data = rbind( apply( reduced_timing_1t_rfam, 2, mean ), apply( reduced_timing_1t_uniprot, 2, mean ) )
+    data = rbind( apply( reduced_timing_rfam, 2, mean ), apply( reduced_timing_uniprot, 2, mean ) )
 
-    plot( labels, data[1,], main = title, type = "o", xlab = "Chunk sizes (number of DB sequences / chunk)", ylab = "Time (seconds)", log = "x", ylim = yl )
+    p = plot( labels, data[1,], main = title, type = "o", xlab = "Chunk sizes (number of DB sequences / chunk)", ylab = "Time (seconds)", log = "x", ylim = yl, xaxt="n" )
+
+    axis(side = 1, at=labels, labels=labels )
 
     lines( labels, data[2,], col="red" )
     points( labels, data[2,], col="red" )
@@ -43,7 +45,7 @@ timing =read.csv( file="results/28_02_2015_chunks", header=FALSE, sep="," )
 timing = t(timing)
 timing = timing[-c(2:5),]
 
-pdf(file='~/projects/master_thesis/tex/img/runtime_avg_chunks.pdf', width = 6, height = 10, pointsize = 12)
+pdf(file='~/projects/master_thesis/tex/img/runtime_avg_chunks_new.pdf', width = 6, height = 10, pointsize = 12)
 par( mfrow = c(3, 1) )
 plot_per_thread_count( timing, "1_t", "Average runtime using 1 thread", c(2, 22) )
 plot_per_thread_count( timing, "4_t", "Average runtime using 4 threads", c(0, 8) )

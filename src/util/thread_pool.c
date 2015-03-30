@@ -24,8 +24,6 @@
 #include <pthread.h>
 #include <sys/sysinfo.h>
 
-#include <stdio.h> // TODO remove and change output to outf function in util.c
-
 #include "../libssa.h"
 #include "util.h"
 

@@ -29,15 +29,15 @@
 /*
  * TODO merge finding region and finding directions
  */
-region_t find_region_and_score_for_local( sequence_t a_seq, sequence_t b_seq ) {
+region_t find_region_for_local( sequence_t a_seq, sequence_t b_seq ) {
     region_t region;
 
     size_t size = MAX( a_seq.len, b_seq.len );
 
-    long * HH = xmalloc( size * sizeof(long) );
-    long * EE = xmalloc( size * sizeof(long) );
+    int64_t * HH = xmalloc( size * sizeof(long) );
+    int64_t * EE = xmalloc( size * sizeof(long) );
 
-    long score = 0;
+    int64_t score = 0;
 
     // Forward pass
     for( size_t j = 0; j < a_seq.len; j++ ) {
@@ -46,9 +46,9 @@ region_t find_region_and_score_for_local( sequence_t a_seq, sequence_t b_seq ) {
     }
 
     for( size_t i = 0; i < b_seq.len; i++ ) {
-        long h = 0;
-        long p = 0;
-        long f = gapO;
+        int64_t h = 0;
+        int64_t p = 0;
+        int64_t f = gapO;
 
         for( size_t j = 0; j < a_seq.len; j++ ) {
             f = MAX(f, h + gapO) + gapE;
@@ -133,7 +133,7 @@ region_t find_region_and_score_for_local( sequence_t a_seq, sequence_t b_seq ) {
 
 region_t init_region_for_global( sequence_t a_seq, sequence_t b_seq ) {
     region_t region;
-// TODO use it, to generalize the functions in cigar.c
+
     region.a_begin = 0;
     region.a_end = a_seq.len - 1;
     region.b_begin = 0;
@@ -151,28 +151,25 @@ static void fill_alignment( p_alignment alignment, region_t region, cigar_p ciga
     alignment->alignment_len = cigar->len;
 }
 
-void align_nw( p_alignment alignment ) {
+void align_sequences( int search_type, p_alignment alignment ) {
     sequence_t a_seq = { alignment->query.seq, alignment->query.len };
     sequence_t b_seq = { alignment->db_seq.seq, alignment->db_seq.len };
 
-    region_t region = init_region_for_global( a_seq, b_seq );
+    region_t region;
+    if( search_type == SMITH_WATERMAN ) {
+        region = find_region_for_local( a_seq, b_seq );
+    }
+    else if( search_type == NEEDLEMAN_WUNSCH ) {
+        region = init_region_for_global( a_seq, b_seq );
+    }
+    else {
+        ffatal( "\nUnknown search type: %d\n\n", search_type );
+    }
 
-    cigar_p cigar = compute_cigar_for_nw( a_seq, b_seq );
-
-    fill_alignment( alignment, region, cigar );
-
-    free_cigar( cigar );
-}
-
-void align_sw( p_alignment alignment ) {
-    sequence_t a_seq = { alignment->query.seq, alignment->query.len };
-    sequence_t b_seq = { alignment->db_seq.seq, alignment->db_seq.len };
-
-    region_t region = find_region_and_score_for_local( a_seq, b_seq );
-
-    cigar_p cigar = compute_cigar_for_sw( a_seq, b_seq, region );
+    cigar_p cigar = compute_cigar_string( search_type, a_seq, b_seq, region );
 
     fill_alignment( alignment, region, cigar );
 
-    free_cigar( cigar );
+    if( cigar )
+        free( cigar );
 }

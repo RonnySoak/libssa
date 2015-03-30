@@ -26,10 +26,13 @@
 #include "../libssa_datatypes.h"
 #include "minheap.h"
 
-#include "debug_tools.h" // TODO remove or let it stay?!
+#include "debug_tools.h"
 
-#define CMP_ASC(a,b) (a > b ? -1 : (a < b) ? +1 : 0) // TODO is this really ascending
+#define CMP_ASC(a,b) (a > b ? -1 : (a < b) ? +1 : 0)
 //#define CMP_DESC(a,b) (a > b ? +1 : (a < b) ? -1 : 0)
+
+#define SMITH_WATERMAN 0
+#define NEEDLEMAN_WUNSCH 1
 
 // used in matrices.c
 #define DEFAULT_MATRIXNAME "blosum62"

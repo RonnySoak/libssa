@@ -4,7 +4,7 @@
 #
 
 COUNT=10
-LOG_FILE=results/22_02_2015_whole_lib
+LOG_FILE="results/$(date +%d.%m.%y_%H_%M)_whole_lib"
 
 DATABASE="uniprot_sprot.fasta"
 GAP_O=3
@@ -49,4 +49,4 @@ do
 done
 
 echo "do benchmark 2"
-./benchmark_2
+./alignmentonly

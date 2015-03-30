@@ -166,6 +166,9 @@ const char * sym_ncbi_aa = "-ABCDEFGHIKLMNPQRSTVWXYZU*OJ####";
  */
 static const char ntcompl[16] = { 0, 8, 4, 12, 2, 10, 6, 14, 1, 9, 5, 13, 3, 11, 7, 15 };
 
+int symtype = DEFAULT_SYMTYPE;
+int query_strands = DEFAULT_STRAND;
+
 /*
  * Table for translating a nucleic query sequence into a protein sequence.
  * Initialized with the genetic code of the query sequence.
@@ -285,7 +288,7 @@ void us_init_translation( int qtableno, int dtableno ) {
  */
 void us_map_sequence( sequence_t orig, sequence_t mapped, const char* map ) {
     /*
-     * TODO here always allocate memory for the unknown symbols ...
+     * TODO here we always allocate memory for the unknown symbols ...
      * maybe add some verbose flag, to omit the output and collection in some cases
      */
 //    char * unknown_symbols = xmalloc( orig.len );

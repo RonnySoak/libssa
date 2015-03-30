@@ -34,8 +34,8 @@ int64_t full_nw( sequence_t * dseq, sequence_t * qseq, int64_t * hearray ) {
     int64_t *hep;
 
     for( size_t i = 0; i < qseq->len; i++ ) {
-        hearray[2 * i] = gapO + (i + 1) * gapE;           // H (N) scores in previous column
-        hearray[2 * i + 1] = 2 * gapO + (i + 2) * gapE;   // E     gap values in previous column
+        hearray[2 * i] = gapO + (i + 1) * gapE;         // H (N) scores in previous column
+        hearray[2 * i + 1] = 2 * gapO + (i + 2) * gapE; // E gap values in previous column
     }
 
 #ifdef DBG_COLLECT_MATRIX

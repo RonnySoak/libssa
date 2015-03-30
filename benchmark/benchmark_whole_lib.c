@@ -17,16 +17,12 @@
  *
  * Can be downloaded from here: http://www.uniprot.org/downloads
  *
- * Compile it with:
- * gcc -O3 -std=c99 -mavx2 -o benchmark benchmark.c -L.. -lssa -lpthread -lm -lsdb
- * TODO remove --coverage from libsdb to remove it here as well
- *
  * Run it with:
  * ./benchmark -N 1 -O 3 -E 1 -M BLOSUM50 -c 10 -i data/O74807.fasta -d data/uniprot_sprot.fasta -t SW -b 16 -s AVX2
  */
 
-#define SMITH_WATERMAN 0
-#define NEEDLEMAN_WUNSCH 1
+#define SW 0
+#define NW 1
 
 #define SSE2 0
 #define SSE41 1
@@ -81,10 +77,10 @@ static void read_options( int argc, char ** argv, uint8_t * gapO, uint8_t * gapE
             break;
         case 't':
             if( strcmp( optarg, "SW" ) == 0 ) {
-                *search_type = SMITH_WATERMAN;
+                *search_type = SW;
             }
             else if( strcmp( optarg, "NW" ) == 0 ) {
-                *search_type = NEEDLEMAN_WUNSCH;
+                *search_type = NW;
             }
             break;
         case 'b':
@@ -133,8 +129,8 @@ static void print_alignment( p_alignment_list alist ) {
 }
 
 int main( int argc, char**argv ) {
-    p_query query;
-    uint8_t gapO, gapE;
+    p_query query = 0;
+    uint8_t gapO = 0, gapE = 0;
     int search_type = -1;
     int bit_width = -1;
     int simd = -1;
@@ -162,10 +158,10 @@ int main( int argc, char**argv ) {
     }
 
     p_alignment_list alist;
-    if( search_type == SMITH_WATERMAN ) {
+    if( search_type == SW ) {
         alist = sw_align( query, hit_count, bit_width, COMPUTE_SCORE );
     }
-    else if( search_type == NEEDLEMAN_WUNSCH ) {
+    else if( search_type == NW ) {
         alist = nw_align( query, hit_count, bit_width, COMPUTE_SCORE );
     }
     else {

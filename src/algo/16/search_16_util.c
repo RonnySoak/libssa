@@ -229,16 +229,6 @@ void dprofile_fill_16_sse2( __mxxxi * dprofile, uint8_t * dseq_search_window ) {
             int16_t a[CHANNELS_16_BIT];
         } d;
 
-        /*
-         * TODO load line and use _mm_slli_epi16 to do the "<< 5" operation, and store it,
-         * reducing this to 3 operations
-         *
-         * The problem here is, this have to be 16 bit integers, since the ">> 5" operation
-         * overflows the 8 bit space.
-         *
-         * TODO _mm_loadu_si128, since we do not explicitly align it
-         */
-
         // unpack 8 bit integers to 16 bit
         __m128i tmp = _mm_loadu_si128( (__m128i *) (dseq_search_window + (j * CHANNELS_16_BIT)) );
         tmp = _mm_unpacklo_epi8( tmp, _mm_setzero_si128() );

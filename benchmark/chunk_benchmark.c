@@ -25,16 +25,13 @@ static char* concat( char * s1, char * s2 ) {
  * Using UniProtKB/Swiss-Prot database.
  *
  * Can be downloaded from here: http://www.uniprot.org/downloads
- *
- * Compile it with:
- * gcc -O3 -std=c99 -mavx2 -o chunk_benchmark chunk_benchmark.c -L.. -lssa -lpthread -lm -lsdb
  */
 
-#define SMITH_WATERMAN 0
-#define NEEDLEMAN_WUNSCH 1
+#define SW 0
+#define NW 1
 
 #define SIMD_DESC(s) ( (s == COMPUTE_ON_AVX2) ? "AVX2" : "SSE41" )
-#define TYPE_DESC(t) ( (t == SMITH_WATERMAN) ? "SW" : "NW" )
+#define TYPE_DESC(t) ( (t == SW) ? "SW" : "NW" )
 
 static double run_alignment( p_alignment_list (*align_func)( p_query, size_t, int, int ), p_query query,
         size_t hit_count, int bit_width ) {
@@ -68,7 +65,6 @@ int main( int argc, char**argv ) {
     int SIMD[2] = { COMPUTE_ON_SSE41, COMPUTE_ON_AVX2 };
     int bit_width[2] = { 8, 16 };
     char * queries[4] = { "O74807", "P18080", "P19930", "Q3ZAI3" };
-    int types[2] = { SMITH_WATERMAN, NEEDLEMAN_WUNSCH };
     char * dbs[2] = { "uniprot_sprot", "Rfam_11_0" };
 
     size_t hit_count = 10;
@@ -86,7 +82,7 @@ int main( int argc, char**argv ) {
 
         for( int type = 0; type < 2; ++type ) {
             p_alignment_list (*align_func)( p_query, size_t, int, int );
-            if( type == SMITH_WATERMAN ) {
+            if( type == SW ) {
                 align_func = &sw_align;
             }
             else {

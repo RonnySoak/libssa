@@ -27,9 +27,6 @@
 #include "util/util_sequence.h"
 #include "util/util.h"
 
-int symtype = DEFAULT_SYMTYPE;
-int query_strands = DEFAULT_STRAND;
-
 /**
  * Initialises the query struct.
  *
@@ -255,8 +252,6 @@ p_query query_read_from_file( const char * filename ) {
  * Prints the query to the configured output file.
  *
  * @param query     the query data to print
- *
- * TODO not tested
  */
 void query_show( p_query query ) {
     int linewidth = 60;
@@ -277,7 +272,7 @@ void query_show( p_query query ) {
 #if 0
     long qlen;
     char * qseq;
-    if ((symtype == NUCLEOTIDE) || (symtype == TRANS_QUERY) || (symtype == TRANS_BOTH)) {
+    if( (symtype == NUCLEOTIDE) || (symtype == TRANS_QUERY) || (symtype == TRANS_BOTH) ) {
         qseq = query->nt[0].seq;
         qlen = query->nt[0].len;
     }
@@ -286,19 +281,19 @@ void query_show( p_query query ) {
         qlen = query->aa[0].len;
     }
 
-    for (int j=0; j<qlen; j+=linewidth) {
-        if (j==0)
-        outf( "Query sequence:    ");
+    for( int j = 0; j < qlen; j += linewidth ) {
+        if( j == 0 )
+            outf( "Query sequence:    " );
         else
-        outf( "                   ");
+            outf( "                   " );
 
-        for(int k=0; k<linewidth; k++) {
-            if (j+k < qlen)
-            putc(query->sym[qseq[j+k]], out); // TODO out?!
+        for( int k = 0; k < linewidth; k++ ) {
+            if( j + k < qlen )
+                outf( query->sym[qseq[j + k]] );
             else
-            break;
+                break;
         }
-        outf( "\n");
+        outf( "\n" );
     }
 #endif
 }

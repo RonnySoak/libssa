@@ -67,7 +67,7 @@ typedef struct {
     seq_buffer_t queries[6];
     size_t q_count;
 
-    void (*align_function)( p_alignment );
+    int search_type;
 } alignment_data_t;
 typedef alignment_data_t * p_alignment_data;
 

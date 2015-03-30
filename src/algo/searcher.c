@@ -24,7 +24,7 @@
 #include "../util/util.h"
 #include "../util/minheap.h"
 #include "../matrices.h"
-#include "../query.h"
+#include "../util/util_sequence.h"
 
 #include "16/search_16.h"
 #include "64/search_64.h"

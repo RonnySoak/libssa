@@ -31,10 +31,6 @@ char * get_reverse_complement( sequence_t orig ) {
     return rc.seq;
 }
 
-/*
- * TODO test actual read query data and conversion
- */
-
 static void check_query_mapped( int reversed, const char map[256], size_t length, char * expected, sequence_t seq ) {
     ck_assert_ptr_ne( NULL, seq.seq );
     ck_assert_int_eq( length, seq.len );
