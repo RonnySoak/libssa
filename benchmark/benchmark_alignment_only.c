@@ -52,23 +52,23 @@ static double run_alignment( p_alignment_list (*align_func)( p_query, size_t, in
     return elapsed;
 }
 
-#define T_COUNT 3
+#define T_COUNT 1
 #define S_COUNT 2
 #define B_COUNT 2
 #define Q_COUNT 4
 #define A_COUNT 2
 
 int main( int argc, char**argv ) {
-    FILE *f = fopen( "results/30_03_2015_alignment_only", "w" );
+    FILE *f = fopen( "results/31_03_2015_alignment_only", "w" );
     if( f == NULL ) {
         printf( "Error opening file!\n" );
         exit( 1 );
     }
 
-    int threads[T_COUNT] = { 1, 4, 8 };
+    int threads[T_COUNT] = { 4 };
     int SIMD[S_COUNT] = { COMPUTE_ON_SSE41, COMPUTE_ON_AVX2 };
     int bit_width[B_COUNT] = { 8, 16 };
-    char * queries[Q_COUNT] = { "O74807", "P18080", "P19930", "Q3ZAI3" };
+    char * queries[Q_COUNT] = { "O74807", "P19930", "Q3ZAI3", "P18080" };
 
     size_t hit_count = 10;
 

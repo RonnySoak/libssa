@@ -73,8 +73,8 @@ compare_plot_func <- function( idx_dim1_a, idx_dim1_b, idx_dim2, vdata, config_r
     x_names = gsub( pattern = ",", replacement = ", ", x = x_names)
     x_names = gsub( pattern = "NO_SIMD, ", replacement = "", x = x_names)
     x_names = gsub( pattern = "_", replacement = " ", x = x_names)
-print( x_names )
-    x = barplot( plot_data, main=title, ylab="Time (seconds)", xlab="Configurations", col=c("orange","darkblue"), beside=T, ylim=c(0, 20), las=1, space=c(0.2,0.8) )
+
+    x = barplot( plot_data, main=title, ylab="Time (seconds)", xlab="Configurations", col=c("orange","darkblue"), beside=T, ylim=c(0, 12), las=1, space=c(0.2,0.8) )
 
     text( cex = 0.8, x = colMeans(x)+0.8, y = -1.25, labels = x_names, xpd = TRUE, srt = 45, pos = 2 )
 
@@ -93,6 +93,8 @@ improvements_func <- function( idx_a, idx_b, vdata, config_reduced, title ) {
 
     print( title )
     print( improvement )
+    print( "mean:" )
+    print( mean( improvement ) )
 }
 
 total_runtime_func <- function( timing, nr_desc_element = 5 ) {

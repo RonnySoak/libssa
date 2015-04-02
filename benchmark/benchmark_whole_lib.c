@@ -136,7 +136,7 @@ int main( int argc, char**argv ) {
     int simd = -1;
     size_t hit_count = 0;
 
-//    set_output_mode( OUTPUT_SILENT );
+    set_output_mode( OUTPUT_SILENT );
 
     init_symbol_translation( AMINOACID, FORWARD_STRAND, 3, 3 ); // TODO currently not configurable
 

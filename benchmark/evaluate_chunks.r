@@ -41,9 +41,17 @@ plot_per_thread_count <- function( timing, thread_key = "1_t", title, yl = c(2, 
     legend( "topright", legend=c("UniProtKB/Swiss-Prot", "Rfam"), fill=c("black","red" ) )
 }
 
-timing =read.csv( file="results/28_02_2015_chunks", header=FALSE, sep="," )
+timing = read.csv( file="results/28_02_2015_chunks", header=FALSE, sep="," )
 timing = t(timing)
 timing = timing[-c(2:5),]
+
+p1 = timing[1:(576*2),]
+
+p2 = p1[which( p1 == "P19930", arr.ind=T )[,1],]
+p3 = p1[which( p1 == "Q3ZAI3", arr.ind=T )[,1],]
+
+
+total_runtime_func( rbind2( p2, p3 ), 7 )
 
 pdf(file='~/projects/master_thesis/tex/img/runtime_avg_chunks_new.pdf', width = 6, height = 10, pointsize = 12)
 par( mfrow = c(3, 1) )

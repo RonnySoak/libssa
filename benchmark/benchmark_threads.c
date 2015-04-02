@@ -63,7 +63,7 @@ int main( int argc, char**argv ) {
         exit( 1 );
     }
 
-    int threads[T_COUNT] = { 2, 3, 5, 6, 7, 10 };
+    int threads[T_COUNT] = { 2, 3, 5, 6 };
     int bit_width[B_COUNT] = { 8, 16 };
     char * query = "P18080";
 

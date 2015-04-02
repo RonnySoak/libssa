@@ -54,17 +54,17 @@ static double run_alignment( p_alignment_list (*align_func)( p_query, size_t, in
 }
 
 int main( int argc, char**argv ) {
-    FILE *f = fopen( "results/01_03_2015_chunks", "w" );
+    FILE *f = fopen( "results/31_03_2015_chunks", "w" );
     if( f == NULL ) {
         printf( "Error opening file!\n" );
         exit( 1 );
     }
 
-    int threads[3] = { 1, 4, 8 };
+    int threads[2] = { 1, 4 };
     size_t chunk_size[9] = { 10, 100, 500, 1000, 1500, 2500, 5000, 10000, 25000 };
     int SIMD[2] = { COMPUTE_ON_SSE41, COMPUTE_ON_AVX2 };
     int bit_width[2] = { 8, 16 };
-    char * queries[4] = { "O74807", "P18080", "P19930", "Q3ZAI3" };
+    char * queries[2] = { "P19930", "Q3ZAI3" };
     char * dbs[2] = { "uniprot_sprot", "Rfam_11_0" };
 
     size_t hit_count = 10;
