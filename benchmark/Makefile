@@ -2,14 +2,14 @@
 
 RESULT_OUTPUT_DIR = results
 
-DEPS := Makefile
+DEPS := Makefile src/benchmark_util.c src/benchmark_util.h
 
 CXX := gcc# vtcc -finstrument-functions-exclude-file-list=include
 
 LIBS := -L.. -lssa -pthread -lm -lsdb
 BASE_FLAGS := -Wall -O3 -std=c99 -march=native
 
-PROG := wholelib alignmentonly chunks threads pairwise
+PROG := wholelib alignmentonly chunks threads pairwise queries
 
 all : init $(PROG)
 
@@ -17,29 +17,34 @@ init :
 	@echo 'create result dir'
 	mkdir -p $(RESULT_OUTPUT_DIR)
 
-wholelib : init benchmark_whole_lib.c $(DEPS)
+wholelib : init src/benchmark_whole_lib.c $(DEPS)
 	@echo 'Building target: $@'
-	$(CXX) $(BASE_FLAGS) -march=native -o $@ benchmark_whole_lib.c $(LIBS)
+	$(CXX) $(BASE_FLAGS) -march=native -o $@ src/benchmark_whole_lib.c src/benchmark_util.c $(LIBS)
 	@echo 'Finished building target: $@'
 
-alignmentonly : init benchmark_alignment_only.c $(DEPS)
+alignmentonly : init src/benchmark_alignment_only.c $(DEPS)
 	@echo 'Building target: $@'
-	$(CXX) $(BASE_FLAGS) -march=native -o $@ benchmark_alignment_only.c $(LIBS)
+	$(CXX) $(BASE_FLAGS) -march=native -o $@ src/benchmark_alignment_only.c src/benchmark_util.c $(LIBS)
 	@echo 'Finished building target: $@'
 
-threads : init benchmark_threads.c $(DEPS)
+threads : init src/benchmark_threads.c $(DEPS)
 	@echo 'Building target: $@'
-	$(CXX) $(BASE_FLAGS) -march=native -o $@ benchmark_threads.c $(LIBS)
+	$(CXX) $(BASE_FLAGS) -march=native -o $@ src/benchmark_threads.c src/benchmark_util.c $(LIBS)
 	@echo 'Finished building target: $@'
 
-chunks : init benchmark_chunks.c $(DEPS)
+chunks : init src/benchmark_chunks.c $(DEPS)
 	@echo 'Building target: $@'
-	$(CXX) $(BASE_FLAGS) -march=native -o $@ benchmark_chunks.c $(LIBS)
+	$(CXX) $(BASE_FLAGS) -march=native -o $@ src/benchmark_chunks.c src/benchmark_util.c $(LIBS)
 	@echo 'Finished building target: $@'
 
-pairwise : init benchmark_pairwise_performance.c $(DEPS)
+pairwise : init src/benchmark_pairwise_performance.c $(DEPS)
 	@echo 'Building target: $@'
-	$(CXX) $(BASE_FLAGS) -march=native -o $@ benchmark_pairwise_performance.c $(LIBS)
+	$(CXX) $(BASE_FLAGS) -march=native -o $@ src/benchmark_pairwise_performance.c src/benchmark_util.c $(LIBS)
+	@echo 'Finished building target: $@'
+
+queries : init src/benchmark_queries.c $(DEPS)
+	@echo 'Building target: $@'
+	$(CXX) $(BASE_FLAGS) -march=native -o $@ src/benchmark_queries.c src/benchmark_util.c $(LIBS)
 	@echo 'Finished building target: $@'
 
 clean:

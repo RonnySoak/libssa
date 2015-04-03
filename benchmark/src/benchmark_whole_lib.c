@@ -5,12 +5,14 @@
  *      Author: Jakob Frielingsdorf
  */
 
-#include "../src/libssa.h"
+#include "../../src/libssa.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <getopt.h>
 #include <string.h>
+
+#include "benchmark_util.h"
 
 /*
  * Using UniProtKB/Swiss-Prot database.
@@ -18,11 +20,8 @@
  * Can be downloaded from here: http://www.uniprot.org/downloads
  *
  * Run it with:
- * ./benchmark -N 1 -O 3 -E 1 -M BLOSUM50 -c 10 -i data/O74807.fasta -d data/uniprot_sprot.fasta -t SW -b 16 -s AVX2
+ * ./wholelib -N 1 -O 3 -E 1 -M BLOSUM50 -c 10 -i data/O74807.fasta -d data/uniprot_sprot.fasta -t SW -b 16 -s AVX2
  */
-
-#define SW 0
-#define NW 1
 
 #define SSE2 0
 #define SSE41 1

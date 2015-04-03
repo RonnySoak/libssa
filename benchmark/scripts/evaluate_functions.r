@@ -3,7 +3,7 @@
 #library(plyr)
 #library(reshape2)
 
-read_reduced_timing <- function( file_name, suffix="", nr_desc_elements = 5 ) {
+read_reduced_timing <- function( file_name, suffix="", nr_desc_elements ) {
     idx_data = nr_desc_elements + 1
 
     timing = read.csv( file=file_name, header=FALSE, sep="," )
@@ -30,21 +30,25 @@ read_reduced_timing <- function( file_name, suffix="", nr_desc_elements = 5 ) {
     assign(  paste( "totaltiming", suffix, sep="" ), apply( timing_reduced, 2, sum ), envir = .GlobalEnv )
 }
 
+get_indices <- function( config_datum ) {
+    which( config_reduced == config_datum, useNames = F,  arr.ind=T )[, 2]
+}
+
 set_indices <- function() {
-    assign( "idx_avx2", which( config_reduced == "AVX2", arr.ind=T )[, 2], envir = .GlobalEnv )
-    assign( "idx_sse41", which( config_reduced == "SSE41", arr.ind=T )[,2], envir = .GlobalEnv )
-    assign( "idx_nosimd", which( config_reduced == "NO_SIMD", arr.ind=T )[,2], envir = .GlobalEnv )
+    assign( "idx_avx2", get_indices( "AVX2" ), envir = .GlobalEnv )
+    assign( "idx_sse41", get_indices( "SSE41" ), envir = .GlobalEnv )
+    assign( "idx_nosimd", get_indices( "NO_SIMD" ), envir = .GlobalEnv )
 
-    assign( "idx_SW", which( config_reduced == "SW", arr.ind=T )[,2], envir = .GlobalEnv )
-    assign( "idx_NW", which( config_reduced == "NW", arr.ind=T )[,2], envir = .GlobalEnv )
+    assign( "idx_SW", get_indices( "SW" ), envir = .GlobalEnv )
+    assign( "idx_NW", get_indices( "NW" ), envir = .GlobalEnv )
 
-    assign( "idx_8bit", which( config_reduced == "8_bit", arr.ind=T )[,2], envir = .GlobalEnv )
-    assign( "idx_16bit", which( config_reduced == "16_bit", arr.ind=T )[,2], envir = .GlobalEnv )
-    assign( "idx_64bit", which( config_reduced == "64_bit", arr.ind=T )[,2], envir = .GlobalEnv )
+    assign( "idx_8bit", get_indices( "8_bit" ), envir = .GlobalEnv )
+    assign( "idx_16bit", get_indices( "16_bit" ), envir = .GlobalEnv )
+    assign( "idx_64bit", get_indices( "64_bit" ), envir = .GlobalEnv )
 
-    assign( "idx_1t", which( config_reduced == "1_t", arr.ind=T )[,2], envir = .GlobalEnv )
-    assign( "idx_4t", which( config_reduced == "4_t", arr.ind=T )[,2], envir = .GlobalEnv )
-    assign( "idx_8t", which( config_reduced == "8_t", arr.ind=T )[,2], envir = .GlobalEnv )
+    assign( "idx_1t", get_indices( "1_t" ), envir = .GlobalEnv )
+    assign( "idx_4t", get_indices( "4_t" ), envir = .GlobalEnv )
+    assign( "idx_8t", get_indices( "8_t" ), envir = .GlobalEnv )
 }
 
 get_x_labels <- function( idx_col_a, idx_col_b, config_reduced ) {
@@ -94,11 +98,11 @@ improvements_func <- function( idx_a, idx_b, vdata, config_reduced, title ) {
     print( title )
     print( improvement )
     print( "mean:" )
-    print( mean( improvement ) )
+    print( mean( improvement[,2] ) )
 }
 
-total_runtime_func <- function( timing, nr_desc_element = 5 ) {
-    runtime = sum( timing[,(nr_desc_element+1):15] )
+total_runtime_func <- function( timing, nr_desc_element ) {
+    runtime = sum( timing[,(nr_desc_element+1):(10 + nr_desc_element)] )
 
     hours = as.integer( runtime / 3600 )
     minutes = as.integer( runtime %% 3600 / 60 )
