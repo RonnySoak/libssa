@@ -62,12 +62,12 @@ print_perf_queries <- function( time_sw_avx, time_sw_sse, time_nw_avx, time_nw_s
 
     colors = c( "red", "green", "blue", "orange" )
 
-    plot( data_sw_sse_16, main = title, ylab = "Time (seconds)", xlab = "Query length (residues)", xlim = c(20, max( query_length_data[,2]) ), ylim= c(0.2, 60), col = colors[1], type = "o", log = "xy" )
+    plot( data_sw_sse_16, main = title, ylab = "Time (seconds)", xlab = "Query length (residues)", xlim = c(20, max( query_length_data[,2]) ), ylim= c(0.2, 60), col = colors[1], type = "o", log = "xy", pch = 16 )
 
-    lines( data_sw_avx_16, col = colors[2], type = "o" )
+    lines( data_sw_avx_16, col = colors[2], type = "o", pch = 16 )
 
-    lines( data_nw_sse_16, col = colors[3], type = "o" )
-    lines( data_nw_avx_16, col = colors[4], type = "o" )
+    lines( data_nw_sse_16, col = colors[3], type = "o", pch = 16 )
+    lines( data_nw_avx_16, col = colors[4], type = "o", pch = 16 )
 
     row_names = unique( apply( config_reduced[-1,], 2, paste, collapse = "," ) )
 

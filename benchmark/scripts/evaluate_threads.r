@@ -3,9 +3,9 @@ library(ggplot2)
 #library(plyr)
 library(reshape2)
 
-element_to_remove = 2
-nr_desc_elements = 3
-idx_data = nr_desc_elements + 1
+# element_to_remove = 2
+#nr_desc_elements = 3
+#idx_data = nr_desc_elements + 1
 
 timing <- read.csv( file="results/30_03_2015_threads", header=FALSE, sep="," )
 ht <- T
@@ -21,9 +21,9 @@ if( !ht ) timing <- timing[1:24,]
 # get distribution of values
 length = length( timing[,1] )
 no_simd_idx = seq( 3, length, 3 )
-bit_8_idx = seq( 1, length, 3 )
+bit_16_idx = seq( 2, length, 3 )
 
-reduced_timing <- timing[-bit_8_idx,]
+reduced_timing <- timing[-bit_16_idx,]
 reduced_timing <- reduced_timing[ which( reduced_timing == "NW" ), ]
 
 reduced_labels <- unique( apply( reduced_timing[,1:3], 1, paste, collapse = "," ) )
@@ -49,13 +49,13 @@ if( ht ) {labels <- c(1:8)} else {labels <- c(1:4)}
 
 axis( side = 1, at=seq(1.5, l_reduced_labels, 2), labels=labels )
 
-bit_16_idx = seq( 1, l_reduced_labels, 2 )
+bit_8_idx = seq( 1, l_reduced_labels, 2 )
 bit_64_idx = seq( 2, l_reduced_labels, 2 )
 
-lines( bit_16_idx, apply( data[,bit_16_idx], 2, mean) , col="red" )
-lines( bit_64_idx, apply( data[,bit_64_idx], 2, mean) , col="blue" )
+lines( bit_8_idx, apply( data[,bit_8_idx], 2, mean) , col="red", type = "o", pch=16 )
+lines( bit_64_idx, apply( data[,bit_64_idx], 2, mean) , col="blue", type = "o", pch=16 )
 
-legend( "topright", legend=c( "16 bit", "64 bit" ), fill=c("red","blue" ), bty = 0 )
+legend( "topright", legend=c( "8 bit", "64 bit" ), fill=c("red","blue" ), bty = 0 )
 
 # -------------------
 # conversion to GCUPS

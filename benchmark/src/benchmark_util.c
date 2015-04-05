@@ -13,13 +13,13 @@
 #include <stdarg.h>
 
 double run_alignment_times( int type, p_query query, size_t hit_count, int bit_width, int internal_iterations ) {
-//    p_alignment_list (*align_func)( p_query, size_t, int, int );
-//    if( type == SW ) {
-//        align_func = &sw_align;
-//    }
-//    else {
-//        align_func = &nw_align;
-//    }
+    p_alignment_list (*align_func)( p_query, size_t, int, int );
+    if( type == SW ) {
+        align_func = &sw_align;
+    }
+    else {
+        align_func = &nw_align;
+    }
 
     struct timeval start;
     struct timeval finish;
@@ -27,8 +27,7 @@ double run_alignment_times( int type, p_query query, size_t hit_count, int bit_w
     gettimeofday( &start, NULL );
 
     for( int i = 0; i < internal_iterations; ++i ) {
-//        p_alignment_list alist = align_func( query, hit_count, bit_width, COMPUTE_SCORE );
-//        free_alignment( alist ); TODO
+        free_alignment( align_func( query, hit_count, bit_width, COMPUTE_SCORE ) );
     }
 
     gettimeofday( &finish, NULL );

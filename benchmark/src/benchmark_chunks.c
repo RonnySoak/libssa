@@ -17,11 +17,11 @@
 int main( int argc, char**argv ) {
     FILE *f = open_log_file( "chunks" );
 
-    int threads[2] = { 1, 4 };
+    int threads[2] = { 1, 8 };
     size_t chunk_size[9] = { 10, 100, 500, 1000, 1500, 2500, 5000, 10000, 25000 };
     int SIMD[2] = { COMPUTE_ON_SSE41, COMPUTE_ON_AVX2 };
     int bit_width[2] = { 8, 16 };
-    char * queries[2] = { "P19930", "Q3ZAI3" };
+    char * queries[2] = { "P19930", "rfam_sequence" };
     char * dbs[2] = { "uniprot_sprot", "Rfam_11_0" };
 
     size_t hit_count = 10;
@@ -42,25 +42,23 @@ int main( int argc, char**argv ) {
                 set_simd_compute_mode( SIMD[s] );
 
                 for( int b = 0; b < 2; ++b ) {
-                    for( int q = 0; q < 2; ++q ) {
-                        for( int d = 0; d < 2; ++d ) {
-                            char * filename = concat( concat( "data/", dbs[d] ), ".fasta" );
-                            init_db_fasta( filename );
-                            free( filename );
+                    for( int d = 0; d < 2; ++d ) {
+                        char * filename = concat( concat( "data/", dbs[d] ), ".fasta" );
+                        init_db_fasta( filename );
+                        free( filename );
 
-                            for( int c = 0; c < 9; ++c ) {
-                                set_chunk_size( chunk_size[c] );
+                        p_query query = read_query( queries[d] );
 
-                                p_query query = read_query(  queries[q] );
+                        for( int c = 0; c < 9; ++c ) {
+                            set_chunk_size( chunk_size[c] );
 
-                                log_to_file( f, "%s,%s,%s,%s,%d_bit,%d_t,%ld", dbs[d], queries[q], SIMD_DESC( SIMD[s] ),
-                                        TYPE_DESC( type ), bit_width[b], threads[t], chunk_size[c] );
+                            log_to_file( f, "%s,%s,%s,%d_bit,%d_t,%ld", dbs[d], SIMD_DESC( SIMD[s] ),
+                                    TYPE_DESC( type ), bit_width[b], threads[t], chunk_size[c] );
 
-                                run_and_log_n_times( f, type, query, hit_count, bit_width[b], iterations );
-
-                                free_sequence( query );
-                            }
+                            run_and_log_n_times( f, type, query, hit_count, bit_width[b], iterations );
                         }
+
+                        free_sequence( query );
                     }
                 }
             }

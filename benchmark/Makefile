@@ -17,32 +17,32 @@ init :
 	@echo 'create result dir'
 	mkdir -p $(RESULT_OUTPUT_DIR)
 
-wholelib : init src/benchmark_whole_lib.c $(DEPS)
+wholelib : init
 	@echo 'Building target: $@'
 	$(CXX) $(BASE_FLAGS) -march=native -o $@ src/benchmark_whole_lib.c src/benchmark_util.c $(LIBS)
 	@echo 'Finished building target: $@'
 
-alignmentonly : init src/benchmark_alignment_only.c $(DEPS)
+alignmentonly : init
 	@echo 'Building target: $@'
 	$(CXX) $(BASE_FLAGS) -march=native -o $@ src/benchmark_alignment_only.c src/benchmark_util.c $(LIBS)
 	@echo 'Finished building target: $@'
 
-threads : init src/benchmark_threads.c $(DEPS)
+threads : init
 	@echo 'Building target: $@'
 	$(CXX) $(BASE_FLAGS) -march=native -o $@ src/benchmark_threads.c src/benchmark_util.c $(LIBS)
 	@echo 'Finished building target: $@'
 
-chunks : init src/benchmark_chunks.c $(DEPS)
+chunks : init
 	@echo 'Building target: $@'
 	$(CXX) $(BASE_FLAGS) -march=native -o $@ src/benchmark_chunks.c src/benchmark_util.c $(LIBS)
 	@echo 'Finished building target: $@'
 
-pairwise : init src/benchmark_pairwise_performance.c $(DEPS)
+pairwise : init
 	@echo 'Building target: $@'
 	$(CXX) $(BASE_FLAGS) -march=native -o $@ src/benchmark_pairwise_performance.c src/benchmark_util.c $(LIBS)
 	@echo 'Finished building target: $@'
 
-queries : init src/benchmark_queries.c $(DEPS)
+queries : init
 	@echo 'Building target: $@'
 	$(CXX) $(BASE_FLAGS) -march=native -o $@ src/benchmark_queries.c src/benchmark_util.c $(LIBS)
 	@echo 'Finished building target: $@'
