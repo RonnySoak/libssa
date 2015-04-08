@@ -27,6 +27,7 @@ The libssa code is licensed under the GNU Affero General Public License version 
 
 libssa includes code (the Needleman Wunsch SSE2 implementation) derived from VSEARCH [VSEARCH](https://github.com/torognes/vsearch) by Torbjørn Rognes et al.
 
+The sequence translation and mapping code was taken from SWARM [SWARM](https://github.com/torognes/swarm) by Torbjørn Rognes et al.
 
 ## References
 
