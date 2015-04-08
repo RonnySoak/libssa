@@ -28,6 +28,7 @@ Suite* libssa_suite( void ) {
      * All test should run in one thread, except some threading test cases.
      */
     set_threads( 1 );
+    set_output_mode( OUTPUT_INFO );
 
     addCPUConfigTC( s );
     addUtilTC( s );

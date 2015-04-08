@@ -248,14 +248,14 @@ static void init_translate_table( int tableno, char * table ) {
 #if 0
     /* dump it */
 
-    outf("          -ACMGRSVTWYHKDBN\n");
+    print_info("          -ACMGRSVTWYHKDBN\n");
     for(int x=0; x<16; x++)
     for(int y=0; y<16; y++) {
-        outf("%2ld %2ld %c %c ", x, y, sym_ncbi_nt16[x], sym_ncbi_nt16[y]);
+        print_info("%2ld %2ld %c %c ", x, y, sym_ncbi_nt16[x], sym_ncbi_nt16[y]);
         for(int z=0; z<16; z++) {
-            outf("%c", sym_ncbi_aa[table[256*x+16*y+z]]);
+            print_info("%c", sym_ncbi_aa[table[256*x+16*y+z]]);
         }
-        outf("\n");
+        print_info("\n");
     }
 #endif
 }
@@ -287,12 +287,7 @@ void us_init_translation( int qtableno, int dtableno ) {
  * @return      the new mapped sequence
  */
 void us_map_sequence( sequence_t orig, sequence_t mapped, const char* map ) {
-    /*
-     * TODO here we always allocate memory for the unknown symbols ...
-     * maybe add some verbose flag, to omit the output and collection in some cases
-     */
-//    char * unknown_symbols = xmalloc( orig.len );
-//    size_t unknown_count = 0;
+    size_t unknown_count = 0;
 
     char m;
     for( size_t i = 0; i < orig.len; i++ ) {
@@ -300,19 +295,15 @@ void us_map_sequence( sequence_t orig, sequence_t mapped, const char* map ) {
             mapped.seq[i] = m;
         }
         else {
-//            if( orig.seq[i] != '\n' && orig.seq[i] != ' ' && orig.seq[i] != '\t' ) {
-//                unknown_symbols[unknown_count++] = orig.seq[i];
-//            }
             mapped.seq[i] = 0;
+
+            unknown_count++;
         }
     }
 
-//    if( unknown_count > 0 ) {
-//        unknown_symbols[unknown_count] = 0;
-//
-//        outf( "Unknown symbols found and omitted: '%s'\n", unknown_symbols );
-//    }
-//    free( unknown_symbols );
+    if( unknown_count > 0 ) {
+        print_warning( "%ld unknown symbols found and set to zero", unknown_count );
+    }
 
     mapped.seq[mapped.len] = 0;
 }
@@ -349,7 +340,8 @@ void us_translate_sequence( int db_sequence, sequence_t dna, int strand, int fra
             c |= dna.seq[pos++];
 
             if( c > (16 * 16 * 16) ) {
-                outf( "Wrong data in sequence. Codon position out of range: %ld, at position %d, for protein sequence position: %d\n",
+                print_warning(
+                        "Wrong data in sequence. Codon position out of range: %ld, at position %d, for protein sequence position: %d",
                         c, pos, ppos );
             }
 
@@ -368,7 +360,8 @@ void us_translate_sequence( int db_sequence, sequence_t dna, int strand, int fra
             c |= ntcompl[(int) (dna.seq[pos--])];
 
             if( c > (16 * 16 * 16) ) {
-                outf( "Wrong data in sequence. Codon position out of range: %ld, at position %d, for protein sequence position: %d\n",
+                print_warning(
+                        "Wrong data in sequence. Codon position out of range: %ld, at position %d, for protein sequence position: %d",
                         c, pos, ppos );
             }
 

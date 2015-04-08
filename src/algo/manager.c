@@ -146,6 +146,9 @@ p_alignment_list m_run( size_t hit_count ) {
             minheap_add( search_results, &search_result_list[i]->heap->array[j] );
         }
 
+        print_info( "Thread %ld - Processed chunks: %ld and sequences: %ld\n", i, search_result_list[i]->chunk_count,
+                search_result_list[i]->seq_count );
+
         overflow_8_bit_count += search_result_list[i]->overflow_8_bit_count;
         overflow_16_bit_count += search_result_list[i]->overflow_16_bit_count;
 
@@ -154,12 +157,19 @@ p_alignment_list m_run( size_t hit_count ) {
     }
 
     if( overflow_8_bit_count || overflow_16_bit_count ) {
-        outf( "Overflow occurred: %ld sequences were re-aligned with 16 bit, and %ld sequences with 64 bit\n",
+        print_info( "Overflow occurred: %ld sequences were re-aligned with 16 bit, and %ld sequences with 64 bit\n",
                 overflow_8_bit_count, overflow_16_bit_count );
     }
 
-    assert( ssa_db_get_sequence_count() == db_sequences_processed );
-    assert( ceil( ssa_db_get_sequence_count() / (double ) max_chunk_size ) == chunks_processed );
+    size_t sequence_count = ssa_db_get_sequence_count();
+    if( sequence_count != db_sequences_processed ) {
+        print_warning( "# Number of processed sequences differs! Expected: %ld - Actual: %ld\n", sequence_count,
+                db_sequences_processed );
+    }
+    if( ceil( ssa_db_get_sequence_count() / (double) max_chunk_size ) != chunks_processed ) {
+        print_warning( "# Number of chunks differs! Expected: %ld - Actual: %ld\n",
+                ceil( ssa_db_get_sequence_count() / (double) max_chunk_size ), chunks_processed );
+    }
 
     minheap_sort( search_results );
     adp_exit();

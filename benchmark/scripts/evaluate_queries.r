@@ -51,7 +51,7 @@ meantiming_nw_sse_8 <- meantiming_nw_sse[seq(1, 72, 2)]
 meantiming_nw_sse_16 <- meantiming_nw_sse[seq(2, 72, 2)]
 
 # print query performance data
-print_perf_queries <- function( time_sw_avx, time_sw_sse, time_nw_avx, time_nw_sse, title, bit_width ) {
+plot_perf_queries <- function( time_sw_avx, time_sw_sse, time_nw_avx, time_nw_sse, title, bit_width ) {
     query_length_data = read.csv( file="results/query_length", header=FALSE, sep="," )
 
     data_sw_avx_16 = cbind( query_length_data[,2], time_sw_avx )
@@ -60,7 +60,7 @@ print_perf_queries <- function( time_sw_avx, time_sw_sse, time_nw_avx, time_nw_s
     data_nw_avx_16 = cbind( query_length_data[,2], time_nw_avx )
     data_nw_sse_16 = cbind( query_length_data[,2], time_nw_sse )
 
-    colors = c( "red", "green", "blue", "orange" )
+    colors = c( "red", "green3", "blue", "orange" )
 
     plot( data_sw_sse_16, main = title, ylab = "Time (seconds)", xlab = "Query length (residues)", xlim = c(20, max( query_length_data[,2]) ), ylim= c(0.2, 60), col = colors[1], type = "o", log = "xy", pch = 16 )
 
@@ -84,11 +84,14 @@ print_perf_queries <- function( time_sw_avx, time_sw_sse, time_nw_avx, time_nw_s
 # read query name and legth
 
 # 8 bit searches
-print_perf_queries( meantiming_sw_avx_8, meantiming_sw_sse_8, meantiming_nw_avx_8, meantiming_nw_sse_8, "Performance per query length", 8 )
+pdf(file='~/projects/master_thesis/tex/img/performance_per_querylength_8bit_new.pdf', width = 10, height = 5.5, pointsize = 12)
+plot_perf_queries( meantiming_sw_avx_8, meantiming_sw_sse_8, meantiming_nw_avx_8, meantiming_nw_sse_8, "Performance per query length", 8 )
+dev.off()
 
 # 16 bit searcher
-print_perf_queries( meantiming_sw_avx_16, meantiming_sw_sse_16, meantiming_nw_avx_16, meantiming_nw_sse_16, "Performance per query length", 16 )
-
+pdf(file='~/projects/master_thesis/tex/img/performance_per_querylength_16bit_new.pdf', width = 10, height = 5.5, pointsize = 12)
+plot_perf_queries( meantiming_sw_avx_16, meantiming_sw_sse_16, meantiming_nw_avx_16, meantiming_nw_sse_16, "Performance per query length", 16 )
+dev.off()
 
 
 

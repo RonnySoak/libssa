@@ -33,11 +33,11 @@
  * A small helper, to print sequences in decimal representation.
  */
 void print_sequence( char* desc, int8_t* seq, size_t len ) {
-    outf( "seq (%s): '", desc );
+    print_info( "seq (%s): '", desc );
     for( size_t i = 0; i < len; i++ ) {
-        outf( "%d", seq[i] );
+        print_info( "%d", seq[i] );
     }
-    outf( "'\n" );
+    print_info( "'\n" );
 }
 
 void print_sequence2( char* desc, sequence_t seq ) {
@@ -50,7 +50,7 @@ void print_sequence2( char* desc, sequence_t seq ) {
 void dbg_print( int n, void* param ) {
     int i;
     for( i = 0; i < n; i++ ) {
-        outf( "Param %d: %p\n", i, (param + i) );
+        print_info( "Param %d: %p\n", i, (param + i) );
     }
 }
 
@@ -146,11 +146,20 @@ START_TEST (test_add_to_minheap)
         minheap_exit( heap );
     }END_TEST
 
+START_TEST (test_output)
+    {
+        set_output_mode( OUTPUT_INFO );
+
+        print_info( " ----------- some test info ----------- \n" );
+        print_warning( " ----------- some test warning ----------- " );
+    }END_TEST
+
 void addUtilTC( Suite *s ) {
     TCase *tc_core = tcase_create( "util" );
     tcase_add_test( tc_core, test_xmalloc );
     tcase_add_test( tc_core, test_xrealloc );
     tcase_add_test( tc_core, test_add_to_minheap );
+    tcase_add_test( tc_core, test_output );
 
     suite_add_tcase( s, tc_core );
 }

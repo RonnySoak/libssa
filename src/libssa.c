@@ -123,7 +123,7 @@ void init_db_fasta( const char* fasta_db_file ) {
 
     ssa_db_init( fasta_db_file );
 
-    outf( "DB read %lu sequences\n", ssa_db_get_sequence_count() );
+    print_info( "DB read %lu sequences\n", ssa_db_get_sequence_count() );
 }
 
 /**
@@ -193,7 +193,7 @@ static void test_configuration( p_query query ) {
 
     if( !gapO && !gapE ) {
         // TODO add warning kind for messages
-        outf( "WARNING: Gap opening and gap extension cost set to zero. Possible error." );
+        print_warning( "Gap opening and gap extension cost set to zero. Possible error." );
     }
     if( !score_matrix_64 ) {
         ffatal( "Scoring not initialized." );
@@ -203,7 +203,7 @@ static void test_configuration( p_query query ) {
     }
 
     if( ssa_db_get_sequence_count() == 0 ) {
-        outf( "WARNING: Database contains zero sequences. Possible error." );
+        print_warning( "Database contains zero sequences. Possible error." );
     }
 
     // TODO extend these checks

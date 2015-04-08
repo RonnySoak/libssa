@@ -113,7 +113,7 @@ static void map_sequence( const char * orig, sequence_t * mapped, p_query query 
     if( unknown_count > 0 ) {
         unknown_symbols[unknown_count] = 0;
 
-        outf( "Unknown symbols found and omitted: %ld - '%s'\n", unknown_count, unknown_symbols );
+        print_warning( "%ld unknown symbols found and removed: '%s'", unknown_count, unknown_symbols );
     }
     free( unknown_symbols );
 
@@ -180,13 +180,17 @@ p_query query_read_from_string( const char * sequence ) {
 p_query query_read_from_file( const char * filename ) {
     FILE * query_fp = 0;
 
-    if( strcmp( filename, "-" ) == 0 )
-        ffatal( "Query not specified" ); // TODO
+    if( strcmp( filename, "-" ) == 0 ) {
+        print_error( "Query not specified" );
+        return 0;
+    }
     else
         query_fp = fopen( filename, "r" );
 
-    if( !query_fp )
-        ffatal( "Cannot open query file: %s", filename );
+    if( !query_fp ) {
+        print_error( "Cannot open query file: %s", filename );
+        return 0;
+    }
 
     p_query query = init();
 
@@ -194,7 +198,8 @@ p_query query_read_from_file( const char * filename ) {
 
     query_line[0] = 0;
     if( NULL == fgets( query_line, LINE_MAX, query_fp ) ) {
-        ffatal( "Could not initialise from query sequence" );
+        print_error( "Could not initialise from query sequence" );
+        return 0;
     }
 
     // read description
@@ -212,7 +217,10 @@ p_query query_read_from_file( const char * filename ) {
 
         query_line[0] = 0;
         if( NULL == fgets( query_line, LINE_MAX, query_fp ) ) {
-            ffatal( "Could not read first line from query sequence" );
+            print_error( "Could not read first line from query sequence" );
+            query_free( query );
+
+            return 0;
         }
     }
 
@@ -258,15 +266,15 @@ void query_show( p_query query ) {
 
     if( query->header ) {
         for( size_t i = 0; i < query->headerlen; i += linewidth ) {
-            outf( "x%ld", i );
+            print_info( "x%ld", i );
             if( i == 0 )
-                outf( "Query description: %-60.60s\n", query->header + i );
+                print_info( "Query description: %-60.60s\n", query->header + i );
             else
-                outf( "                   %-60.60s\n", query->header + i );
+                print_info( "                   %-60.60s\n", query->header + i );
         }
     }
     else {
-        outf( "Query description: UNKNOWN\n" );
+        print_info( "Query description: UNKNOWN\n" );
     }
 
 #if 0
@@ -283,17 +291,17 @@ void query_show( p_query query ) {
 
     for( int j = 0; j < qlen; j += linewidth ) {
         if( j == 0 )
-            outf( "Query sequence:    " );
+            print_info( "Query sequence:    " );
         else
-            outf( "                   " );
+            print_info( "                   " );
 
         for( int k = 0; k < linewidth; k++ ) {
             if( j + k < qlen )
-                outf( query->sym[qseq[j + k]] );
+                print_info( query->sym[qseq[j + k]] );
             else
                 break;
         }
-        outf( "\n" );
+        print_info( "\n" );
     }
 #endif
 }

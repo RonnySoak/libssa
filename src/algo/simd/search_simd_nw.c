@@ -17,6 +17,10 @@
  Contact: Jakob Frielingsdorf <jfrielingsdorf@gmail.com>
  */
 
+/*
+ * TODO note on where I got the base from
+ */
+
 #ifdef SEARCH_8_BIT
 #include "../8/search_8.h"
 #include "../8/search_8_util.h"

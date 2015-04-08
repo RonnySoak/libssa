@@ -7,55 +7,58 @@ library(reshape2)
 #nr_desc_elements = 3
 #idx_data = nr_desc_elements + 1
 
-timing <- read.csv( file="results/30_03_2015_threads", header=FALSE, sep="," )
-ht <- T
-
-timing <- read.csv( file="results/31_03_2015_threads", header=FALSE, sep="," )
-ht <- F
-
-timing <- timing[1:48,c(-1,-2)]
-if( !ht ) timing <- timing[1:24,]
+plot_distribution <- function( timing, ht ) {
+    timing <- timing[1:48,c(-1,-2)]
+    if( !ht ) timing <- timing[1:24,]
 
 
-# --------------------------
-# get distribution of values
-length = length( timing[,1] )
-no_simd_idx = seq( 3, length, 3 )
-bit_16_idx = seq( 2, length, 3 )
+    # --------------------------
+    # get distribution of values
+    length = length( timing[,1] )
+    no_simd_idx = seq( 3, length, 3 )
+    bit_16_idx = seq( 2, length, 3 )
 
-reduced_timing <- timing[-bit_16_idx,]
-reduced_timing <- reduced_timing[ which( reduced_timing == "NW" ), ]
+    reduced_timing <- timing[-bit_16_idx,]
+    reduced_timing <- reduced_timing[ which( reduced_timing == "NW" ), ]
 
-reduced_labels <- unique( apply( reduced_timing[,1:3], 1, paste, collapse = "," ) )
-reduced_labels <- gsub( pattern = ",", replacement = ", ", x = reduced_labels)
-reduced_labels <- gsub( pattern = "_t", replacement = " threads", x = reduced_labels)
-reduced_labels <- gsub( pattern = "_", replacement = " ", x = reduced_labels)
-reduced_labels <- gsub( pattern = "8 b", replacement = "  8 b", x = reduced_labels)
-reduced_labels <- gsub( pattern = "1 threads", replacement = "1 thread  ", x = reduced_labels)
+    reduced_labels <- unique( apply( reduced_timing[,1:3], 1, paste, collapse = "," ) )
+    reduced_labels <- gsub( pattern = ",", replacement = ", ", x = reduced_labels)
+    reduced_labels <- gsub( pattern = "_t", replacement = " threads", x = reduced_labels)
+    reduced_labels <- gsub( pattern = "_", replacement = " ", x = reduced_labels)
+    reduced_labels <- gsub( pattern = "8 b", replacement = "  8 b", x = reduced_labels)
+    reduced_labels <- gsub( pattern = "1 threads", replacement = "1 thread  ", x = reduced_labels)
 
-l_reduced_labels = length(reduced_labels)
+    l_reduced_labels = length(reduced_labels)
 
-data <- t(reduced_timing[,4:13])
+    data <- t(reduced_timing[,4:13])
 
-# plot graph
-if( ht ) {title <- "Runtime variation (HT activated)"} else {title <- "Runtime variation"}
+    # plot graph
+    if( ht ) {title <- "Runtime variation (HT activated)"} else {title <- "Runtime variation"}
 
-par( mar = c( 5, 4.5, 3, 1 ) )
-x = boxplot( data, main = title, horizontal = F, ylab = "Time (seconds)", xlab = "Threads (count)", names = reduced_labels, las = 1, log = "y", xaxt="n" )
+    if( ht ) {filename <- '~/projects/master_thesis/tex/img/runtime_variation_threads_ht_new.pdf'} else {filename <- '~/projects/master_thesis/tex/img/runtime_variation_threads_new.pdf'}
 
-abline( v = seq(0.5, (l_reduced_labels + 1), 2), col = "black", lty=2 )
+    pdf(file=filename, width = 10, height = 6, pointsize = 12)
+    par( mar = c( 5, 4.5, 3, 1 ) )
+    x = boxplot( data, main = title, horizontal = F, ylab = "Time (seconds)", xlab = "Threads (count)", names = reduced_labels, las = 1, log = "y", xaxt="n" )
 
-if( ht ) {labels <- c(1:8)} else {labels <- c(1:4)}
+    abline( v = seq(0.5, (l_reduced_labels + 1), 2), col = "black", lty=2 )
 
-axis( side = 1, at=seq(1.5, l_reduced_labels, 2), labels=labels )
+    if( ht ) {labels <- c(1:8)} else {labels <- c(1:4)}
 
-bit_8_idx = seq( 1, l_reduced_labels, 2 )
-bit_64_idx = seq( 2, l_reduced_labels, 2 )
+    axis( side = 1, at=seq(1.5, l_reduced_labels, 2), labels=labels )
 
-lines( bit_8_idx, apply( data[,bit_8_idx], 2, mean) , col="red", type = "o", pch=16 )
-lines( bit_64_idx, apply( data[,bit_64_idx], 2, mean) , col="blue", type = "o", pch=16 )
+    bit_8_idx = seq( 1, l_reduced_labels, 2 )
+    bit_64_idx = seq( 2, l_reduced_labels, 2 )
 
-legend( "topright", legend=c( "8 bit", "64 bit" ), fill=c("red","blue" ), bty = 0 )
+    lines( bit_8_idx, apply( data[,bit_8_idx], 2, mean) , col="red", type = "o", pch=16 )
+    lines( bit_64_idx, apply( data[,bit_64_idx], 2, mean) , col="blue", type = "o", pch=16 )
+
+    legend( "topright", legend=c( "8 bit", "64 bit" ), fill=c("red","blue" ), bty = 0, bg="white" )
+    dev.off()
+}
+
+plot_distribution( read.csv( file="results/30_03_2015_threads", header=FALSE, sep="," ), T )
+plot_distribution( read.csv( file="results/31_03_2015_threads", header=FALSE, sep="," ), F )
 
 # -------------------
 # conversion to GCUPS

@@ -58,8 +58,9 @@ void * xrealloc( void *ptr, size_t size );
 void ffatal( const char * format, ... );
 
 /** Writes to the output stream */
-void outf( const char* format, ... );
-// output data
+void print_info( const char* format, ... );
+void print_warning( const char* format, ... );
+void print_error( const char* format, ... );
 
 void add_to_minheap( p_minheap heap, uint8_t query_id, p_sdb_sequence db_seq, long score );
 

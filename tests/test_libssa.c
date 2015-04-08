@@ -209,7 +209,9 @@ START_TEST (test_1000_threads)
 START_TEST (test_init_functions)
     {
         set_output_mode( OUTPUT_SILENT );
-        set_output_mode( OUTPUT_STDOUT );
+        set_output_mode( OUTPUT_INFO );
+        set_output_mode( OUTPUT_WARNING );
+        set_output_mode( OUTPUT_ERROR );
 
         set_simd_compute_mode( COMPUTE_ON_AVX2 );
         set_simd_compute_mode( COMPUTE_ON_SSE41 );

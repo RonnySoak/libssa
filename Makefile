@@ -35,7 +35,7 @@ DEBUG_OUTPUT_DIR = debug_output
 
 #### TODO remove from PROD code ####
 #DEBUG_LIBS := -lefence
-#DEBUG_FLAGS := -g# --coverage
+#DEBUG_FLAGS := -g --coverage
 
 LIBS := -pthread -lm -lsdb $(DEBUG_LIBS)
 TEST_LIBS := -lcheck -lrt

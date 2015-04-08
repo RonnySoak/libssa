@@ -31,25 +31,60 @@
  */
 #define ALIGNMENT 32
 
-int output_mode = OUTPUT_STDOUT;
+int output_mode = OUTPUT_WARNING;
 
 void ffatal( const char * format, ... ) {
     if( format ) {
         va_list argptr;
-        va_start(argptr, format);
-        vfprintf(stderr, format, argptr);
+        va_start( argptr, format );
+        vfprintf( stderr, format, argptr );
         vfprintf( stderr, "\n", 0 );
-        va_end(argptr);
+        va_end( argptr );
     }
     exit( 1 );
 }
 
-void outf( const char * format, ... ) {
-    if( output_mode == OUTPUT_STDOUT ) {
+static int test_out_mode( int expected_mode ) {
+    if( expected_mode <= output_mode ) {
+        return 1;
+    }
+    return 0;
+}
+
+void print_info( const char * format, ... ) {
+    if( test_out_mode( OUTPUT_INFO ) ) {
+        printf( "libssa INFO: " );
+
         va_list argptr;
-        va_start(argptr, format);
-        vfprintf(stdout, format, argptr);
-        va_end(argptr);
+        va_start( argptr, format );
+        vfprintf( stdout, format, argptr );
+        va_end( argptr );
+    }
+}
+
+void print_warning( const char * format, ... ) {
+    if( test_out_mode( OUTPUT_WARNING ) ) {
+        printf( "libssa WARNING: " );
+
+        va_list argptr;
+        va_start( argptr, format );
+        vfprintf( stdout, format, argptr );
+        va_end( argptr );
+
+        printf( "\n" );
+    }
+}
+
+void print_error( const char * format, ... ) {
+    if( test_out_mode( OUTPUT_WARNING ) ) {
+        printf( "libssa ERROR: " );
+
+        va_list argptr;
+        va_start( argptr, format );
+        vfprintf( stdout, format, argptr );
+        va_end( argptr );
+
+        printf( "\n" );
     }
 }
 

@@ -56,7 +56,9 @@
 #define BIT_WIDTH_64 64
 
 #define OUTPUT_SILENT 0
-#define OUTPUT_STDOUT 1
+#define OUTPUT_ERROR 1
+#define OUTPUT_WARNING 2
+#define OUTPUT_INFO 3
 
 #define COMPUTE_SCORE 0
 #define COMPUTE_ALIGNMENT 1

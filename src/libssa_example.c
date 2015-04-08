@@ -29,11 +29,11 @@ static p_alignment_list do_alignment( char * desc, p_alignment_list (*align_func
 
     printf( "Nr of alignments: %ld\n", alist->len );
 
-    for( size_t i = 0; i < alist->len; i++ ) {
-        p_alignment a = alist->alignments[i];
-
-        printf( "DB-ID %ld, score: %ld, cigar: %s\n", a->db_seq.ID, a->score, a->alignment );
-    }
+//    for( size_t i = 0; i < alist->len; i++ ) {
+//        p_alignment a = alist->alignments[i];
+//
+//        printf( "DB-ID %ld, score: %ld, cigar: %s\n", a->db_seq.ID, a->score, a->alignment );
+//    }
 
 //    for( size_t i = 0; i < alist->len; i++ ) {
 //        alignment_p a = alist->alignments[i];
@@ -64,98 +64,54 @@ int main( int argc, char**argv ) {
 
     init_symbol_translation( AMINOACID, FORWARD_STRAND, 3, 3 );
 
-    set_threads( 1 );
+    set_threads( 8 );
 
-//    set_output_mode( OUTPUT_SILENT );
+    set_output_mode( OUTPUT_INFO );
 
-    init_score_matrix( MATRIX_BUILDIN, "blosum62" );
+    init_score_matrix( MATRIX_BUILDIN, "BLOSUM50" );
     init_gap_penalties( -3, -1 );
     init_db_fasta( "tests/testdata/uniprot_sprot.fasta" );
 //    init_db_fasta( "tests/testdata/AF091148.fas" );
 
-    p_query query = init_sequence_fasta( READ_FROM_FILE, "tests/testdata/O74807.fasta" );
+    p_query query_1 = init_sequence_fasta( READ_FROM_FILE, "tests/testdata/O74807.fasta" );
+    p_query query_2 = init_sequence_fasta( READ_FROM_FILE, "tests/testdata/P19930.fasta" );
+    p_query query_3 = init_sequence_fasta( READ_FROM_FILE, "tests/testdata/Q3ZAI3.fasta" );
+    p_query query_4 = init_sequence_fasta( READ_FROM_FILE, "tests/testdata/P18080.fasta" );
     size_t hit_count = 10;
 
-    p_alignment_list alist = do_alignment( "overflow test", &sw_align, query, hit_count, BIT_WIDTH_8 );
+    p_alignment_list alist = do_alignment( "overflow test: O74807", &sw_align, query_1, hit_count, BIT_WIDTH_8 );
     free_alignment( alist );
 
-    free_sequence( query );
+    alist = do_alignment( "overflow test: P19930", &sw_align, query_2, hit_count, BIT_WIDTH_8 );
+    free_alignment( alist );
 
-//    init_constant_scoring( 1, -1 );
-//    init_gap_penalties( 0, 1 );
-////    init_db_fasta( "tmp/3a.fas" );
-//    p_query query = init_sequence_fasta( READ_FROM_STRING, "TACGGGTAT" );
-////
-//    size_t hit_count = 1;
-////
-//    free_alignment( alist );
-//
-//    alist = do_alignment( "3.b", &sw_align, query, hit_count, BIT_WIDTH_64 );
-//    free_alignment( alist );
-//
-//    init_gap_penalties( 20, 1 );
-//
-//    alist = do_alignment( "3.c", &nw_align, query, hit_count, BIT_WIDTH_64 );
-//    free_alignment( alist );
-//
-//    free_sequence( query );
-//
-//
-//    init_db_fasta( "tmp/3d.fas" );
-//    query = init_sequence_fasta( READ_FROM_STRING, "AAGT" );
-//    init_gap_penalties( 1, 1 );
-//
-//    alist = do_alignment( "3.d", &nw_align, query, hit_count, BIT_WIDTH_64 );
-//    free_alignment( alist );
-//
-//    free_sequence( query );
-//
-//    init_db_fasta( "tmp/3e.fas" );
-//    init_symbol_translation( AMINOACID, FORWARD_STRAND, 3, 3 );
-//    query = init_sequence_fasta( READ_FROM_STRING, "MRWAC" );
-//
-//    init_constant_scoring( 2, 0 );
-//    init_gap_penalties( 0, 1 );
-//
-//    alist = do_alignment( "3.e", &nw_align, query, hit_count, BIT_WIDTH_64 );
-//    free_alignment( alist );
-//
-//    free_sequence( query );
-//
-//
-//    init_db_fasta( "tmp/3f.fas" );
-//    init_symbol_translation( AMINOACID, FORWARD_STRAND, 3, 3 );
-//    query = init_sequence_fasta( READ_FROM_STRING, "EGGHVLVAV" );
-//
-//    init_score_matrix( MATRIX_BUILDIN, BLOSUM62 );
-//    init_gap_penalties( 0, 5 );
-//
-//    alist = do_alignment( "3.f", &sw_align, query, hit_count, BIT_WIDTH_64 );
-//    free_alignment( alist );
-//
-//    init_gap_penalties( 4, 1 );
-//
-//    alist = do_alignment( "3.g", &sw_align, query, hit_count, BIT_WIDTH_64 );
-//    free_alignment( alist );
-//
-//    free_sequence( query );
+    alist = do_alignment( "overflow test: Q3ZAI3", &sw_align, query_3, hit_count, BIT_WIDTH_8 );
+    free_alignment( alist );
 
+    alist = do_alignment( "overflow test: P18080", &sw_align, query_4, hit_count, BIT_WIDTH_8 );
+    free_alignment( alist );
 
-//    init_db_fasta( "tmp/ALKB2_HUMAN.txt" );
-//    init_symbol_translation( AMINOACID, FORWARD_STRAND, 1, 1 );
-//    query = init_sequence_fasta( READ_FROM_FILE, "tmp/np_001264426.txt" );
-//
-//    init_score_matrix( MATRIX_BUILDIN, BLOSUM62 );
-//    init_gap_penalties( 11, 1 );
-//
-//    alist = do_alignment( "home exam", &sw_align, query, hit_count, BIT_WIDTH_64 );
-//    free_alignment( alist );
-//
-//    alist = do_alignment( "home exam", &sw_align, query, hit_count, BIT_WIDTH_16 );
-//    free_alignment( alist );
-//
-//    alist = do_alignment( "home exam", &sw_align, query, hit_count, BIT_WIDTH_8 );
-//    free_alignment( alist );
+    alist = do_alignment( "overflow test: O74807", &nw_align, query_1, hit_count, BIT_WIDTH_8 );
+    free_alignment( alist );
+
+    alist = do_alignment( "overflow test: P19930", &nw_align, query_2, hit_count, BIT_WIDTH_8 );
+    free_alignment( alist );
+
+    alist = do_alignment( "overflow test: Q3ZAI3", &nw_align, query_3, hit_count, BIT_WIDTH_8 );
+    free_alignment( alist );
+
+    alist = do_alignment( "overflow test: P18080", &nw_align, query_4, hit_count, BIT_WIDTH_8 );
+    free_alignment( alist );
+
+    p_query query_5 = init_sequence_fasta( READ_FROM_FILE, "benchmark/data/P56980" );
+    alist = do_alignment( "overflow test: P56980", &nw_align, query_5, hit_count, BIT_WIDTH_8 );
+    free_alignment( alist );
+    free_sequence( query_5 );
+
+    free_sequence( query_1 );
+    free_sequence( query_2 );
+    free_sequence( query_3 );
+    free_sequence( query_4 );
 
     ssa_exit();
 

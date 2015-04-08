@@ -94,6 +94,22 @@ static void ck_sequences_set( p_query query ) {
     }
 }
 
+START_TEST (test_read_empty_sequence)
+    {
+        query_strands = COMPLEMENTARY_STRAND;
+        symtype = NUCLEOTIDE;
+
+        char * sequence = "";
+
+        p_query query = query_read_from_string( sequence );
+        ck_sequences_set( query );
+
+        ck_assert_int_eq( 0, query->nt[0].len );
+        ck_assert_int_eq( 0, query->nt[1].len );
+
+        query_free( query );
+    }END_TEST
+
 START_TEST (test_read_from_string)
     {
         query_strands = COMPLEMENTARY_STRAND;
@@ -358,8 +374,10 @@ START_TEST (test_strands_param)
         query_free( query );
     }END_TEST
 
+
 void addQueryTC( Suite *s ) {
     TCase *tc_core = tcase_create( "query" );
+    tcase_add_test( tc_core, test_read_empty_sequence );
     tcase_add_test( tc_core, test_read_from_string );
     tcase_add_test( tc_core, test_all_allowed_symbols );
     tcase_add_test( tc_core, test_not_allowed_symbols );
