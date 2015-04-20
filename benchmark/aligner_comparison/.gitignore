@@ -1,0 +1,9 @@
+/.Rhistory
+/.Rdata
+/.RData
+/uniprot_sprot.fasta*
+/benchmark
+/opal_aligner_avx2
+/opal_aligner_sse4.1
+/ssw_test
+/swipe

@@ -29,7 +29,7 @@ int main( int argc, char**argv ) {
     init_gap_penalties( -3, -1 );
     init_symbol_translation( AMINOACID, FORWARD_STRAND, 3, 3 );
 
-    set_threads( 1 );
+    set_thread_count( 1 );
     init_db_fasta( "data/P18080.fasta" );
 
     p_query query = init_sequence_fasta( READ_FROM_FILE, "data/Q3ZAI3.fasta" );

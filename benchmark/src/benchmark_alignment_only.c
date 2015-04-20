@@ -23,7 +23,7 @@
 int main( int argc, char**argv ) {
     FILE *f = open_log_file( "alignment_only" );
 
-    int threads[T_COUNT] = { 4 };
+    int threads[T_COUNT] = { 1, 4 };
     int SIMD[S_COUNT] = { COMPUTE_ON_SSE41, COMPUTE_ON_AVX2 };
     int bit_width[B_COUNT] = { 8, 16 };
     char * queries[Q_COUNT] = { "O74807", "P19930", "Q3ZAI3", "P18080" };
@@ -40,7 +40,7 @@ int main( int argc, char**argv ) {
     init_db_fasta( "data/uniprot_sprot.fasta" );
 
     for( int t = 0; t < T_COUNT; ++t ) {
-        set_threads( threads[t] );
+        set_thread_count( threads[t] );
 
         for( int type = 0; type < A_COUNT; ++type ) {
             for( int s = 0; s < S_COUNT; ++s ) {

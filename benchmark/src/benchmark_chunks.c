@@ -30,7 +30,7 @@ static p_query change_environment( int environment ) {
         db = "Rfam_11_0";
         query = "rfam_sequence";
 
-        init_constant_scoring( 5, -4 );
+        init_constant_scores( 5, -4 );
     }
 
     char * filename = concat( concat( "data/", db ), ".fasta" );
@@ -60,7 +60,7 @@ int main( int argc, char**argv ) {
     init_symbol_translation( AMINOACID, FORWARD_STRAND, 3, 3 );
 
     for( int t = 0; t < 2; ++t ) {
-        set_threads( threads[t] );
+        set_thread_count( threads[t] );
 
         for( int type = 0; type < 2; ++type ) {
             for( int s = 0; s < 2; ++s ) {

@@ -38,7 +38,7 @@ int main( int argc, char**argv ) {
     init_symbol_translation( AMINOACID, FORWARD_STRAND, 3, 3 );
     init_db_fasta( "data/uniprot_sprot.fasta" );
 
-    set_threads( 8 );
+    set_thread_count( 8 );
 
     for( int type = 0; type < A_COUNT; ++type ) {
         for( int q = (Q_COUNT - 1); q >= 0; --q ) {

@@ -6,7 +6,7 @@
 read_reduced_timing <- function( file_name, suffix="", nr_desc_elements ) {
     idx_data = nr_desc_elements + 1
 
-    timing = read.csv( file=file_name, header=FALSE, sep="," )
+    timing = read_results_csv( file_name )
 
     configtiming = t(timing[2:(idx_data-1)])
     datatiming = t(timing[idx_data:length(timing[1,])])
@@ -83,22 +83,6 @@ compare_plot_func <- function( idx_dim1_a, idx_dim1_b, idx_dim2, vdata, config_r
     text( cex = 0.8, x = colMeans(x)+0.8, y = -1.25, labels = x_names, xpd = TRUE, srt = 45, pos = 2 )
 
     legend( "topright", legend=legend_text, fill=c("orange","darkblue" ), bty = 0 )
-}
-
-# improvements
-improvements_func <- function( idx_a, idx_b, vdata, config_reduced, title ) {
-    data = matrix( c( vdata[ idx_a ], vdata[ idx_b ] ), ncol=length(idx_a), byrow=T )
-
-    improvement = sapply( seq( 1, length(idx_a), 1), function(x) (data[1,x] / data[2,x]) )
-
-    x_names = get_x_labels( idx_a, idx_b, config_reduced )
-
-    improvement = data.frame( x_names, improvement )
-
-    print( title )
-    print( improvement )
-    print( "mean:" )
-    print( mean( improvement[,2] ) )
 }
 
 total_runtime_func <- function( timing, nr_desc_element ) {

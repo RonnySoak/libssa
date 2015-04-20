@@ -1,3 +1,6 @@
+
+source( "scripts/evaluate_config.r" )
+
 get_chunk_timing <- function( timing_t, key ) {
     timing_t_reduced = timing_t[,which( timing_t == key, arr.ind=T )[,2]]
     timing_t_reduced = timing_t_reduced[-1,]
@@ -52,10 +55,10 @@ plot_per_thread_count <- function( timing, thread_key = "1_t", title, yl = c(2, 
     legend( "topright", legend=c("UniProtKB/Swiss-Prot", "Rfam"), fill=c("red", "blue"), bg="white" )
 }
 
-#timing <- read.csv( file="results/28_02_2015_chunks", header=FALSE, sep="," )
-# timing <- read.csv( file="results/04_04_2015_chunks", header=FALSE, sep="," )
-# timing <- read.csv( file="results/05_04_2015_chunks", header=FALSE, sep="," )
-timing <- read.csv( file="results/06_04_2015_chunks", header=FALSE, sep="," )
+#timing <- read_results_csv( "28_02_2015_chunks" )
+# timing <- read_results_csv( "04_04_2015_chunks" )
+# timing <- read_results_csv( "05_04_2015_chunks" )
+timing <- read_results_csv( "06_04_2015_chunks" )
 
 total_runtime_func( timing, 6 )
 
@@ -64,7 +67,7 @@ timing <- timing[ which( timing == "8_bit", arr.ind = T )[,1], ]
 timing <- t(timing)
 timing <- timing[-c(2:4),]
 
-pdf(file='~/projects/master_thesis/tex/img/runtime_avg_chunks_new.pdf', width = 7, height = 8, pointsize = 12)
+pdf(file= add_output_dir( "runtime_avg_chunks" ), width = 7, height = 8, pointsize = 12)
 par( mfrow = c(2, 1) )
 plot_per_thread_count( timing, "1_t", "Average runtime using 1 thread", c(0.8, 20) )
 plot_per_thread_count( timing, "8_t", "Average runtime using 8 threads", c(0.25, 6) )

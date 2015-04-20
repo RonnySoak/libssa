@@ -35,7 +35,7 @@ int main( int argc, char**argv ) {
     init_db_fasta( "data/uniprot_sprot.fasta" );
 
     for( int t = 0; t < T_COUNT; ++t ) {
-        set_threads( threads[t] );
+        set_thread_count( threads[t] );
 
         for( int type = 0; type < A_COUNT; ++type ) {
             set_simd_compute_mode( COMPUTE_ON_AVX2 );

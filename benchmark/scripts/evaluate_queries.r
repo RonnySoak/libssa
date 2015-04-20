@@ -3,10 +3,13 @@ library(ggplot2)
 #library(plyr)
 library(reshape2)
 
+source( "scripts/evaluate_config.r" )
+source( "scripts/evaluate_functions.r" )
+
 read_query_timing <- function( file_name, suffix="", nr_desc_elements ) {
     idx_data = nr_desc_elements + 1
 
-    timing = read.csv( file=file_name, header=FALSE, sep="," )
+    timing = read_results_csv( file_name )
 
     config_reduced = t(timing[1:(idx_data-1)])
     timing_reduced = t(timing[idx_data:length(timing[1,])])
@@ -22,7 +25,7 @@ read_query_timing <- function( file_name, suffix="", nr_desc_elements ) {
     assign(  paste( "meantiming", suffix, sep="" ), apply( timing_reduced, 2, mean ), envir = .GlobalEnv )
 }
 
-read_query_timing( "results/02_04_2015_queries", nr_desc_elements = 4 );
+read_query_timing( "02_04_2015_queries", nr_desc_elements = 4 );
 
 total_runtime_func( timing, nr_desc_element = 4 )
 
@@ -52,7 +55,7 @@ meantiming_nw_sse_16 <- meantiming_nw_sse[seq(2, 72, 2)]
 
 # print query performance data
 plot_perf_queries <- function( time_sw_avx, time_sw_sse, time_nw_avx, time_nw_sse, title, bit_width ) {
-    query_length_data = read.csv( file="results/query_length", header=FALSE, sep="," )
+    query_length_data = read_results_csv( "query_length" )
 
     data_sw_avx_16 = cbind( query_length_data[,2], time_sw_avx )
     data_sw_sse_16 = cbind( query_length_data[,2], time_sw_sse )
@@ -84,12 +87,12 @@ plot_perf_queries <- function( time_sw_avx, time_sw_sse, time_nw_avx, time_nw_ss
 # read query name and legth
 
 # 8 bit searches
-pdf(file='~/projects/master_thesis/tex/img/performance_per_querylength_8bit_new.pdf', width = 10, height = 5.5, pointsize = 12)
+pdf(file = add_output_dir( "performance_per_querylength_8bit" ), width = 10, height = 5.5, pointsize = 12)
 plot_perf_queries( meantiming_sw_avx_8, meantiming_sw_sse_8, meantiming_nw_avx_8, meantiming_nw_sse_8, "Performance per query length", 8 )
 dev.off()
 
 # 16 bit searcher
-pdf(file='~/projects/master_thesis/tex/img/performance_per_querylength_16bit_new.pdf', width = 10, height = 5.5, pointsize = 12)
+pdf(file= add_output_dir( "performance_per_querylength_16bit" ), width = 10, height = 5.5, pointsize = 12)
 plot_perf_queries( meantiming_sw_avx_16, meantiming_sw_sse_16, meantiming_nw_avx_16, meantiming_nw_sse_16, "Performance per query length", 16 )
 dev.off()
 

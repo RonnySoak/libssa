@@ -57,7 +57,7 @@ static void read_options( int argc, char ** argv, uint8_t * gapO, uint8_t * gapE
     while( (c = getopt( argc, argv, "N:O:E:M:i:d:c:t:b:s:" )) != -1 ) {
         switch( c ) {
         case 'N':
-            set_threads( atoi( optarg ) );
+            set_thread_count( atoi( optarg ) );
             break;
         case 'O':
             *gapO = atoi( optarg );
@@ -135,7 +135,7 @@ int main( int argc, char**argv ) {
     int simd = -1;
     size_t hit_count = 0;
 
-    set_output_mode( OUTPUT_SILENT );
+    set_output_mode( OUTPUT_INFO );
 
     set_chunk_size( 1000 );
 

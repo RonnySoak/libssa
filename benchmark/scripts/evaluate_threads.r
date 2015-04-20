@@ -3,9 +3,7 @@ library(ggplot2)
 #library(plyr)
 library(reshape2)
 
-# element_to_remove = 2
-#nr_desc_elements = 3
-#idx_data = nr_desc_elements + 1
+source( "scripts/evaluate_config.r" )
 
 plot_distribution <- function( timing, ht ) {
     timing <- timing[1:48,c(-1,-2)]
@@ -35,7 +33,7 @@ plot_distribution <- function( timing, ht ) {
     # plot graph
     if( ht ) {title <- "Runtime variation (HT activated)"} else {title <- "Runtime variation"}
 
-    if( ht ) {filename <- '~/projects/master_thesis/tex/img/runtime_variation_threads_ht_new.pdf'} else {filename <- '~/projects/master_thesis/tex/img/runtime_variation_threads_new.pdf'}
+    if( ht ) {filename <- add_output_dir( "runtime_variation_threads_ht" )} else {filename <- add_output_dir( "runtime_variation_threads" )}
 
     pdf(file=filename, width = 10, height = 6, pointsize = 12)
     par( mar = c( 5, 4.5, 3, 1 ) )
@@ -57,8 +55,33 @@ plot_distribution <- function( timing, ht ) {
     dev.off()
 }
 
-plot_distribution( read.csv( file="results/30_03_2015_threads", header=FALSE, sep="," ), T )
-plot_distribution( read.csv( file="results/31_03_2015_threads", header=FALSE, sep="," ), F )
+print_highest_vs_lowest <- function(  timing, thread_count ) {
+    timing <- timing[1:48,c(-1,-2)]
+
+    # --------------------------
+    # get distribution of values
+    length = length( timing[,1] )
+    no_simd_idx = seq( 3, length, 3 )
+    bit_16_idx = seq( 2, length, 3 )
+
+    reduced_timing <- timing[-bit_16_idx,]
+    reduced_timing <- reduced_timing[ which( reduced_timing == "NW" ), ]
+
+    cbind( reduced_timing[,1:3], apply( reduced_timing[,-c(1:3)], 1, mean ) )
+
+    mean_timing = apply( reduced_timing[,-c(1:3)], 1, mean )
+
+    print( "ratios 1 to x threads" )
+    cat( " 8 bit:", mean_timing[1] / mean_timing[(thread_count * 2)-1], "\n" )
+    cat( "64 bit:", mean_timing[2] / mean_timing[(thread_count * 2)] )
+}
+
+plot_distribution( read_results_csv( "30_03_2015_threads" ), T )
+plot_distribution( read_results_csv( "31_03_2015_threads" ), F )
+
+print_highest_vs_lowest( read_results_csv( "30_03_2015_threads" ), 8 )
+print_highest_vs_lowest( read_results_csv( "30_03_2015_threads" ), 4 )
+print_highest_vs_lowest( read_results_csv( "31_03_2015_threads" ), 4 )
 
 # -------------------
 # conversion to GCUPS
