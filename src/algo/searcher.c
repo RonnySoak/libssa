@@ -113,7 +113,7 @@ void s_init( int search_type, int bit_width, p_query query ) {
         search_func = &search_8;
     }
     else {
-        ffatal( "\nunknown bit width provided: %d\n\n", bit_width );
+        fatal( "\nunknown bit width provided: %d\n\n", bit_width );
     }
 
     search_64_init_algo( search_type );
@@ -153,9 +153,9 @@ void s_free( p_search_result res ) {
  * @param hit_count (type: size_t) number of expected results
  */
 void * s_search( void * hit_count ) {
-    if( !search_func || !sdp || !hit_count ) {
-        ffatal( "\n Search module not initialized!!\n\n" );
-    }
+    assert( search_func );
+    assert( sdp );
+    assert( hit_count );
 
     p_search_result res = xmalloc( sizeof(search_result_t) );
     res->heap = minheap_init( *((size_t *) hit_count) );

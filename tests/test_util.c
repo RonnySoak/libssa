@@ -23,6 +23,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 #include "../src/db_adapter.h"
 #include "../src/util/util.h"
@@ -146,12 +149,39 @@ START_TEST (test_add_to_minheap)
         minheap_exit( heap );
     }END_TEST
 
+START_TEST (test_fatal)
+    {
+        pid_t pid = fork();
+
+        if( pid == 0 ) {
+            // child
+            fatal( "Some fatal error test message" );
+        }
+        else if( pid < 0 ) {
+            // error
+            fail( "Could not fork" );
+        }
+        else {
+            // parent
+            int exit_code = 0;
+
+            if( wait( &exit_code ) == -1 ) {
+                fail( "Wait returned with an error" );
+            }
+
+            ck_assert_int_eq( 1, WIFEXITED( exit_code ) );
+            ck_assert_int_eq( 1, WEXITSTATUS( exit_code ) );
+        }
+
+    }END_TEST
+
 START_TEST (test_output)
     {
         set_output_mode( OUTPUT_INFO );
 
         print_info( " ----------- some test info ----------- \n" );
         print_warning( " ----------- some test warning ----------- " );
+        print_error( " ----------- some test error ----------- " );
     }END_TEST
 
 void addUtilTC( Suite *s ) {
@@ -159,6 +189,7 @@ void addUtilTC( Suite *s ) {
     tcase_add_test( tc_core, test_xmalloc );
     tcase_add_test( tc_core, test_xrealloc );
     tcase_add_test( tc_core, test_add_to_minheap );
+    tcase_add_test( tc_core, test_fatal );
     tcase_add_test( tc_core, test_output );
 
     suite_add_tcase( s, tc_core );

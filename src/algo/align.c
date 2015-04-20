@@ -17,6 +17,13 @@
  Contact: Jakob Frielingsdorf <jfrielingsdorf@gmail.com>
  */
 
+/*
+ * Prepares the computation of the CIGAR string.
+ *
+ * Finding the region for a local alignment is based on the implementation in SWIPE:
+ * https://github.com/torognes/swipe/blob/master/align.cc
+ */
+
 #include "align.h"
 
 #include <stdlib.h>
@@ -121,7 +128,7 @@ region_t find_region_for_local( sequence_t a_seq, sequence_t b_seq ) {
         }
     }
 
-    ffatal( "Internal error in align function." );
+    fatal( "Internal error in align function." );
 
     Found:
 
@@ -163,7 +170,7 @@ void align_sequences( int search_type, p_alignment alignment ) {
         region = init_region_for_global( a_seq, b_seq );
     }
     else {
-        ffatal( "\nUnknown search type: %d\n\n", search_type );
+        fatal( "\nUnknown search type: %d\n\n", search_type );
     }
 
     cigar_p cigar = compute_cigar_string( search_type, a_seq, b_seq, region );

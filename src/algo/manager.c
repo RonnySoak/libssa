@@ -118,9 +118,7 @@ static p_alignment_list do_align( p_minheap search_results ) {
  * configured through set bits in 'flags'.
  */
 p_alignment_list m_run( size_t hit_count ) {
-    if( align_type == MNGR_NOT_INITIALIZED ) {
-        ffatal( "\n Manager module not initialized!!\n\n" );
-    }
+    assert( align_type != MNGR_NOT_INITIALIZED );
 
     init_thread_pool();
 

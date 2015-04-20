@@ -505,7 +505,7 @@ START_TEST (test_searcher_AA_BLOSUM_nw_8)
     }END_TEST
 
 static void test_searcher_overflow_to_64bit( int search_type ) {
-    init_constant_scoring( 127, -1 );
+    init_constant_scores( 127, -1 );
     init_symbol_translation( AMINOACID, FORWARD_STRAND, 3, 3 );
     p_query query = query_read_from_file( "./tests/testdata/NP_009305.1.fas" );
 

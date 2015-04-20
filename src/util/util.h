@@ -26,10 +26,13 @@
 #include "../libssa_datatypes.h"
 #include "minheap.h"
 
-#include "debug_tools.h"
+//#include "../debug/debug_tools.h" can be uncommented, to activate the debug tools
 
 #define CMP_ASC(a,b) (a > b ? -1 : (a < b) ? +1 : 0)
 //#define CMP_DESC(a,b) (a > b ? +1 : (a < b) ? -1 : 0)
+
+#define LIBSSA_SUCCESS 0
+#define LIBSSA_ERROR -1
 
 #define SMITH_WATERMAN 0
 #define NEEDLEMAN_WUNSCH 1
@@ -55,7 +58,7 @@ void * xmalloc( size_t size );
 void * xrealloc( void *ptr, size_t size );
 
 // output data
-void ffatal( const char * format, ... );
+void fatal( const char * format, ... );
 
 /** Writes to the output stream */
 void print_info( const char* format, ... );

@@ -21,6 +21,7 @@
 
 #include <stdlib.h>
 #include <pthread.h>
+#include <assert.h>
 
 #include "util/util_sequence.h"
 #include "libssa_extern_db.h"
@@ -32,7 +33,7 @@ static size_t chunk_db_seq_count = 0;
 static size_t next_chunk_start = 0;
 
 static int buffer_max = 0;
-static pthread_mutex_t chunk_mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t chunk_mutex = PTHREAD_MUTEX_INITIALIZER; // TODO change to non static initialisation
 
 static void realloc_sequence( sequence_t * seq, size_t len ) {
     seq->seq = xrealloc( seq->seq, len + 1 );
@@ -209,9 +210,8 @@ p_db_chunk adp_init_new_chunk() {
 }
 
 void adp_next_chunk( p_db_chunk chunk ) {
-    if( !chunk ) {
-        ffatal( "Chunk not initialized" );
-    }
+    assert( chunk );
+
     chunk->fill_pointer = 0;
 
     size_t next_chunk;

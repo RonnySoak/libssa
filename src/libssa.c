@@ -50,7 +50,7 @@ void set_chunk_size( size_t size ) {
     max_chunk_size = size;
 }
 
-void set_threads( size_t nr ) {
+void set_thread_count( size_t nr ) {
     max_thread_count = nr;
 }
 
@@ -84,7 +84,7 @@ void init_score_matrix( int mode, const char* matrix ) {
         mat_init_buildin( matrix );
     }
     else {
-        ffatal( "Unknown mode for reading score matrices: %d", mode );
+        fatal( "Unknown mode for reading score matrices: %d", mode );
     }
 }
 
@@ -107,7 +107,7 @@ void init_gap_penalties( const int8_t gap_open, const int8_t gap_extend ) {
  * @param  p    penalty for a mismatch
  * @param  m    reward for a match
  */
-void init_constant_scoring( const int8_t p, const int8_t m ) {
+void init_constant_scores( const int8_t p, const int8_t m ) {
     mat_init_constant_scoring( p, m );
 }
 
@@ -133,16 +133,16 @@ void init_db_fasta( const char* fasta_db_file ) {
  */
 void init_symbol_translation( int type, int strands, int d_gencode, int q_gencode ) {
     if( (q_gencode < 1) || (q_gencode > 23) || !gencode_names[q_gencode - 1] ) {
-        ffatal( "Illegal query genetic code specified." );
+        fatal( "Illegal query genetic code specified." );
     }
     if( (d_gencode < 1) || (d_gencode > 23) || !gencode_names[d_gencode - 1] ) {
-        ffatal( "Illegal database genetic code specified." );
+        fatal( "Illegal database genetic code specified." );
     }
     if( (symtype < 0) || (symtype > 4) ) {
-        ffatal( "Illegal symbol type specified." );
+        fatal( "Illegal symbol type specified." );
     }
     if( (symtype < 0) || (symtype > 2) ) {
-        ffatal( "Illegal strands specified." );
+        fatal( "Illegal strands specified." );
     }
 
     symtype = type;
@@ -168,7 +168,7 @@ p_query init_sequence_fasta( int mode, const char* fasta_sequence ) {
         query = query_read_from_string( fasta_sequence );
     }
     else {
-        ffatal( "Unknown mode for reading query sequences: %d", mode );
+        fatal( "Unknown mode for reading query sequences: %d", mode );
     }
 
     return query;
@@ -196,14 +196,18 @@ static void test_configuration( p_query query ) {
         print_warning( "Gap opening and gap extension cost set to zero. Possible error." );
     }
     if( !score_matrix_64 ) {
-        ffatal( "Scoring not initialized." );
+        fatal( "Scoring not initialized." );
     }
     if( !query ) {
-        ffatal( "Query not initialized." );
+        fatal( "Query not initialized." );
     }
 
     if( ssa_db_get_sequence_count() == 0 ) {
         print_warning( "Database contains zero sequences. Possible error." );
+    }
+
+    if( !is_constant_scoring() && (symtype == NUCLEOTIDE) ) {
+        fatal( "Nucleotide sequences can only be aligned using constant scores." );
     }
 
     // TODO extend these checks

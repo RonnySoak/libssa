@@ -17,6 +17,23 @@
  Contact: Jakob Frielingsdorf <jfrielingsdorf@gmail.com>
  */
 
+/*
+ * Implements utility functions for the vectorised 16 bit Smith-Waterman and
+ * Needleman-Wunsch implementations.
+ *
+ * Match: positive
+ * Mismatch: negative
+ * Gap penalties: negative (open, extend)
+ * Score range: -32768 to +32767 (16 bit)
+ *
+ * This file is compiled to 2 versions, SSE and AVX, requiring at least SSE2 and
+ * AVX2 respectively.
+
+ * The dprofile_fill functions and the struct s16info are based on the Needleman-Wunsch
+ * implementation of VSEARCH:
+ * https://github.com/torognes/vsearch/blob/master/src/align_simd.cc
+ */
+
 #include "search_16.h"
 #include "search_16_util.h"
 
@@ -106,10 +123,10 @@ void dprofile_fill_16_avx2( __mxxxi * dprofile, uint8_t * dseq_search_window ) {
     __m256i ymm_t[CHANNELS_16_BIT];
 
     /*
-     * Approximately 4*(8+2*6*16)=791 instructions.
+     * Approximately 4*(8+2*6*16)=800 instructions.
      *
      * TODO:
-     * Could be reduced to 4*(8+1*6*16)=407 instructions, if we would use a 16x16 matrix only.
+     * Could be reduced to 4*(8+1*6*16)=416 instructions, if we would use a 16x16 matrix only.
      * So in case of nucleotide sequences, we could reduce the number of instructions here.
      */
 #if 0
@@ -206,10 +223,10 @@ void dprofile_fill_16_sse2( __mxxxi * dprofile, uint8_t * dseq_search_window ) {
     __m128i xmm_t[CHANNELS_16_BIT_SSE];
 
     /*
-     * Approximately 4*(7+4*5*8)=662 instructions.
+     * Approximately 4*(7+4*5*8)=668 instructions.
      *
      * TODO:
-     * Could be reduced to 4*(7+2*5*8)=342 instructions, if we would use a 16x16 matrix only.
+     * Could be reduced to 4*(7+2*5*8)=348 instructions, if we would use a 16x16 matrix only.
      * So in case of nucleotide sequences, we could reduce the number of instructions here.
      */
 

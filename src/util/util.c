@@ -33,12 +33,12 @@
 
 int output_mode = OUTPUT_WARNING;
 
-void ffatal( const char * format, ... ) {
+void fatal( const char * format, ... ) {
     if( format ) {
         va_list argptr;
         va_start( argptr, format );
         vfprintf( stderr, format, argptr );
-        vfprintf( stderr, "\n", 0 );
+        fprintf( stderr, "\n" );
         va_end( argptr );
     }
     exit( 1 );
@@ -91,7 +91,7 @@ void print_error( const char * format, ... ) {
 void * xmalloc( size_t size ) {
     void * t;
     if( posix_memalign( &t, ALIGNMENT, size ) != 0 ) {
-        ffatal( "Unable to allocate enough memory: %ld.", size );
+        fatal( "Unable to allocate enough memory: %ld.", size );
     }
 
     return t;
@@ -100,7 +100,7 @@ void * xmalloc( size_t size ) {
 void * xrealloc( void *ptr, size_t size ) {
     void * t = realloc( ptr, size );
     if( !t ) {
-        ffatal( "Unable to re-allocate enough memory: %ld.", size );
+        fatal( "Unable to re-allocate enough memory: %ld.", size );
     }
     return t;
 }

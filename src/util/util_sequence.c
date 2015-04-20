@@ -17,11 +17,21 @@
  Contact: Jakob Frielingsdorf <jfrielingsdorf@gmail.com>
  */
 
+/*
+ * Implements utility functions for mapping and translating nucleotide and amino acid
+ * sequences. The mapping is done from an ASCII string to an internal format.
+ *
+ * This implementation was taken from the SWIPE project:
+ * https://github.com/torognes/swipe/blob/master/query.cc
+ *
+ * The supported genetic codes are the same as BLAST supports:
+ * http://www.ncbi.nlm.nih.gov/Taxonomy/Utils/wprintgc.cgi
+ */
+
 #include <stdlib.h>
 
 #include "util_sequence.h"
 #include "util.h"
-#include "../query.h" // TODO remove (move symtype/strands out of query.h file)
 
 /*
  * Maps amino acids to their numerical representation. Maps upper case and lower
@@ -78,7 +88,6 @@ const char map_ncbi_nt16[256] = {
 };
 
 
-// TODO provide to the user of the lib
 /*
  * Descriptions of the genetic codes, available for translating genetic sequences
  * to protein sequences.

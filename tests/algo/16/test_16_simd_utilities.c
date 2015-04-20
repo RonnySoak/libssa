@@ -26,7 +26,6 @@
 #include "../../../src/algo/16/search_16.h"
 #include "../../../src/algo/16/search_16_util.h"
 #include "../../../src/db_adapter.h"
-#include "../../../src/util/debug_tools.h"
 #include "../../../src/util/util_sequence.h"
 
 #define MATCH 111

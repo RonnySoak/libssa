@@ -43,6 +43,8 @@ extern int8_t* score_matrix_8;
 extern int16_t * score_matrix_16;
 extern int64_t * score_matrix_64;
 
+int is_constant_scoring();
+
 /**
  * Prints the currently initialised scoring matrix to the specified output file.
  *

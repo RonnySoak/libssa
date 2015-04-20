@@ -17,6 +17,16 @@
  Contact: Jakob Frielingsdorf <jfrielingsdorf@gmail.com>
  */
 
+/*
+ * Computes the CIGAR string for two sequences.
+ *
+ * Finding the directions is based on the implementation in VSEARCH:
+ * https://github.com/torognes/vsearch/blob/master/src/align.cc
+ *
+ * Creating the CIGAR string is based on the implementation in SSW:
+ * https://github.com/mengyao/Complete-Striped-Smith-Waterman-Library/blob/master/src/ssw.c
+ */
+
 #include "align.h"
 
 #include <limits.h>
@@ -283,7 +293,7 @@ cigar_p compute_cigar_string( int search_type, sequence_t a_seq, sequence_t b_se
         directions = compute_directions_for_nw( a_seq, b_seq );
     }
     else {
-        ffatal( "\nUnknown search type: %d\n\n", search_type  );
+        fatal( "\nUnknown search type: %d\n\n", search_type  );
     }
 
     size_t i = region.a_end;

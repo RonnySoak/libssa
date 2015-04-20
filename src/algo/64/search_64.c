@@ -37,7 +37,7 @@ void search_64_init_algo( int search_type ) {
         search_algo = &full_nw;
     }
     else {
-        ffatal( "\nunknown search type: %d\n\n", search_type );
+        fatal( "\nunknown search type: %d\n\n", search_type );
     }
 }
 
@@ -60,9 +60,7 @@ int64_t* search_64_alloc_hearray( p_search_data sdp ) {
 }
 
 void search_64( p_db_chunk chunk, p_search_data sdp, p_search_result res ) {
-    if( !search_algo ) {
-        ffatal( "\n 64 bit search not initialized!!\n\n" );
-    }
+    assert( search_algo );
 
     int64_t* hearray = search_64_alloc_hearray( sdp );
 

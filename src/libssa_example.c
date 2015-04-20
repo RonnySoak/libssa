@@ -60,15 +60,16 @@ static p_alignment_list do_alignment( char * desc, p_alignment_list (*align_func
 //}
 
 int main( int argc, char**argv ) {
+
     set_simd_compute_mode( COMPUTE_ON_SSE41 );
 
     init_symbol_translation( AMINOACID, FORWARD_STRAND, 3, 3 );
 
-    set_threads( 8 );
+    set_thread_count( 8 );
 
     set_output_mode( OUTPUT_INFO );
 
-    init_score_matrix( MATRIX_BUILDIN, "BLOSUM50" );
+//    init_score_matrix( MATRIX_BUILDIN, "BLOSUM50" );
     init_gap_penalties( -3, -1 );
     init_db_fasta( "tests/testdata/uniprot_sprot.fasta" );
 //    init_db_fasta( "tests/testdata/AF091148.fas" );

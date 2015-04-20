@@ -17,6 +17,23 @@
  Contact: Jakob Frielingsdorf <jfrielingsdorf@gmail.com>
  */
 
+/*
+ * Implements utility functions for the vectorised 8 bit Smith-Waterman and
+ * Needleman-Wunsch implementations.
+ *
+ * Match: positive
+ * Mismatch: negative
+ * Gap penalties: negative (open, extend)
+ * Score range: -128 to +127 (8 bit)
+ *
+ * This file is compiled to 2 versions, SSE and AVX, requiring at least SSE4.1 and
+ * AVX2 respectively.
+
+ * The dprofile_fill functions and the struct s8info are based on the Needleman-Wunsch
+ * implementation of VSEARCH:
+ * https://github.com/torognes/vsearch/blob/master/src/align_simd.cc
+ */
+
 #include "search_8.h"
 #include "search_8_util.h"
 
@@ -96,7 +113,7 @@ void dprofile_fill_8_avx2( __mxxxi * dprofile, uint8_t * dseq_search_window ) {
     __m256i ymm_t[CHANNELS_8_BIT];
 
     /*
-     * Approximately 4*(2*8+2*32+6*32)=1076 instructions.
+     * Approximately 4*(2*10+7*32)=1104 instructions.
      *
      * TODO:
      * This one is not so easy to reduce to an 16x16 matrix for nucleotides.
@@ -200,10 +217,10 @@ void dprofile_fill_8_sse41( __mxxxi * dprofile, uint8_t * dseq_search_window ) {
     __m128i xmm_t[CHANNELS_8_BIT];
 
     /*
-     * Approximately 4*(2*7+2*6*16)=812 instructions.
+     * Approximately 4*(2*8+2*6*16)=832 instructions.
      *
      * TODO:
-     * Could be reduced to 4*(2*7+1*6*16)=428 instructions, if we would use a 16x16 matrix only.
+     * Could be reduced to 4*(2*8+1*6*16)=448 instructions, if we would use a 16x16 matrix only.
      * So in case of nucleotide sequences, we could reduce the number of instructions here.
      *
      * TODO check assembly before and after optimization -> changing SCORE_MATRIX_DIM into a variable,
@@ -221,23 +238,29 @@ void dprofile_fill_8_sse41( __mxxxi * dprofile, uint8_t * dseq_search_window ) {
 #endif
 
     for( int j = 0; j < CDEPTH_8_BIT; j++ ) {
-        union {
-            __m128i v[2];
-            int16_t a[CHANNELS_8_BIT];
-        } d;
+        int d[CHANNELS_8_BIT];
 
-        for( int i = 0; i < 2; ++i ) {
-            // load 8 bit integers and unpack to 16 bit
-            __m128i tmp = _mm_loadu_si128( (__m128i *) (dseq_search_window + (j * CHANNELS_8_BIT + i * (CHANNELS_8_BIT / 2))) );
-            tmp = _mm_unpacklo_epi8( tmp, _mm_setzero_si128() );
+        int idx = j * CHANNELS_8_BIT;
+        for( int i = 0; i < CHANNELS_8_BIT; i++ )
+            d[i] = dseq_search_window[idx + i] << 5;
 
-            _mm_store_si128( &d.v[i], _mm_slli_epi16( tmp, 5 ) );
-        }
+//        union {
+//            __m128i v[2];
+//            int16_t a[CHANNELS_8_BIT];
+//        } d;
+//
+//        for( int i = 0; i < 2; ++i ) {
+//            // load 8 bit integers and unpack to 16 bit
+//            __m128i tmp = _mm_loadu_si128( (__m128i *) (dseq_search_window + (j * CHANNELS_8_BIT + i * (CHANNELS_8_BIT / 2))) );
+//            tmp = _mm_unpacklo_epi8( tmp, _mm_setzero_si128() );
+//
+//            _mm_store_si128( &d.v[i], _mm_slli_epi16( tmp, 5 ) );
+//        }
 
         for( int i = 0; i < SCORE_MATRIX_DIM; i += 16 ) {
             // load matrix
             for( int x = 0; x < CHANNELS_8_BIT; x++ ) {
-                xmm[x] = _mm_load_si128( (__m128i *) (score_matrix_8 + d.a[x] + i) );
+                xmm[x] = _mm_load_si128( (__m128i *) (score_matrix_8 + d[x] + i) );
             }
 
             // transpose matrix

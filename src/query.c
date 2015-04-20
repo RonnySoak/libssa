@@ -17,6 +17,13 @@
  Contact: Jakob Frielingsdorf <jfrielingsdorf@gmail.com>
  */
 
+/*
+ * Reads in a query sequence in FASTA format and stores it in an internal format.
+ *
+ * This implementation is based on the implementation in SWIPE:
+ * https://github.com/torognes/swipe/blob/master/query.cc
+ */
+
 #include "query.h"
 
 #include <string.h>
@@ -256,6 +263,7 @@ p_query query_read_from_file( const char * filename ) {
     return query;
 }
 
+#if 0
 /**
  * Prints the query to the configured output file.
  *
@@ -305,4 +313,5 @@ void query_show( p_query query ) {
     }
 #endif
 }
+#endif
 

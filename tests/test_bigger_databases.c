@@ -32,7 +32,7 @@ static p_query setup_bigger_db_test( char * db_file, char * query_file, int8_t g
     init_gap_penalties( gapO, gapE );
     init_symbol_translation( symtype, FORWARD_STRAND, 3, 3 );
 
-    set_threads( thread_count );
+    set_thread_count( thread_count );
 
     init_db_fasta( concat( "tests/testdata/", db_file ) );
 
@@ -70,7 +70,7 @@ static void exit_bigger_db_test( p_query query ) {
 START_TEST (test_AF091148)
     {
         size_t hit_count = 10;
-        init_constant_scoring( 2, -2 );
+        init_constant_scores( 2, -2 );
 
         p_query query = setup_bigger_db_test( "AF091148.fas", "one_seq.fas", -4, -2, 1, NUCLEOTIDE );
 
@@ -97,7 +97,7 @@ START_TEST (test_Rfam_11_0)
          * Test requires the Rfam database version 11
          */
         size_t hit_count = 10;
-        init_constant_scoring( 5, -4 );
+        init_constant_scores( 5, -4 );
 
         p_query query = setup_bigger_db_test( "Rfam_11_0.fasta", "one_seq.fas", -4, -2, 1, NUCLEOTIDE );
 

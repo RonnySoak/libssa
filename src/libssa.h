@@ -125,7 +125,7 @@ void set_simd_compute_mode( int mode );
 
 void set_chunk_size( size_t size );
 
-void set_threads( size_t count );
+void set_thread_count( size_t count );
 
 // #############################################################################
 // Initialisations
@@ -161,7 +161,7 @@ void init_score_matrix( int mode, const char* matrix );
  * @param  p    penalty for a mismatch
  * @param  m    reward for a match
  */
-void init_constant_scoring( const int8_t p, const int8_t m );
+void init_constant_scores( const int8_t p, const int8_t m );
 
 /**
  * Initialises gap penalties used for the alignments.

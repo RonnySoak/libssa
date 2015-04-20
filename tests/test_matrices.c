@@ -95,6 +95,8 @@ START_TEST (test_buildin)
 START_TEST (test_init_from_file)
     {
         mat_init_from_file("tests/testdata/blosum90.txt");
+        ck_assert_int_eq( 0, is_constant_scoring() );
+
         ck_assert_int_eq(5, (int)score_matrix_64[33]);
         ck_assert_int_eq(-2, (int)score_matrix_64[48]);
         mat_free();
@@ -103,6 +105,8 @@ START_TEST (test_init_from_file)
 START_TEST (test_init_from_string)
     {
         mat_init_from_string(mat_blosum80);
+        ck_assert_int_eq( 0, is_constant_scoring() );
+
         ck_assert_int_eq(5, (int)score_matrix_64[33]);
         ck_assert_int_eq(-2, (int)score_matrix_64[48]);
         mat_free();
@@ -111,6 +115,7 @@ START_TEST (test_init_from_string)
 START_TEST (test_init_constant_scoring)
     {
         mat_init_constant_scoring(4, -2);
+        ck_assert_int_eq( 1, is_constant_scoring() );
 
         ck_assert_int_eq(-1, (int)score_matrix_64[32]);
         ck_assert_int_eq(4, (int)score_matrix_64[33]);

@@ -36,7 +36,7 @@ static void (*search_algo)( p_s16info, p_db_chunk, p_minheap, p_db_chunk, uint8_
 
 void search_16_init_algo( int search_type ) {
     if( !is_sse2_enabled() ) {
-        ffatal( "\nAVX2 and SSE2 not enabled. No 16 bit search possible\n\n", search_type );
+        fatal( "\nAVX2 and SSE2 not enabled. No 16 bit search possible\n\n", search_type );
     }
 
     if( search_type == SMITH_WATERMAN ) {
@@ -56,7 +56,7 @@ void search_16_init_algo( int search_type ) {
         }
     }
     else {
-        ffatal( "\nunknown search type: %d\n\n", search_type );
+        fatal( "\nunknown search type: %d\n\n", search_type );
     }
 }
 
@@ -114,9 +114,7 @@ size_t search_16_chunk( p_s16info s16info, p_minheap heap, p_db_chunk chunk, p_s
 }
 
 void search_16( p_db_chunk chunk, p_search_data sdp, p_search_result res ) {
-    if( !search_algo ) {
-        ffatal( "\n 16 bit search not initialized.\n\n" );
-    }
+    assert( search_algo );
 
     p_s16info s16info = search_16_init( sdp );
 

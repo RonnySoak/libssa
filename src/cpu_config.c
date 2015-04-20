@@ -54,12 +54,12 @@ void test_cpu_features() {
     __builtin_cpu_init();
 
     if( sse2_enabled && !__builtin_cpu_supports( "sse2" ) ) {
-        ffatal( "libssa was set to use SSE2, but CPU does not support SSE2." );
+        fatal( "libssa was set to use SSE2, but CPU does not support SSE2." );
     }
     if( sse41_enabled && !__builtin_cpu_supports( "sse4.1" ) ) {
-        ffatal( "libssa was set to use SSE4.1, but CPU does not support SSE4.1." );
+        fatal( "libssa was set to use SSE4.1, but CPU does not support SSE4.1." );
     }
     if( avx2_enabled && !__builtin_cpu_supports( "avx2" ) ) {
-        ffatal( "libssa was set to use AVX2, but CPU does not support AVX2." );
+        fatal( "libssa was set to use AVX2, but CPU does not support AVX2." );
     }
 }

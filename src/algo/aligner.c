@@ -21,6 +21,7 @@
 
 #include <stdlib.h>
 #include <pthread.h>
+#include <assert.h>
 
 #include "../matrices.h"
 #include "../libssa_extern_db.h"
@@ -63,7 +64,7 @@ static p_alignment init_alignment( elem_t * e ) {
 
     p_seqinfo info = ssa_db_get_sequence( e->db_id );
     if( !info ) {
-        ffatal( "Could not get sequence from DB: %ld", e->db_id );
+        fatal( "Could not get sequence from DB: %ld", e->db_id );
     }
 
     sequence_t dseq = us_prepare_sequence( info->seq, info->seqlen, e->db_frame, e->db_strand );
@@ -160,9 +161,7 @@ static elem_t * get_chunk() {
 }
 
 void * a_align( void * unused ) {
-    if( !adp ) {
-        ffatal( "\n Alignment module not initialized!!\n\n" );
-    }
+    assert( adp );
 
     p_alignment_list alignment_list = xmalloc( sizeof(alignment_list_t) );
     alignment_list->alignments = xmalloc( adp->pair_count * sizeof(alignment_t) );

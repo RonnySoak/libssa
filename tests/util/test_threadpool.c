@@ -26,7 +26,7 @@
 #include "../../src/util/util.h"
 
 static void setup_pool( int nr_of_threads ) {
-    set_threads( nr_of_threads );
+    set_thread_count( nr_of_threads );
 
     init_thread_pool();
 }
@@ -34,7 +34,7 @@ static void setup_pool( int nr_of_threads ) {
 static void teardown_pool() {
     exit_thread_pool();
 
-    set_threads( 1 );
+    set_thread_count( 1 );
 }
 
 struct int_result {

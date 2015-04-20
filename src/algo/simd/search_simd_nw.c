@@ -18,8 +18,23 @@
  */
 
 /*
- * TODO note on where I got the base from
+ * Implements the comparison of multiple database sequences to a query sequence,
+ * using the Needleman-Wunsch algorithm with the Gotoh modification.
+ *
+ * Match: positive
+ * Mismatch: negative
+ * Gap penalties: negative (open, extend)
+ * Score range: -128 to +127 (8 bit) oder -32768 to +32767 (16 bit)
+ *
+ * This file is compiled to 4 versions of this algorithm: 8/16 bit SSE/AVX
+ *
+ * The 16 bit SSE version requires at least SSE2, the 8 bit SSE version at least SSE4.1
+ * and both AVX version require at least AVX2.
+ *
+ * The implementation is based on the Needleman-Wunsch implementation of VSEARCH:
+ * https://github.com/torognes/vsearch/blob/master/src/align_simd.cc
  */
+
 
 #ifdef SEARCH_8_BIT
 #include "../8/search_8.h"
@@ -145,14 +160,6 @@ typedef int16_t intYY_t;
 
 #endif // end search
 
-/*
- Using 16-bit signed values, from -32768 to +32767.
- match: positive
- mismatch: negative
- gap penalties: positive (open, extend)
- optimal global alignment (NW)
- maximize score
- */
 #ifdef DBG_COLLECT_MATRIX
 static int d_idx;
 #endif

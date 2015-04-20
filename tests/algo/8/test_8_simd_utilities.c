@@ -26,7 +26,6 @@
 #include "../../../src/algo/8/search_8.h"
 #include "../../../src/algo/8/search_8_util.h"
 #include "../../../src/db_adapter.h"
-#include "../../../src/util/debug_tools.h"
 #include "../../../src/util/util_sequence.h"
 
 #define MATCH 5

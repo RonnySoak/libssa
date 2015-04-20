@@ -17,6 +17,13 @@
  Contact: Jakob Frielingsdorf <jfrielingsdorf@gmail.com>
  */
 
+/*
+ * Implements substitution score matrices.
+ *
+ * This implementation was taken from the SWIPE project:
+ * https://github.com/torognes/swipe/blob/master/matrices.cc
+ */
+
 #include "matrices.h"
 
 #include <string.h>
@@ -288,6 +295,12 @@ int8_t * score_matrix_8 = NULL; // char
 int16_t * score_matrix_16 = NULL; // short
 int64_t * score_matrix_64 = NULL; // long
 
+static int constant_scoring = 0;
+
+int is_constant_scoring() {
+    return constant_scoring;
+}
+
 #if 0
 /**
  * Prints the currently initialised scoring matrix to the specified output file.
@@ -407,7 +420,7 @@ static void read_line( char line[LINE_MAX], int* symbols, char* order ) {
             long sc;
 
             if( sscanf( p, "%ld%n", &sc, &read ) == 0 ) {
-                ffatal( "Problem parsing score matrix file." );
+                fatal( "Problem parsing score matrix file." );
             }
 
             char b = order[i];
@@ -432,6 +445,8 @@ static void read_line( char line[LINE_MAX], int* symbols, char* order ) {
  * @param mismatchscore     score for mismatching symbols
  */
 void mat_init_constant_scoring( const int8_t matchscore, const int8_t mismatchscore ) {
+    constant_scoring = 1;
+
     prepare_matrices();
 
     int a, b;
@@ -461,7 +476,7 @@ void mat_init_from_file( const char * matrix ) {
     FILE * fp = fopen( matrix, "r" );
 
     if( !fp )
-        ffatal( "Cannot open score matrix file." );
+        fatal( "Cannot open score matrix file." );
 
     symbols = 0;
 
@@ -490,7 +505,7 @@ void mat_init_from_string( const char * matrix ) {
     char * s = (char*) matrix;
 
     if( !s )
-        ffatal( "Cannot read score matrix string." );
+        fatal( "Cannot read score matrix string." );
 
     symbols = 0;
 
@@ -549,7 +564,7 @@ void mat_init_buildin( const char* matrixname ) {
     else if( strcasecmp( matrixname, PAM250 ) == 0 )
         mat_init_from_string( mat_pam250 );
     else
-        ffatal( "Unknown matrix: %s", matrixname );
+        fatal( "Unknown matrix: %s", matrixname );
 }
 
 /**

@@ -17,6 +17,27 @@
  Contact: Jakob Frielingsdorf <jfrielingsdorf@gmail.com>
  */
 
+/*
+ * Implements the comparison of multiple database sequences to a query sequence,
+ * using the Smith-Waterman algorithm with the Gotoh modification.
+ *
+ * Match: positive
+ * Mismatch: negative
+ * Gap penalties: negative (open, extend)
+ * Score range: -128 to +127 (8 bit) oder -32768 to +32767 (16 bit)
+ *
+ * All computations are done signed, and internally -128/-32768 is treated as zero.
+ * The alignment score is afterwards converted to the unsigned bit range.
+ *
+ * This file is compiled to 4 versions of this algorithm: 8/16 bit SSE/AVX
+ *
+ * The 16 bit SSE version requires at least SSE2, the 8 bit SSE version at least SSE4.1
+ * and both AVX version require at least AVX2.
+ *
+ * The implementation is based on the Needleman-Wunsch implementation of VSEARCH:
+ * https://github.com/torognes/vsearch/blob/master/src/align_simd.cc
+ */
+
 #ifdef SEARCH_8_BIT
 #include "../8/search_8.h"
 #include "../8/search_8_util.h"
@@ -30,15 +51,6 @@
 
 #include "../../util/util.h"
 
-/*
- * use the range from -32768 - 0 - to 32767
- *
- * init with int16_min and add int16_max to max score
- *
- * add -32768 twice, to reset to zero (modify masking values)
- *
- * a biased Version adds more instructions in ALIGNCORE, than the other version
- */
 #ifdef __AVX2__
 
 #define _mmxxx_or_si _mm256_or_si256
@@ -72,6 +84,7 @@ typedef int8_t intYY_t;
 
 #define _mmxxx_adds_epiYY _mm256_adds_epi8
 #define _mmxxx_max_epiYY _mm256_max_epi8
+#define _mmxxx_min_epiYY _mm256_min_epi8
 #define _mmxxx_set1_epiYY _mm256_set1_epi8
 #define _mmxxx_cmpeq_epiYY _mm256_cmpeq_epi8
 
@@ -84,6 +97,7 @@ typedef int8_t intYY_t;
 
 #define _mmxxx_adds_epiYY _mm_adds_epi8
 #define _mmxxx_max_epiYY _mm_max_epi8
+#define _mmxxx_min_epiYY _mm_min_epi8
 #define _mmxxx_set1_epiYY _mm_set1_epi8
 #define _mmxxx_cmpeq_epiYY _mm_cmpeq_epi8
 
@@ -113,6 +127,7 @@ typedef int16_t intYY_t;
 
 #define _mmxxx_adds_epiYY _mm256_adds_epi16
 #define _mmxxx_max_epiYY _mm256_max_epi16
+#define _mmxxx_min_epiYY _mm256_min_epi16
 #define _mmxxx_set1_epiYY _mm256_set1_epi16
 #define _mmxxx_cmpeq_epiYY _mm256_cmpeq_epi16
 
@@ -125,6 +140,7 @@ typedef int16_t intYY_t;
 
 #define _mmxxx_adds_epiYY _mm_adds_epi16
 #define _mmxxx_max_epiYY _mm_max_epi16
+#define _mmxxx_min_epiYY _mm_min_epi16
 #define _mmxxx_set1_epiYY _mm_set1_epi16
 #define _mmxxx_cmpeq_epiYY _mm_cmpeq_epi16
 
@@ -190,12 +206,12 @@ static void aligncolumns_first( __mxxxi * S, __mxxxi * hep, __mxxxi ** qp, __mxx
          * Mm is set to INT16_MIN on all channels, where new database sequences begin,
          * the other channels are not affected.
          */
-        h4 = _mmxxx_adds_epiYY( h4, M );
-        h4 = _mmxxx_adds_epiYY( h4, M );
+        h4 = _mmxxx_min_epiYY( h4, M );
+//        h4 = _mmxxx_adds_epiYY( h4, M );
 
         E = hep[2 * i + 1];
-        E = _mmxxx_adds_epiYY( E, M );
-        E = _mmxxx_adds_epiYY( E, M );
+        E = _mmxxx_min_epiYY( E, M );
+//        E = _mmxxx_adds_epiYY( E, M );
 
         ALIGNCORE( h0, h5, E, f0, vp[0], gap_open_extend, gap_extend, *S );
         ALIGNCORE( h1, h6, E, f1, vp[1], gap_open_extend, gap_extend, *S );
@@ -337,7 +353,7 @@ void search_YY_XXX_sw( p_sYYinfo s, p_db_chunk chunk, p_minheap heap, p_db_chunk
              We have to switch over to a new sequence           */
             change_sequences = 0;
 
-            M.v = _mmxxx_setzero_si();
+            M.v = _mmxxx_set1_epiYY( I_MAX );
             for( int c = 0; c < CHANNELS; c++ ) {
 
                 if( !overflow.a[c] && (d_begin[c] < d_end[c]) ) {

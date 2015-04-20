@@ -52,7 +52,7 @@ void dbg_init_matrix_data_collection( int bit_width, size_t maxdlen, size_t maxq
         matrix_count = 16;
     }
     else {
-        ffatal( "Unknown bit width: %d", bit_width );
+        fatal( "Unknown bit width: %d", bit_width );
 
         matrix_count = 0;
     }
@@ -112,19 +112,19 @@ void dbg_add_matrix_data_128_16_sw( uint8_t q_idx, size_t d_idx, __m128i value )
 }
 
 void dbg_add_matrix_data_256_8( uint8_t q_idx, size_t d_idx, __m256i value ) {
-    ffatal( "not implemented yet" );
+    fatal( "not implemented yet" );
 }
 
 void dbg_add_matrix_data_256_16( uint8_t q_idx, size_t d_idx, __m256i value ) {
-    ffatal( "not implemented yet" );
+    fatal( "not implemented yet" );
 }
 
 void dbg_add_matrix_data_256_8_sw( uint8_t q_idx, size_t d_idx, __m256i value ) {
-    ffatal( "not implemented yet" );
+    fatal( "not implemented yet" );
 }
 
 void dbg_add_matrix_data_256_16_sw( uint8_t q_idx, size_t d_idx, __m256i value ) {
-    ffatal( "not implemented yet" );
+    fatal( "not implemented yet" );
 }
 
 static void print_matrix( FILE * f, sequence_t * dseq, int x, char * qseq, int16_t * matrix ) {
