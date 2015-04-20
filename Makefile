@@ -25,6 +25,7 @@ DEBUG_OUTPUT_DIR = debug_output
 -include tests/algo/16/subdir.mk
 -include tests/algo/64/subdir.mk
 -include tests/util/subdir.mk
+-include tests/debug/subdir.mk
 -include src/subdir.mk
 -include src/algo/subdir.mk
 -include src/algo/simd/subdir.mk
@@ -37,7 +38,11 @@ DEBUG_OUTPUT_DIR = debug_output
 #DEBUG_LIBS := -lefence
 #DEBUG_FLAGS := -g --coverage
 
-LIBS := -pthread -lm -lsdb $(DEBUG_LIBS)
+DATABASE_LIB = sdb					# sepcification fo the lib for the compiler
+DATABASE_LIB_FILE = libsdb.a 		# database library file
+DATABASE_LIB_FOLDER = ../libsdb/	# folder where the library file is copied from
+
+LIBS := -pthread -lm -l$(DATABASE_LIB) $(DEBUG_LIBS)
 TEST_LIBS := -lcheck -lrt
 
 # GNU options
@@ -61,8 +66,8 @@ $(OBJS_BASE_COMPILE): %.o : %.c $(DEPS) # TODO add flag -S to get assembly code,
 all : init $(PROG)
 
 init:
-	@echo 'Copying file libsdb.a'
-	cp ../libsdb/libsdb.a .
+	@echo 'Copying file $(DATABASE_LIB_FILE)'
+	cp $(DATABASE_LIB_FOLDER)/$(DATABASE_LIB_FILE)
 	mkdir -p $(DEBUG_OUTPUT_DIR)
 
 libssa : init $(OBJS_ALL) $(USR_OBJS) $(DEPS)
@@ -82,7 +87,7 @@ libssa_example : init libssa ./src/libssa_example.o
 
 # clean created files
 clean:
-	rm -f $(OBJS_ALL) $(TESTS) $(TO_CLEAN) $(PROG) libsdb.a gmon.out
+	rm -f $(OBJS_ALL) $(TESTS) $(TO_CLEAN) $(PROG) $(DATABASE_LIB_FILE) gmon.out
 	rm -rf $(COVERAGE_DIR)
 	rm -rf $(DEBUG_OUTPUT_DIR)
 	find . -type f -name '*.gcda' -print | xargs /bin/rm -f
