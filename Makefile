@@ -38,9 +38,12 @@ DEBUG_OUTPUT_DIR = debug_output
 #DEBUG_LIBS := -lefence
 #DEBUG_FLAGS := -g --coverage
 
-DATABASE_LIB = sdb					# sepcification fo the lib for the compiler
-DATABASE_LIB_FILE = libsdb.a 		# database library file
-DATABASE_LIB_FOLDER = ../libsdb/	# folder where the library file is copied from
+# sepcification fo the lib for the compiler
+DATABASE_LIB = sdb
+# database library file
+DATABASE_LIB_FILE = libsdb.a
+# folder where the library file is copied from
+DATABASE_LIB_FOLDER = ../libsdb
 
 LIBS := -pthread -lm -l$(DATABASE_LIB) $(DEBUG_LIBS)
 TEST_LIBS := -lcheck -lrt
@@ -67,7 +70,7 @@ all : init $(PROG)
 
 init:
 	@echo 'Copying file $(DATABASE_LIB_FILE)'
-	cp $(DATABASE_LIB_FOLDER)/$(DATABASE_LIB_FILE)
+	cp $(DATABASE_LIB_FOLDER)/$(DATABASE_LIB_FILE) .
 	mkdir -p $(DEBUG_OUTPUT_DIR)
 
 libssa : init $(OBJS_ALL) $(USR_OBJS) $(DEPS)
