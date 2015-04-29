@@ -1,3 +1,22 @@
+#
+#    Copyright (C) 2014-2015 Jakob Frielingsdorf
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Contact: Jakob Frielingsdorf <jfrielingsdorf@gmail.com>
+
+
 #install.packages( "ggplot2" )
 library(ggplot2)
 #library(plyr)
@@ -24,10 +43,10 @@ read_reduced_timing <- function( file_name, suffix="", nr_desc_elements = 3 ) {
 }
 
 #read_reduced_timing( "aligner_cmp_SW_05_03_2015" );
-#read_reduced_timing( "aligner_cmp_SW_01_04_2015" );
+read_reduced_timing( "aligner_cmp_SW_01_04_2015" );
 read_reduced_timing( "aligner_cmp_NW_26_04_2015" );
 
-NW = 1
+NW = 0
 
 query_length <- t(matrix( c( "O74807",110,"P19930",195,"Q3ZAI3",390,"P18080",513 ), nrow=2, ncol=4 ))
 
