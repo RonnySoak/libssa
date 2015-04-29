@@ -54,49 +54,86 @@ meantiming_nw_sse_8 <- meantiming_nw_sse[seq(1, 72, 2)]
 meantiming_nw_sse_16 <- meantiming_nw_sse[seq(2, 72, 2)]
 
 # print query performance data
-plot_perf_queries <- function( time_sw_avx, time_sw_sse, time_nw_avx, time_nw_sse, title, bit_width ) {
+plot_perf_queries <- function( time_avx_8, time_sse_8, time_avx_16, time_sse_16, title, algo ) {
     query_length_data = read_results_csv( "query_length" )
 
-    data_sw_avx_16 = cbind( query_length_data[,2], time_sw_avx )
-    data_sw_sse_16 = cbind( query_length_data[,2], time_sw_sse )
+    data_avx_8 = cbind( query_length_data[,2], time_avx_8 )
+    data_sse_8 = cbind( query_length_data[,2], time_sse_8 )
 
-    data_nw_avx_16 = cbind( query_length_data[,2], time_nw_avx )
-    data_nw_sse_16 = cbind( query_length_data[,2], time_nw_sse )
+    data_avx_16 = cbind( query_length_data[,2], time_avx_16 )
+    data_sse_16 = cbind( query_length_data[,2], time_sse_16 )
 
     colors = c( "red", "green3", "blue", "orange" )
 
-    plot( data_sw_sse_16, main = title, ylab = "Time (seconds)", xlab = "Query length (residues)", xlim = c(20, max( query_length_data[,2]) ), ylim= c(0.2, 60), col = colors[1], type = "o", log = "xy", pch = 16 )
+    plot( data_sse_8, main = title, ylab = "Time (seconds)", xlab = "Query length (residues)", xlim = c(20, max( query_length_data[,2]) ), ylim= c(0.2, 60), col = colors[1], type = "o", log = "xy", pch = 16 )
 
-    lines( data_sw_avx_16, col = colors[2], type = "o", pch = 16 )
+    lines( data_sse_16, col = colors[2], type = "o", pch = 16 )
 
-    lines( data_nw_sse_16, col = colors[3], type = "o", pch = 16 )
-    lines( data_nw_avx_16, col = colors[4], type = "o", pch = 16 )
+    lines( data_avx_8, col = colors[3], type = "o", pch = 16 )
+    lines( data_avx_16, col = colors[4], type = "o", pch = 16 )
 
     row_names = unique( apply( config_reduced[-1,], 2, paste, collapse = "," ) )
 
-    if( bit_width == 8 ) {row_names = row_names[c(T, F)]} else {row_names = row_names[c(F, T)]}
+    if( algo == "SW" ) {row_names = row_names[1:4]} else {row_names = row_names[5:8]}
 
     row_names = gsub( pattern = ",", replacement = ", ", x = row_names)
     row_names = gsub( pattern = "_", replacement = " ", x = row_names)
+    row_names = gsub( pattern = "8 b", replacement = "  8 b", x = row_names)
     row_names = gsub( pattern = "SSE41", replacement = "SSE", x = row_names)
     row_names = gsub( pattern = "AVX2", replacement = "AVX", x = row_names)
 
-    legend( "topleft", legend = row_names, fill=colors, bty = 0 )
+    legend( "topleft", legend = row_names, fill=colors, bty = 0, bg = "white" )
 }
 
 # read query name and legth
 
 # 8 bit searches
-pdf(file = add_output_dir( "performance_per_querylength_8bit" ), width = 10, height = 5.5, pointsize = 12)
-plot_perf_queries( meantiming_sw_avx_8, meantiming_sw_sse_8, meantiming_nw_avx_8, meantiming_nw_sse_8, "Performance per query length", 8 )
+pdf(file = add_output_dir( "performance_per_querylength_SW" ), width = 9, height = 5, pointsize = 12)
+plot_perf_queries( meantiming_sw_avx_8, meantiming_sw_sse_8, meantiming_sw_avx_16, meantiming_sw_sse_16, "Performance per query length", "SW" )
 dev.off()
 
 # 16 bit searcher
-pdf(file= add_output_dir( "performance_per_querylength_16bit" ), width = 10, height = 5.5, pointsize = 12)
-plot_perf_queries( meantiming_sw_avx_16, meantiming_sw_sse_16, meantiming_nw_avx_16, meantiming_nw_sse_16, "Performance per query length", 16 )
+pdf(file= add_output_dir( "performance_per_querylength_NW" ), width = 9, height = 5, pointsize = 12)
+plot_perf_queries( meantiming_nw_avx_8, meantiming_nw_sse_8, meantiming_nw_avx_16, meantiming_nw_sse_16, "Performance per query length", "NW" )
+dev.off()
+
+# deviation of the AVX over SSE improvement
+plot_avx_improvement <- function( time_sw_8, time_sw_16, time_nw_8, time_nw_16, title, y_lim, conf_red ) {
+    query_length_data = read_results_csv( "query_length" )
+
+    data_sw_8 = cbind( query_length_data[,2], time_sw_8 )
+    data_sw_16 = cbind( query_length_data[,2], time_sw_16 )
+
+    data_nw_8 = cbind( query_length_data[,2], time_nw_8 )
+    data_nw_16 = cbind( query_length_data[,2], time_nw_16 )
+
+    colors = c( "red", "green3", "blue", "orange" )
+
+    plot( data_sw_8, main = title, ylab = "Improvement (ratio)", xlab = "Query length (residues)", xlim = c(20, max( query_length_data[,2]) ), ylim= y_lim, col = colors[1], type = "o", log = "xy", pch = 16 )
+
+    lines( data_sw_16, col = colors[2], type = "o", pch = 16 )
+
+    lines( data_nw_8, col = colors[3], type = "o", pch = 16 )
+    lines( data_nw_16, col = colors[4], type = "o", pch = 16 )
+
+    row_names = unique( apply( config_reduced[-conf_red,], 2, paste, collapse = "," ) )
+
+    row_names = gsub( pattern = ",", replacement = ", ", x = row_names)
+    row_names = gsub( pattern = "_", replacement = " ", x = row_names)
+    row_names = gsub( pattern = "8 b", replacement = "  8 b", x = row_names)
+    row_names = gsub( pattern = "SSE41", replacement = "SSE", x = row_names)
+    row_names = gsub( pattern = "AVX2", replacement = "AVX", x = row_names)
+
+    legend( "topleft", legend = row_names, fill=colors, bty = 0, bg = "white" )
+}
+
+
+pdf(file= add_output_dir( "improvement_ratio_avx_sse" ), width = 9, height = 5, pointsize = 12)
+plot_avx_improvement(meantiming_sw_sse_8 / meantiming_sw_avx_8, meantiming_sw_sse_16 / meantiming_sw_avx_16, meantiming_nw_sse_8 / meantiming_nw_avx_8, meantiming_nw_sse_16 / meantiming_nw_avx_16, "Improvement ratio of AVX over SSE per query length", c(1, 2), c(1:2) )
 dev.off()
 
 
-
-
+pdf(file= add_output_dir( "improvement_ratio_8_16_bit" ), width = 9, height = 5, pointsize = 12)
+plot_avx_improvement(meantiming_sw_sse_16 / meantiming_sw_sse_8, meantiming_sw_avx_16 / meantiming_sw_avx_8, meantiming_nw_sse_16 / meantiming_nw_sse_8, meantiming_nw_avx_16 / meantiming_nw_avx_8, "Improvement ratio of 8 bit over 16 bit per query length", c(0.8, 2), c(1,4) )
+dev.off()
 

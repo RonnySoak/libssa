@@ -1,8 +1,20 @@
 /*
- * libssa_example.c
- *
- *  Created on: Sep 4, 2014
- *      Author: Jakob Frielingsdorf
+ Copyright (C) 2014-2015 Jakob Frielingsdorf
+
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU Affero General Public License as
+ published by the Free Software Foundation, either version 3 of the
+ License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU Affero General Public License for more details.
+
+ You should have received a copy of the GNU Affero General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+ Contact: Jakob Frielingsdorf <jfrielingsdorf@gmail.com>
  */
 
 #include "../../src/libssa.h"
@@ -14,7 +26,7 @@
 
 #include "benchmark_util.h"
 
-#define T_COUNT 1
+#define T_COUNT 2
 #define S_COUNT 2
 #define B_COUNT 2
 #define Q_COUNT 4
@@ -23,7 +35,7 @@
 int main( int argc, char**argv ) {
     FILE *f = open_log_file( "alignment_only" );
 
-    int threads[T_COUNT] = { 1, 4 };
+    int threads[T_COUNT] = { 1, 8 };
     int SIMD[S_COUNT] = { COMPUTE_ON_SSE41, COMPUTE_ON_AVX2 };
     int bit_width[B_COUNT] = { 8, 16 };
     char * queries[Q_COUNT] = { "O74807", "P19930", "Q3ZAI3", "P18080" };
@@ -37,7 +49,7 @@ int main( int argc, char**argv ) {
     init_score_matrix( MATRIX_BUILDIN, BLOSUM50 );
     init_gap_penalties( -3, -1 );
     init_symbol_translation( AMINOACID, FORWARD_STRAND, 3, 3 );
-    init_db_fasta( "data/uniprot_sprot.fasta" );
+    init_db( "data/uniprot_sprot.fasta" );
 
     for( int t = 0; t < T_COUNT; ++t ) {
         set_thread_count( threads[t] );

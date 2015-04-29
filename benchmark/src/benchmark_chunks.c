@@ -1,8 +1,20 @@
 /*
- * chunk_benchmark.c
- *
- *  Created on: Feb 25, 2015
- *      Author: Jakob Frielingsdorf
+ Copyright (C) 2014-2015 Jakob Frielingsdorf
+
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU Affero General Public License as
+ published by the Free Software Foundation, either version 3 of the
+ License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU Affero General Public License for more details.
+
+ You should have received a copy of the GNU Affero General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+ Contact: Jakob Frielingsdorf <jfrielingsdorf@gmail.com>
  */
 
 #include "../../src/libssa.h"
@@ -34,7 +46,7 @@ static p_query change_environment( int environment ) {
     }
 
     char * filename = concat( concat( "data/", db ), ".fasta" );
-    init_db_fasta( filename );
+    init_db( filename );
     free( filename );
 
     return read_query( query );
@@ -44,7 +56,7 @@ int main( int argc, char**argv ) {
     FILE *f = open_log_file( "chunks" );
 
     int threads[2] = { 1, 8 };
-    size_t chunk_size[2] = { 50000, 100000, }; // 10, 100, 500, 1000, 1500, 2500, 5000, 10000, 25000, 
+    size_t chunk_size[2] = { 50000, 100000, }; // 10, 100, 500, 1000, 1500, 2500, 5000, 10000, 25000,
     int SIMD[2] = { COMPUTE_ON_SSE41, COMPUTE_ON_AVX2 };
     int bit_width[2] = { 8, 16 };
 

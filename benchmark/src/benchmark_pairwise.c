@@ -1,8 +1,20 @@
 /*
- * chunk_benchmark.c
- *
- *  Created on: Feb 25, 2015
- *      Author: Jakob Frielingsdorf
+ Copyright (C) 2014-2015 Jakob Frielingsdorf
+
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU Affero General Public License as
+ published by the Free Software Foundation, either version 3 of the
+ License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU Affero General Public License for more details.
+
+ You should have received a copy of the GNU Affero General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+ Contact: Jakob Frielingsdorf <jfrielingsdorf@gmail.com>
  */
 
 #include "../../src/libssa.h"
@@ -30,7 +42,7 @@ int main( int argc, char**argv ) {
     init_symbol_translation( AMINOACID, FORWARD_STRAND, 3, 3 );
 
     set_thread_count( 1 );
-    init_db_fasta( "data/P18080.fasta" );
+    init_db( "data/P18080.fasta" );
 
     p_query query = init_sequence_fasta( READ_FROM_FILE, "data/Q3ZAI3.fasta" );
 

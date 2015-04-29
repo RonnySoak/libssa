@@ -45,14 +45,14 @@ plot_per_thread_count <- function( timing, thread_key = "1_t", title, yl = c(2, 
 
     axis(side = 1, at=labels, labels=labels, options(scipen=5) )
 
-    lines( labels, data[2,], col="red", pch = 16, type = "o" )
+    lines( labels, data[2,], col="orange", pch = 16, type = "o" )
 
-    abline( v = labels[which.min(data[2,])], col="red2", lty=2 )
-    abline( h = min(data[2,]), col="red2", lty=2 )
+    abline( v = labels[which.min(data[2,])], col="orange", lty=2 )
+    abline( h = min(data[2,]), col="orange", lty=2 )
     abline( v = labels[which.min(data[1,])], col="deepskyblue3", lty=2 )
     abline( h = min(data[1,]), col="deepskyblue3", lty=2 )
 
-    legend( "topright", legend=c("UniProtKB/Swiss-Prot", "Rfam"), fill=c("red", "blue"), bg="white" )
+    legend( "topright", legend=c("UniProtKB/Swiss-Prot", "Rfam"), fill=c("orange", "blue"), bg="white" )
 }
 
 #timing <- read_results_csv( "28_02_2015_chunks" )
@@ -67,7 +67,7 @@ timing <- timing[ which( timing == "8_bit", arr.ind = T )[,1], ]
 timing <- t(timing)
 timing <- timing[-c(2:4),]
 
-pdf(file= add_output_dir( "runtime_avg_chunks" ), width = 7, height = 8, pointsize = 12)
+pdf(file= add_output_dir( "runtime_avg_chunks" ), width = 9, height = 9, pointsize = 12)
 par( mfrow = c(2, 1) )
 plot_per_thread_count( timing, "1_t", "Average runtime using 1 thread", c(0.8, 20) )
 plot_per_thread_count( timing, "8_t", "Average runtime using 8 threads", c(0.25, 6) )

@@ -3,7 +3,11 @@
 #library(plyr)
 #library(reshape2)
 
-read_reduced_timing <- function( file_name, suffix="", nr_desc_elements ) {
+get_indices <- function( config_datum ) {
+    which( config_reduced == config_datum, useNames = F,  arr.ind=T )[, 2]
+}
+
+read_reduced_timing <- function( file_name, suffix="", query, nr_desc_elements ) {
     idx_data = nr_desc_elements + 1
 
     timing = read_results_csv( file_name )
@@ -14,8 +18,10 @@ read_reduced_timing <- function( file_name, suffix="", nr_desc_elements ) {
     config_reduced = configtiming[, seq( 1, ncol(datatiming), by=4 )]
     config_labels = apply( config_reduced, 2, paste, collapse="," )
 
-    timing_reduced = sapply( seq( 1, ncol(datatiming), by=4 ), function(x) rowSums(datatiming[, x:(x+3)]) )
-    timing_reduced = apply( timing_reduced, c(1, 2), function(x) (x / 4))
+    #timing_reduced = sapply( seq( 1, ncol(datatiming), by=4 ), function(x) rowSums(datatiming[, x:(x+3)]) )
+    #timing_reduced = apply( timing_reduced, c(1, 2), function(x) (x / 4))
+
+    timing_reduced = datatiming[,which( timing == query, useNames = F,  arr.ind=T )[, 1]]
 
     assign( paste( "timing", suffix, sep="" ), timing, envir = .GlobalEnv )
 
@@ -28,10 +34,6 @@ read_reduced_timing <- function( file_name, suffix="", nr_desc_elements ) {
     assign(  paste( "meantiming", suffix, sep="" ), apply( timing_reduced, 2, mean ), envir = .GlobalEnv )
     assign(  paste( "mediantiming", suffix, sep="" ), apply( timing_reduced, 2, median ), envir = .GlobalEnv )
     assign(  paste( "totaltiming", suffix, sep="" ), apply( timing_reduced, 2, sum ), envir = .GlobalEnv )
-}
-
-get_indices <- function( config_datum ) {
-    which( config_reduced == config_datum, useNames = F,  arr.ind=T )[, 2]
 }
 
 set_indices <- function() {
@@ -61,28 +63,6 @@ get_x_labels <- function( idx_col_a, idx_col_b, config_reduced ) {
     x_names = x_names[ !duplicated( x_names ) ]
 
     x_names
-}
-
-# comparing configurations
-compare_plot_func <- function( idx_dim1_a, idx_dim1_b, idx_dim2, vdata, config_reduced, legend_text, title ) {
-    idx_1a_2 = c(idx_dim1_a, idx_dim2)
-    idx_1b_2 = c(idx_dim1_b, idx_dim2)
-
-    vdata_a = vdata[ idx_1a_2[ which( duplicated( idx_1a_2 ) ) ] ]
-    vdata_b = vdata[ idx_1b_2[ which( duplicated( idx_1b_2 ) ) ] ]
-
-    plot_data = matrix( c( vdata_a, vdata_b ), ncol=length(vdata_a), byrow=T )
-
-    x_names = get_x_labels( idx_dim1_a, idx_dim1_b, config_reduced )
-    x_names = gsub( pattern = ",", replacement = ", ", x = x_names)
-    x_names = gsub( pattern = "NO_SIMD, ", replacement = "", x = x_names)
-    x_names = gsub( pattern = "_", replacement = " ", x = x_names)
-
-    x = barplot( plot_data, main=title, ylab="Time (seconds)", xlab="Configurations", col=c("orange","darkblue"), beside=T, ylim=c(0, 12), las=1, space=c(0.2,0.8) )
-
-    text( cex = 0.8, x = colMeans(x)+0.8, y = -1.25, labels = x_names, xpd = TRUE, srt = 45, pos = 2 )
-
-    legend( "topright", legend=legend_text, fill=c("orange","darkblue" ), bty = 0 )
 }
 
 total_runtime_func <- function( timing, nr_desc_element ) {

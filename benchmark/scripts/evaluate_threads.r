@@ -33,9 +33,6 @@ plot_distribution <- function( timing, ht ) {
     # plot graph
     if( ht ) {title <- "Runtime variation (HT activated)"} else {title <- "Runtime variation"}
 
-    if( ht ) {filename <- add_output_dir( "runtime_variation_threads_ht" )} else {filename <- add_output_dir( "runtime_variation_threads" )}
-
-    pdf(file=filename, width = 10, height = 6, pointsize = 12)
     par( mar = c( 5, 4.5, 3, 1 ) )
     x = boxplot( data, main = title, horizontal = F, ylab = "Time (seconds)", xlab = "Threads (count)", names = reduced_labels, las = 1, log = "y", xaxt="n" )
 
@@ -48,13 +45,22 @@ plot_distribution <- function( timing, ht ) {
     bit_8_idx = seq( 1, l_reduced_labels, 2 )
     bit_64_idx = seq( 2, l_reduced_labels, 2 )
 
-    lines( bit_8_idx, apply( data[,bit_8_idx], 2, mean) , col="red", type = "o", pch=16 )
+    lines( bit_8_idx, apply( data[,bit_8_idx], 2, mean) , col="orange", type = "o", pch=16 )
     lines( bit_64_idx, apply( data[,bit_64_idx], 2, mean) , col="blue", type = "o", pch=16 )
 
-    legend( "topright", legend=c( "8 bit", "64 bit" ), fill=c("red","blue" ), bty = 0, bg="white" )
-    dev.off()
+    legend( "topright", legend=c( "8 bit", "64 bit" ), fill=c("orange","blue" ), bty = 0, bg="white" )
 }
 
+pdf(file = add_output_dir( "runtime_variation_threads_ht" ), width = 10, height = 5.5, pointsize = 12)
+plot_distribution( read_results_csv( "30_03_2015_threads" ), T )
+dev.off()
+
+pdf(file = add_output_dir( "runtime_variation_threads" ), width = 10, height = 5.5, pointsize = 12)
+plot_distribution( read_results_csv( "31_03_2015_threads" ), F )
+dev.off()
+
+
+# ratio of improvement
 print_highest_vs_lowest <- function(  timing, thread_count ) {
     timing <- timing[1:48,c(-1,-2)]
 
@@ -76,8 +82,8 @@ print_highest_vs_lowest <- function(  timing, thread_count ) {
     cat( "64 bit:", mean_timing[2] / mean_timing[(thread_count * 2)] )
 }
 
-plot_distribution( read_results_csv( "30_03_2015_threads" ), T )
-plot_distribution( read_results_csv( "31_03_2015_threads" ), F )
+timing =  read_results_csv( "31_03_2015_threads" )
+thread_count=4
 
 print_highest_vs_lowest( read_results_csv( "30_03_2015_threads" ), 8 )
 print_highest_vs_lowest( read_results_csv( "30_03_2015_threads" ), 4 )
