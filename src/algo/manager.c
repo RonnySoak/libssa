@@ -37,7 +37,7 @@
 
 static int align_type = MNGR_NOT_INITIALIZED;
 
-size_t max_chunk_size = 1000;
+size_t max_chunk_size = DEFAULT_CHUNK_SIZE;
 
 static void init( p_query query, int search_type, int bit_width, int al_type ) {
     align_type = al_type;

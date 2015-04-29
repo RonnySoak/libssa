@@ -63,7 +63,7 @@
 #define _mmxxx_setzero_si _mm_setzero_si128
 #define _mmxxx_movemask_epi8 _mm_movemask_epi8
 
-#endif
+#endif /* __AVX2__ */
 
 #ifdef SEARCH_8_BIT
 
@@ -110,7 +110,7 @@ typedef int8_t intYY_t;
 #define dprofile_fill_YY_xxx dprofile_fill_8_sse41
 #define dbg_add_matrix_data_xxx_YY_nw dbg_add_matrix_data_128_8_nw
 
-#endif
+#endif /* __AVX2__ */
 
 #else // search 16 bit
 
@@ -156,9 +156,9 @@ typedef int16_t intYY_t;
 #define search_YY_XXX_nw search_16_sse2_nw
 #define dprofile_fill_YY_xxx dprofile_fill_16_sse2
 #define dbg_add_matrix_data_xxx_YY dbg_add_matrix_data_128_16
-#endif
+#endif /* __AVX2__ */
 
-#endif // end search
+#endif /* SEARCH_8_BIT */
 
 #ifdef DBG_COLLECT_MATRIX
 static int d_idx;
@@ -352,7 +352,7 @@ void search_YY_XXX_nw( p_sYYinfo s, p_db_chunk chunk, p_minheap heap, p_db_chunk
 
     overflow.v = _mmxxx_setzero_si();
 
-    uint8_t dseq_search_window[CDEPTH * CHANNELS];
+    uint16_t dseq_search_window[CDEPTH * CHANNELS];
 
     size_t next_id = 0;
     size_t done = 0;

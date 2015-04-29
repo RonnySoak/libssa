@@ -54,7 +54,7 @@ typedef __m256i __mxxxi;
 #define CHANNELS_8_BIT CHANNELS_8_BIT_SSE
 typedef __m128i  __mxxxi;
 
-#endif
+#endif /* __AVX2__ */
 
 static void search_8_init_query( p_s8info s, uint8_t q_count, seq_buffer_t * queries ) {
     s->q_count = q_count;
@@ -108,7 +108,7 @@ p_s8info search_8_sse41_init( p_search_data sdp ) {
 }
 
 #ifdef __AVX2__
-void dprofile_fill_8_avx2( __mxxxi * dprofile, uint8_t * dseq_search_window ) {
+void dprofile_fill_8_avx2( __mxxxi * dprofile, uint16_t * dseq_search_window ) {
     __m256i ymm[CHANNELS_8_BIT];
     __m256i ymm_t[CHANNELS_8_BIT];
 
@@ -134,6 +134,11 @@ void dprofile_fill_8_avx2( __mxxxi * dprofile, uint8_t * dseq_search_window ) {
     }
 #endif
     for( int j = 0; j < CDEPTH_8_BIT; j++ ) {
+//        int d[CHANNELS_8_BIT];
+//
+//        for( int i = 0; i < CHANNELS_8_BIT; i++ )
+//            d[i] = dseq_search_window[j * CHANNELS_8_BIT + i] << 5;
+
         // load matrix
         union {
             __m256i v[2];
@@ -141,12 +146,7 @@ void dprofile_fill_8_avx2( __mxxxi * dprofile, uint8_t * dseq_search_window ) {
         } d;
 
         for( int i = 0; i < 2; ++i ) {
-            // load 8 bit integers and unpack to 16 bit
             __m256i tmp = _mm256_loadu_si256( (__m256i *) (dseq_search_window + (j * CHANNELS_8_BIT + i * (CHANNELS_8_BIT / 2))) );
-
-            tmp = _mm256_permute4x64_epi64( tmp, (1 << 4) | 0 );
-            tmp = _mm256_unpacklo_epi8( tmp, _mm256_setzero_si256() );
-
             _mm256_store_si256( &d.v[i], _mm256_slli_epi16( tmp, 5 ) );
         }
 
@@ -211,8 +211,8 @@ void dprofile_fill_8_avx2( __mxxxi * dprofile, uint8_t * dseq_search_window ) {
     dbg_dprofile_dump_8( dprofile, CDEPTH_8_BIT, CHANNELS_8_BIT );
 #endif
 }
-#else
-void dprofile_fill_8_sse41( __mxxxi * dprofile, uint8_t * dseq_search_window ) {
+#else // SSE4.1
+void dprofile_fill_8_sse41( __mxxxi * dprofile, uint16_t * dseq_search_window ) {
     __m128i xmm[CHANNELS_8_BIT];
     __m128i xmm_t[CHANNELS_8_BIT];
 
@@ -238,29 +238,20 @@ void dprofile_fill_8_sse41( __mxxxi * dprofile, uint8_t * dseq_search_window ) {
 #endif
 
     for( int j = 0; j < CDEPTH_8_BIT; j++ ) {
-        int d[CHANNELS_8_BIT];
+        union {
+            __m128i v[2];
+            int16_t a[CHANNELS_8_BIT];
+        } d;
 
-        int idx = j * CHANNELS_8_BIT;
-        for( int i = 0; i < CHANNELS_8_BIT; i++ )
-            d[i] = dseq_search_window[idx + i] << 5;
-
-//        union {
-//            __m128i v[2];
-//            int16_t a[CHANNELS_8_BIT];
-//        } d;
-//
-//        for( int i = 0; i < 2; ++i ) {
-//            // load 8 bit integers and unpack to 16 bit
-//            __m128i tmp = _mm_loadu_si128( (__m128i *) (dseq_search_window + (j * CHANNELS_8_BIT + i * (CHANNELS_8_BIT / 2))) );
-//            tmp = _mm_unpacklo_epi8( tmp, _mm_setzero_si128() );
-//
-//            _mm_store_si128( &d.v[i], _mm_slli_epi16( tmp, 5 ) );
-//        }
+        for( int i = 0; i < 2; ++i ) {
+            __m128i tmp = _mm_loadu_si128( (__m128i *) (dseq_search_window + (j * CHANNELS_8_BIT + i * (CHANNELS_8_BIT / 2))) );
+            _mm_store_si128( &d.v[i], _mm_slli_epi16( tmp, 5 ) );
+        }
 
         for( int i = 0; i < SCORE_MATRIX_DIM; i += 16 ) {
             // load matrix
             for( int x = 0; x < CHANNELS_8_BIT; x++ ) {
-                xmm[x] = _mm_load_si128( (__m128i *) (score_matrix_8 + d[x] + i) );
+                xmm[x] = _mm_load_si128( (__m128i *) (score_matrix_8 + d.a[x] + i) );
             }
 
             // transpose matrix
@@ -302,4 +293,4 @@ void dprofile_fill_8_sse41( __mxxxi * dprofile, uint8_t * dseq_search_window ) {
     dbg_dprofile_dump_8( (int8_t *)dprofile, CDEPTH_8_BIT, CHANNELS_8_BIT_SSE );
 #endif
 }
-#endif
+#endif /* __AVX2__ */

@@ -54,7 +54,7 @@ typedef __m256i __mxxxi;
 #define CHANNELS_16_BIT CHANNELS_16_BIT_SSE
 typedef __m128i  __mxxxi;
 
-#endif
+#endif /* __AVX2__ */
 
 
 static void search_16_init_query( p_s16info s, uint8_t q_count, seq_buffer_t * queries ) {
@@ -118,7 +118,7 @@ p_s16info search_16_sse2_init( p_search_data sdp ) {
  *      corresponding score matrix line
  */
 #ifdef __AVX2__
-void dprofile_fill_16_avx2( __mxxxi * dprofile, uint8_t * dseq_search_window ) {
+void dprofile_fill_16_avx2( __mxxxi * dprofile, uint16_t * dseq_search_window ) {
     __m256i ymm[CHANNELS_16_BIT];
     __m256i ymm_t[CHANNELS_16_BIT];
 
@@ -146,12 +146,7 @@ void dprofile_fill_16_avx2( __mxxxi * dprofile, uint8_t * dseq_search_window ) {
             int16_t a[CHANNELS_16_BIT];
         } d;
 
-        // load 8 bit integers and unpack to 16 bit
         __m256i tmp = _mm256_loadu_si256( (__m256i *) (dseq_search_window + (j * CHANNELS_16_BIT)) );
-
-        tmp = _mm256_permute4x64_epi64( tmp, (1 << 4) | 0 );
-        tmp = _mm256_unpacklo_epi8( tmp, _mm256_setzero_si256() );
-
         _mm256_store_si256( &d.v, _mm256_slli_epi16( tmp, 5 ) );
 
         for( int i = 0; i < SCORE_MATRIX_DIM; i += 16 ) {
@@ -217,8 +212,8 @@ void dprofile_fill_16_avx2( __mxxxi * dprofile, uint8_t * dseq_search_window ) {
     dbg_dprofile_dump_16( dprofile, CDEPTH_16_BIT, CHANNELS_16_BIT );
 #endif
 }
-#else
-void dprofile_fill_16_sse2( __mxxxi * dprofile, uint8_t * dseq_search_window ) {
+#else // SSE2
+void dprofile_fill_16_sse2( __mxxxi * dprofile, uint16_t * dseq_search_window ) {
     __m128i xmm[CHANNELS_16_BIT_SSE];
     __m128i xmm_t[CHANNELS_16_BIT_SSE];
 
@@ -246,9 +241,7 @@ void dprofile_fill_16_sse2( __mxxxi * dprofile, uint8_t * dseq_search_window ) {
             int16_t a[CHANNELS_16_BIT];
         } d;
 
-        // unpack 8 bit integers to 16 bit
         __m128i tmp = _mm_loadu_si128( (__m128i *) (dseq_search_window + (j * CHANNELS_16_BIT)) );
-        tmp = _mm_unpacklo_epi8( tmp, _mm_setzero_si128() );
         _mm_store_si128( &d.v, _mm_slli_epi16( tmp, 5 ) );
 
         for( int i = 0; i < SCORE_MATRIX_DIM; i += 8 ) {
@@ -282,4 +275,4 @@ void dprofile_fill_16_sse2( __mxxxi * dprofile, uint8_t * dseq_search_window ) {
     dbg_dprofile_dump_16( (int16_t *)dprofile, CDEPTH_16_BIT, CHANNELS_16_BIT_SSE );
 #endif
 }
-#endif
+#endif /* __AVX2__ */

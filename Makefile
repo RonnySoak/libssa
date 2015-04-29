@@ -34,9 +34,7 @@ DEBUG_OUTPUT_DIR = debug_output
 -include src/algo/64/subdir.mk
 -include src/util/subdir.mk
 
-#### TODO remove from PROD code ####
-#DEBUG_LIBS := -lefence
-#DEBUG_FLAGS := -g --coverage
+#DEBUG_FLAGS := -g # --coverage
 
 # sepcification fo the lib for the compiler
 DATABASE_LIB = sdb
@@ -121,6 +119,4 @@ example_coverage :
 	genhtml --output-directory $(COVERAGE_DIR)/cov_example $(COVERAGE_DIR)/libssa_example.info
 	@echo Finished computing test coverage
 
-# run example
-example:
-	./libssa_example
+

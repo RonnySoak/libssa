@@ -47,6 +47,11 @@ void set_simd_compute_mode( int capability ) {
 }
 
 void set_chunk_size( size_t size ) {
+    if( size == 0 ) {
+        print_error( "Only non zero chunk sizes are allowed. Using the default size of 1000 sequences.", size );
+
+        size = DEFAULT_CHUNK_SIZE;
+    }
     max_chunk_size = size;
 }
 
@@ -118,7 +123,7 @@ void init_constant_scores( const int8_t p, const int8_t m ) {
  *
  * @param fasta_db_file  path to a file in FASTA format
  */
-void init_db_fasta( const char* fasta_db_file ) {
+void init_db( const char* fasta_db_file ) {
     ssa_db_close();
 
     ssa_db_init( fasta_db_file );

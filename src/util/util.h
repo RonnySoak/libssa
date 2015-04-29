@@ -37,7 +37,6 @@
 #define SMITH_WATERMAN 0
 #define NEEDLEMAN_WUNSCH 1
 
-// used in matrices.c
 #define DEFAULT_MATRIXNAME "blosum62"
 #define DEFAULT_MATCHSCORE 1
 #define DEFAULT_MISMATCHSCORE (-3)
@@ -47,6 +46,8 @@
 
 #define DEFAULT_QUERY_GENCODE 1
 #define DEFAULT_DB_GENCODE 1
+
+#define DEFAULT_CHUNK_SIZE 1000
 
 #ifndef LINE_MAX
 #define LINE_MAX 2048

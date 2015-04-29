@@ -34,7 +34,7 @@ static p_query setup_bigger_db_test( char * db_file, char * query_file, int8_t g
 
     set_thread_count( thread_count );
 
-    init_db_fasta( concat( "tests/testdata/", db_file ) );
+    init_db( concat( "tests/testdata/", db_file ) );
 
     return init_sequence_fasta( READ_FROM_FILE, concat( "tests/testdata/", query_file ) );
 }

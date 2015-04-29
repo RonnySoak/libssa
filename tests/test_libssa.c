@@ -21,9 +21,11 @@
 
 #include "../src/libssa.h"
 #include "../src/util/util_sequence.h"
+#include "../src/util/util.h"
 #include "../src/matrices.h"
 #include "../src/algo/searcher.h"
 #include "../src/algo/gap_costs.h"
+#include "../src/algo/manager.h"
 
 static p_query init_libssa_test( size_t thread_count, char * db_file, char * query_file) {
     init_constant_scores( 5, -4 );
@@ -32,7 +34,7 @@ static p_query init_libssa_test( size_t thread_count, char * db_file, char * que
 
     set_thread_count( thread_count );
 
-    init_db_fasta( db_file );
+    init_db( db_file );
 
     return init_sequence_fasta( READ_FROM_FILE, query_file );
 }
@@ -215,6 +217,9 @@ START_TEST (test_init_functions)
         set_simd_compute_mode( COMPUTE_ON_SSE41 );
         set_simd_compute_mode( COMPUTE_ON_SSE2 );
 
+        set_chunk_size( 0 );
+        ck_assert_int_eq( DEFAULT_CHUNK_SIZE, max_chunk_size );
+
         init_score_matrix( MATRIX_BUILDIN, BLOSUM45 );
         init_score_matrix( MATRIX_BUILDIN, BLOSUM50 );
         init_score_matrix( MATRIX_BUILDIN, BLOSUM62 );
@@ -238,7 +243,7 @@ START_TEST (test_init_functions)
         ck_assert_int_eq( NUCLEOTIDE, symtype );
         ck_assert_int_eq( BOTH_STRANDS, query_strands );
 
-        init_db_fasta( "tests/testdata/AF091148.fas" );
+        init_db( "tests/testdata/AF091148.fas" );
         ck_assert_int_eq( 1403, ssa_db_get_sequence_count() );
 
         p_query query = init_sequence_fasta( READ_FROM_FILE, "tests/testdata/one_seq.fas" );

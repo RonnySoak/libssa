@@ -196,13 +196,18 @@ void init_gap_penalties( const int8_t gapO, const int8_t gapE );
 void init_symbol_translation( int type, int strands, int db_gencode, int q_gencode );
 
 /**
- * Reads a FASTA file containing multiple sequences to compare the query
- * sequence against.
- * The initialised data is stored internally.
+ * Initialises the external database library.
  *
- * @param fasta_db_file  path to a file in FASTA format
+ * The parameter is passed directly to the external library. It can, for example,
+ * be used as the filename of a database.
+ *
+ * This function directly calls the function ssa_db_init of libssa_extern_db.h.
+ * It can be used to initialise the database library, but does not need to be used,
+ * if the library is initialised differently.
+ *
+ * @param db_file  Information to initialise the external database.
  */
-void init_db_fasta( const char* fasta_db_file );
+void init_db( const char* db_file );
 
 /**
  * Reads a FASTA file containing the query sequence.

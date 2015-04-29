@@ -76,7 +76,7 @@ void print_warning( const char * format, ... ) {
 }
 
 void print_error( const char * format, ... ) {
-    if( test_out_mode( OUTPUT_WARNING ) ) {
+    if( test_out_mode( OUTPUT_ERROR ) ) {
         printf( "libssa ERROR: " );
 
         va_list argptr;

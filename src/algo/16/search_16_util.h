@@ -29,12 +29,16 @@
 #define CHANNELS_16_BIT_AVX (256 / 16)
 
 #ifdef __AVX2__
+
 typedef __m256i __mxxxi;
 #define CHANNELS_16_BIT CHANNELS_16_BIT_AVX
-#else
+
+#else // SSE2
+
 typedef __m128i  __mxxxi;
 #define CHANNELS_16_BIT CHANNELS_16_BIT_SSE
-#endif
+
+#endif /* __AVX2__ */
 
 struct s16query {
     size_t q_len;
@@ -60,7 +64,7 @@ struct s16info {
 };
 
 static inline uint8_t move_db_sequence_window_16( uint8_t c, uint8_t * d_begin[CHANNELS_16_BIT],
-        uint8_t * d_end[CHANNELS_16_BIT], uint8_t dseq_search_window[CHANNELS_16_BIT * CDEPTH_16_BIT] ) {
+        uint8_t * d_end[CHANNELS_16_BIT], uint16_t dseq_search_window[CHANNELS_16_BIT * CDEPTH_16_BIT] ) {
     for( int j = 0; j < CDEPTH_16_BIT; j++ ) {
         if( d_begin[c] < d_end[c] ) {
             dseq_search_window[CHANNELS_16_BIT * j + c] = *(d_begin[c]++);
@@ -78,8 +82,8 @@ static inline uint8_t move_db_sequence_window_16( uint8_t c, uint8_t * d_begin[C
 p_s16info search_16_sse2_init( p_search_data sdp );
 p_s16info search_16_avx2_init( p_search_data sdp );
 
-void dprofile_fill_16_sse2( __mxxxi * dprofile, uint8_t * dseq_search_window );
-void dprofile_fill_16_avx2( __mxxxi * dprofile, uint8_t * dseq_search_window );
+void dprofile_fill_16_sse2( __mxxxi * dprofile, uint16_t * dseq_search_window );
+void dprofile_fill_16_avx2( __mxxxi * dprofile, uint16_t * dseq_search_window );
 
 void search_16_sse2_sw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_db_chunk overflow_chunk, uint8_t query_id );
 void search_16_sse2_nw( p_s16info s, p_db_chunk chunk, p_minheap heap, p_db_chunk overflow_chunk, uint8_t query_id );
