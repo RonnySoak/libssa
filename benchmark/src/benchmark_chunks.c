@@ -40,7 +40,7 @@ static p_query change_environment( int environment ) {
     }
     else {
         db = "Rfam_11_0";
-        query = "rfam_sequence";
+        query = "5S_rRNA";
 
         init_constant_scores( 5, -4 );
     }

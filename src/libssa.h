@@ -191,7 +191,7 @@ void init_gap_penalties( const int8_t gapO, const int8_t gapE );
  *  - BOTH_STRANDS
  *
  * Possible values for the genetic codes of DB and query: [1-23]
- * TODO add list of codes
+ * See here for a list: http://www.ncbi.nlm.nih.gov/Taxonomy/Utils/wprintgc.cgi
  */
 void init_symbol_translation( int type, int strands, int db_gencode, int q_gencode );
 
