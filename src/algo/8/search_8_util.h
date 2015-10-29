@@ -41,7 +41,6 @@ struct s8query {
 
     char * seq;
 };
-typedef struct s8query * p_s8query;
 
 struct s8info {
     __mxxxi * hearray;
